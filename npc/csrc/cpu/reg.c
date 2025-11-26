@@ -20,6 +20,7 @@ extern "C" void reg_value(int pc, int gpr0, int gpr1, int gpr2, int gpr3,
                           int gpr28, int gpr29, int gpr30, int gpr31)
 {
     cpu.pc = pc;
+    printf("RegValue: pc = 0x%08x\n", cpu.pc);
     cpu.gpr[0] = gpr0; cpu.gpr[1] = gpr1; cpu.gpr[2] = gpr2; cpu.gpr[3] = gpr3;
     cpu.gpr[4] = gpr4; cpu.gpr[5] = gpr5; cpu.gpr[6] = gpr6; cpu.gpr[7] = gpr7;
     cpu.gpr[8] = gpr8; cpu.gpr[9] = gpr9; cpu.gpr[10] = gpr10; cpu.gpr[11] = gpr11;
