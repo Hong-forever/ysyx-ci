@@ -1,7 +1,7 @@
 
 use_nvbrd ?= 0
 CONFIG_ITRACE = 1
-CONFIG_LOOP_DETECT = 1
+# CONFIG_LOOP_DETECT = 1
 
 ifeq ($(use_nvbrd), 1)
 NXDC_FILES = constr/top.nxdc

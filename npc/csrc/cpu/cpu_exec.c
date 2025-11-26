@@ -152,7 +152,7 @@ static void exec_once()
     
     if (!cpu_inst_valid) return;
 
-    IFDEF(CONFIG_LOOP_DETECT, printf("aaa\n"); detect_loop_pattern());
+    IFDEF(CONFIG_LOOP_DETECT, detect_loop_pattern());
     
 #ifdef CONFIG_ITRACE
     char *p = s.logbuf;
