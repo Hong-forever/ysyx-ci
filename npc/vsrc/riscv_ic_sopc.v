@@ -62,14 +62,26 @@ module top
     import "DPI-C" function int pmem_read(input int raddr);
     import "DPI-C" function void pmem_write(input int waddr, input int wdata, input int wmask);
 
-    assign ibus_rdata = pmem_read(ibus_addr_to_guest);
-    assign dbus_rdata = pmem_read(dbus_addr_to_guest);
+    reg [`MemDataBus] ibus_rdata_reg;
+    reg [`MemDataBus] dbus_rdata_reg;
 
     always @(*) begin
+        if (ibus_req) begin
+            ibus_rdata_reg = pmem_read(ibus_addr_to_guest);
+        end else begin
+            ibus_rdata_reg = 0;
+        end
+        if (dbus_req) begin
+            dbus_rdata_reg = pmem_read(dbus_addr_to_guest);
+        end else begin
+            dbus_rdata_reg = 0;
+        end
         if (dbus_req && dbus_we) begin
             pmem_write(dbus_addr_to_guest, dbus_wdata, {28'b0, dbus_mask});
         end
     end
+    assign ibus_rdata = ibus_rdata_reg;
+    assign dbus_rdata = dbus_rdata_reg;
 
     // rom #(
     //     .DATA_WIDTH     (32                      ),
