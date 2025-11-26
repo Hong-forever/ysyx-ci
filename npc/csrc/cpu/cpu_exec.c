@@ -148,10 +148,8 @@ static void exec_once()
 
     printf("cpu_inst_valid: %d\n", cpu_inst_valid);
     
-    if(cpu_inst_valid) {
-        cpu_inst_valid = 0;
-        return;
-    }
+    if (!cpu_inst_valid) return;
+    else cpu_inst_valid = 0;
 
     detect_loop_pattern();
     
