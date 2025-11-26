@@ -166,7 +166,7 @@ static void exec_once()
 
     int ilen_max = 4;
     int space_len = ilen_max - 4;
-    space_len = space_len * 3 + 4;
+    space_len = space_len * 3 + 5;
     memset(p, ' ', space_len);
     p += space_len;
 
