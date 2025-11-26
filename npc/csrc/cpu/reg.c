@@ -33,7 +33,7 @@ extern "C" void cpu_value(int valid, int inst, int pc, int gpr0, int gpr1, int g
     cpu.gpr[24] = gpr24; cpu.gpr[25] = gpr25; cpu.gpr[26] = gpr26; cpu.gpr[27] = gpr27;
     cpu.gpr[28] = gpr28; cpu.gpr[29] = gpr29; cpu.gpr[30] = gpr30; cpu.gpr[31] = gpr31;
 
-    if(pc == 0x8000004) {
+    if(pc == 0x80000004) {
         npc_state.state = NPC_ABORT;
         printf("aaaaa\n");
     }
