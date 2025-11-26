@@ -57,14 +57,7 @@ module regfile
         end
     end
 
-    import "DPI-C" function void InstValue(input int inst);
-
-    always @(*) begin
-        if(I_inst != `ZeroWord)
-            InstValue(I_inst);
-    end
-    
-    import "DPI-C" function void reg_value(input int pc, 
+    import "DPI-C" function void reg_value(input int inst, input int pc, 
         input int gpr0, input int gpr1, input int gpr2, input int gpr3, 
         input int gpr4, input int gpr5, input int gpr6, input int gpr7, 
         input int gpr8, input int gpr9, input int gpr10, input int gpr11, 
@@ -76,7 +69,7 @@ module regfile
 
     always @(*) begin
         if(I_inst != `ZeroWord)
-            reg_value(I_inst_addr,
+            reg_value(I_inst, I_inst_addr,
                   regs[0],  regs[1],  regs[2],  regs[3],  regs[4],  regs[5],  regs[6],  regs[7],
                   regs[8],  regs[9],  regs[10], regs[11], regs[12], regs[13], regs[14], regs[15],
                   regs[16], regs[17], regs[18], regs[19], regs[20], regs[21], regs[22], regs[23],
