@@ -156,7 +156,7 @@ static void exec_once()
     
 #ifdef CONFIG_ITRACE
     char *p = s.logbuf;
-    p += snprintf(p, sizeof(s.logbuf), "0x%08x:", s.pc);
+    p += snprintf(p, sizeof(s.logbuf), "0x%08x: ", s.pc);
     int i;
     uint8_t *inst = (uint8_t *)&s.inst;
 
