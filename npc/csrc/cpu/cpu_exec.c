@@ -132,7 +132,6 @@ static void single_cycle()
     dut.eval();
     dut.clk = 1;
     dut.eval();
-    cpu_leave_period = 0;
 }
 
 void reset(int n)
@@ -141,7 +140,7 @@ void reset(int n)
     while (n-- > 0)
         single_cycle();
     dut.rst = 0;
-
+    cpu_leave_period = 0;
 }
 
 void assert_fail_msg() {
