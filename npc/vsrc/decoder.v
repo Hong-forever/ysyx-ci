@@ -153,6 +153,8 @@ module decoder
     always @(*) begin
         Invalid_inst(InstInValid);
     end
+    
+
 
     reg [`ls_diff_bus     ] ls_type;
     reg [`ALUCTL_WIDTH-1:0] alu_ctrl;
