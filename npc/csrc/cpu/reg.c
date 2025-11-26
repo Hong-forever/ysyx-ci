@@ -10,7 +10,7 @@ const char *regs[] = {
 CPU_state cpu = {};
 Decode s = {};
 
-extern "C" void reg_value(int inst, int pc, int gpr0, int gpr1, int gpr2, int gpr3,
+extern "C" void cpu_value(int inst, int pc, int gpr0, int gpr1, int gpr2, int gpr3,
                           int gpr4, int gpr5, int gpr6, int gpr7,
                           int gpr8, int gpr9, int gpr10, int gpr11,
                           int gpr12, int gpr13, int gpr14, int gpr15,
@@ -20,7 +20,7 @@ extern "C" void reg_value(int inst, int pc, int gpr0, int gpr1, int gpr2, int gp
                           int gpr28, int gpr29, int gpr30, int gpr31)
 {
     s.inst = inst; s.pc = pc;
-    
+
     cpu.pc = pc;
     cpu.gpr[0] = gpr0; cpu.gpr[1] = gpr1; cpu.gpr[2] = gpr2; cpu.gpr[3] = gpr3;
     cpu.gpr[4] = gpr4; cpu.gpr[5] = gpr5; cpu.gpr[6] = gpr6; cpu.gpr[7] = gpr7;
@@ -35,7 +35,7 @@ extern "C" void reg_value(int inst, int pc, int gpr0, int gpr1, int gpr2, int gp
 
 void reg_display()
 {
-    printf("[==] PC [==] : 0x%08x\n", cpu.pc);
+    printf("[==> PC ==] : 0x%08x\n", cpu.pc);
     for (int i = 0; i < 32; i++) {
         printf("regs[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
