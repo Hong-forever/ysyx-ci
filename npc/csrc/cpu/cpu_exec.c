@@ -158,6 +158,7 @@ static void exec_once()
         cpu_leave_period--;
         // return;
     }
+    printf("after leave inst %u\n", cpu_leave_period);
 
 #ifdef CONFIG_ITRACE
     char *p = s.logbuf;
