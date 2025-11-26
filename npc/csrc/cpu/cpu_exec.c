@@ -2,6 +2,7 @@
 #include "utils.h"
 
 static TOP_NAME dut;
+int cpu_leave_period = 0;
 
 void reg_display();
 
@@ -120,6 +121,11 @@ extern "C" void Invalid_inst(int inst_is_invalid)
     }
 }
 
+extern "C" void Leave_period()
+{
+    cpu_leave_period++;
+}
+
 static void single_cycle()
 {
     dut.clk = 0;
@@ -145,6 +151,11 @@ static void exec_once()
 {
     single_cycle();
     detect_loop_pattern();
+    
+    if(cpu_leave_period > 0) {
+        cpu_leave_period--;
+        return;
+    }
 
 #ifdef CONFIG_ITRACE
     char *p = s.logbuf;
