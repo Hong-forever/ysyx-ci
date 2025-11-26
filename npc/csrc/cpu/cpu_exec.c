@@ -116,13 +116,6 @@ extern "C" void trap(int reg_data, int halt_pc)
     npc_state.halt_ret = reg_data + 1;
 }
 
-extern "C" void Invalid_inst(int inst_is_invalid)
-{
-    if(inst_is_invalid) {
-        npc_state.state = NPC_ABORT;
-    }
-}
-
 static void single_cycle()
 {
     dut.clk = 0;
@@ -148,7 +141,7 @@ static void exec_once()
 {
     single_cycle();
 
-    printf("cpu_inst_valid: %d\n", cpu_inst_valid);
+    // printf("cpu_inst_valid: %d\n", cpu_inst_valid);
     
     if (!cpu_inst_valid) return;
 
@@ -231,6 +224,7 @@ void cpu_exec(uint64_t n)
             break;
         case NPC_ABORT:
             printf(COLOR_RED "[=>>> ABORT at pc = 0x%08x\n" COLOR_END, cpu.pc);
+            assert_fail_msg();
             break;
         // case NPC_QUIT:
         //     break;
