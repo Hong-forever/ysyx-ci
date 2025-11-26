@@ -23,6 +23,7 @@ extern "C" uint32_t pmem_read(uint32_t raddr)
     if (raddr >= CONFIG_MTRACE_BASE && raddr < CONFIG_MTRACE_BASE + CONFIG_MTRACE_SIZE) {
         IFDEF(CONFIG_MTRACE, printf(COLOR_BLUE "[Mtrace] Read addr: 0x%08x data: 0x%08x\n" COLOR_END, raddr, pmem[raddr >> 2]));
     }
+    printf("pmem read addr: 0x%08x\n", raddr);
     raddr -= RESET_VECTOR;
     // printf("data: 0x%x addr: 0x%x\n", pmem[raddr>>2], raddr);
     if (raddr >= (MEM_DEPTH << 2)) {
