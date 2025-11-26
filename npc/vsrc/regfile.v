@@ -57,7 +57,7 @@ module regfile
         end
     end
 
-    import "DPI-C" function void cpu_value(input int inst, input int pc, 
+    import "DPI-C" function void cpu_value(input int valid, input int inst, input int pc, 
         input int gpr0, input int gpr1, input int gpr2, input int gpr3, 
         input int gpr4, input int gpr5, input int gpr6, input int gpr7, 
         input int gpr8, input int gpr9, input int gpr10, input int gpr11, 
@@ -67,29 +67,29 @@ module regfile
         input int gpr24, input int gpr25, input int gpr26, input int gpr27, 
         input int gpr28, input int gpr29, input int gpr30, input int gpr31);
 
-    import "DPI-C" function void Leave_period();
+    // import "DPI-C" function void Leave_period();
 
-    reg [`InstBus] inst_reg;
-    reg [`InstAddrBus] pc_reg;
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
-            inst_reg <= `ZeroWord;
-            pc_reg   <= `ZeroWord;
-        end else begin
-            inst_reg <= I_inst;
-            pc_reg   <= I_inst_addr;
-        end
-    end
+    // reg [`InstBus] inst_reg;
+    // reg [`InstAddrBus] pc_reg;
+    // always @(posedge clk or posedge rst) begin
+    //     if(rst) begin
+    //         inst_reg <= `ZeroWord;
+    //         pc_reg   <= `ZeroWord;
+    //     end else begin
+    //         inst_reg <= I_inst;
+    //         pc_reg   <= I_inst_addr;
+    //     end
+    // end
 
     always @(posedge clk or posedge rst) begin
-        if(I_inst != `ZeroWord || (inst_reg != I_inst || pc_reg != I_inst_addr))
-            cpu_value(I_inst, I_inst_addr,
+        if(I_inst != `ZeroWord /*|| (inst_reg != I_inst || pc_reg != I_inst_addr)*/)
+            cpu_value(1, I_inst, I_inst_addr,
                   regs[0],  regs[1],  regs[2],  regs[3],  regs[4],  regs[5],  regs[6],  regs[7],
                   regs[8],  regs[9],  regs[10], regs[11], regs[12], regs[13], regs[14], regs[15],
                   regs[16], regs[17], regs[18], regs[19], regs[20], regs[21], regs[22], regs[23],
                   regs[24], regs[25], regs[26], regs[27], regs[28], regs[29], regs[30], regs[31]);
         else begin
-            Leave_period();
+            // Leave_period();
         end
     end
 

@@ -19,7 +19,7 @@ typedef struct {
 
 extern Decode s;
 
-extern int cpu_leave_period;
+extern int cpu_inst_valid;
 
 // loop detect
 typedef struct {
