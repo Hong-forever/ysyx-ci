@@ -9,6 +9,9 @@ static int difftest_port = 1234;
 
 void sdb_set_batch_mode();
 paddr_t *guest_to_host(paddr_t paddr);
+void init_isa();
+// void init_device();
+// void init_difftest(char *ref_so_file, long img_size, int port);
 void init_sdb();
 void init_disasm();
 void init_ftrace(char *elf_file);
@@ -49,11 +52,11 @@ static int parse_args(int argc, char *argv[]) {
     return 0;
 }
 
-static size_t load_img()
+static long load_img()
 {
     if (img_file == NULL) {
-        printf("No image give\n");
-        return 0;
+        printf(COLOR_BLUE "No image is given. Use the default build-in image.\n" COLOR_END);
+        return 4096;
     }
 
     FILE *fp = fopen(img_file, "rb");
@@ -81,11 +84,14 @@ void init_monitor(int argc, char *argv[]) {
 
     parse_args(argc, argv);
 
-    size_t size = load_img();
 
     IFDEF(CONFIG_FTRACE, init_ftrace(elf_file));
 
     // IFDEF(CONFIG_DEVICE, init_device());
+    
+    init_isa();
+
+    long image_size = load_img();
 
     // init_difftest(diff_so_file, img_size, difftest_port);
 
