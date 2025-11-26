@@ -166,7 +166,7 @@ static void exec_once()
 
     int ilen_max = 4;
     int space_len = ilen_max - 4;
-    space_len = space_len * 3 + 1;
+    space_len = space_len * 3 + 4;
     memset(p, ' ', space_len);
     p += space_len;
 
@@ -205,7 +205,7 @@ static void execute(uint64_t n)
 void cpu_exec(uint64_t n)
 {
     g_print_step = (n <= MAX_INST_TO_PRINT);
-    // g_print_step = true;
+
     switch (npc_state.state)
     {
         case NPC_END: 
