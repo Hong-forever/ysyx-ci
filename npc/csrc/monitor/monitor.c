@@ -26,7 +26,7 @@ static int parse_args(int argc, char *argv[]) {
 
     int o;
     
-    while( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
+    while( (o = getopt_long(argc, argv, "-bhl:e:d:p:", table, NULL)) != -1) {
         switch(o) {
             case 'b': sdb_set_batch_mode(); break;
             case 'p': /*scanf(optarg, "%d", &difftest_port);*/ break;
