@@ -156,7 +156,7 @@ static void exec_once()
     printf("leave inst %u\n", cpu_leave_period);
     if(cpu_leave_period > 0) {
         cpu_leave_period--;
-        return;
+        // return;
     }
 
 #ifdef CONFIG_ITRACE
