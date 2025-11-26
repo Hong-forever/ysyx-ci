@@ -60,7 +60,6 @@ CSRCS := $(filter-out $(CSRCS-BLACKLIST-y),$(CSRCS-y))
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
-CXXFLAGS += -Wall -Werror -O2 
 CXXFLAGS += -g 
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
