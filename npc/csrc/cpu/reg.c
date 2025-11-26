@@ -19,6 +19,7 @@ extern "C" void cpu_value(int valid, int inst, int pc, int gpr0, int gpr1, int g
                           int gpr24, int gpr25, int gpr26, int gpr27,
                           int gpr28, int gpr29, int gpr30, int gpr31)
 {
+    cpu_inst_valid = valid;
     s.inst = inst; s.pc = pc;
 
     cpu.pc = pc;
