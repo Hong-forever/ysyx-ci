@@ -83,6 +83,10 @@ module regfile
                   regs[24], regs[25], regs[26], regs[27], regs[28], regs[29], regs[30], regs[31]);
     end
 
+    initial begin
+        $monitor("pc: 0x%08x, inst: 0x%08x\n", I_inst_addr, I_inst);
+    end
+
 
     //for debug
     wire [`RegDataBus] ra_x1   = regs[1];
