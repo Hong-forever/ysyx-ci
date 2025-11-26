@@ -13,6 +13,7 @@ static csh handle;
 
 void init_disasm() {
   void *dl_handle;
+  printf("init disasm\n");
   dl_handle = dlopen("/home/hhh/Desktop/ysyx/ysyx-workbench/npc/tools/capstone/repo/libcapstone.so.5", RTLD_LAZY);
   assert(dl_handle);
 
