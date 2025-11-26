@@ -178,10 +178,10 @@ extern "C" void ftrace_exec(int pc, int dnpc, int rs1, int rd, int imm, int op) 
         for(int i=0; i<call_depth-1; i++) printf("  ");
         if(caller_name && callee_name) {
             printf("call [%s] (0x%08x)\n", callee_name, dnpc);
-        } else if(callee_name) {
-            printf("call [%s] (0x%08x)\n", callee_name, dnpc);
-        } else {
-            printf("call [0x%08x]\n", dnpc);
+        // } else if(callee_name) {
+        //     printf("call [%s] (0x%08x)\n", callee_name, dnpc);
+        // } else {
+        //     printf("call [0x%08x]\n", dnpc);
         }
         
     }
