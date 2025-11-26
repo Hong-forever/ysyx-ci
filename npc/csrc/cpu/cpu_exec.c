@@ -162,7 +162,7 @@ static void exec_once()
     memset(p, ' ', space_len);
     p += space_len;
 
-    printf("%s, %d, %d, %s, %d\n", p, s.logbuf + sizeof(s.logbuf) - p, s.pc, (uint8_t *)&s.inst, ilen);
+    printf("%p, %d, %d, %p, %d\n", p, s.logbuf + sizeof(s.logbuf) - p, s.pc, (uint8_t *)&s.inst, ilen);
 
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p, s.logbuf + sizeof(s.logbuf) - p, s.pc, (uint8_t *)&s.inst, ilen);
