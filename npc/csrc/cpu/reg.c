@@ -34,6 +34,7 @@ extern "C" void InstValue(int inst)
 {
     s.inst = inst;
     s.pc = cpu.pc;
+    printf("InstValue: inst = 0x%08x, pc = 0x%08x\n", s.inst, s.pc);
 }
 
 void reg_display()
