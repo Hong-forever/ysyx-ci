@@ -144,7 +144,7 @@ void assert_fail_msg() {
 static void exec_once()
 {
     single_cycle();
-    s.pc = cpu.pc;
+    s.pc = 0;
     detect_loop_pattern();
 
 #ifdef CONFIG_ITRACE
