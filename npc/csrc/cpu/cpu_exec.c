@@ -185,6 +185,7 @@ static void execute(uint64_t n)
         if(cpu_inst_valid) {
             trace_and_difftest(s);
             cpu_inst_valid = 0;
+            n++;
         }
 
         if (npc_state.state == NPC_STOP || npc_state.state == NPC_ABORT) {
