@@ -145,6 +145,8 @@ void assert_fail_msg() {
 static void exec_once()
 {
     single_cycle();
+
+    printf("cpu_inst_valid: %d\n", cpu_inst_valid);
     
     if(cpu_inst_valid) {
         cpu_inst_valid = 0;
