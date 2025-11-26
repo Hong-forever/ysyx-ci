@@ -61,7 +61,6 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -Wall -Werror -O2 
-CXXFLAGS += -Wall -Werror -O2 
 CXXFLAGS += -g -fsanitize=address
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
