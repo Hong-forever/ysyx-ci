@@ -21,7 +21,7 @@ static uint32_t tra_mask(uint32_t wmask)
 extern "C" uint32_t pmem_read(uint32_t raddr)
 {
     if (raddr >= CONFIG_MTRACE_BASE && raddr < CONFIG_MTRACE_BASE + CONFIG_MTRACE_SIZE) {
-        IFDEF(CONFIG_MTRACE, printf(COLOR_BLUE"[Mtrace] Read addr: 0x%08x data: 0x%08x\n"COLOR_END, raddr, pmem[raddr >> 2]));
+        IFDEF(CONFIG_MTRACE, printf(COLOR_BLUE "[Mtrace] Read addr: 0x%08x data: 0x%08x\n" COLOR_END, raddr, pmem[raddr >> 2]));
     }
     raddr -= RESET_VECTOR;
     // printf("data: 0x%x addr: 0x%x\n", pmem[raddr>>2], raddr);
@@ -35,7 +35,7 @@ extern "C" uint32_t pmem_read(uint32_t raddr)
 extern "C" void pmem_write(uint32_t waddr, uint32_t wdata, uint32_t wmask)
 {
     if (waddr >= CONFIG_MTRACE_BASE && waddr < CONFIG_MTRACE_BASE + CONFIG_MTRACE_SIZE) {
-        IFDEF(CONFIG_MTRACE, printf(COLOR_BLUE"[Mtrace] Wrtie addr: 0x%08x data: 0x%08x mask: 0x%08x\n"COLOR_END, waddr, wdata, tra_mask(wmask)));
+        IFDEF(CONFIG_MTRACE, printf(COLOR_BLUE "[Mtrace] Wrtie addr: 0x%08x data: 0x%08x mask: 0x%08x\n" COLOR_END, waddr, wdata, tra_mask(wmask)));
     }
     waddr -= RESET_VECTOR;
     // printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%08x\n", waddr, wdata, tra_mask(wmask));
