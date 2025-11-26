@@ -62,27 +62,14 @@ module top
     import "DPI-C" function int pmem_read(input int raddr);
     import "DPI-C" function void pmem_write(input int waddr, input int wdata, input int wmask);
 
-    reg [`MemDataBus] ibus_rdata_reg;
-    reg [`MemDataBus] dbus_rdata_reg;
+    assign ibus_rdata = pmem_read(ibus_addr_to_guest);
+    assign dbus_rdata = pmem_read(dbus_addr_to_guest);
 
     always @(*) begin
-        $monitor("ibus_req: %b ibus_addr: 0x%08x dbus_req: %b dbus_addr: 0x%08x dbus_we: %b dbus_wdata: 0x%08x dbus_mask: 0b%b", ibus_req, ibus_addr, dbus_req, dbus_addr, dbus_we, dbus_wdata, dbus_mask);
-        if (ibus_req) begin
-            ibus_rdata_reg = pmem_read(32'h10000000);
-        end else begin
-            ibus_rdata_reg = 0;
-        end
-        if (dbus_req) begin
-            dbus_rdata_reg = pmem_read(dbus_addr_to_guest);
-        end else begin
-            dbus_rdata_reg = 0;
-        end
         if (dbus_req && dbus_we) begin
             pmem_write(dbus_addr_to_guest, dbus_wdata, {28'b0, dbus_mask});
         end
     end
-    assign ibus_rdata = ibus_rdata_reg;
-    assign dbus_rdata = dbus_rdata_reg;
 
     // rom #(
     //     .DATA_WIDTH     (32                      ),
