@@ -1,10 +1,10 @@
 
-ifeq ($(CONFIG_ITRACE)$(CONFIG_IQUEUE),)
-SRCS-BLACKLIST-y += src/utils/disasm.c
+ifeq ($(CONFIG_ITRACE),)
+CSRCS-BLACKLIST-y += csrc/utils/disasm.c
 else
-LIBCAPSTONE = tools/capstone/repo/libcapstone.so.5
-CFLAGS += -I tools/capstone/repo/include
+LIBCAPSTONE = $(NEMU_HOME)/tools/capstone/repo/libcapstone.so.5
+CFLAGS += -I$(NEMU_HOME)/tools/capstone/repo/include
 src/utils/disasm.c: $(LIBCAPSTONE)
 $(LIBCAPSTONE):
-	$(MAKE) -C tools/capstone
+	$(MAKE) -C $(NEMU_HOME)/tools/capstone
 endif

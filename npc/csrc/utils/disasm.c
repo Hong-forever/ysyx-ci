@@ -1,21 +1,7 @@
-/***************************************************************************************
-* Copyright (c) 2014-2024 Zihao Yu, Nanjing University
-*
-* NEMU is licensed under Mulan PSL v2.
-* You can use this software according to the terms and conditions of the Mulan PSL v2.
-* You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
-*
-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-*
-* See the Mulan PSL v2 for more details.
-***************************************************************************************/
 
 #include <dlfcn.h>
-#include <capstone/capstone.h>
-#include <common.h>
+#include "../../../nemu/tools/capstone/repo/include/capstone/capstone.h"
+#include "common.h"
 
 static size_t (*cs_disasm_dl)(csh handle, const uint8_t *code,
     size_t code_size, uint64_t address, size_t count, cs_insn **insn);
@@ -29,23 +15,17 @@ void init_disasm() {
   assert(dl_handle);
 
   cs_err (*cs_open_dl)(cs_arch arch, cs_mode mode, csh *handle) = NULL;
-  cs_open_dl = dlsym(dl_handle, "cs_open");
+  cs_open_dl = (cs_err (*)(cs_arch, cs_mode, csh *))dlsym(dl_handle, "cs_open");
   assert(cs_open_dl);
 
-  cs_disasm_dl = dlsym(dl_handle, "cs_disasm");
+  cs_disasm_dl = (size_t (*)(csh, const uint8_t *, size_t, uint64_t, size_t, cs_insn**))dlsym(dl_handle, "cs_disasm");
   assert(cs_disasm_dl);
 
-  cs_free_dl = dlsym(dl_handle, "cs_free");
+  cs_free_dl = (void (*)(cs_insn*, size_t))dlsym(dl_handle, "cs_free");
   assert(cs_free_dl);
 
-  cs_arch arch = MUXDEF(CONFIG_ISA_x86,      CS_ARCH_X86,
-                   MUXDEF(CONFIG_ISA_mips32, CS_ARCH_MIPS,
-                   MUXDEF(CONFIG_ISA_riscv,  CS_ARCH_RISCV,
-                   MUXDEF(CONFIG_ISA_loongarch32r,  CS_ARCH_LOONGARCH, -1))));
-  cs_mode mode = MUXDEF(CONFIG_ISA_x86,      CS_MODE_32,
-                   MUXDEF(CONFIG_ISA_mips32, CS_MODE_MIPS32,
-                   MUXDEF(CONFIG_ISA_riscv,  MUXDEF(CONFIG_ISA64, CS_MODE_RISCV64, CS_MODE_RISCV32) | CS_MODE_RISCVC,
-                   MUXDEF(CONFIG_ISA_loongarch32r,  CS_MODE_LOONGARCH32, -1))));
+  cs_arch arch = CS_ARCH_RISCV;
+  cs_mode mode = (cs_mode)(CS_MODE_RISCV32 | CS_MODE_RISCVC);
 	int ret = cs_open_dl(arch, mode, &handle);
   assert(ret == CS_ERR_OK);
 
