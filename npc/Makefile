@@ -43,6 +43,9 @@ endif
 VSRCS ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
+FILELIST_MK = $(shell find -L . -name "filelist.mk")
+include $(FILELIST_MK)
+
 ifeq ($(use_nvbrd), 1)
 CSRCS += $(SRC_AUTO_BIND)
 endif
