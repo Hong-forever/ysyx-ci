@@ -153,6 +153,7 @@ static void exec_once()
     detect_loop_pattern();
     
     if(cpu_leave_period > 0) {
+        printf("leave inst %u\n", cpu_leave_period);
         cpu_leave_period--;
         return;
     }
