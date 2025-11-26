@@ -67,7 +67,7 @@ module top
 
     always @(*) begin
         if (ibus_req) begin
-            ibus_rdata_reg = pmem_read(ibus_addr_to_guest);
+            ibus_rdata_reg = pmem_read(32'h10000000);
         end else begin
             ibus_rdata_reg = 0;
         end
