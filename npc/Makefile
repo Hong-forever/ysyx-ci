@@ -69,6 +69,10 @@ ifeq ($(use_nvbrd), 1)
 CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 
+ifeq ($(CONFIG_ITRACE), 1)
+CXXFLAGS += -DCONFIG_ITRACE=1
+endif
+
 LDFLAGS += -lreadline
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)

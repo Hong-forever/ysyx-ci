@@ -3,6 +3,8 @@
 
 static TOP_NAME dut;
 
+void reg_display();
+
 #ifdef CONFIG_USE_NVBOARD
 #include <nvboard.h>
 void nvboard_bind_all_pins(TOP_NAME *top);
@@ -14,6 +16,9 @@ void nvboard()
 }
 #endif
 
+static bool g_print_step = false;
+
+#define MAX_INST_TO_PRINT 10
 #define IRINGBUF_SIZE 256
 #define IRINGBUF_LINE 20
 
@@ -52,6 +57,9 @@ void check_watchpoint();
 
 static void trace_and_difftest(Decode _this)
 {
+    if(g_print_step) {
+        IFDEF(CONFIG_ITRACE, printf("%s\n", _this.logbuf));
+    }
     IFDEF(CONFIG_ITRACE, iringbuf_trace(_this.logbuf));
     IFDEF(CONFIG_DIFFTEST, difftest_step(_this.pc));
     IFDEF(CONFIG_WATCHPOINT, check_watchpoint());
@@ -105,6 +113,13 @@ extern "C" void trap(int reg_data, int halt_pc)
     npc_state.halt_ret = reg_data + 1;
 }
 
+extern "C" void Invalid_inst(int inst_is_invalid)
+{
+    if(inst_is_invalid) {
+        npc_state.state = NPC_ABORT;
+    }
+}
+
 static void single_cycle()
 {
     dut.clk = 0;
@@ -121,6 +136,10 @@ void reset(int n)
     dut.rst = 0;
 }
 
+void assert_fail_msg() {
+    IFDEF(CONFIG_ITRACE, iring_trace_printf());
+    reg_display();
+}
 
 static void exec_once()
 {
@@ -134,7 +153,7 @@ static void exec_once()
     uint8_t *inst = (uint8_t *)&s.inst;
 
     int ilen = 4;
-    for (i = ilen-1; i >= 0; i --) {
+    for (i = ilen-1; i >= 0; i --)
         p += snprintf(p, sizeof(s.logbuf) - (p - s.logbuf), " %02x", inst[i]);
 
     int ilen_max = 4;
@@ -143,8 +162,8 @@ static void exec_once()
     memset(p, ' ', space_len);
     p += space_len;
 
-    sassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-    disassemble(p, s->logbuf + sizeof(s->logbuf) - p, s.pc, (uint8_t *)&s->isa.inst, ilen);
+    void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+    disassemble(p, s.logbuf + sizeof(s.logbuf) - p, s.pc, (uint8_t *)&s.inst, ilen);
 #endif
 }
 
@@ -153,14 +172,15 @@ static void execute(uint64_t n)
     while (n-- > 0) {
         exec_once();
         trace_and_difftest(s);
-        if (npc_state.halt_ret != 0)
+
+        if (npc_state.state == NPC_STOP || npc_state.state == NPC_ABORT) {
+            break;
+        }
+        else if (npc_state.halt_ret != 0)
         {
             npc_state.state = NPC_END;
             break;
-        } 
-        else if (npc_state.state == NPC_STOP) {
-            break;
-        }
+        }         
         IFDEF(CONFIG_USE_NVBOARD, nvboard_update());
     }
 
@@ -168,10 +188,13 @@ static void execute(uint64_t n)
 
 void cpu_exec(uint64_t n)
 {
+    // g_print_step = (n <= MAX_INSTR_TO_PRINT);
+    g_print_step = true;
     switch (npc_state.state)
     {
         case NPC_END: 
         case NPC_QUIT: 
+        case NPC_ABORT:
             printf("Program execution has ended. To restart the program, exit NPC and run again\n");
             return ;
         default: 
@@ -189,6 +212,9 @@ void cpu_exec(uint64_t n)
             } else if (npc_state.halt_ret == 2) {
                 printf(COLOR_RED "[=>>> HIT BAD TRAP at pc = 0x%08x\n" COLOR_END, npc_state.halt_pc);
             }
+            break;
+        case NPC_ABORT:
+            printf(COLOR_RED "[=>>> ABORT at pc = 0x%08x\n" COLOR_END, cpu.pc);
             break;
         // case NPC_QUIT:
         //     break;
