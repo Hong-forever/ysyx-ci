@@ -66,6 +66,7 @@ static void trace_and_difftest(Decode _this)
     IFDEF(CONFIG_WATCHPOINT, check_watchpoint());
 }
 
+#ifdef CONFIG_LOOP_DETECT
 void detect_loop_pattern() { 
     static bool initialized = false;
     if(!initialized) {
@@ -107,6 +108,7 @@ void detect_loop_pattern() {
         }
     }
 }
+#endif
 
 extern "C" void trap(int reg_data, int halt_pc)
 {
@@ -150,7 +152,7 @@ static void exec_once()
     
     if (!cpu_inst_valid) return;
 
-    detect_loop_pattern();
+    IFDEF(CONFIG_LOOP_DETECT, printf("aaa\n"); detect_loop_pattern());
     
 #ifdef CONFIG_ITRACE
     char *p = s.logbuf;
