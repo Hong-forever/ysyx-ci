@@ -2,17 +2,22 @@
 #include <getopt.h>
 #include "utils.h"
 
+static char *diff_so_file = NULL;
 static char *img_file = NULL;
+static char *elf_file = NULL;
+static int difftest_port = 1234;
 
 void sdb_set_batch_mode();
 paddr_t *guest_to_host(paddr_t paddr);
 void init_sdb();
 void init_disasm();
+void init_ftrace(char *elf_file);
 
 static int parse_args(int argc, char *argv[]) {
     const struct option table[] = {
         {"batch"        , no_argument       , NULL, 'b'},
         {"log"          , required_argument , NULL, 'l'},
+        {"elf"          , required_argument , NULL, 'e'},
         {"diff"         , required_argument , NULL, 'd'},
         {"port"         , required_argument , NULL, 'p'},
         {"help"         , no_argument       , NULL, 'h'},
@@ -26,6 +31,7 @@ static int parse_args(int argc, char *argv[]) {
             case 'b': sdb_set_batch_mode(); break;
             case 'p': /*scanf(optarg, "%d", &difftest_port);*/ break;
             case 'l': /*log_file = optarg;*/ break;
+            case 'e': elf_file = optarg; break;
             case 'd': /*diff_so_file = optarg;*/ break;
             case  1 : img_file = optarg; return 0;
             default :
@@ -76,7 +82,7 @@ void init_monitor(int argc, char *argv[]) {
 
     size_t size = load_img();
 
-    // IFDEF(CONFIG_FTRACE, init_ftrace(elf_file));
+    IFDEF(CONFIG_FTRACE, init_ftrace(elf_file));
 
     // IFDEF(CONFIG_DEVICE, init_device());
 
