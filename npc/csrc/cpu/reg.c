@@ -33,6 +33,7 @@ extern "C" void reg_value(int pc, int gpr0, int gpr1, int gpr2, int gpr3,
 extern "C" void InstValue(int inst)
 {
     s.inst = inst;
+    s.pc = cpu.pc;
 }
 
 void reg_display()

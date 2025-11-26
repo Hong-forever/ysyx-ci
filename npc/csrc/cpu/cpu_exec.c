@@ -144,7 +144,6 @@ void assert_fail_msg() {
 static void exec_once()
 {
     single_cycle();
-    s.pc = 0;
     detect_loop_pattern();
 
 #ifdef CONFIG_ITRACE
@@ -162,6 +161,8 @@ static void exec_once()
     space_len = space_len * 3 + 1;
     memset(p, ' ', space_len);
     p += space_len;
+
+    printf("%s, %d, %d, %s, %d\n", p, s.logbuf + sizeof(s.logbuf) - p, s.pc, (uint8_t *)&s.inst, ilen);
 
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p, s.logbuf + sizeof(s.logbuf) - p, s.pc, (uint8_t *)&s.inst, ilen);
