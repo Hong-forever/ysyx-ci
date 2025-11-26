@@ -35,6 +35,7 @@ extern "C" void cpu_value(int valid, int inst, int pc, int gpr0, int gpr1, int g
 
     if(pc == 0x8000004) {
         npc_state.state = NPC_ABORT;
+        printf("aaaaa\n");
     }
 
 }
