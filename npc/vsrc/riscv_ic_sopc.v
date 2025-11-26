@@ -66,6 +66,7 @@ module top
     reg [`MemDataBus] dbus_rdata_reg;
 
     always @(*) begin
+        $monitor("ibus_req: %b ibus_addr: 0x%08x dbus_req: %b dbus_addr: 0x%08x dbus_we: %b dbus_wdata: 0x%08x dbus_mask: 0b%b", ibus_req, ibus_addr, dbus_req, dbus_addr, dbus_we, dbus_wdata, dbus_mask);
         if (ibus_req) begin
             ibus_rdata_reg = pmem_read(32'h10000000);
         end else begin
