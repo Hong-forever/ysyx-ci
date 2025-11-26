@@ -152,6 +152,7 @@ module decoder
 
     always @(*) begin
         Invalid_inst(InstInValid);
+        $monitor("Decoding Inst: %h, %d\n", I_inst, InstInValid);
     end
     
 
