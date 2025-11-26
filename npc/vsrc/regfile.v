@@ -81,7 +81,7 @@ module regfile
         end
     end
 
-    always @(*) begin
+    always @(posedge clk or posedge rst) begin
         if(I_inst != `ZeroWord || (inst_reg != I_inst || pc_reg != I_inst_addr))
             cpu_value(I_inst, I_inst_addr,
                   regs[0],  regs[1],  regs[2],  regs[3],  regs[4],  regs[5],  regs[6],  regs[7],
