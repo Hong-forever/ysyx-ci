@@ -63,7 +63,7 @@ CXXFLAGS += $(INCFLAGS)
 CXXFLAGS += -g
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
-CXXFLAGS += -fpermissive
+# CXXFLAGS += -fpermissive
 
 ifeq ($(use_nvbrd), 1)
 CXXFLAGS += -DCONFIG_USE_NVBOARD=1

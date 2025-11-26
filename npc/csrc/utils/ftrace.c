@@ -60,7 +60,7 @@ void init_ftrace(char *elf_file) {
 
     // find section header
     fseek(fp, ehdr.e_shoff, SEEK_SET);
-    Elf32_Shdr *shdrs = malloc(ehdr.e_shnum * ehdr.e_shentsize);
+    Elf32_Shdr *shdrs = (Elf32_Shdr *)malloc(ehdr.e_shnum * ehdr.e_shentsize);
     if(fread(shdrs, ehdr.e_shentsize, ehdr.e_shnum, fp) != ehdr.e_shnum) {
         printf("Ftrace: Error to read section header\n");
         free(shdrs);
@@ -70,7 +70,7 @@ void init_ftrace(char *elf_file) {
 
     // read shstrtab
     Elf32_Shdr *shstrtab_shdr = &shdrs[ehdr.e_shstrndx];
-    char *shstrtab = malloc(shstrtab_shdr->sh_size);
+    char *shstrtab = (char *)malloc(shstrtab_shdr->sh_size);
     fseek(fp, shstrtab_shdr->sh_offset, SEEK_SET);
     int res = fread(shstrtab, shstrtab_shdr->sh_size, 1, fp);
     assert(res == 1);
@@ -95,14 +95,14 @@ void init_ftrace(char *elf_file) {
     }
 
     // read strtab
-    char *strtab = malloc(strtab_shdr->sh_size);
+    char *strtab = (char *)malloc(strtab_shdr->sh_size);
     fseek(fp, strtab_shdr->sh_offset, SEEK_SET);
     res = fread(strtab, strtab_shdr->sh_size, 1, fp);
     assert(res == 1);
 
     // read symtab
     int num_syms = symtab_shdr->sh_size / sizeof(Elf32_Sym);
-    Elf32_Sym *syms = malloc(symtab_shdr->sh_size);
+    Elf32_Sym *syms = (Elf32_Sym *)malloc(symtab_shdr->sh_size);
     fseek(fp, symtab_shdr->sh_offset, SEEK_SET);
     res = fread(syms, sizeof(Elf32_Sym), num_syms, fp);
     assert(res == num_syms);
@@ -125,7 +125,7 @@ void init_ftrace(char *elf_file) {
         return ;
     }
 
-    func_table = malloc(func_count * sizeof(FunctionSymbol));
+    func_table = (FunctionSymbol *)malloc(func_count * sizeof(FunctionSymbol));
     int idx = 0;
 
     for(int i=0; i<num_syms; i++) {
