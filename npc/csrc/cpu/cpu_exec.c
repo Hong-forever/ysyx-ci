@@ -204,8 +204,8 @@ static void execute(uint64_t n)
 
 void cpu_exec(uint64_t n)
 {
-    // g_print_step = (n <= MAX_INSTR_TO_PRINT);
-    g_print_step = true;
+    g_print_step = (n <= MAX_INST_TO_PRINT);
+    // g_print_step = true;
     switch (npc_state.state)
     {
         case NPC_END: 
