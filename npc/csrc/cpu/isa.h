@@ -19,6 +19,8 @@ typedef struct {
 
 extern Decode s;
 
+extern int cpu_leave_period;
+
 // loop detect
 typedef struct {
     word_t pc;
