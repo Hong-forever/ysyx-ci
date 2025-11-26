@@ -149,7 +149,6 @@ static void exec_once()
     printf("cpu_inst_valid: %d\n", cpu_inst_valid);
     
     if (!cpu_inst_valid) return;
-    else cpu_inst_valid = 0;
 
     detect_loop_pattern();
     
@@ -180,7 +179,11 @@ static void execute(uint64_t n)
 {
     while (n-- > 0) {
         exec_once();
-        trace_and_difftest(s);
+
+        if(cpu_inst_valid) {
+            trace_and_difftest(s);
+            cpu_inst_valid = 0;
+        }
 
         if (npc_state.state == NPC_STOP || npc_state.state == NPC_ABORT) {
             break;
