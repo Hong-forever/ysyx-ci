@@ -42,7 +42,7 @@ extern "C" void cpu_value(int valid, int inst, int pc, int gpr0, int gpr1, int g
 
 void reg_display()
 {
-    printf("[==> PC ==] : 0x%08x\n", cpu.pc);
+    printf("[==> PC ==]  : 0x%08x\n", cpu.pc);
     for (int i = 0; i < 32; i++) {
         printf("regs[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
