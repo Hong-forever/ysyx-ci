@@ -31,8 +31,8 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 __EXPORT void difftest_regcpy(void *dut, bool direction)
 {
     if (direction == DIFFTEST_TO_REF) {
-        cpu.pc = ((CPU_state *)dut)->pc;
         printf("difftest_regcpy to ref: pc=0x%08x, dutpc = 0x%08x\n", cpu.pc, ((CPU_state *)dut)->pc);
+        cpu.pc = ((CPU_state *)dut)->pc;
         for (int i = 0; i < 32; i++) {
             cpu.gpr[i] = ((CPU_state *)dut)->gpr[i];
         }
