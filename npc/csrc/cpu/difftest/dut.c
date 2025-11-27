@@ -120,6 +120,7 @@ void difftest_step(paddr_t pc/*, vaddr_t npc*/)
     // printf("difftest_step at pc: 0x%08x\n", pc);
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+    printf("ref pc: 0x%08x, dut pc: 0x%08x\n", ref_r.pc, cpu.pc);
 
     checkregs(&ref_r, pc);
 }
