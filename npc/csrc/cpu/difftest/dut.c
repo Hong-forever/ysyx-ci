@@ -72,11 +72,11 @@ void init_difftest(char *ref_so_file, long img_size, int port)
     void (*ref_difftest_init)(int) = (void (*)(int))dlsym(handle, "difftest_init");
     assert(ref_difftest_init);
 
-    printf("Differential testing: " COLOR_GREEN "%s" COLOR_END, "ON");
-    printf("The result of every instruction will be compared with %s. "
-           "This will help you a lot for debugging, but also significantly reduce the performance. "
-           "If it is not necessary, you can turn it off in menuconfig.",
-           ref_so_file);
+    printf("Differential testing: " COLOR_GREEN "%s\n" COLOR_END, "ON");
+    // printf("The result of every instruction will be compared with %s. "
+    //        "This will help you a lot for debugging, but also significantly reduce the performance. "
+    //        "If it is not necessary, you can turn it off in menuconfig.",
+    //        ref_so_file);
 
     ref_difftest_init(port);
     ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
