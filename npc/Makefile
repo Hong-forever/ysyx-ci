@@ -1,6 +1,5 @@
 
 include $(NPC_HOME)/scripts/my_config.mk
-include $(NPC_HOME)/scripts/difftest.mk
 
 use_nvbrd ?= 0
 
@@ -14,6 +13,9 @@ endif
 
 TOPNAME = top
 
+remove_quote = $(patsubst "%",%,$(1))
+
+
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 
 VERILATOR = verilator
@@ -26,6 +28,8 @@ VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
+
+include $(NPC_HOME)/scripts/difftest.mk
 
 NPC_EXEC := $(BIN) $(IMG)
 ARGS += $(ARGS_DIFF)
