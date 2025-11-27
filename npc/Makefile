@@ -79,7 +79,8 @@ ifeq ($(use_nvbrd), 1)
 CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 
-LDFLAGS += -lreadline
+LDFLAGS += -fsanitize=address -static-libasan
+LDFLAGS += -lreadline 
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
