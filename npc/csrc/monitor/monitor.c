@@ -11,7 +11,7 @@ void sdb_set_batch_mode();
 paddr_t *guest_to_host(paddr_t paddr);
 void init_isa();
 // void init_device();
-// void init_difftest(char *ref_so_file, long img_size, int port);
+void init_difftest(char *ref_so_file, long img_size, int port);
 void init_sdb();
 void init_disasm();
 void init_ftrace(char *elf_file);

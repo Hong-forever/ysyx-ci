@@ -4,6 +4,7 @@
 static TOP_NAME dut;
 int cpu_inst_valid = 0;
 
+IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc/*, vaddr_t npc*/));
 void reg_display();
 
 #ifdef CONFIG_USE_NVBOARD

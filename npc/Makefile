@@ -1,13 +1,8 @@
 
+include $(NPC_HOME)/scripts/my_config.mk
+include $(NPC_HOME)/scripts/difftest.mk
+
 use_nvbrd ?= 0
-
-CONFIG_ITRACE = 1
-CONFIG_MTRACE = 0
-CONFIG_MTRACE_BASE = 0x00000000
-CONFIG_MTRACE_SIZE = 0x1000
-# CONFIG_FTRACE = 1
-
-# CONFIG_LOOP_DETECT = 1
 
 ifeq ($(use_nvbrd), 1)
 NXDC_FILES = constr/top.nxdc
@@ -33,6 +28,7 @@ OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
 NPC_EXEC := $(BIN) $(IMG)
+ARGS += $(ARGS_DIFF)
 
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -74,23 +70,6 @@ CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 
 ifeq ($(use_nvbrd), 1)
 CXXFLAGS += -DCONFIG_USE_NVBOARD=1
-endif
-
-ifeq ($(CONFIG_ITRACE), 1)
-CXXFLAGS += -DCONFIG_ITRACE=1
-endif
-
-ifeq ($(CONFIG_MTRACE), 1)
-CXXFLAGS += -DCONFIG_MTRACE=1
-endif
-CXXFLAGS += -DCONFIG_MTRACE_BASE=$(CONFIG_MTRACE_BASE) -DCONFIG_MTRACE_SIZE=$(CONFIG_MTRACE_SIZE)
-
-ifeq ($(CONFIG_FTRACE), 1)
-CXXFLAGS += -DCONFIG_FTRACE=1
-endif
-
-ifeq ($(CONFIG_LOOP_DETECT), 1)
-CXXFLAGS += -DCONFIG_LOOP_DETECT=1
 endif
 
 LDFLAGS += -lreadline
