@@ -115,7 +115,7 @@ void difftest_step(paddr_t pc/*, vaddr_t npc*/)
     //   is_skip_ref = false;
     //   return;
     // }
-
+    printf("difftest_step at pc: 0x%08x\n", pc);
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
