@@ -13,6 +13,9 @@ endif
 
 TOPNAME = top
 
+GUEST_ISA ?= riscv32
+CONFIG_DIFFTEST_REF_NAME ?= nemu
+
 remove_quote = $(patsubst "%",%,$(1))
 
 
