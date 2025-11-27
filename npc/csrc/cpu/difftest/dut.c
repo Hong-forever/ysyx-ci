@@ -48,6 +48,7 @@ void difftest_skip_dut(int nr_ref, int nr_dut)
     }
 }
 
+CPU_state cpu_r = { .pc = RESET_VECTOR, .gpr = {0} };
 void init_difftest(char *ref_so_file, long img_size, int port)
 {
     assert(ref_so_file != NULL);
@@ -78,7 +79,6 @@ void init_difftest(char *ref_so_file, long img_size, int port)
     //        "If it is not necessary, you can turn it off in menuconfig.",
     //        ref_so_file);
 
-    CPU_state cpu_r = { .pc = RESET_VECTOR, .gpr = {0} };
 
     ref_difftest_init(port);
     ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
