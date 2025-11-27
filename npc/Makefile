@@ -39,7 +39,7 @@ ARGS += $(ARGS_DIFF)
 
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	LD_PRELOAD=$(shell gcc -print-file-name=libasan.so) @$(BIN) $(ARGS) $(IMG)
+	LD_PRELOAD=$(shell gcc -print-file-name=libasan.so) $(BIN) $(ARGS) $(IMG)
 
 $(shell mkdir -p $(BUILD_DIR))
 
