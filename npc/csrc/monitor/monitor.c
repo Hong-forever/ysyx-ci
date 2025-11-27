@@ -91,9 +91,9 @@ void init_monitor(int argc, char *argv[]) {
     
     init_isa();
 
-    long image_size = load_img();
+    long img_size = load_img();
 
-    // init_difftest(diff_so_file, img_size, difftest_port);
+    init_difftest(diff_so_file, img_size, difftest_port);
 
     init_sdb();
 

@@ -224,7 +224,6 @@ void cpu_exec(uint64_t n)
             break;
         case NPC_ABORT:
             printf(COLOR_RED "[=>>> ABORT at pc = 0x%08x\n" COLOR_END, cpu.pc);
-            assert_fail_msg();
             break;
         // case NPC_QUIT:
         //     break;

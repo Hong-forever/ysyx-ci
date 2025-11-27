@@ -32,12 +32,6 @@ extern "C" void cpu_value(int valid, int inst, int pc, int gpr0, int gpr1, int g
     cpu.gpr[20] = gpr20; cpu.gpr[21] = gpr21; cpu.gpr[22] = gpr22; cpu.gpr[23] = gpr23;
     cpu.gpr[24] = gpr24; cpu.gpr[25] = gpr25; cpu.gpr[26] = gpr26; cpu.gpr[27] = gpr27;
     cpu.gpr[28] = gpr28; cpu.gpr[29] = gpr29; cpu.gpr[30] = gpr30; cpu.gpr[31] = gpr31;
-
-    if(pc == 0x80000004) {
-        npc_state.state = NPC_ABORT;
-        printf("aaaaa\n");
-    }
-
 }
 
 void reg_display()
@@ -68,4 +62,26 @@ word_t reg_str2val(const char *s, bool *success)
     printf("Error: reg error\n");
     *success = false;
     return 0;
+}
+
+bool difftest_checkregs(CPU_state *ref_r, paddr_t pc) {
+    bool flag = true;
+
+    if(ref_r->pc != cpu.pc) flag = false;
+    /* if(ref_r->pc != cpu.pc) printf("refpc: 0x%08x, pc: 0x%08x\n", ref_r->pc, cpu.pc); */
+
+    for(int i=0; i<32; i++) {
+        if(ref_r->gpr[i] != cpu.gpr[i]) {
+            /* printf("refreg[%d]: 0x%08x, dutreg[%d]: 0x%08x\n", i, ref_r->pc, i, cpu.pc); */
+            flag = false;
+            break;
+        } 
+    }
+
+    if(!flag) {
+        printf("Difftest: Error at pc: 0x%08x\n", pc);
+        return false;
+    }
+
+    return true;
 }
