@@ -78,10 +78,12 @@ void init_difftest(char *ref_so_file, long img_size, int port)
     //        "If it is not necessary, you can turn it off in menuconfig.",
     //        ref_so_file);
 
+    CPU_state cpu_r = { .pc = RESET_VECTOR };
+
     ref_difftest_init(port);
     ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
-    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    printf("cpu.pc = 0x%08x\n", cpu.pc);
+    ref_difftest_regcpy(&cpu_r, DIFFTEST_TO_REF);
+    printf("cpu.pc = 0x%08x\n", cpu_r.pc);
 }
 
 static void checkregs(CPU_state *ref, paddr_t pc)
@@ -119,7 +121,6 @@ void difftest_step(paddr_t pc/*, vaddr_t npc*/)
     // printf("difftest_step at pc: 0x%08x\n", pc);
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    printf("ref pc: 0x%08x, dut pc: 0x%08x\n", ref_r.pc, cpu.pc);
 
     checkregs(&ref_r, pc);
 }
