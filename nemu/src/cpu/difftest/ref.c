@@ -21,6 +21,7 @@
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 {
     if (direction == DIFFTEST_TO_REF) {
+        printf("difftest_memcpy to ref: addr=0x%08x, n=%lu\n", addr, n);
         memcpy(guest_to_host(addr), buf, n);
     } else {
         assert(0);
@@ -60,5 +61,5 @@ __EXPORT void difftest_init(int port)
     init_mem();
     /* Perform ISA dependent initialization. */
     init_isa();
-    printf("cpu.pc = 0x%08x\n", cpu.pc);
+    // printf("cpu.pc = 0x%08x\n", cpu.pc);
 }
