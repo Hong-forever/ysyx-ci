@@ -81,7 +81,7 @@ bool difftest_checkregs(CPU_state *ref_r, paddr_t pc) {
     }
 
     if(!flag) {
-        printf("Difftest: Error at pc: 0x%08x\n", pc);
+        printf(COLOR_RED "Difftest: Error at pc: 0x%08x\n" COLOR_END, pc);
         return false;
     }
 
