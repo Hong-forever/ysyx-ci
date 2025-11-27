@@ -70,7 +70,7 @@ CSRCS := $(filter-out $(CSRCS-BLACKLIST-y),$(CSRCS-y))
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
-CXXFLAGS += -g -fsanitize=address -O2 -fno-omit-frame-pointer -static-libasan
+CXXFLAGS += -g -O2 
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
 # CXXFLAGS += -fpermissive
@@ -79,7 +79,6 @@ ifeq ($(use_nvbrd), 1)
 CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 
-LDFLAGS += -fsanitize=address -static-libasan
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
