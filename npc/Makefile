@@ -14,8 +14,7 @@ endif
 TOPNAME = top
 
 GUEST_ISA ?= riscv32
-CONFIG_DIFFTEST_REF_NAME ?= "nemu"
-CONFIG_DIFFTEST_REF_PATH ?= "none"
+CONFIG_DIFFTEST_REF_NAME ?= "nemu-interpreter"
 
 remove_quote = $(patsubst "%",%,$(1))
 
