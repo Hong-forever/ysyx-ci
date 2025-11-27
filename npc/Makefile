@@ -80,7 +80,7 @@ CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 
 LDFLAGS += -fsanitize=address -static-libasan
-LDFLAGS += -lreadline 
+LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
