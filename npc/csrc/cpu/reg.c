@@ -67,12 +67,14 @@ word_t reg_str2val(const char *s, bool *success)
 bool difftest_checkregs(CPU_state *ref_r, paddr_t pc) {
     bool flag = true;
 
-    if(ref_r->pc != cpu.pc) flag = false;
-    /* if(ref_r->pc != cpu.pc) printf("refpc: 0x%08x, pc: 0x%08x\n", ref_r->pc, cpu.pc); */
+    if(ref_r->pc != cpu.pc) {
+        flag = false;
+        printf("ref_pc: 0x%08x, dut_pc: 0x%08x\n", ref_r->pc, cpu.pc);
+    }
 
     for(int i=0; i<32; i++) {
         if(ref_r->gpr[i] != cpu.gpr[i]) {
-            /* printf("refreg[%d]: 0x%08x, dutreg[%d]: 0x%08x\n", i, ref_r->pc, i, cpu.pc); */
+            printf("ref_reg[%d]: 0x%08x, dut_reg[%d]: 0x%08x\n", i, ref_r->pc, i, cpu.pc);
             flag = false;
             break;
         } 
