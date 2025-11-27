@@ -60,4 +60,5 @@ __EXPORT void difftest_init(int port)
     init_mem();
     /* Perform ISA dependent initialization. */
     init_isa();
+    printf("cpu.pc = 0x%08x\n", cpu.pc);
 }
