@@ -86,7 +86,6 @@ void init_difftest(char *ref_so_file, long img_size, int port)
 
 static void checkregs(CPU_state *ref, paddr_t pc)
 {
-    printf("ref pc: 0x%08x, dut pc: 0x%08x\n", ref->pc, cpu.pc);
     if (!difftest_checkregs(ref, pc)) {
         npc_state.state = NPC_ABORT;
         npc_state.halt_pc = pc;
