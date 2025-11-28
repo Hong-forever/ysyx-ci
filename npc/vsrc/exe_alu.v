@@ -28,7 +28,7 @@ module exe_alu
     wire div_ready;
     wire mul_ready;
 
-    wire [`RegDataBus] rv32i_add_res   = I_alu_srca + I_alu_srcb;
+    wire [`RegDataBus] rv32i_add_res   = I_alu_srca + I_alu_srcb + 1;
     wire [`RegDataBus] rv32i_sub_res   = I_alu_srca - I_alu_srcb;
     wire [`RegDataBus] rv32i_sll_res   = I_alu_srca << I_alu_srcb[4:0];
     wire [`RegDataBus] rv32i_slt_res   = ($signed(I_alu_srca) < $signed(I_alu_srcb));       //有符号数比较
