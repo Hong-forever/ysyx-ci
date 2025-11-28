@@ -74,7 +74,7 @@ bool difftest_checkregs(CPU_state *ref_r, paddr_t pc) {
 
     for(int i=0; i<32; i++) {
         if(ref_r->gpr[i] != cpu.gpr[i]) {
-            printf(COLOR_RED "DIFF==>> ref cpu.gpr[%d]: 0x%08x, dut cpu.gpr[%d]: 0x%08x\n" COLOR_END, i, ref_r->pc, i, cpu.pc);
+            printf(COLOR_RED "DIFF==>> ref cpu.gpr[%d]: 0x%08x, dut cpu.gpr[%d]: 0x%08x\n" COLOR_END, i, ref_r->gpr[i], i, cpu.gpr[i]);
             flag = false;
             break;
         } 
