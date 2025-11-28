@@ -36,7 +36,7 @@ include $(NPC_HOME)/scripts/difftest.mk
 
 NPC_EXEC := $(BIN) $(IMG)
 
-override ARGS ?= 
+override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
 sim: $(NPC_EXEC)
