@@ -1,9 +1,8 @@
 
-include $(NPC_HOME)/scripts/my_config.mk
+-include $(NPC_HOME)/include/config/auto.conf
+-include $(NPC_HOME)/include/config/auto.conf.cmd
 
-use_nvbrd ?= 0
-
-ifeq ($(use_nvbrd), 1)
+ifneq ($(CONFIG_USE_NVBORAD),)
 NXDC_FILES = constr/top.nxdc
 
 # rules for NVBoard
@@ -14,12 +13,10 @@ endif
 TOPNAME = top
 
 GUEST_ISA ?= riscv32
-CONFIG_DIFFTEST_REF_NAME ?= "nemu-interpreter"
 
 remove_quote = $(patsubst "%",%,$(1))
 
-
-INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
+INC_PATH += $(sort $(dir $(shell find $(abspath .) -name "*.h")))
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
@@ -46,7 +43,7 @@ sim: $(NPC_EXEC)
 
 $(shell mkdir -p $(BUILD_DIR))
 
-ifeq ($(use_nvbrd), 1)
+ifneq ($(CONFIG_USE_NVBORAD),)
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -60,7 +57,7 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
-ifeq ($(use_nvbrd), )
+ifneq ($(CONFIG_USE_NVBORAD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
 endif
 
@@ -79,10 +76,6 @@ CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 
 # CXXFLAGS += -fpermissive
 
-ifeq ($(use_nvbrd), 1)
-CXXFLAGS += -DCONFIG_USE_NVBOARD=1
-endif
-
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -fsanitize=address -fno-omit-frame-pointer
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
@@ -94,6 +87,8 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 all: run
 run: sim
+
+include $(NPC_HOME)/scripts/config.mk
 
 
 clean:
