@@ -72,7 +72,7 @@ CSRCS := $(filter-out $(CSRCS-BLACKLIST-y),$(CSRCS-y))
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
-CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result
+CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
 # CXXFLAGS += -fpermissive
