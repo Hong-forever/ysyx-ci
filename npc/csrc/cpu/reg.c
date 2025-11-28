@@ -11,7 +11,7 @@ const char *regs[] = {
 CPU_state cpu = {};
 Decode s = {};
 
-extern "C" void cpu_value(int valid, int inst, int pc, int gpr0, int gpr1, int gpr2, int gpr3,
+extern "C" void cpu_value(int valid, int inst, int inst_addr, int pc, int gpr0, int gpr1, int gpr2, int gpr3,
                           int gpr4, int gpr5, int gpr6, int gpr7,
                           int gpr8, int gpr9, int gpr10, int gpr11,
                           int gpr12, int gpr13, int gpr14, int gpr15,
@@ -21,7 +21,7 @@ extern "C" void cpu_value(int valid, int inst, int pc, int gpr0, int gpr1, int g
                           int gpr28, int gpr29, int gpr30, int gpr31)
 {
     cpu_inst_valid = valid;
-    s.inst = inst; s.pc = pc;
+    s.inst = inst; s.pc = inst_addr;
 
     cpu.pc = pc;
     cpu.gpr[0] = gpr0; cpu.gpr[1] = gpr1; cpu.gpr[2] = gpr2; cpu.gpr[3] = gpr3;
