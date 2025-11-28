@@ -42,7 +42,7 @@ override ARGS += $(ARGS_DIFF)
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@LD_PRELOAD=$(shell gcc -print-file-name=libasan.so) 
-	@echo $(BIN) $(ARGS) $(IMG)
+	$(BIN) $(ARGS) $(IMG)
 
 $(shell mkdir -p $(BUILD_DIR))
 
