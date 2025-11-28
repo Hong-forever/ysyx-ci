@@ -93,7 +93,7 @@ module regfile
     always @(*) begin
 
         if(inst_r1 == `RV_EBREAK) begin
-            trap(regs[10], I_inst_addr);
+            trap(regs[10], inst_addr_r1); // a0
         end
 
         if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1)) begin
