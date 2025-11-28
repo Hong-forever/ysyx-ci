@@ -35,7 +35,9 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 include $(NPC_HOME)/scripts/difftest.mk
 
 NPC_EXEC := $(BIN) $(IMG)
-ARGS += $(ARGS_DIFF)
+
+override ARGS ?= 
+override ARGS += $(ARGS_DIFF)
 
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
