@@ -57,12 +57,6 @@ module regfile
 
     import "DPI-C" function void trap(input int reg_data, input int halt_pc);
 
-    always @(*) begin
-        if(I_inst == `RV_EBREAK) begin
-            trap(regs[10], I_inst_addr);
-        end
-    end
-
     import "DPI-C" function void cpu_value(input int valid, input int inst, input int inst_addr, input int pc, 
         input int gpr0, input int gpr1, input int gpr2, input int gpr3, 
         input int gpr4, input int gpr5, input int gpr6, input int gpr7, 
@@ -97,7 +91,12 @@ module regfile
     end
 
     always @(*) begin
-        if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1))
+
+        if(inst_r1 == `RV_EBREAK) begin
+            trap(regs[10], I_inst_addr);
+        end
+
+        if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1)) begin
             cpu_value
             (
                 1, inst_r1, inst_addr_r1, pc, 
@@ -106,7 +105,8 @@ module regfile
                 regs[16], regs[17], regs[18], regs[19], regs[20], regs[21], regs[22], regs[23],
                 regs[24], regs[25], regs[26], regs[27], regs[28], regs[29], regs[30], regs[31]
             );
-        else begin end
+        end
+
     end
 
 
