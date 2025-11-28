@@ -95,29 +95,29 @@ static void checkregs(CPU_state *ref, paddr_t pc)
     }
 }
 
-void difftest_step(paddr_t pc/*, vaddr_t npc*/)
+void difftest_step(paddr_t pc, paddr_t npc)
 {
     CPU_state ref_r;
 
-    // if (skip_dut_nr_inst > 0) {
-    //   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    //   if (ref_r.pc == npc) {
-    //     skip_dut_nr_inst = 0;
-    //     checkregs(&ref_r, npc);
-    //     return;
-    //   }
-    //   skip_dut_nr_inst --;
-    //   if (skip_dut_nr_inst == 0)
-    //     printf("can not catch up with ref.pc = 0x%08x at pc = 0x%08x\n", ref_r.pc, pc);
-    //   return;
-    // }
+    if (skip_dut_nr_inst > 0) {
+      ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+      if (ref_r.pc == npc) {
+        skip_dut_nr_inst = 0;
+        checkregs(&ref_r, npc);
+        return;
+      }
+      skip_dut_nr_inst --;
+      if (skip_dut_nr_inst == 0)
+        printf("can not catch up with ref.pc = 0x%08x at pc = 0x%08x\n", ref_r.pc, pc);
+      return;
+    }
 
-    // if (is_skip_ref) {
-    //   // to skip the checking of an instruction, just copy the reg state to reference design
-    //   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    //   is_skip_ref = false;
-    //   return;
-    // }
+    if (is_skip_ref) {
+      // to skip the checking of an instruction, just copy the reg state to reference design
+      ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+      is_skip_ref = false;
+      return;
+    }
     // printf("difftest_step at pc: 0x%08x\n", pc);
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
