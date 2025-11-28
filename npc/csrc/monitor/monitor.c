@@ -66,7 +66,7 @@ static long load_img()
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
 
-    printf("The image is %s, size = 0x%08lx\n", img_file, size);
+    printf(COLOR_BLUE "The image is %s, size = 0x%08lx\n" COLOR_END, img_file, size);
 
     fseek(fp, 0, SEEK_SET);
     int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
