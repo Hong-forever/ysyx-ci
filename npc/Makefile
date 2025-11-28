@@ -2,7 +2,7 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
-ifneq ($(CONFIG_USE_NVBORAD),)
+ifneq ($(CONFIG_USE_NVBOARD),)
 NXDC_FILES = constr/top.nxdc
 
 # rules for NVBoard
@@ -16,7 +16,8 @@ GUEST_ISA ?= riscv32
 
 remove_quote = $(patsubst "%",%,$(1))
 
-INC_PATH += $(sort $(dir $(shell find $(abspath .) -name "*.h")))
+INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
+INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
@@ -43,7 +44,7 @@ sim: $(NPC_EXEC)
 
 $(shell mkdir -p $(BUILD_DIR))
 
-ifneq ($(CONFIG_USE_NVBORAD),)
+ifneq ($(CONFIG_USE_NVBOARD),)
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -57,7 +58,7 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
-ifneq ($(CONFIG_USE_NVBORAD),)
+ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
 endif
 
