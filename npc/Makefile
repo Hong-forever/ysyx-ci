@@ -23,7 +23,7 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast --noassert
+				-O3 --x-assign fast --x-initial fast 
 
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
@@ -72,7 +72,7 @@ CSRCS := $(filter-out $(CSRCS-BLACKLIST-y),$(CSRCS-y))
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
-CXXFLAGS += -g -O2 
+CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
 # CXXFLAGS += -fpermissive
