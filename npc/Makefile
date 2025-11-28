@@ -41,7 +41,7 @@ override ARGS += $(ARGS_DIFF)
 
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@LD_PRELOAD=$(shell gcc -print-file-name=libasan.so) $(BIN) $(ARGS) $(IMG)
+	LD_PRELOAD=$(shell gcc -print-file-name=libasan.so) $(BIN) $(ARGS) $(IMG)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -73,6 +73,7 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
+CXXFLAGS += fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
 # CXXFLAGS += -fpermissive
@@ -81,7 +82,7 @@ ifeq ($(use_nvbrd), 1)
 CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 
-LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread
+LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -fsanitize=address -fno-omit-frame-pointer
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
