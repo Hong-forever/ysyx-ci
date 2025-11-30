@@ -25,9 +25,9 @@ paddr_t *guest_to_host(paddr_t paddr) {
     return pmem + ((paddr - CONFIG_MBASE) >> 2);
 }
 
-// paddr_t host_to_guest(paddr_t *haddr) {
-//     return haddr - pmem + CONFIG_MBASE;
-// }
+paddr_t host_to_guest(paddr_t *haddr) {
+    return ((haddr - pmem) << 2) + CONFIG_MBASE;
+}
 
 static void out_of_bound(paddr_t addr, bool is_write) {
     printf(COLOR_RED "%s address = 0x%08x is out of bound of pmem [0x%08x, 0x%08x]\n" COLOR_END, is_write?"Write":"Read", addr, PMEM_LEFT, PMEM_RIGHT);
