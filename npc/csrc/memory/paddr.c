@@ -18,7 +18,7 @@ static uint32_t tra_mask(uint32_t wmask)
 }
 
 static inline bool in_pmem(paddr_t addr) {
-  return addr - CONFIG_MBASE < CONFIG_MSIZE;
+  return (addr - CONFIG_MBASE) < (CONFIG_MSIZE << 2);
 }
 
 paddr_t *guest_to_host(paddr_t paddr) {
@@ -75,7 +75,7 @@ static void pmem_write(paddr_t waddr, word_t wdata, uint32_t wmask)
 
 extern "C" word_t paddr_read(paddr_t raddr) {
     if (in_pmem(raddr)) {
-        printf("paddr_read addr: 0x%08x\n", raddr);
+        // printf("paddr_read addr: 0x%08x\n", raddr);
         return pmem_read(raddr);
     }
 
