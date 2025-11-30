@@ -78,6 +78,11 @@ extern "C" word_t paddr_read(paddr_t raddr) {
         // printf("paddr_read addr: 0x%08x\n", raddr);
         return pmem_read(raddr);
     }
+    // else if ((raddr&~0x3u) == CONFIG_TIMER_BASE) {
+    //     // memory-mapped timer read
+    //     extern uint32_t get_time();
+    //     return get_time();
+    // }
 
     out_of_bound(raddr, false);
     return 0;
@@ -86,7 +91,12 @@ extern "C" word_t paddr_read(paddr_t raddr) {
 extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
     if (in_pmem(waddr)) {
         pmem_write(waddr, wdata, wmask);
-    } else {
+    }
+    else if ((waddr&~0x3u) == 0x10000000) {
+        // memory-mapped serial port write
+        putchar((char)(wdata & 0xff));
+    }
+    else {
         out_of_bound(waddr, true);
     }
 }
