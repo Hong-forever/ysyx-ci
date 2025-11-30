@@ -46,7 +46,7 @@ static void host_write(paddr_t *addr, word_t wdata, uint32_t wmask) {
 
 void init_mem() {
     IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE * sizeof(word_t)));
-    printf(COLOR_BLUE "physical memory area [0x%08x, 0x%08x]", PMEM_LEFT, PMEM_RIGHT);
+    printf(COLOR_BLUE "physical memory area [0x%08x, 0x%08x]\n", PMEM_LEFT, PMEM_RIGHT);
 }
 
 IFDEF(MTRACE,
