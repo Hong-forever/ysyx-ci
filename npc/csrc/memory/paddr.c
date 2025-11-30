@@ -92,7 +92,7 @@ extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
     }
     else if ((waddr&~0x3u) == 0x10000000) {
         // memory-mapped serial port write
-        putchar((char)(wdata & 0xff));
+        putchar((char)(wdata & wmask));
     }
     else {
         out_of_bound(waddr, true);
