@@ -78,11 +78,9 @@ extern "C" word_t paddr_read(paddr_t raddr) {
         // printf("paddr_read addr: 0x%08x\n", raddr);
         return pmem_read(raddr);
     }
-    // else if ((raddr&~0x3u) == CONFIG_TIMER_BASE) {
-    //     // memory-mapped timer read
-    //     extern uint32_t get_time();
-    //     return get_time();
-    // }
+    else if ((raddr&~0x3u) == 0x10000000) {
+        return 1;
+    }
 
     out_of_bound(raddr, false);
     return 0;
