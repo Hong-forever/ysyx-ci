@@ -57,7 +57,8 @@ module ifetch
         end
     end
 
-    assign npc = I_flush      ? I_flush_addr    :
+    assign npc = rst          ? `RomAddrBase    :
+                 I_flush      ? I_flush_addr    :
                  I_stall      ? pc              :
                  I_bru_taken  ? I_bru_target    :
                  pc_plus4;
