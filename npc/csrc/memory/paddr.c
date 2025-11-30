@@ -87,7 +87,7 @@ extern "C" word_t paddr_read(paddr_t raddr) {
     else if ((raddr&~0x3u) == SERIAL_MMIO) {
         return 1;
     }
-    else if ((raddr&~0x3u) == RTC_MMIO) {
+    else if ((raddr&~0x7u) == RTC_MMIO) {
         uint64_t ns = get_time();
     }
 
