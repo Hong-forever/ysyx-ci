@@ -43,6 +43,11 @@ static void host_write(paddr_t *addr, word_t wdata, uint32_t wmask) {
     *addr = (wdata & tra_mask(wmask)) | (*addr & ~tra_mask(wmask));
 }
 
+void init_mem() {
+    IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE * sizeof(word_t)));
+    printf(COLOR_BLUE "physical memory area [0x%08x, 0x%08x]", PMEM_LEFT, PMEM_RIGHT);
+}
+
 IFDEF(MTRACE,
 void mtrace_read(paddr_t addr, uint32_t data)
 {
@@ -81,6 +86,9 @@ extern "C" word_t paddr_read(paddr_t raddr) {
     }
     else if ((raddr&~0x3u) == SERIAL_MMIO) {
         return 1;
+    }
+    else if ((raddr&~0x3u) == RTC_MMIO) {
+        uint64_t ns = get_time();
     }
 
     out_of_bound(raddr, false);
