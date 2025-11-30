@@ -74,6 +74,7 @@ static void pmem_write(paddr_t waddr, word_t wdata, uint32_t wmask)
 }
 
 extern "C" word_t paddr_read(paddr_t raddr) {
+    printf("paddr_read addr: 0x%08x\n", raddr);
     if (in_pmem(raddr)) {
         return pmem_read(raddr);
     }
