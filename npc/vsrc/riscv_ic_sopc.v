@@ -62,9 +62,9 @@ module top
     assign ibus_rdata = ibus_req ? paddr_read(ibus_addr) : `ZeroWord;
     assign dbus_rdata = dbus_req ? paddr_read(dbus_addr) : `ZeroWord;
 
-    // initial begin
-    //     $monitor("ibusreq=%d, pc=0x%08x, dbusreq=%d, dpc=0x%08x, idata=0x%08x, ddata=0x%08x\n", ibus_req, ibus_addr, dbus_req, dbus_addr, ibus_rdata, dbus_rdata);
-    // end
+    initial begin
+        $monitor("ibusreq=%d, pc=0x%08x, dbusreq=%d, dpc=0x%08x, idata=0x%08x, ddata=0x%08x\n", ibus_req, ibus_addr, dbus_req, dbus_addr, ibus_rdata, dbus_rdata);
+    end
 
     always @(*) begin
         if (dbus_req && dbus_we) begin
