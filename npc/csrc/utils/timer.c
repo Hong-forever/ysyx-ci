@@ -7,9 +7,9 @@ IFDEF(CONFIG_TIMER_CLOCK_GETTIME,
 IFDEF(CONFIG_TIMER_CLOCK_GETTIME,
       static_assert(sizeof(clock_t) == 8, "sizeof(clock_t) != 8"));
 
-static uint64_t boot_time = 0;
+uint64_t boot_time = 0;
 
-static uint64_t get_time_internal()
+uint64_t get_time_internal()
 {
 #if defined(CONFIG_TIMER_GETTIMEOFDAY)
     struct timeval now;
@@ -25,11 +25,10 @@ static uint64_t get_time_internal()
 
 uint64_t get_time()
 {
-    // if (boot_time == 0)
-    //     boot_time = get_time_internal();
+    if (boot_time == 0)
+        boot_time = get_time_internal();
     uint64_t now = get_time_internal();
-    // return now - boot_time;
-    return now;
+    return now - boot_time;
 }
 
 void init_rand()

@@ -6,5 +6,7 @@
 #define RTC_MMIO        0x20000000
 
 uint64_t get_time();
+uint64_t get_time_internal();
+extern uint64_t boot_time;
 
 #endif
