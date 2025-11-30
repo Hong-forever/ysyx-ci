@@ -91,6 +91,7 @@ extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
         pmem_write(waddr, wdata, wmask);
     }
     else if ((waddr&~0x3u) == 0x10000000) {
+        printf("0x%08x, 0x%08x, 0x%08x\n", waddr, wdata, wmask);
         // memory-mapped serial port write
         putchar((char)(wdata & wmask));
     }
