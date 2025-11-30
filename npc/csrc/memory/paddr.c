@@ -86,7 +86,7 @@ extern "C" word_t paddr_read(paddr_t raddr) {
 extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
     if (in_pmem(waddr)) {
         pmem_write(waddr, wdata, wmask);
+    } else {
+        out_of_bound(waddr, true);
     }
-
-    out_of_bound(waddr, true);
 }
