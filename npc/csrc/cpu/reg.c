@@ -21,6 +21,7 @@ extern "C" void cpu_value(int valid, int inst, int inst_addr, int pc, int gpr0, 
                           int gpr28, int gpr29, int gpr30, int gpr31)
 {
     printf("npc: pc=0x%08x inst=0x%08x\n", cpu.pc, s.inst);
+    printf("dut npc: pc=0x%08x", pc);
     cpu_inst_valid = valid;
     s.inst = inst; s.pc = inst_addr;
 
