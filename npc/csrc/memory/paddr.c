@@ -92,12 +92,10 @@ extern "C" word_t paddr_read(paddr_t raddr) {
         if (raddr & 0x4) {
             uint64_t us = get_time();
             if(rtc_value[0] == 0 && rtc_value[1] == 0) {
-                // first read after reset, set rtc_value to current time
                 rtc_value[0] = boot_time & 0xffffffff;
                 rtc_value[1] = (boot_time >> 32) & 0xffffffff;
                 return rtc_value[1];
             } else {
-                // subsequent read, increment rtc_value by elapsed time
                 rtc_value[0] = us & 0xffffffff;
                 rtc_value[1] = (us >> 32) & 0xffffffff;
                 return rtc_value[1];
