@@ -3,6 +3,7 @@
 #include "device.h"
 
 static word_t pmem[CONFIG_MSIZE] = {0};
+static uint32_t rtc_value[2] = {0};
 
 static uint32_t tra_mask(uint32_t wmask)
 {
@@ -88,9 +89,14 @@ extern "C" word_t paddr_read(paddr_t raddr) {
         return 1;
     }
     else if ((raddr&~0x7u) == RTC_MMIO) {
-        uint64_t ns = get_time();
+        if (raddr & 0x4) {
+            rtc_value[0] = get_time() & 0xffffffff;
+            rtc_value[1] = (get_time() >> 32) & 0xffffffff;
+            return rtc_value[1];
+        } else {
+            return rtc_value[0];
+        }
     }
-    printf("0x%08x\n", raddr&~0x7u);
 
     out_of_bound(raddr, false);
     return 0;

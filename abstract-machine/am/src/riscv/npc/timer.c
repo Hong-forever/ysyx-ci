@@ -25,5 +25,5 @@ void __am_timer_rtc(AM_TIMER_RTC_T *rtc)
     rtc->hour   = (s / 3600) % 24;
     rtc->day    = day % 30 + 1;
     rtc->month  = day / 30 % 12 + 1;
-    rtc->year   = 19700 + day / 365;
+    rtc->year   = 1970 + day / 365;
 }
