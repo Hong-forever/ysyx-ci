@@ -90,8 +90,9 @@ extern "C" word_t paddr_read(paddr_t raddr) {
     }
     else if ((raddr&~0x7u) == RTC_MMIO) {
         if (raddr & 0x4) {
-            rtc_value[0] = get_time() & 0xffffffff;
-            rtc_value[1] = (get_time() >> 32) & 0xffffffff;
+            uint64_t us = get_time();
+            rtc_value[0] = us & 0xffffffff;
+            rtc_value[1] = (us >> 32) & 0xffffffff;
             return rtc_value[1];
         } else {
             return rtc_value[0];
