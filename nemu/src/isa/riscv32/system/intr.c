@@ -20,11 +20,11 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
    * Then return the address of the interrupt/exception vector.
    */
   if(NO == -1) epc += 4;
-  mcause = NO;
-  mepc = epc;
+  Mcause() = NO;
+  Mepc() = epc;
   // printf("mcause: 0x%08x, mepc: 0x%08x, mtvec: 0x%08x\n", mcause, mepc, mtvec);
 
-  return mtvec;
+  return Mtvec();
 }
 
 word_t isa_query_intr() {

@@ -33,7 +33,25 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
         } 
     }
 
-    // if(ref_r->)
+    if((ref_r->csr).mstatus != Mstatus()) {
+        flag = false;
+        printf("DIFF==>> mstatus(ref): 0x%08x, mstatus(dut): 0x%08x\n", ref_r->csr.mstatus, Mstatus());
+    }
+
+    if(ref_r->csr.mcause != Mcause()) {
+        flag = false;
+        printf("DIFF==>> mcause(ref): 0x%08x, mcause(dut): 0x%08x\n", ref_r->csr.mcause, Mcause());
+    }
+    
+    if(ref_r->csr.mepc != Mepc()) {
+        flag = false;
+        printf("DIFF==>> mepc(ref): 0x%08x, mepc(dut): 0x%08x\n", ref_r->csr.mepc, Mepc());
+    }
+
+    if(ref_r->csr.mtvec != Mtvec()) {
+        flag = false;
+        printf("DIFF==>> mtvec(ref): 0x%08x, mtvec(dut): 0x%08x\n", ref_r->csr.mtvec, Mtvec());
+    }
 
     if(!flag) {
         printf("Difftest: Error at pc: 0x%08x\n", pc);
