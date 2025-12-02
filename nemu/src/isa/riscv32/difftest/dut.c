@@ -27,7 +27,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
 
     for(int i=0; i<MUXDEF(CONFIG_RVE, 16, 32); i++) {
         if(ref_r->gpr[i] != cpu.gpr[i]) {
-            printf("gpr[%d](ref): 0x%08x, gpr[%d](dut): 0x%08x\n", i, ref_r->pc, i, cpu.pc);
+            printf("gpr[%d](ref): 0x%08x, gpr[%d](dut): 0x%08x\n", i, ref_r->gpr[i], i, cpu.gpr[i]);
             flag = false;
             break;
         } 
