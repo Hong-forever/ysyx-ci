@@ -81,6 +81,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 
 #ifdef CONFIG_LOOP_DETECT
 void detect_loop_pattern() { 
+    printf("Detecting loop patterns...\n");
     static bool initialized = false;
     if(!initialized) {
         for(int i=0; i<LOOP_HISTORY_SIZE; i++) {
