@@ -19,11 +19,11 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   /* TODO: Trigger an interrupt/exception with ``NO''.
    * Then return the address of the interrupt/exception vector.
    */
-  if(NO == -1) epc += 4;
+  // if(NO == -1 || NO == 11) epc += 4;
   Mcause() = NO;
   Mepc() = epc;
-  void isa_reg_display();
-  isa_reg_display();
+  // void isa_reg_display();
+  // isa_reg_display();
   // printf("mcause: 0x%08x, mepc: 0x%08x, mtvec: 0x%08x\n", mcause, mepc, mtvec);
 
   return Mtvec();
