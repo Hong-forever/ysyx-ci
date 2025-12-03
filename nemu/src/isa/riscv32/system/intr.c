@@ -22,6 +22,8 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   if(NO == -1) epc += 4;
   Mcause() = NO;
   Mepc() = epc;
+  void isa_reg_display();
+  isa_reg_display();
   // printf("mcause: 0x%08x, mepc: 0x%08x, mtvec: 0x%08x\n", mcause, mepc, mtvec);
 
   return Mtvec();
