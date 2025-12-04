@@ -1,11 +1,15 @@
 #include "isa.h"
 #include "utils.h"
+#include <locale.h>
 
 static TOP_NAME dut;
 int cpu_inst_valid = 0;
 
 IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc, paddr_t npc));
 void reg_display();
+
+uint64_t get_time();
+uint64_t g_timer = 0;
 
 #ifdef CONFIG_USE_NVBOARD
 #include <nvboard.h>
@@ -135,10 +139,23 @@ void reset(int n)
     dut.rst = 0;
 }
 
-void assert_fail_msg() {
-    IFDEF(CONFIG_ITRACE, iring_trace_printf());
-    reg_display();
+
+void statistic() {
+    setlocale(LC_NUMERIC, "");
+    PRINTF_BLUE("host time spent = %'lu us", g_timer);
+    PRINTF_BLUE("total guest instructions = %'lu", g_nr_guest_inst);
+    if (g_timer > 0) {
+        PRINTF_BLUE("simulation frequency = %'lu inst/s", g_nr_guest_inst * 1000000 / g_timer);
+    } else {
+        PRINTF_BLUE("Finish running in less than 1 us and can not calculate the simulation frequency.");
+    }
 }
+
+// void assert_fail_msg() {
+//     IFDEF(CONFIG_ITRACE, iring_trace_printf());
+//     reg_display();
+//     statistic();
+// }
 
 static void exec_once()
 {
@@ -216,7 +233,12 @@ void cpu_exec(uint64_t n)
             break;
     }
 
+    uint64_t timer_start = get_time();
+
     execute(n);
+
+    uint64_t timer_end = get_time();
+    g_timer += timer_end - timer_start;
 
     switch (npc_state.state)
     {
@@ -230,8 +252,9 @@ void cpu_exec(uint64_t n)
         case NPC_ABORT:
             PRINTF_RED("[=>>> ABORT at pc = 0x%08x\n", npc_state.halt_pc);
             break;
-        // case NPC_QUIT:
-        //     break;
+        case NPC_QUIT:
+            statistic();
+            break;
 
         default:
             break;
