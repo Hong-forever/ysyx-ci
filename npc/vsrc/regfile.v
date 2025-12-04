@@ -73,6 +73,7 @@ module regfile
     reg [`InstBus] inst_r1, inst_r2;
     reg [`InstAddrBus] inst_addr_r1, inst_addr_r2;
     reg [`InstAddrBus] pc;
+    reg skip_flag_r;
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             inst_r1         <= `ZeroWord;
@@ -80,6 +81,7 @@ module regfile
             inst_r2         <= `ZeroWord;
             inst_addr_r2    <= `ZeroWord;
             pc              <= `ZeroWord;
+            skip_flag_r     <= 1'b0;
         end else begin
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
@@ -90,6 +92,7 @@ module regfile
                                 (I_dec_addr == `ZeroWord ? I_if_addr : I_dec_addr) 
                                 : I_ex_addr) 
                                : I_ls_addr;
+            skip_flag_r     <= I_device_skip_flag;
         end
     end
 
@@ -98,7 +101,7 @@ module regfile
         if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1)) begin
             cpu_value
             (
-                I_device_skip_flag, 1, inst_r1, inst_addr_r1, pc, 
+                skip_flag_r, 1, inst_r1, inst_addr_r1, pc, 
                 regs[0],  regs[1],  regs[2],  regs[3],  regs[4],  regs[5],  regs[6],  regs[7],
                 regs[8],  regs[9],  regs[10], regs[11], regs[12], regs[13], regs[14], regs[15],
                 regs[16], regs[17], regs[18], regs[19], regs[20], regs[21], regs[22], regs[23],
