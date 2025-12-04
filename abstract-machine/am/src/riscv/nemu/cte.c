@@ -51,7 +51,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
     Context *c = (Context *)kstack.end - 1;
     c = (Context *)((uintptr_t)c & ~0xF); // align to 16 bytes
 
-    c->gpr[2] = (uintptr_t)kstack.end; // sp
+    // c->gpr[2] = (uintptr_t)kstack.end; // sp
     c->gpr[10] = (uintptr_t)arg; // a0
     c->mstatus = 0x00001800; // MPP = 11 (machine mode)
     c->mepc = (uintptr_t)entry;

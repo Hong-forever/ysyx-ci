@@ -44,7 +44,7 @@ __am_asm_trap:
 
   MAP(REGS, PUSH)
 
-  sw sp, OFFSET_SP(sp)
+  # sw sp, OFFSET_SP(sp)
 
   csrr t0, mcause
   csrr t1, mstatus
