@@ -66,24 +66,23 @@ word_t reg_str2val(const char *s, bool *success)
     return 0;
 }
 
+#define CHECKDIFF(reg, fmt, ...) \
+  if (ref_r->reg != cpu.reg) { \
+    PRINTF_BLUE("[DIFF]==>> " fmt " got: 0x%08x, but expected: 0x%08x\n", ##__VA_ARGS__, cpu.reg, ref_r->reg); \
+    flag = false; \
+  }
+
 bool difftest_checkregs(CPU_state *ref_r, paddr_t pc) {
     bool flag = true;
 
-    if(ref_r->pc != cpu.pc) {
-        flag = false;
-        printf(COLOR_RED "DIFF==>> pc(ref): 0x%08x, pc(dut): 0x%08x\n" COLOR_END, ref_r->pc, cpu.pc);
-    }
+    CHECKDIFF(pc, "pc");
 
     for(int i=0; i<32; i++) {
-        if(ref_r->gpr[i] != cpu.gpr[i]) {
-            printf(COLOR_RED "DIFF==>> gpr[%d](ref): 0x%08x, gpr[%d](dut): 0x%08x\n" COLOR_END, i, ref_r->gpr[i], i, cpu.gpr[i]);
-            flag = false;
-            break;
-        } 
-    }
+        CHECKDIFF(gpr[i], "gpr[%02d]", i);
+    } 
 
     if(!flag) {
-        printf(COLOR_RED "Difftest: Error at pc: 0x%08x\n" COLOR_END, pc);
+        PRINTF_RED("Difftest: Error at pc: 0x%08x\n", pc);
         return false;
     }
 

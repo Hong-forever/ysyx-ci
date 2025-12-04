@@ -32,7 +32,7 @@ paddr_t host_to_guest(paddr_t *haddr) {
 }
 
 static void out_of_bound(paddr_t addr, bool is_write) {
-    printf(COLOR_RED "%s address = 0x%08x is out of bound of pmem [0x%08x, 0x%08x] with the size of 0x%08x\n" COLOR_END, is_write?"Write":"Read", addr, PMEM_LEFT, PMEM_RIGHT, CONFIG_MSIZE);
+    PRINTF_RED("%s address = 0x%08x is out of bound of pmem [0x%08x, 0x%08x] with the size of 0x%08x\n", is_write?"Write":"Read", addr, PMEM_LEFT, PMEM_RIGHT, CONFIG_MSIZE);
     assert(0);
 }
 
@@ -46,21 +46,21 @@ static void host_write(paddr_t *addr, word_t wdata, uint32_t wmask) {
 
 void init_mem() {
     IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE * sizeof(word_t)));
-    printf(COLOR_BLUE "physical memory area [0x%08x, 0x%08x]\n", PMEM_LEFT, PMEM_RIGHT);
+    PRINTF_BLUE("physical memory area [0x%08x, 0x%08x]\n", PMEM_LEFT, PMEM_RIGHT);
 }
 
 IFDEF(MTRACE,
 void mtrace_read(paddr_t addr, uint32_t data)
 {
     if (addr >= CONFIG_MTRACE_BASE && addr < CONFIG_MTRACE_BASE + CONFIG_MTRACE_SIZE) {
-        printf(COLOR_BLUE "[Mtrace] Read addr: 0x%08x data: 0x%08x\n" COLOR_END, addr, data);
+        PRINTF_BLUE("[Mtrace] Read addr: 0x%08x data: 0x%08x\n", addr, data);
     }
 }
 
 void mtrace_write(paddr_t addr, uint32_t data, uint32_t mask)
 {
     if (addr >= CONFIG_MTRACE_BASE && addr < CONFIG_MTRACE_BASE + CONFIG_MTRACE_SIZE) {
-        printf(COLOR_BLUE "[Mtrace] Wrtie addr: 0x%08x data: 0x%08x mask: 0x%08x\n" COLOR_END, addr, data, tra_mask(mask));
+        PRINTF_BLUE("[Mtrace] Wrtie addr: 0x%08x data: 0x%08x mask: 0x%08x\n", addr, data, tra_mask(mask));
     }
 }
 );
