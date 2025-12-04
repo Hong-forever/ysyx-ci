@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "device.h"
 
+void difftest_skip_ref();
+
 static word_t pmem[CONFIG_MSIZE] = {0};
 static uint32_t rtc_value[2] = {0};
 
@@ -84,41 +86,45 @@ extern "C" word_t paddr_read(paddr_t raddr) {
     if (in_pmem(raddr)) {
         // printf("paddr_read addr: 0x%08x\n", raddr);
         return pmem_read(raddr);
-    }
-    else if ((raddr&~0x3u) == SERIAL_MMIO) {
-        return 1;
-    }
-    else if ((raddr&~0x7u) == RTC_MMIO) {
-        if (raddr & 0x4) {
-            uint64_t us = get_time();
-            if(rtc_value[0] == 0 && rtc_value[1] == 0) {
-                rtc_value[0] = boot_time & 0xffffffff;
-                rtc_value[1] = (boot_time >> 32) & 0xffffffff;
-                return rtc_value[1];
+    } 
+    else {
+        IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
+        if ((raddr & ~0x3u) == SERIAL_MMIO) {
+            return 1;
+        } else if ((raddr & ~0x7u) == RTC_MMIO) {
+            if (raddr & 0x4) {
+                uint64_t us = get_time();
+                if (rtc_value[0] == 0 && rtc_value[1] == 0) {
+                    rtc_value[0] = boot_time & 0xffffffff;
+                    rtc_value[1] = (boot_time >> 32) & 0xffffffff;
+                    return rtc_value[1];
+                } else {
+                    rtc_value[0] = us & 0xffffffff;
+                    rtc_value[1] = (us >> 32) & 0xffffffff;
+                    return rtc_value[1];
+                }
             } else {
-                rtc_value[0] = us & 0xffffffff;
-                rtc_value[1] = (us >> 32) & 0xffffffff;
-                return rtc_value[1];
+                return rtc_value[0];
             }
-        } else {
-            return rtc_value[0];
         }
-    }
 
-    out_of_bound(raddr, false);
-    return 0;
+        out_of_bound(raddr, false);
+        return 0;
+    }
 }
 
 extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
     if (in_pmem(waddr)) {
         pmem_write(waddr, wdata, wmask);
     }
-    else if ((waddr&~0x3u) == SERIAL_MMIO) {
-        // memory-mapped serial port write
-        assert(wmask == 0x1);
-        putchar((char)(wdata & 0xff));
-    }
     else {
-        out_of_bound(waddr, true);
+        IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
+        if ((waddr & ~0x3u) == SERIAL_MMIO) {
+            // memory-mapped serial port write
+            assert(wmask == 0x1);
+            putchar((char)(wdata & 0xff));
+        } else {
+            out_of_bound(waddr, true);
+        }
     }
 }

@@ -11,6 +11,8 @@ void reg_display();
 uint64_t get_time();
 uint64_t g_timer = 0;
 
+void difftest_skip_ref();
+
 #ifdef CONFIG_USE_NVBOARD
 #include <nvboard.h>
 void nvboard_bind_all_pins(TOP_NAME *top);
@@ -119,8 +121,10 @@ void detect_loop_pattern() {
 
 extern "C" void trap(int reg_data, int halt_pc)
 {
+    IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
     npc_state.halt_pc = halt_pc;
     npc_state.halt_ret = reg_data + 1;
+    npc_state.state = NPC_END;
 }
 
 static void single_cycle()
@@ -204,14 +208,8 @@ static void execute(uint64_t n)
         cpu_inst_valid = 0;
         g_nr_guest_inst++;
 
-        if (npc_state.state == NPC_STOP || npc_state.state == NPC_ABORT) {
-            break;
-        }
-        else if (npc_state.halt_ret != 0)
-        {
-            npc_state.state = NPC_END;
-            break;
-        }         
+        if (npc_state.state != NPC_RUNNING) break;
+
         IFDEF(CONFIG_USE_NVBOARD, nvboard_update());
     }
 
