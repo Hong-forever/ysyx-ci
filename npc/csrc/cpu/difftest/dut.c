@@ -125,7 +125,7 @@ void difftest_step(paddr_t pc, paddr_t npc)
 
     checkregs(&ref_r, pc);
 
-    if (device_skip_flag == 3) {
+    if (device_skip_flag == 4) {
         difftest_skip_ref();
         device_skip_flag = 0;
     } else if (device_skip_flag) {
