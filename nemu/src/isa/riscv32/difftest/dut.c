@@ -34,9 +34,9 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     }
 
     CHECKDIFF(csr.mstatus, "mstatus");
-    CHECKDIFF(csr.mcause, "mcause");
-    CHECKDIFF(csr.mepc, "mepc");
-    CHECKDIFF(csr.mtvec, "mtvec");
+    CHECKDIFF(csr.mcause,  "mcause ");
+    CHECKDIFF(csr.mepc,    "mepc   ");
+    CHECKDIFF(csr.mtvec,   "mtvec  ");
 
     if(!flag) {
         printf("Difftest: Error at pc: 0x%08x\n", pc);
