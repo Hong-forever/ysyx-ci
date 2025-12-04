@@ -6,7 +6,6 @@
 paddr_t *guest_to_host(paddr_t paddr);
 void reg_display();
 bool difftest_checkregs(CPU_state *ref_r, paddr_t pc);
-extern int device_skip_flag;
 
 void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
 void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
@@ -124,13 +123,6 @@ void difftest_step(paddr_t pc, paddr_t npc)
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
     checkregs(&ref_r, pc);
-
-    if (device_skip_flag == 4) {
-        difftest_skip_ref();
-        device_skip_flag = 0;
-    } else if (device_skip_flag) {
-        device_skip_flag ++;
-    }
 
 }
 #else

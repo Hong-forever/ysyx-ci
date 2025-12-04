@@ -26,7 +26,10 @@ module regfile
 
     input   wire                        I_rd_we,         //写寄存器标志
     input   wire    [`RegAddrBus    ]   I_rd_waddr,      //写寄存器地址
-    input   wire    [`RegDataBus    ]   I_rd_wdata       //写寄存器数据
+    input   wire    [`RegDataBus    ]   I_rd_wdata,      //写寄存器数据
+
+
+    input   wire                        I_device_skip_flag
 
 );
 
@@ -57,7 +60,7 @@ module regfile
 
     import "DPI-C" function void trap(input int reg_data, input int halt_pc);
 
-    import "DPI-C" function void cpu_value(input int valid, input int inst, input int inst_addr, input int pc, 
+    import "DPI-C" function void cpu_value(input int diff_skip_flag, input int valid, input int inst, input int inst_addr, input int pc, 
         input int gpr0, input int gpr1, input int gpr2, input int gpr3, 
         input int gpr4, input int gpr5, input int gpr6, input int gpr7, 
         input int gpr8, input int gpr9, input int gpr10, input int gpr11, 
@@ -95,7 +98,7 @@ module regfile
         if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1)) begin
             cpu_value
             (
-                1, inst_r1, inst_addr_r1, pc, 
+                I_device_skip_flag, 1, inst_r1, inst_addr_r1, pc, 
                 regs[0],  regs[1],  regs[2],  regs[3],  regs[4],  regs[5],  regs[6],  regs[7],
                 regs[8],  regs[9],  regs[10], regs[11], regs[12], regs[13], regs[14], regs[15],
                 regs[16], regs[17], regs[18], regs[19], regs[20], regs[21], regs[22], regs[23],

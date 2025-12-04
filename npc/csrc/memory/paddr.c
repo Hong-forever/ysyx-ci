@@ -2,8 +2,6 @@
 #include "utils.h"
 #include "device.h"
 
-IFDEF(CONFIG_DIFFTEST, int device_skip_flag = 0);
-
 static word_t pmem[CONFIG_MSIZE] = {0};
 static uint32_t rtc_value[2] = {0};
 
@@ -88,7 +86,6 @@ extern "C" word_t paddr_read(paddr_t raddr) {
         return pmem_read(raddr);
     } 
     else {
-        IFDEF(CONFIG_DIFFTEST, device_skip_flag = 1);
         if ((raddr & ~0x3u) == SERIAL_MMIO) {
             return 1;
         } else if ((raddr & ~0x7u) == RTC_MMIO) {
@@ -118,7 +115,6 @@ extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
         pmem_write(waddr, wdata, wmask);
     }
     else {
-        IFDEF(CONFIG_DIFFTEST, device_skip_flag = 1);
         if ((waddr & ~0x3u) == SERIAL_MMIO) {
             // memory-mapped serial port write
             assert(wmask == 0x1);
