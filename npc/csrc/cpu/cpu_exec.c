@@ -248,6 +248,7 @@ void cpu_exec(uint64_t n)
             } else if (npc_state.halt_ret == 2) {
                 PRINTF_RED("[=>>> HIT BAD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
             }
+            statistic();
             break;
         case NPC_ABORT:
             PRINTF_RED("[=>>> ABORT at pc = 0x%08x\n", npc_state.halt_pc);
