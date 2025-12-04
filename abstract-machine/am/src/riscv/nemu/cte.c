@@ -56,9 +56,9 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
     c->mstatus = 0x00001800; // MPP = 11 (machine mode)
     c->mepc = (uintptr_t)entry;
 
-    printf("kstack.end = 0x%08x\n", (uintptr_t)kstack.end);
-    printf("sp  = 0x%08x\n", (uintptr_t)c->gpr[2]);
-    printf("c = 0x%08x\n", (uintptr_t)c);
+    // printf("kstack.end = 0x%08x\n", (uintptr_t)kstack.end);
+    // printf("sp  = 0x%08x\n", (uintptr_t)c->gpr[2]);
+    // printf("c = 0x%08x\n", (uintptr_t)c);
 
     return c;
 
