@@ -48,9 +48,11 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
      * Then return the address of the interrupt/exception vector.
      */
     // if (NO == -1 || NO == 11)
-    //     epc += 4;
+        // epc += 4;
     Mcause() = NO;
     Mepc() = epc;
+    Mstatus() = 0x80;
+
 
     // void isa_reg_display();
     // isa_reg_display();
