@@ -26,7 +26,7 @@ Context *__am_irq_handle(Context *c)
 
         c = user_handler(ev, c);
 
-        printf("sp = 0x%08x\n", (uintptr_t)c->gpr[2]);
+        // printf("sp = 0x%08x\n", (uintptr_t)c->gpr[2]);
         assert(c != NULL);
     }
 
@@ -69,7 +69,8 @@ void yield()
 #ifdef __riscv_e
     asm volatile("li a5, -1; ecall");
 #else
-    asm volatile("li a7, -1; ecall");
+    // asm volatile("li a7, -1; ecall");
+    asm volatile("ecall");
 #endif
 }
 
