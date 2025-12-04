@@ -25,6 +25,8 @@ Context *__am_irq_handle(Context *c)
         // halt(1);
 
         c = user_handler(ev, c);
+
+        printf("sp = 0x%08x\n", (uintptr_t)c->gpr[2]);
         assert(c != NULL);
     }
 
