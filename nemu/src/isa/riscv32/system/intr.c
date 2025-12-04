@@ -58,7 +58,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
 
     // void isa_reg_display();
     // isa_reg_display();
-    IFDEF(CONFIG_ETRACE, etrace());
+    // IFDEF(CONFIG_ETRACE, etrace());
     
     return Mtvec();
 }
