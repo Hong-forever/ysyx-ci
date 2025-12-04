@@ -52,13 +52,13 @@ __am_asm_trap:
   STORE t1, OFFSET_STATUS(sp)
 
   li t3, 11
-  beq t0, t3, is_ecall
-  j not_ecall
+  beq t0, t3, adj_epc
+  j then
 
-is_ecall:
+adj_epc:
   addi t2, t2, 4
 
-not_ecall:
+then:
 
   STORE t2, OFFSET_EPC(sp)
 
