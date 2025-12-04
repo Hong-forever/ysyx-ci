@@ -47,8 +47,8 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
     /* TODO: Trigger an interrupt/exception with ``NO''.
      * Then return the address of the interrupt/exception vector.
      */
-    if (NO == -1 || NO == 11)
-        epc += 4;
+    // if (NO == -1 || NO == 11)
+    //     epc += 4;
     Mcause() = NO;
     Mepc() = epc;
 
