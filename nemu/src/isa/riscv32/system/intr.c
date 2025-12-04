@@ -51,7 +51,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
         // epc += 4;
     Mcause() = NO;
     Mepc() = epc;
-    Mstatus() = (Mstatus() | 0x1800) | ((Mstatus() & (~0x8)) | (((Mstatus() << 4) & (0x80)) | Mstatus())); // disable interrupt
+    Mstatus() = (0x1800) | ((Mstatus() & (~0x8)) | (((Mstatus() << 4) & (0x80)) | Mstatus())); // disable interrupt
 
 
     // void isa_reg_display();
