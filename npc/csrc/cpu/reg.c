@@ -27,6 +27,7 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
     s.inst = inst; s.pc = inst_addr;
 
     if(diff_skip_flag) {
+        printf("Difftest: skip ref at pc: 0x%08x\n", pc);
         IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
     }
 
