@@ -68,7 +68,7 @@ word_t reg_str2val(const char *s, bool *success)
 
 #define CHECKDIFF(reg, fmt, ...) \
   if (ref_r->reg != cpu.reg) { \
-    PRINTF_BLUE("[DIFF]==>> " fmt " got: 0x%08x, but expected: 0x%08x\n", ##__VA_ARGS__, cpu.reg, ref_r->reg); \
+    PRINTF_RED("[DIFF]==>> " fmt " got: 0x%08x, but expected: 0x%08x\n", ##__VA_ARGS__, cpu.reg, ref_r->reg); \
     flag = false; \
   }
 

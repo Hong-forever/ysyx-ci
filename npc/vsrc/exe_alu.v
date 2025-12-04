@@ -39,7 +39,7 @@ module exe_alu
     wire [`RegDataBus] rv32i_or_res    = I_alu_srca | I_alu_srcb;
     wire [`RegDataBus] rv32i_and_res   = I_alu_srca & I_alu_srcb;
     wire [`RegDataBus] rv32i_lui_res   = I_alu_srcb;
-    wire [`RegDataBus] rv32i_auipc_res = I_alu_srcb + I_alu_srca + 1;
+    wire [`RegDataBus] rv32i_auipc_res = I_alu_srcb + I_alu_srca;
 
     wire [`DoubleRegDataBus] mul_res;
     wire [`DoubleRegDataBus] mulh_res;
