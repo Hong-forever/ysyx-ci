@@ -142,12 +142,12 @@ void reset(int n)
 
 void statistic() {
     setlocale(LC_NUMERIC, "");
-    PRINTF_BLUE("host time spent = %'lu us", g_timer);
-    PRINTF_BLUE("total guest instructions = %'lu", g_nr_guest_inst);
+    PRINTF_BLUE("host time spent = %'lu us\n", g_timer);
+    PRINTF_BLUE("total guest instructions = %'lu\n", g_nr_guest_inst);
     if (g_timer > 0) {
-        PRINTF_BLUE("simulation frequency = %'lu inst/s", g_nr_guest_inst * 1000000 / g_timer);
+        PRINTF_BLUE("simulation frequency = %'lu inst/s\n", g_nr_guest_inst * 1000000 / g_timer);
     } else {
-        PRINTF_BLUE("Finish running in less than 1 us and can not calculate the simulation frequency.");
+        PRINTF_BLUE("Finish running in less than 1 us and can not calculate the simulation frequency.\n");
     }
 }
 
