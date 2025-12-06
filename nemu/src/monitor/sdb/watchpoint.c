@@ -120,7 +120,8 @@ void check_watchpoint() {
         wp = wp->next;
     }
     if(times != 0) {
-        nemu_state.state = NEMU_STOP;
+        if(nemu_state.state == NEMU_RUNNING)
+            nemu_state.state = NEMU_STOP;
     }
 }
 
