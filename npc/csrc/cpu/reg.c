@@ -53,7 +53,7 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
     cpu.csr.mstatus = mstatus;
     cpu.csr.mcause = mcause;
 
-    extra_cpu.mcycle = mcyclel;
+    extra_cpu.mcyclel = mcyclel;
     extra_cpu.mcycleh = mcycleh;
     extra_cpu.mvendorid = mvendorid;
     extra_cpu.marchid = marchid;

@@ -16,13 +16,14 @@ typedef struct {
 } CPU_state;
 
 typedef struct {
-    word_t mcycle;
+    word_t mcyclel;
     word_t mcycleh;
     word_t mvendorid;
     word_t marchid;
 } Extra_CPU_state;
 
 extern CPU_state cpu;
+extern Extra_CPU_state extra_cpu;
 
 typedef struct {
     // add ISA-specific state here
