@@ -70,10 +70,10 @@ void reg_display()
         printf("regs[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
 
-    printf("mstatus : 0x%08x\n", cpu.csr.mstatus);
-    printf("mcause  : 0x%08x\n", cpu.csr.mcause);
-    printf("mepc    : 0x%08x\n", cpu.csr.mepc);
-    printf("mtvec   : 0x%08x\n", cpu.csr.mtvec);
+    printf("csr-mstatus : 0x%08x\n", cpu.csr.mstatus);
+    printf("csr-mcause  : 0x%08x\n", cpu.csr.mcause);
+    printf("csr-mepc    : 0x%08x\n", cpu.csr.mepc);
+    printf("csr-mtvec   : 0x%08x\n", cpu.csr.mtvec);
 }
 
 word_t reg_str2val(const char *s, bool *success)
