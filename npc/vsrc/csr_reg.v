@@ -125,6 +125,8 @@ module csr_reg
                 `CSR_Addr_MCAUSE:   rdata1 = mcause;
                 `CSR_Addr_CYCLE:    rdata1 = cycle[31:0];
                 `CSR_Addr_CYCLEH:   rdata1 = cycle[63:32];
+                `CSR_Addr_MVENDORID:rdata1 = mvendorid;
+                `CSR_Addr_MARCHID:  rdata1 = marchid;
                 default:            rdata1 = `ZeroWord;
             endcase
         end
