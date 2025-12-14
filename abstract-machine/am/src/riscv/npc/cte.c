@@ -7,12 +7,12 @@ Context *__am_irq_handle(Context *c)
     if (user_handler) {
         Event ev = {0};
         switch (c->mcause) {
-        case 11:
-            ev.event = EVENT_YIELD;
-            // printf("ecall from M-mode\n");
-            // has relized in trap.S
-            // c->mepc += 4; // skip ecall instruction
-            break;
+        // case 11:
+        //     ev.event = EVENT_YIELD;
+        //     // printf("ecall from M-mode\n");
+        //     // has relized in trap.S
+        //     // c->mepc += 4; // skip ecall instruction
+        //     break;
         default:
             ev.event = EVENT_ERROR;
             break;
