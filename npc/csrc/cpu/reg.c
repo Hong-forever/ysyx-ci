@@ -69,6 +69,11 @@ void reg_display()
     for (int i = 0; i < 32; i++) {
         printf("regs[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
+
+    printf("mstatus : 0x%08x\n", cpu.csr.mstatus);
+    printf("mcause  : 0x%08x\n", cpu.csr.mcause);
+    printf("mepc    : 0x%08x\n", cpu.csr.mepc);
+    printf("mtvec   : 0x%08x\n", cpu.csr.mtvec);
 }
 
 word_t reg_str2val(const char *s, bool *success)
@@ -86,6 +91,22 @@ word_t reg_str2val(const char *s, bool *success)
 
     if (strcmp(s, "pc") == 0) {
         return cpu.pc;
+    }
+
+    if (strcmp(s, "mstatus") == 0) {
+        return cpu.csr.mstatus;
+    }
+
+    if (strcmp(s, "mcause") == 0) {
+        return cpu.csr.mcause;
+    }
+
+    if (strcmp(s, "mepc") == 0) {
+        return cpu.csr.mepc;
+    }
+
+    if (strcmp(s, "mtvec") == 0) {
+        return cpu.csr.mtvec;
     }
 
     printf("Error: reg error\n");
