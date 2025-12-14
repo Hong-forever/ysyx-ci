@@ -166,7 +166,7 @@ static void exec_once()
     single_cycle();
 
     // printf("cpu_inst_valid: %d\n", cpu_inst_valid);
-    printf("mcycle: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
+    // printf("mcycle: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
     
     if (!cpu_inst_valid) return;
 
