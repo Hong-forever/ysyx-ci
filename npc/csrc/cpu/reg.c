@@ -12,6 +12,8 @@ CPU_state cpu = {};
 Extra_CPU_state extra_cpu = {};
 Decode s = {};
 
+bool initialized = false;
+
 void difftest_skip_ref();
 
 extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr, int pc, int gpr0, int gpr1, int gpr2, int gpr3,
@@ -55,7 +57,10 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
     extra_cpu.mcycleh = mcycleh;
     extra_cpu.mvendorid = mvendorid;
     extra_cpu.marchid = marchid;
-    // printf("mvendorid: 0x%08x, marchid: 0x%08x\n", extra_cpu.mvendorid, extra_cpu.marchid);
+    if (!initialized) {
+        initialized = true;
+        printf("mvendorid: 0x%08x, marchid: 0x%08x\n", extra_cpu.mvendorid, extra_cpu.marchid);
+    }
 }
 
 void reg_display()
