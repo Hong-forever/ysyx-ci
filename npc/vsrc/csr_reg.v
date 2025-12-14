@@ -77,7 +77,7 @@ module csr_reg
             mcause <= `ZeroWord;
             mepc <= `ZeroWord;
             mie <= `ZeroWord;
-            mstatus <= `ZeroWord;
+            mstatus <= 32'h00001800; //复位后mstatus的值
             mscratch <= `ZeroWord;
             mvendorid <= `YSYX_LOGO;
             marchid <= `YSYX_STU_NUM;

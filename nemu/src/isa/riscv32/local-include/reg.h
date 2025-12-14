@@ -37,6 +37,8 @@ static inline word_t *csr_reg(int idx) {
     case 0x305: return &Mtvec();
     case 0x341: return &Mepc();
     case 0x342: return &Mcause();
+    case 0xf11: return 0x78767978; // mvendorid
+    case 0xf12: return 0x25110270; // marchid
     default:    panic("Unsupported CSR: 0x%03x\n", idx);
   }
 }
