@@ -12,7 +12,7 @@ extern char _pmem_start;
 #define npc_trap(code) asm volatile("mv a0, %0; ebreak" : : "r"(code))
 #define npc_csr_read(csr_id) ({ \
     uint32_t val; \
-    asm volatile("csrr %0, %1" : "=r"(val) : "i"(csr_id)); \
+    asm volatile("csrrs %0, %1, x0" : "=r"(val) : "i"(csr_id)); \
     val; \
 })
 
