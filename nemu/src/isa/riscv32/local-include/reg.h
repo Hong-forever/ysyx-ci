@@ -31,14 +31,17 @@ static inline int check_reg_idx(int idx) {
 #define Mepc()     (cpu.csr.mepc)
 #define Mtvec()    (cpu.csr.mtvec)
 
+static word_t ysyx_logo = 0x79737978; //ysyx的logo
+static word_t stu_num = 0x25110270; //我的学号-25110270
+
 static inline word_t *csr_reg(int idx) {
   switch (idx) {
     case 0x300: return &Mstatus();
     case 0x305: return &Mtvec();
     case 0x341: return &Mepc();
     case 0x342: return &Mcause();
-    case 0xf11: return 0x78767978; // mvendorid
-    case 0xf12: return 0x25110270; // marchid
+    case 0xf11: return &ysyx_logo; // mvendorid
+    case 0xf12: return &stu_num; // marchid
     default:    panic("Unsupported CSR: 0x%03x\n", idx);
   }
 }
