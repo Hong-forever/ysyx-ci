@@ -65,7 +65,7 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
 
 void reg_display()
 {
-    printf("[NPC: PC]   : 0x%08x\n", cpu.pc);
+    printf("[NPC:  PC]  : 0x%08x\n", cpu.pc);
     for (int i = 0; i < 32; i++) {
         printf("gpr[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
