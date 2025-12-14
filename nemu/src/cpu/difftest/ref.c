@@ -51,7 +51,7 @@ __EXPORT void difftest_regcpy(void *dut, bool direction)
         cpu.csr.mstatus = ((CPU_DIFF_REF_STATE *)dut)->csr.mstatus;
         cpu.csr.mcause = ((CPU_DIFF_REF_STATE *)dut)->csr.mcause;
         cpu.csr.mepc = ((CPU_DIFF_REF_STATE *)dut)->csr.mepc;
-        cpu.csr.mtvec = ((CPU_DIFF_REF_STATE *)dut)->csr.mtvec
+        cpu.csr.mtvec = ((CPU_DIFF_REF_STATE *)dut)->csr.mtvec;
     } else if (direction == DIFFTEST_TO_DUT) {
         // printf("difftest_regcpy to dut: pc=0x%08x\n", cpu.pc);
         ((CPU_DIFF_REF_STATE *)dut)->pc = cpu.pc;
