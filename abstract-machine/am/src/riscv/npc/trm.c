@@ -23,8 +23,10 @@ void _trm_init()
     uint32_t ysyx_logo = npc_csr_read(CSR_MVENDORID);
     // printf("mvendorid: 0x%08x\n", ysyx_logo);
     uint32_t stu_num = npc_csr_read(CSR_MARCHID);
+    printf("========================================>\n");
     printf("Welcome to %s!\n", ysyx_logo == YSYX_LOGO ? "YSYX" : "Unknown");
     printf("Student Number: ysyx_%u\n", stu_num);
+    printf("========================================>\n");
     
     int ret = main(mainargs);
     halt(ret);
