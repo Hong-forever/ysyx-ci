@@ -4,11 +4,26 @@
 #include "common.h"
 
 typedef struct {
+    word_t mstatus;
+    word_t mcause;
+    word_t mepc;
+    word_t mtvec;
+} CSR_state;
+typedef struct {
     word_t gpr[32];
     word_t pc;
+    CSR_state csr;
 } CPU_state;
 
+typedef struct {
+    word_t mcyclel;
+    word_t mcycleh;
+    word_t mvendorid;
+    word_t marchid;
+} Extra_CPU_state;
+
 extern CPU_state cpu;
+extern Extra_CPU_state extra_cpu;
 
 typedef struct {
     // add ISA-specific state here

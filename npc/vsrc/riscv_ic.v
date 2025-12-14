@@ -220,6 +220,11 @@ module riscv_ic
     wire [`CSRDataBus]  csr_mstatus;
     wire                csr_global_int_en;
 
+    wire [`CSRDataBus]  csr_mcause;
+    wire [`DoubleCSRDataBus] csr_mcycle;
+    wire [`CSRDataBus]  csr_mvendorid;
+    wire [`CSRDataBus]  csr_marchid;
+
     //-------------------------------------------------------------
     // clint
     //-------------------------------------------------------------
@@ -368,7 +373,16 @@ module riscv_ic
         .I_rd_waddr             (I_wb_rd_waddr              ),
         .I_rd_wdata             (I_wb_rd_wdata              ),
 
-        .I_device_skip_flag     (wbu_device_skip_flag       )
+        .I_device_skip_flag     (wbu_device_skip_flag       ),
+
+        .I_csr_mepc             (csr_mepc                   ),
+        .I_csr_mtvec            (csr_mtvec                  ),
+        .I_csr_mstatus          (csr_mstatus                ),
+        .I_csr_mcause           (csr_mcause                 ),
+        .I_csr_mcycle           (csr_mcycle                 ),
+        .I_csr_mvendorid        (csr_mvendorid              ),
+        .I_csr_marchid          (csr_marchid                )
+
     );
 
     wire [`RegAddrBus] I_rs1; // for ftrace npc
@@ -491,7 +505,12 @@ module riscv_ic
         .O_csr_mepc             (csr_mepc                   ),
         .O_csr_mstatus          (csr_mstatus                ),
         
-        .O_global_int_en        (csr_global_int_en          )
+        .O_global_int_en        (csr_global_int_en          ),
+
+        .O_csr_mcause           (csr_mcause                 ),
+        .O_csr_mcycle           (csr_mcycle                 ),
+        .O_csr_mvendorid        (csr_mvendorid              ),
+        .O_csr_marchid          (csr_marchid                )
     );
 
     clint u_clint

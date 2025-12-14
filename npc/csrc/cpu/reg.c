@@ -9,7 +9,10 @@ const char *regs[] = {
 };
 
 CPU_state cpu = {};
+Extra_CPU_state extra_cpu = {};
 Decode s = {};
+
+bool initialized = false;
 
 void difftest_skip_ref();
 
@@ -20,7 +23,11 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
                           int gpr16, int gpr17, int gpr18, int gpr19,
                           int gpr20, int gpr21, int gpr22, int gpr23,
                           int gpr24, int gpr25, int gpr26, int gpr27,
-                          int gpr28, int gpr29, int gpr30, int gpr31)
+                          int gpr28, int gpr29, int gpr30, int gpr31,
+                          int mepc, int mtvec, int mstatus, 
+                          int mcause, int mcyclel, int mcycleh, 
+                          int mvendorid, int marchid
+)
 {
     // printf("dut npc: pc=0x%08x\n", pc);
     cpu_inst_valid = valid;
@@ -40,15 +47,38 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
     cpu.gpr[20] = gpr20; cpu.gpr[21] = gpr21; cpu.gpr[22] = gpr22; cpu.gpr[23] = gpr23;
     cpu.gpr[24] = gpr24; cpu.gpr[25] = gpr25; cpu.gpr[26] = gpr26; cpu.gpr[27] = gpr27;
     cpu.gpr[28] = gpr28; cpu.gpr[29] = gpr29; cpu.gpr[30] = gpr30; cpu.gpr[31] = gpr31;
-    // printf("pc=0x%08x inst=0x%08x\n", s.pc, s.inst);
+
+    cpu.csr.mepc = mepc;
+    cpu.csr.mtvec = mtvec;
+    cpu.csr.mstatus = mstatus;
+    cpu.csr.mcause = mcause;
+
+    extra_cpu.mcyclel = mcyclel;
+    extra_cpu.mcycleh = mcycleh;
+    extra_cpu.mvendorid = mvendorid;
+    extra_cpu.marchid = marchid;
+
+    if (mcause == 11) {
+        printf("ecall from inst_addr: 0x%08x\n", s.pc);
+    }
+
+    // if (!initialized) {
+    //     initialized = true;
+    //     printf("mvendorid: 0x%08x, marchid: 0x%08x\n", extra_cpu.mvendorid, extra_cpu.marchid);
+    // }
 }
 
 void reg_display()
 {
-    printf("[==> PC ==]  : 0x%08x\n", cpu.pc);
+    printf("[NPC:  PC]  : 0x%08x\n", cpu.pc);
     for (int i = 0; i < 32; i++) {
-        printf("regs[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
+        printf("gpr[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
+
+    printf("csr-mstatus : 0x%08x\n", cpu.csr.mstatus);
+    printf("csr-mcause  : 0x%08x\n", cpu.csr.mcause);
+    printf("csr-mepc    : 0x%08x\n", cpu.csr.mepc);
+    printf("csr-mtvec   : 0x%08x\n", cpu.csr.mtvec);
 }
 
 word_t reg_str2val(const char *s, bool *success)
@@ -66,6 +96,22 @@ word_t reg_str2val(const char *s, bool *success)
 
     if (strcmp(s, "pc") == 0) {
         return cpu.pc;
+    }
+
+    if (strcmp(s, "mstatus") == 0) {
+        return cpu.csr.mstatus;
+    }
+
+    if (strcmp(s, "mcause") == 0) {
+        return cpu.csr.mcause;
+    }
+
+    if (strcmp(s, "mepc") == 0) {
+        return cpu.csr.mepc;
+    }
+
+    if (strcmp(s, "mtvec") == 0) {
+        return cpu.csr.mtvec;
     }
 
     printf("Error: reg error\n");
@@ -86,7 +132,12 @@ bool difftest_checkregs(CPU_state *ref_r, paddr_t pc) {
 
     for(int i=0; i<32; i++) {
         CHECKDIFF(gpr[i], "gpr[%02d]", i);
-    } 
+    }
+
+    CHECKDIFF(csr.mstatus, "mstatus");
+    CHECKDIFF(csr.mcause, "mcause");
+    CHECKDIFF(csr.mepc, "mepc");
+    CHECKDIFF(csr.mtvec, "mtvec");
 
     if(!flag) {
         PRINTF_RED("Difftest: Error at pc: 0x%08x\n", pc);

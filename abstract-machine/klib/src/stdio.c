@@ -25,6 +25,8 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
                 field_width = field_width * 10 + (*fmt - '0');
                 fmt++;
             }
+
+            if (*fmt == 'l') fmt++;
             
             switch (*fmt) {
                 case 'u': {

@@ -103,7 +103,8 @@ void check_watchpoint() {
         wp = wp->next;
     }
     if(times != 0) {
-        npc_state.state = NPC_STOP;
+        if(npc_state.state == NPC_RUNNING)
+            npc_state.state = NPC_STOP;
     }
 }
 
