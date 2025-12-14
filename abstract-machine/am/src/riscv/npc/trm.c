@@ -20,6 +20,10 @@ void halt(int code)
 
 void _trm_init()
 {
+    uint32_t ysyx_logo = npc_csr_read(CSR_MVENDORID);
+    uint32_t stu_num = npc_csr_read(CSR_MARCHID);
+    printf("Welcome to %s!\n", ysyx_logo == YSYX_LOGO ? "NJU-YSYX" : "Unknown");
+    printf("Student Number: %u\n", stu_num);
     int ret = main(mainargs);
     halt(ret);
 }

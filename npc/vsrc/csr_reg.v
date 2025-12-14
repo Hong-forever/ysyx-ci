@@ -23,7 +23,12 @@ module csr_reg
     output  wire    [`CSRDataBus    ]   O_csr_mtvec,        //mtvec寄存器
     output  wire    [`CSRDataBus    ]   O_csr_mepc,         //mepc寄存器
     output  wire    [`CSRDataBus    ]   O_csr_mstatus,      //mstatus寄存器
-    output  wire                        O_global_int_en      //全局中断使能标志
+    output  wire                        O_global_int_en,     //全局中断使能标志
+
+    output  wire    [`CSRDataBus    ]   O_csr_mcause,       //mcause寄存器
+    output  wire    [`DoubleCSRDataBus] O_csr_mcycle,       //mcycle寄存器
+    output  wire    [`CSRDataBus    ]   O_csr_mvendorid,      //mvendorid寄存器
+    output  wire    [`CSRDataBus    ]   O_csr_marchid         //marchid寄存器
 
 );
 
@@ -35,6 +40,12 @@ module csr_reg
     reg [`CSRDataBus] mcause;
     // reg [`DoubleCSRDataBus] mtimecmp;   //未定义地址，未实现
     reg [`DoubleCSRDataBus] cycle;
+
+    reg [`CSRDataBus] mvendorid;
+    reg [`CSRDataBus] marchid;
+
+    `define YSYX_LOGO      32'h79737978 //ysyx的logo
+    `define YSYX_STU_NUM   32'd25110270 //我的学号-25110270
 
 
     //cycle counter
@@ -68,6 +79,8 @@ module csr_reg
             mie <= `ZeroWord;
             mstatus <= `ZeroWord;
             mscratch <= `ZeroWord;
+            mvendorid <= `YSYX_LOGO;
+            marchid <= `YSYX_STU_NUM;
         end else begin
             if(I_clint_we) begin
                 case(I_clint_waddr)
@@ -128,5 +141,10 @@ module csr_reg
     assign O_csr_mstatus = mstatus;
 
     assign O_global_int_en = mstatus[3]; //mstatus[3]为mie域，全局中断使能位
+
+    assign O_csr_mcause = mcause;
+    assign O_csr_mcycle = cycle;
+    assign O_csr_mvendorid = mvendorid;
+    assign O_csr_marchid = marchid;
 
 endmodule

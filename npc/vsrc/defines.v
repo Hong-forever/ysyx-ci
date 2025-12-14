@@ -200,6 +200,8 @@
 `define CSR_Addr_MCAUSE     12'h342     // Machine Cause Register
 `define CSR_Addr_CYCLE      12'hc00     // Lower 32 bits of Cycle counter
 `define CSR_Addr_CYCLEH     12'hc80     // Upper 32 bits of Cycle counter
+`define CSR_Addr_MVENDORID  12'hf11     // Vendor ID
+`define CSR_Addr_MARCHID    12'hf12     // Architecture ID
 
 //------------------------------------------------------------------------
 // 流水线暂停定�?

@@ -29,7 +29,15 @@ module regfile
     input   wire    [`RegDataBus    ]   I_rd_wdata,      //写寄存器数据
 
 
-    input   wire                        I_device_skip_flag
+    input   wire                        I_device_skip_flag,
+
+    input   wire    [`CSRDataBus    ]   I_csr_mepc,        //写mepc寄存器数据
+    input   wire    [`CSRDataBus    ]   I_csr_mtvec,       //写mtvec寄存器数据
+    input   wire    [`CSRDataBus    ]   I_csr_mstatus,     //写mstatus寄存器数据
+    input   wire    [`CSRDataBus    ]   I_csr_mcause,      //写mcause寄存器数据
+    input   wire    [`DoubleCSRDataBus] I_csr_mcycle,       //写mcycle寄存器数据
+    input   wire    [`CSRDataBus    ]   I_csr_mvendorid,   //写mvendorid寄存器数据
+    input   wire    [`CSRDataBus    ]   I_csr_marchid      //写marchid寄存器数据
 
 );
 
@@ -68,7 +76,12 @@ module regfile
         input int gpr16, input int gpr17, input int gpr18, input int gpr19, 
         input int gpr20, input int gpr21, input int gpr22, input int gpr23,
         input int gpr24, input int gpr25, input int gpr26, input int gpr27, 
-        input int gpr28, input int gpr29, input int gpr30, input int gpr31);
+        input int gpr28, input int gpr29, input int gpr30, input int gpr31,
+
+        input int mepc, input int mtvec, input int mstatus, 
+        input int mcause, input int mcyclel, input int mcycleh, 
+        input int mvendorid, input int marchid
+    );
 
     reg [`InstBus] inst_r1, inst_r2;
     reg [`InstAddrBus] inst_addr_r1, inst_addr_r2;
@@ -105,7 +118,11 @@ module regfile
                 regs[0],  regs[1],  regs[2],  regs[3],  regs[4],  regs[5],  regs[6],  regs[7],
                 regs[8],  regs[9],  regs[10], regs[11], regs[12], regs[13], regs[14], regs[15],
                 regs[16], regs[17], regs[18], regs[19], regs[20], regs[21], regs[22], regs[23],
-                regs[24], regs[25], regs[26], regs[27], regs[28], regs[29], regs[30], regs[31]
+                regs[24], regs[25], regs[26], regs[27], regs[28], regs[29], regs[30], regs[31],
+
+                I_csr_mepc, I_csr_mtvec, I_csr_mstatus, 
+                I_csr_mcause, I_csr_mcycle[31:0], I_csr_mcycle[63:32],
+                I_csr_mvendorid, I_csr_marchid
             );
         end
 
