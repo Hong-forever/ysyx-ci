@@ -190,8 +190,8 @@ module clint
                         (csr_state == S_CSR_MSTATUS_MRET)? I_csr_mepc:
                         `ZeroWord;
 
-    initial begin
-        $monitor("is_ecall: %b\n", is_ecall);
-    end
+    // initial begin
+    //     $monitor("is_ecall: %b\n", is_ecall);
+    // end
 
 endmodule
