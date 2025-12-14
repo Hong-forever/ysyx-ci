@@ -264,7 +264,7 @@ module decoder
         .O_except               (except                     )
     );
 
-    assign O_except = 0;
+    assign O_except = except;
 
     //------------------------------------------------------------------------
     // 输出
