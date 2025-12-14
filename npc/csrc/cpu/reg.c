@@ -55,7 +55,7 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
     extra_cpu.mcycleh = mcycleh;
     extra_cpu.mvendorid = mvendorid;
     extra_cpu.marchid = marchid;
-    printf("mvendorid: 0x%08x, marchid: 0x%08x\n", extra_cpu.mvendorid, extra_cpu.marchid);
+    // printf("mvendorid: 0x%08x, marchid: 0x%08x\n", extra_cpu.mvendorid, extra_cpu.marchid);
 }
 
 void reg_display()
