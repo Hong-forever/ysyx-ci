@@ -190,9 +190,9 @@ module clint
                         (csr_state == S_CSR_MSTATUS_MRET)? I_csr_mepc:
                         `ZeroWord;
 
-    // initial begin
-    //     $monitor("is_ecall: %b, is_ebreak: %b, is_mret: %b, int_state: %b, csr_state: %b, csr_we: %b, csr_waddr: %h, csr_wdata: %h, O_stallreq: %b, O_flush: %b, O_flush_addr: %h\n",
-    //              is_ecall, is_ebreak, is_mret, int_state, csr_state, csr_we, csr_waddr, csr_wdata, O_stallreq, O_flush, O_flush_addr);
-    // end
+    initial begin
+        $monitor("is_ecall: %b, is_ebreak: %b, is_mret: %b, int_state: %b, csr_state: %b, csr_we: %b, csr_waddr: %h, csr_wdata: %h, O_stallreq: %b, O_flush: %b, O_flush_addr: %h\n",
+                 is_ecall, is_ebreak, is_mret, int_state, csr_state, csr_we, csr_waddr, csr_wdata, O_stallreq, O_flush, O_flush_addr);
+    end
 
 endmodule
