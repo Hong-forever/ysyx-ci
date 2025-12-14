@@ -45,7 +45,7 @@ module csr_reg
     reg [`CSRDataBus] marchid;
 
     `define YSYX_LOGO      32'h79737978 //ysyx的logo
-    `define YSYX_STU_NUM   32'd25110270 //我的学号-25110270
+    `define YSYX_STU_NUM   32'h25110270 //我的学号-25110270
 
 
     //cycle counter

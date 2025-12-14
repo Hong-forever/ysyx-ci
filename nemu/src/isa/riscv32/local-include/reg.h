@@ -32,7 +32,7 @@ static inline int check_reg_idx(int idx) {
 #define Mtvec()    (cpu.csr.mtvec)
 
 static word_t ysyx_logo = 0x79737978; //ysyx的logo
-static word_t stu_num = 25110270; //我的学号-25110270
+static word_t stu_num = 0x25110270; //我的学号-25110270
 
 static inline word_t *csr_reg(int idx) {
   switch (idx) {
