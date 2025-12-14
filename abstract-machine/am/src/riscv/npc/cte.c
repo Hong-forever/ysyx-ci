@@ -9,7 +9,7 @@ Context *__am_irq_handle(Context *c)
         switch (c->mcause) {
         case 11:
             ev.event = EVENT_YIELD;
-            printf("ecall from M-mode\n");
+            // printf("ecall from M-mode\n");
             // has relized in trap.S
             // c->mepc += 4; // skip ecall instruction
             break;
@@ -41,7 +41,7 @@ bool cte_init(Context *(*handler)(Event, Context *))
 {
     // initialize exception entry
     asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
-    printf("mtvec set to %p\n", __am_asm_trap);
+    // printf("mtvec set to %p\n", __am_asm_trap);
 
     // register event handler
     user_handler = handler;
