@@ -11,7 +11,15 @@ IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
 VerilatedContext *contextp = new VerilatedContext;
 TOP_NAME *top = new TOP_NAME{contextp};
-IFDEF(WAVE_ENABLE,VerilatedVcdC *tfp = new VerilatedVcdC;);
+#ifdef WAVE_ENABLE
+    #if WAVE_FORMAT == 1
+        VerilatedVcdC *tfp = new VerilatedVcdC;
+    #else
+        VerilatedFstC *tfp = new VerilatedFstC;
+    #endif
+#endif
+
+static const char *wave_file = WAVE_FORMAT == 1 ? "build/waveform.vcd" : "build/waveform.fst";
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +29,7 @@ int main(int argc, char *argv[])
 #ifdef WAVE_ENABLE
     Verilated::traceEverOn(true);
     top->trace(tfp, 99);
-    tfp->open("build/waveform.vcd");
+    tfp->open(wave_file);
 #endif
 
     init_monitor(argc, argv);

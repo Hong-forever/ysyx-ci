@@ -128,7 +128,13 @@ extern "C" void trap(int reg_data, int halt_pc)
 
 extern TOP_NAME *top ;
 extern VerilatedContext *contextp;
-extern VerilatedVcdC *tfp;
+#ifdef WAVE_ENABLE
+    #if WAVE_FORMAT == 1
+        extern VerilatedVcdC *tfp;
+    #else
+        extern VerilatedFstC *tfp;
+    #endif
+#endif
 
 static void single_cycle()
 {

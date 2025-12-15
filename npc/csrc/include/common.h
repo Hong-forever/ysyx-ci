@@ -4,7 +4,11 @@
 #include <Vtop.h>
 #include "macro.h"
 #include <verilated.h>
-#include "verilated_vcd_c.h"
+
+#ifdef WAVE_ENABLE
+        #include "verilated_vcd_c.h"
+        #include "verilated_fst_c.h"
+#endif
 
 #include "autoconf.h"
 

@@ -19,7 +19,7 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
-WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
+WAVE_FORMAT ?= 2 # 1: vcd, 2: fst
 WAVE_ENABLE ?= 1
 
 VERILATOR = verilator
@@ -69,7 +69,10 @@ include $(FILELIST_MK)
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
+ifeq ($(WAVE_ENABLE),1)
+		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
+		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
+endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
@@ -95,7 +98,7 @@ endif
 
 # CXXFLAGS += -fpermissive
 
-LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -fsanitize=address -fno-omit-frame-pointer
+LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -112,8 +115,13 @@ else
 run: sim
 endif
 
+ifeq ($(WAVE_ENABLE),1)
 view_wave:
 	@gtkwave ${NPC_HOME}/build/waveform.vcd
+else
+view_wave:
+	@gtkwave ${NPC_HOME}/build/waveform.fst
+endif
 
 
 
