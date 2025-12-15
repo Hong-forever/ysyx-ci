@@ -32,7 +32,7 @@ VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 ifeq ($(WAVE_ENABLE),1)
 	ifeq ($(WAVE_FORMAT),1)
-		VERILATOR_CFLAGS += --trace
+		VERILATOR_CFLAGS += --trace-vcd
 	else 
 		VERILATOR_CFLAGS += --trace-fst
 	endif
