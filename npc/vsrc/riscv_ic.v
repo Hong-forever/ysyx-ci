@@ -173,7 +173,7 @@ module riscv_ic
     wire                I_ls_csr_we;
     wire [`CSRAddrBus ] I_ls_csr_waddr;
     wire [`CSRDataBus ] I_ls_csr_wdata;
-    wire [`Except_Bus ] I_clint_except;
+    wire [`Except_Bus ] I_ls_except;
 
 
     //-------------------------------------------------------------
@@ -187,6 +187,7 @@ module riscv_ic
     wire                O_ls_csr_we;
     wire [`CSRAddrBus ] O_ls_csr_waddr;
     wire [`CSRDataBus ] O_ls_csr_wdata;
+    wire [`Except_Bus ] O_ls_except;
 
     //-------------------------------------------------------------
     // pipeline_ls_wb
@@ -199,6 +200,7 @@ module riscv_ic
     wire                I_wb_csr_we;
     wire [`CSRAddrBus ] I_wb_csr_waddr;
     wire [`CSRDataBus ] I_wb_csr_wdata;
+    wire [`Except_Bus ] I_wb_except;
 
     //-------------------------------------------------------------
     // pipe_ctrl
@@ -207,7 +209,6 @@ module riscv_ic
     wire                stallreq_from_dec;
     wire                stallreq_from_ex;
     wire                stallreq_from_ls;
-    wire                stallreq_from_clint;
     wire [`StallBus   ] Stall;
     wire [`KillBus    ] Kill;
 
@@ -218,19 +219,10 @@ module riscv_ic
     wire [`CSRDataBus]  csr_mtvec;
     wire [`CSRDataBus]  csr_mepc;
     wire [`CSRDataBus]  csr_mstatus;
-    wire                csr_global_int_en;
-
     wire [`CSRDataBus]  csr_mcause;
     wire [`DoubleCSRDataBus] csr_mcycle;
     wire [`CSRDataBus]  csr_mvendorid;
     wire [`CSRDataBus]  csr_marchid;
-
-    //-------------------------------------------------------------
-    // clint
-    //-------------------------------------------------------------
-    wire                clint_we;
-    wire [`CSRAddrBus]  clint_waddr;
-    wire [`CSRDataBus]  clint_wdata;
     wire                O_flush;
     wire [`InstAddrBus] O_flush_addr;
 
@@ -350,41 +342,6 @@ module riscv_ic
 
     );
 
-    regfile u_regfile
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .I_inst                 (I_wb_inst                  ),
-        .I_inst_addr            (I_wb_inst_addr             ),
-
-        .I_if_addr              (O_if_inst_addr             ),
-        .I_dec_addr             (O_dec_inst_addr            ),
-        .I_ex_addr              (O_ex_inst_addr             ),
-        .I_ls_addr              (O_ls_inst_addr             ),
-
-        .I_rs1_raddr            (O_rs1_raddr                ),
-        .I_rs2_raddr            (O_rs2_raddr                ),
-
-        .O_rs1_rdata            (I_rs1_rdata                ),
-        .O_rs2_rdata            (I_rs2_rdata                ),
-
-        .I_rd_we                (I_wb_rd_we                 ),
-        .I_rd_waddr             (I_wb_rd_waddr              ),
-        .I_rd_wdata             (I_wb_rd_wdata              ),
-
-        .I_device_skip_flag     (wbu_device_skip_flag       ),
-
-        .I_csr_mepc             (csr_mepc                   ),
-        .I_csr_mtvec            (csr_mtvec                  ),
-        .I_csr_mstatus          (csr_mstatus                ),
-        .I_csr_mcause           (csr_mcause                 ),
-        .I_csr_mcycle           (csr_mcycle                 ),
-        .I_csr_mvendorid        (csr_mvendorid              ),
-        .I_csr_marchid          (csr_marchid                )
-
-    );
-
     wire [`RegAddrBus] I_rs1; // for ftrace npc
 
     exec u0_exec
@@ -484,6 +441,40 @@ module riscv_ic
         .I_dbus_data            (I_dbus_data                )
     );
 
+    regfile u_regfile
+    (
+        .clk                    (clk                        ),
+        .rst                    (rst                        ),
+
+        .I_inst                 (I_wb_inst                  ),
+        .I_inst_addr            (I_wb_inst_addr             ),
+
+        .I_if_addr              (O_if_inst_addr             ),
+        .I_dec_addr             (O_dec_inst_addr            ),
+        .I_ex_addr              (O_ex_inst_addr             ),
+        .I_ls_addr              (O_ls_inst_addr             ),
+
+        .I_rs1_raddr            (O_rs1_raddr                ),
+        .I_rs2_raddr            (O_rs2_raddr                ),
+
+        .O_rs1_rdata            (I_rs1_rdata                ),
+        .O_rs2_rdata            (I_rs2_rdata                ),
+
+        .I_rd_we                (I_wb_rd_we                 ),
+        .I_rd_waddr             (I_wb_rd_waddr              ),
+        .I_rd_wdata             (I_wb_rd_wdata              ),
+
+        .I_device_skip_flag     (wbu_device_skip_flag       ),
+
+        .I_csr_mepc             (csr_mepc                   ),
+        .I_csr_mtvec            (csr_mtvec                  ),
+        .I_csr_mstatus          (csr_mstatus                ),
+        .I_csr_mcause           (csr_mcause                 ),
+        .I_csr_mcycle           (csr_mcycle                 ),
+        .I_csr_mvendorid        (csr_mvendorid              ),
+        .I_csr_marchid          (csr_marchid                )
+
+    );
 
     csr_reg u_csr_reg
     (
@@ -497,46 +488,23 @@ module riscv_ic
         .I_waddr                (I_wb_csr_waddr             ),
         .I_wdata                (I_wb_csr_wdata             ),
 
-        .I_clint_we             (clint_we                   ),
-        .I_clint_waddr          (clint_waddr                ),
-        .I_clint_wdata          (clint_wdata                ),
+        .I_int                  (I_int                      ),
+
+        .I_except               (I_wb_except                ),
+        .I_except_addr          (I_wb_inst_addr             ),
+
+        .I_next_addr            (I_ls_inst_addr             ),
+
+        .O_flush                (O_flush                    ),
+        .O_flush_addr           (O_flush_addr               ),
 
         .O_csr_mtvec            (csr_mtvec                  ),
         .O_csr_mepc             (csr_mepc                   ),
         .O_csr_mstatus          (csr_mstatus                ),
-        
-        .O_global_int_en        (csr_global_int_en          ),
-
         .O_csr_mcause           (csr_mcause                 ),
         .O_csr_mcycle           (csr_mcycle                 ),
         .O_csr_mvendorid        (csr_mvendorid              ),
         .O_csr_marchid          (csr_marchid                )
-    );
-
-    clint u_clint
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .I_int                  (I_int                      ),
-
-        .I_except               (I_clint_except             ),
-        .I_except_addr          (I_ls_inst_addr             ),
-
-        .I_next_addr            (O_ex_inst_addr             ),
-
-        .I_csr_mtvec            (csr_mtvec                  ),
-        .I_csr_mepc             (csr_mepc                   ),
-        .I_csr_mstatus          (csr_mstatus                ),
-        .I_global_int_en        (csr_global_int_en          ),
-
-        .O_csr_we               (clint_we                   ),
-        .O_csr_waddr            (clint_waddr                ),
-        .O_csr_wdata            (clint_wdata                ),
-
-        .O_stallreq             (stallreq_from_clint        ),
-        .O_flush                (O_flush                    ),
-        .O_flush_addr           (O_flush_addr               )
     );
 
 
@@ -551,7 +519,6 @@ module riscv_ic
         .stallreq_from_dec      (stallreq_from_dec          ),
         .stallreq_from_ex       (stallreq_from_ex           ),
         .stallreq_from_ls       (stallreq_from_ls           ),
-        .stallreq_from_clint    (stallreq_from_clint        ),
         .stallreq_from_jtag     (I_jtag_haltreq             ),
 
         .Stall                  (Stall                      ),
@@ -683,7 +650,7 @@ module riscv_ic
         .O_fwd_csr_we           (I_ls_fwd_csr_we            ),
         .O_fwd_csr_waddr        (I_ls_fwd_csr_waddr         ),
         .O_fwd_csr_wdata        (I_ls_fwd_csr_wdata         ),
-        .O_except               (I_clint_except             ),
+        .O_except               (I_ls_except                ),
 
         .I_stall                (Stall[`Stall_ex_ls]        ),
         .I_kill                 (Kill[`Kill_ex_ls]          ),
@@ -704,6 +671,7 @@ module riscv_ic
         .I_csr_we               (O_ls_csr_we                ),
         .I_csr_waddr            (O_ls_csr_waddr             ),
         .I_csr_wdata            (O_ls_csr_wdata             ),
+        .I_except               (O_ls_except                ),
 
         .I_device_skip_flag     (device_skip_flag           ),
 
@@ -717,6 +685,7 @@ module riscv_ic
         .O_csr_wdata            (I_wb_csr_wdata             ),
         .O_fwd_rd_wdata         (I_wb_fwd_rd_wdata          ),
         .O_fwd_csr_wdata        (I_wb_fwd_csr_wdata         ),
+        .O_except               (I_wb_except                ),
 
         .O_device_skip_flag     (wbu_device_skip_flag       ),
 

@@ -111,7 +111,7 @@ module regfile
 
     always @(*) begin
 
-        if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1)) begin
+        if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
             cpu_value
             (
                 skip_flag_r, 1, inst_r1, inst_addr_r1, pc, 

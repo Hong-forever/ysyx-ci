@@ -12,15 +12,13 @@ module pipe_ctrl
     input   wire                        stallreq_from_dec,
     input   wire                        stallreq_from_ex,
     input   wire                        stallreq_from_ls,
-    input   wire                        stallreq_from_clint,
     input   wire                        stallreq_from_jtag,
 
     output  wire    [`StallBus      ]   Stall,
     output  wire    [`KillBus       ]   Kill
 );
 
-    assign Stall =  stallreq_from_clint   ?    `StallWidth'b111111 :
-                    stallreq_from_ls      ?    `StallWidth'b111111 :
+    assign Stall =  stallreq_from_ls      ?    `StallWidth'b111111 :
                     stallreq_from_ex      ?    `StallWidth'b111111 :
                     stallreq_from_dec     ?    `StallWidth'b000111 :
                     stallreq_from_if      ?    `StallWidth'b000011 :
