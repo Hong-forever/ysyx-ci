@@ -474,8 +474,10 @@ module riscv_ic
         .I_csr_mcause           (csr_mcause                 ),
         .I_csr_mcycle           (csr_mcycle                 ),
         .I_csr_mvendorid        (csr_mvendorid              ),
-        .I_csr_marchid          (csr_marchid                )
+        .I_csr_marchid          (csr_marchid                ),
 
+        .I_flush                (O_flush                    ),
+        .I_flush_addr           (O_flush_addr               )
     );
 
     csr_reg u_csr_reg
