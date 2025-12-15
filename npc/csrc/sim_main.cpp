@@ -16,7 +16,7 @@ IFDEF(WAVE_ENABLE,VerilatedContext* contextp = nullptr);
 int main(int argc, char *argv[])
 {
     IFDEF(CONFIG_USE_NVBOARD, nvboard());
-    if(WAVE_FORMAT==1) printf("NPC starts running...\n");
+    if(WAVE_FORMAT==0) printf("NPC starts running...\n");
 
 #ifdef WAVE_ENABLE
     Verilated::traceEverOn(true);
