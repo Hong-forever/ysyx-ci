@@ -70,8 +70,11 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 ifeq ($(WAVE_ENABLE),1)
+	ifeq ($(WAVE_FORMAT),1)
 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
+	else
 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
+	endif
 endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
