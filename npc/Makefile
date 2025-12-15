@@ -19,12 +19,25 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
+WAVE_FORMAT ?= vcd
+WAVE_ENABLE ?= 0
+WAVE_FILE = $(BUILD_DIR)/$(TOPNAME).$(WAVE_FORMAT)
+
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast 
 
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
+
+ifeq ($(WAVE_ENABLE), 1)
+	ifeq ($(WAVE_FORMAT), fst)
+		VERILATOR_CFLAGS += --trace-fst
+	else 
+		VERILATOR_CFLAGS += --trace
+	endif
+endif
+
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -89,6 +102,16 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 all: run
 run: sim
 
+wave: WAVE_ENABLE := 1
+wave: sim
+		@echo "Waveform generated at $(WAVE_FILE)"
+
+vcd: WAVE_FORMAT := vcd
+vcd: wave
+
+fst: WAVE_FORMAT := fst
+fst: wave
+
 include $(NPC_HOME)/scripts/config.mk
 
 
@@ -97,4 +120,4 @@ clean:
 	
 include ../Makefile
 
-.PHONY: sim all clean run
+.PHONY: sim all clean run wave vcd fst
