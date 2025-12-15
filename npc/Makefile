@@ -24,7 +24,7 @@ WAVE_ENABLE ?= 1
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast 
+				-O3 --x-assign fast --x-initial fast -j 4
 
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND

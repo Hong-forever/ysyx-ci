@@ -6,24 +6,22 @@ void engine_start();
 void cleanup_ftrace();
 int is_exit_status_bad();
 
-TOP_NAME dut;
-
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
+VerilatedContext* contextp = new VerilatedContext;
+TOP_NAME* top = new TOP_NAME{contextp};
 IFDEF(WAVE_ENABLE,VerilatedVcdC* tfp);
-IFDEF(WAVE_ENABLE,VerilatedContext* contextp = nullptr);
 
 int main(int argc, char *argv[])
 {
     IFDEF(CONFIG_USE_NVBOARD, nvboard());
+    contextp->commandArgs(argc, argv);
 
 #ifdef WAVE_ENABLE
     Verilated::traceEverOn(true);
-    contextp = new VerilatedContext;
-    contextp->commandArgs(argc, argv);
     tfp = new VerilatedVcdC;
-    dut.trace(tfp, 99);
-    tfp->open(WAVE_FORMAT == 1 ? "waveform.vcd" : "waveform.fst");
+    top->trace(tfp, 99);
+    tfp->open(WAVE_FORMAT == 1 ? "build/waveform.vcd" : "build/waveform.fst");
 #endif
 
     init_monitor(argc, argv);
@@ -33,6 +31,9 @@ int main(int argc, char *argv[])
     engine_start();
     
     cleanup_ftrace();
+
+    top->final(); delete top; top = NULL;
+    delete contextp; contextp = NULL;
 
     return is_exit_status_bad();
 }
