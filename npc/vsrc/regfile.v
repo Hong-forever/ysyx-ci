@@ -109,9 +109,9 @@ module regfile
         end
     end
 
-    initial begin
-        $monitor("inst_r1 = %x, inst_addr_r1 = %x\n", inst_r1, inst_addr_r1);
-    end
+    // initial begin
+    //     $monitor("inst_r1 = %x, inst_addr_r1 = %x\n", inst_r1, inst_addr_r1);
+    // end
 
     always @(*) begin
 
