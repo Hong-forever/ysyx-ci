@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     Verilated::traceEverOn(true);
     tfp = new VerilatedVcdC;
     top->trace(tfp, 99);
-    tfp->open(WAVE_FORMAT == 1 ? "build/waveform.vcd" : "build/waveform.fst");
+    tfp->open("build/waveform.vcd");
 #endif
 
     init_monitor(argc, argv);
