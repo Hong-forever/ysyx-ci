@@ -127,8 +127,8 @@ extern "C" void trap(int reg_data, int halt_pc)
 }
 
 extern TOP_NAME *top ;
-extern VerilatedContext* contextp;
-extern VerilatedVcdC* tfp;
+extern VerilatedContext *contextp;
+extern VerilatedVcdC *tfp;
 
 static void single_cycle()
 {
@@ -255,8 +255,8 @@ void cpu_exec(uint64_t n)
                 PRINTF_RED("[=>>> HIT BAD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
             }
 #ifdef WAVE_ENABLE
-            printf("Finalizing waveforms...\n");
             if (tfp) {
+                printf("Finalizing waveforms...\n");
                 tfp->close();
                 delete tfp;
                 tfp = NULL;
