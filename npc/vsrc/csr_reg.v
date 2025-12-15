@@ -173,7 +173,7 @@ module csr_reg
     //------------------------------------------------------------------------
     assign O_rdata = rdata1;
 
-    assign O_flush = except_sync | except_async | except_ret;
+    assign O_flush = except_call | except_ret;
     assign O_flush_addr =   except_call ? mtvec :
                             except_ret  ? mepc  : `ZeroWord;
 
@@ -184,5 +184,9 @@ module csr_reg
     assign O_csr_mcycle = cycle;
     assign O_csr_mvendorid = mvendorid;
     assign O_csr_marchid = marchid;
+
+    initial begin
+        $monitor("flush = %x, ecall = %x\n", O_flush, is_ecall);
+    end
 
 endmodule
