@@ -26,7 +26,7 @@ extern NPCState npc_state;
 #define PRINTF_BLUE(fmt, ...) \
     do { \
         printf(COLOR_BLUE fmt COLOR_END, ##__VA_ARGS__); \
-        printf("\n"); \
+        fflush(stdout); \
     } while (0)
 
 #define PRINTF_GREEN(fmt, ...) \
