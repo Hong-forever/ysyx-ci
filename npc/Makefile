@@ -19,12 +19,24 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
+WAVE_FORMAT ?= 2 # 1: vcd, 2: fst
+WAVE_ENABLE ?= 1
+
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast 
+				-O3 --x-assign fast --x-initial fast -j 4
 
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
+
+ifeq ($(WAVE_ENABLE),1)
+	ifneq ($(WAVE_FORMAT),2)
+		VERILATOR_CFLAGS += --trace-vcd
+	else 
+		VERILATOR_CFLAGS += --trace-fst
+	endif
+endif
+
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -40,7 +52,7 @@ override ARGS += $(ARGS_DIFF)
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(BIN) $(ARGS) $(IMG)
-	$(BIN) $(ARGS) $(IMG)
+	-$(BIN) $(ARGS) $(IMG)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -57,6 +69,13 @@ include $(FILELIST_MK)
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+ifeq ($(WAVE_ENABLE),1)
+# 	ifneq ($(WAVE_FORMAT),2)
+# 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
+# 	else
+		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
+# 	endif
+endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
@@ -75,6 +94,11 @@ CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-un
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
+ifeq ($(WAVE_ENABLE),1)
+	CXXFLAGS += -DWAVE_ENABLE=1
+	CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
+endif
+
 # CXXFLAGS += -fpermissive
 
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -fsanitize=address -fno-omit-frame-pointer
@@ -87,7 +111,22 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
 all: run
+
+ifeq ($(WAVE_ENABLE),1)
+run: sim view_wave
+else
 run: sim
+endif
+
+ifeq ($(WAVE_ENABLE),1)
+view_wave:
+	@gtkwave ${NPC_HOME}/build/waveform.vcd
+else
+view_wave:
+	@gtkwave ${NPC_HOME}/build/waveform.fst
+endif
+
+
 
 include $(NPC_HOME)/scripts/config.mk
 
@@ -97,4 +136,4 @@ clean:
 	
 include ../Makefile
 
-.PHONY: sim all clean run
+.PHONY: sim all clean run view_wave

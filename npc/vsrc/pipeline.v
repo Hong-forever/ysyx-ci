@@ -343,6 +343,8 @@ module pipeline_ls_wb
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,        // 写CSR寄存器地址
     input   wire    [`CSRDataBus    ]   I_csr_wdata,        // 写CSR寄存器数据
 
+    input   wire    [`Except_Bus    ]   I_except,           // 异常
+
     input   wire                        I_device_skip_flag,
 
 
@@ -356,6 +358,8 @@ module pipeline_ls_wb
     output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`RegDataBus    ]   O_fwd_rd_wdata,
     output  reg     [`CSRDataBus    ]   O_fwd_csr_wdata,
+
+    output  reg     [`Except_Bus    ]   O_except,           // 异常
 
     output  wire                        O_device_skip_flag,
 
@@ -387,6 +391,7 @@ module pipeline_ls_wb
             O_csr_we    <= 'b0;
             O_csr_waddr <= 'b0;
             O_csr_wdata <= 'b0;
+            O_except    <= 'b0;
             O_device_skip_flag <= 'b0;
         end else if(I_kill | I_flush) begin
             O_inst      <= 'b0;
@@ -399,6 +404,7 @@ module pipeline_ls_wb
             O_csr_we    <= 'b0;
             O_csr_waddr <= 'b0;
             O_csr_wdata <= 'b0;
+            O_except    <= 'b0;
             O_device_skip_flag <= 'b0;
         end else if(~I_stall | (stall_from_lsu & I_stall)) begin
             O_inst      <= I_inst;
@@ -411,6 +417,7 @@ module pipeline_ls_wb
             O_csr_we    <= I_csr_we;
             O_csr_waddr <= I_csr_waddr;
             O_csr_wdata <= I_csr_wdata;
+            O_except    <= I_except;
             O_device_skip_flag <= I_device_skip_flag;
         end
     end

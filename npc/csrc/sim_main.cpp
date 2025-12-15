@@ -1,5 +1,6 @@
 #include "common.h"
 
+
 void reset(int n);
 void init_monitor(int argc, char *argv[]);
 void engine_start();
@@ -8,9 +9,28 @@ int is_exit_status_bad();
 
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
+VerilatedContext *contextp = new VerilatedContext;
+TOP_NAME *top = new TOP_NAME{contextp};
+#ifdef WAVE_ENABLE
+    #if WAVE_FORMAT == 1
+        VerilatedVcdC *tfp = new VerilatedVcdC;
+    #else
+        VerilatedFstC *tfp = new VerilatedFstC;
+    #endif
+#endif
+
+static const char *wave_file = WAVE_FORMAT == 1 ? "build/waveform.vcd" : "build/waveform.fst";
+
 int main(int argc, char *argv[])
 {
     IFDEF(CONFIG_USE_NVBOARD, nvboard());
+    contextp->commandArgs(argc, argv);
+
+#ifdef WAVE_ENABLE
+    Verilated::traceEverOn(true);
+    top->trace(tfp, 99);
+    tfp->open(wave_file);
+#endif
 
     init_monitor(argc, argv);
 
@@ -19,6 +39,17 @@ int main(int argc, char *argv[])
     engine_start();
     
     cleanup_ftrace();
+
+#ifdef WAVE_ENABLE
+    if (tfp) {
+        printf("Finalizing waveforms...\n");
+        tfp->close();
+        delete tfp;
+        tfp = NULL;
+    }
+#endif
+    if(top) { top->final(); delete top; top = NULL; }
+    if(contextp) { delete contextp; contextp = NULL; }
 
     return is_exit_status_bad();
 }

@@ -53,8 +53,8 @@ __am_asm_trap:
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
 
-  li t3, 11
-  beq t0, t3, adj_epc
+  li a5, 11
+  beq t0, a5, adj_epc
   j then
 
 adj_epc:

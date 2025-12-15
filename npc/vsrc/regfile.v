@@ -37,7 +37,10 @@ module regfile
     input   wire    [`CSRDataBus    ]   I_csr_mcause,      //写mcause寄存器数据
     input   wire    [`DoubleCSRDataBus] I_csr_mcycle,       //写mcycle寄存器数据
     input   wire    [`CSRDataBus    ]   I_csr_mvendorid,   //写mvendorid寄存器数据
-    input   wire    [`CSRDataBus    ]   I_csr_marchid      //写marchid寄存器数据
+    input   wire    [`CSRDataBus    ]   I_csr_marchid,     //写marchid寄存器数据
+    
+    input   wire                        I_flush,
+    input   wire    [`InstAddrBus   ]   I_flush_addr
 
 );
 
@@ -100,18 +103,23 @@ module regfile
             inst_addr_r1    <= I_inst_addr;
             inst_r2         <= inst_r1;
             inst_addr_r2    <= inst_addr_r1;
-            pc              <= I_ls_addr == `ZeroWord ? 
+            pc              <= I_flush ? I_flush_addr :
+                               (I_ls_addr == `ZeroWord ? 
                                (I_ex_addr == `ZeroWord ? 
-                                (I_dec_addr == `ZeroWord ? I_if_addr : I_dec_addr) 
-                                : I_ex_addr) 
-                               : I_ls_addr;
+                               (I_dec_addr == `ZeroWord ? I_if_addr : I_dec_addr) 
+                               : I_ex_addr) 
+                               : I_ls_addr);
             skip_flag_r     <= I_device_skip_flag;
         end
     end
 
+    // initial begin
+    //     $monitor("inst_r1 = %x, inst_addr_r1 = %x\n", inst_r1, inst_addr_r1);
+    // end
+
     always @(*) begin
 
-        if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1)) begin
+        if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
             cpu_value
             (
                 skip_flag_r, 1, inst_r1, inst_addr_r1, pc, 

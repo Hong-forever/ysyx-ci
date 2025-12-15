@@ -2,7 +2,6 @@
 #include "utils.h"
 #include <locale.h>
 
-static TOP_NAME dut;
 int cpu_inst_valid = 0;
 
 IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc, paddr_t npc));
@@ -127,20 +126,35 @@ extern "C" void trap(int reg_data, int halt_pc)
     npc_state.state = NPC_END;
 }
 
+extern TOP_NAME *top ;
+extern VerilatedContext *contextp;
+#ifdef WAVE_ENABLE
+    #if WAVE_FORMAT == 1
+        extern VerilatedVcdC *tfp;
+    #else
+        extern VerilatedFstC *tfp;
+    #endif
+#endif
+
 static void single_cycle()
 {
-    dut.clk = 0;
-    dut.eval();
-    dut.clk = 1;
-    dut.eval();
+    top->clk = 0;
+    top->eval();
+    top->clk = 1;
+    top->eval();
+#ifdef WAVE_ENABLE
+    // printf("Dumping waveforms at time %lu...\n", contextp->time());
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+#endif
 }
 
 void reset(int n)
 {
-    dut.rst = 1;
+    top->rst = 1;
     while (n-- > 0)
         single_cycle();
-    dut.rst = 0;
+    top->rst = 0;
 }
 
 

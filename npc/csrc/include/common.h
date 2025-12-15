@@ -3,6 +3,15 @@
 
 #include <Vtop.h>
 #include "macro.h"
+#include <verilated.h>
+
+#ifdef WAVE_ENABLE
+    #if WAVE_FORMAT == 1
+        #include "verilated_vcd_c.h"
+    #else
+        #include "verilated_fst_c.h"
+    #endif
+#endif
 
 #include "autoconf.h"
 

@@ -21,6 +21,7 @@ module lsu
     input   wire                        I_csr_we,
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,
     input   wire    [`CSRDataBus    ]   I_csr_wdata,
+    input   wire    [`Except_Bus    ]   I_except,
 
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
@@ -30,6 +31,7 @@ module lsu
     output  wire                        O_csr_we,
     output  wire    [`CSRAddrBus    ]   O_csr_waddr,
     output  wire    [`CSRDataBus    ]   O_csr_wdata,
+    output  wire    [`Except_Bus    ]   O_except,
 
     output  wire                        O_stallreq,
 
@@ -196,6 +198,8 @@ module lsu
     assign O_csr_we = I_csr_we;
     assign O_csr_waddr = I_csr_waddr;
     assign O_csr_wdata = I_csr_wdata;
+
+    assign O_except = I_except;
 
     assign O_dbus_req = I_ls_valid;
     assign O_dbus_we = I_ls_type[`ls_diff_width-1];
