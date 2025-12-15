@@ -107,15 +107,15 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 all: run
 run: sim
 
-wave: WAVE_ENABLE := 1
+wave: export WAVE_ENABLE = 1
 wave: sim
 		@echo "Waveform generated at $(WAVE_FILE)"
 	  gtkwave $(WAVE_FILE)
 
-vcd: WAVE_FORMAT := vcd
+vcd: export WAVE_FORMAT = vcd
 vcd: wave
 
-fst: WAVE_FORMAT := fst
+fst: export WAVE_FORMAT = fst
 fst: wave
 
 include $(NPC_HOME)/scripts/config.mk
