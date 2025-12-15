@@ -53,9 +53,6 @@ sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(BIN) $(ARGS) $(IMG)
 	-$(BIN) $(ARGS) $(IMG)
-	ifeq ($(WAVE_ENABLE),1)
-		gtkwave ${NPC_HOME}/build/waveform.vcd
-	endif
 
 $(shell mkdir -p $(BUILD_DIR))
 
