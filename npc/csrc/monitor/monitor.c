@@ -81,7 +81,7 @@ static long load_img()
 
 static void welcome()
 {
-    // PRINTF_BLUE("Welcome to NPC!");
+    PRINTF_BLUE("Welcome to NPC!");
 }
 
 void init_monitor(int argc, char *argv[]) {
