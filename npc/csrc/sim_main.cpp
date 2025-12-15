@@ -6,6 +6,8 @@ void engine_start();
 void cleanup_ftrace();
 int is_exit_status_bad();
 
+TOP_NAME dut;
+
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
 IFDEF(WAVE_ENABLE,VerilatedVcdC* tfp);
@@ -21,7 +23,7 @@ int main(int argc, char *argv[])
     contextp->commandArgs(argc, argv);
     tfp = new VerilatedVcdC;
     dut.trace(tfp, 99);
-    tfp->open(WAVE_FILE);
+    tfp->open(WAVE_FORMAT == 1 ? "waveform.vcd" : "waveform.fst");
 #endif
 
     init_monitor(argc, argv);

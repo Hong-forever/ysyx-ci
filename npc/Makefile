@@ -19,9 +19,9 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
-WAVE_FORMAT ?= vcd
+WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
 WAVE_ENABLE ?= 1
-WAVE_FILE = $(BUILD_DIR)/$(TOPNAME).$(WAVE_FORMAT)
+WAVE_FILE = $(abspath $(BUILD_DIR)/$(TOPNAME).$(WAVE_FORMAT))
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
@@ -30,11 +30,11 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-ifeq ($(WAVE_ENABLE), 1)
-	ifeq ($(WAVE_FORMAT), fst)
-		VERILATOR_CFLAGS += --trace-fst
-	else 
+ifeq ($(WAVE_ENABLE),1)
+	ifeq ($(WAVE_FORMAT),1)
 		VERILATOR_CFLAGS += --trace
+	else 
+		VERILATOR_CFLAGS += --trace-fst
 	endif
 endif
 
@@ -70,6 +70,7 @@ include $(FILELIST_MK)
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
@@ -90,7 +91,7 @@ CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 
 ifeq ($(WAVE_ENABLE),1)
 	CXXFLAGS += -DWAVE_ENABLE=1
-	CXXFLAGS += -DWAVE_FST=\"$(WAVE_FORMAT)\"
+	CXXFLAGS += -DWAVE_FORMAT=1
 endif
 
 # CXXFLAGS += -fpermissive
@@ -116,4 +117,4 @@ clean:
 	
 include ../Makefile
 
-.PHONY: sim all clean run wave vcd fst
+.PHONY: sim all clean run 

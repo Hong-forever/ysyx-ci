@@ -2,7 +2,7 @@
 #include "utils.h"
 #include <locale.h>
 
-static TOP_NAME dut;
+extern TOP_NAME dut;
 int cpu_inst_valid = 0;
 
 IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc, paddr_t npc));
@@ -254,10 +254,11 @@ void cpu_exec(uint64_t n)
                 PRINTF_RED("[=>>> HIT BAD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
             }
 #ifdef WAVE_ENABLE
-            extern VerilatedContext* contextp;
-            delete contextp;
+            printf("Finalizing waveforms...\n");
             extern VerilatedVcdC* tfp;
             tfp->close();
+            extern VerilatedContext* contextp;
+            delete contextp;
 #endif
             statistic();
             break;
