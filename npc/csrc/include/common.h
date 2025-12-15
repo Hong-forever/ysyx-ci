@@ -3,6 +3,7 @@
 
 #include <Vtop.h>
 #include "macro.h"
+#include "verilated_vcd_c.h"
 
 #include "autoconf.h"
 

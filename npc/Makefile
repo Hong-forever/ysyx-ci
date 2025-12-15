@@ -88,6 +88,11 @@ CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-un
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 
+ifeq ($(WAVE_ENABLE),1)
+	CXXFLAGS += -DWAVE_ENABLE=1
+	CXXFLAGS += -DWAVE_FST=\"$(WAVE_FORMAT)\"
+endif
+
 # CXXFLAGS += -fpermissive
 
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -fsanitize=address -fno-omit-frame-pointer

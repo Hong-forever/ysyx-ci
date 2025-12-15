@@ -133,6 +133,12 @@ static void single_cycle()
     dut.eval();
     dut.clk = 1;
     dut.eval();
+#ifdef WAVE_ENABLE
+    extern VerilatedContext* contextp;
+    contextp->timeInc(1);
+    extern VerilatedVcdC* tfp;
+    tfp->dump(contextp->time());
+#endif
 }
 
 void reset(int n)
@@ -247,6 +253,12 @@ void cpu_exec(uint64_t n)
             } else if (npc_state.halt_ret == 2) {
                 PRINTF_RED("[=>>> HIT BAD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
             }
+#ifdef WAVE_ENABLE
+            extern VerilatedContext* contextp;
+            delete contextp;
+            extern VerilatedVcdC* tfp;
+            tfp->close();
+#endif
             statistic();
             break;
         case NPC_ABORT:

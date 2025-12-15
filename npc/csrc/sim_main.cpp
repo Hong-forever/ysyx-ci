@@ -8,9 +8,21 @@ int is_exit_status_bad();
 
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
+IFDEF(WAVE_ENABLE,VerilatedVcdC* tfp);
+IFDEF(WAVE_ENABLE,VerilatedContext* contextp = nullptr);
+
 int main(int argc, char *argv[])
 {
     IFDEF(CONFIG_USE_NVBOARD, nvboard());
+
+#ifdef WAVE_ENABLE
+    Verilated::traceEverOn(true);
+    contextp = new VerilatedContext;
+    contextp->commandArgs(argc, argv);
+    tfp = new VerilatedVcdC;
+    dut.trace(tfp, 99);
+    tfp->open(WAVE_FILE);
+#endif
 
     init_monitor(argc, argv);
 
