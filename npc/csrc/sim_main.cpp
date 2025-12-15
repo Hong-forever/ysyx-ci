@@ -32,6 +32,13 @@ int main(int argc, char *argv[])
     
     cleanup_ftrace();
 
+#ifdef WAVE_ENABLE
+    if (tfp) {
+        tfp->close();
+        delete tfp;
+        tfp = NULL;
+    }
+#endif
     if(top) { top->final(); delete top; top = NULL; }
     if(contextp) { delete contextp; contextp = NULL; }
 
