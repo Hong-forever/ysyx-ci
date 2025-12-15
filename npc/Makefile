@@ -105,6 +105,7 @@ run: sim
 wave: WAVE_ENABLE := 1
 wave: sim
 		@echo "Waveform generated at $(WAVE_FILE)"
+	  gtkwave $(WAVE_FILE)
 
 vcd: WAVE_FORMAT := vcd
 vcd: wave
