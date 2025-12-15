@@ -185,8 +185,5 @@ module csr_reg
     assign O_csr_mvendorid = mvendorid;
     assign O_csr_marchid = marchid;
 
-    initial begin
-        $monitor("flush = %x, ecall = %x, addr = %x\n", O_flush, is_ecall, O_flush_addr);
-    end
 
 endmodule
