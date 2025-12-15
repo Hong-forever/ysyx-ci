@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 
 #ifdef WAVE_ENABLE
     if (tfp) {
+        printf("Finalizing waveforms...\n");
         tfp->close();
         delete tfp;
         tfp = NULL;
