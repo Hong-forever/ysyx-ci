@@ -73,7 +73,8 @@ module csr_reg
 
     wire global_int_enable = mstatus[3]; //MIE位
 
-    wire except_sync = is_ecall | is_ebreak;
+    // wire except_sync = is_ecall | is_ebreak;
+    wire except_sync = is_ecall; // for ysyx
     wire except_async = ext_int_valid & ((|I_int) | (|int_r)) & global_int_enable; 
     wire except_call = except_sync | except_async;
     wire except_ret = is_mret;
