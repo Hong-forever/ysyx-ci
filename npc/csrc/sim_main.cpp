@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     Verilated::traceEverOn(true);
     top->trace(tfp, 99);
     tfp->open(wave_file);
+    printf("Generating waveforms to %s...\n", wave_file);
 #endif
 
     init_monitor(argc, argv);
