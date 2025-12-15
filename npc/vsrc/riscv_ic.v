@@ -421,6 +421,7 @@ module riscv_ic
         .I_csr_we               (I_ls_csr_we                ),
         .I_csr_waddr            (I_ls_csr_waddr             ),
         .I_csr_wdata            (I_ls_csr_wdata             ),
+        .I_except               (I_ls_except                ),
 
         .O_inst                 (O_ls_inst                  ),
         .O_inst_addr            (O_ls_inst_addr             ),
@@ -430,6 +431,7 @@ module riscv_ic
         .O_csr_we               (O_ls_csr_we                ),
         .O_csr_waddr            (O_ls_csr_waddr             ),
         .O_csr_wdata            (O_ls_csr_wdata             ),
+        .O_except               (O_ls_except                ),
 
         .O_stallreq             (stallreq_from_ls           ),
 
