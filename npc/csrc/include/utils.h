@@ -20,17 +20,19 @@ extern NPCState npc_state;
 #define PRINTF_RED(fmt, ...) \
     do { \
         printf(COLOR_RED fmt COLOR_END, ##__VA_ARGS__); \
+        fflush(stdout); \
     } while (0)
 
 #define PRINTF_BLUE(fmt, ...) \
     do { \
         printf(COLOR_BLUE fmt COLOR_END, ##__VA_ARGS__); \
-        fflush(stdout); \
+        printf("\n"); \
     } while (0)
 
 #define PRINTF_GREEN(fmt, ...) \
     do { \
         printf(COLOR_GREEN fmt COLOR_END, ##__VA_ARGS__); \
+        fflush(stdout); \
     } while (0)
 
 #define log_write(...) \
