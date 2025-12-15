@@ -81,9 +81,9 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
     extra_cpu.mvendorid = mvendorid;
     extra_cpu.marchid = marchid;
 
-    if (mcause == 11) {
-        printf("ecall from inst_addr: 0x%08x\n", s.pc);
-    }
+    // if (mcause == 11) {
+    //     printf("ecall from inst_addr: 0x%08x\n", s.pc);
+    // }
 
     // if (!initialized) {
     //     initialized = true;
