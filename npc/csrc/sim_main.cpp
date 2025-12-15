@@ -16,7 +16,6 @@ IFDEF(WAVE_ENABLE,VerilatedContext* contextp = nullptr);
 int main(int argc, char *argv[])
 {
     IFDEF(CONFIG_USE_NVBOARD, nvboard());
-    if(WAVE_FORMAT==0) printf("NPC starts running...\n");
 
 #ifdef WAVE_ENABLE
     Verilated::traceEverOn(true);
@@ -24,7 +23,7 @@ int main(int argc, char *argv[])
     contextp->commandArgs(argc, argv);
     tfp = new VerilatedVcdC;
     dut.trace(tfp, 99);
-    tfp->open("waveform.vcd");
+    tfp->open(WAVE_FORMAT == 1 ? "waveform.vcd" : "waveform.fst");
 #endif
 
     init_monitor(argc, argv);

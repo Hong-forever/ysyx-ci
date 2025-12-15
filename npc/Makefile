@@ -19,9 +19,8 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
-WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
+WAVE_FORMAT = 1 # 1: vcd, 2: fst
 WAVE_ENABLE ?= 1
-WAVE_FILE = $(abspath $(BUILD_DIR)/$(TOPNAME).$(WAVE_FORMAT))
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
@@ -30,13 +29,13 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-# ifeq ($(WAVE_ENABLE),1)
-# 	ifeq ($(WAVE_FORMAT),1)
-# 		VERILATOR_CFLAGS += --trace-vcd
-# 	else 
-# 		VERILATOR_CFLAGS += --trace-fst
-# 	endif
-# endif
+ifeq ($(WAVE_ENABLE),1)
+	ifneq ($(WAVE_FORMAT),2)
+		VERILATOR_CFLAGS += --trace-vcd
+	else 
+		VERILATOR_CFLAGS += --trace-fst
+	endif
+endif
 
 
 BUILD_DIR = ./build
@@ -91,7 +90,7 @@ CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 
 ifeq ($(WAVE_ENABLE),1)
 	CXXFLAGS += -DWAVE_ENABLE=1
-	CXXFLAGS += -DWAVE_FORMAT=1
+	CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 endif
 
 # CXXFLAGS += -fpermissive
