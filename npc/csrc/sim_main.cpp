@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     contextp->commandArgs(argc, argv);
     tfp = new VerilatedVcdC;
     dut.trace(tfp, 99);
-    tfp->open(WAVE_FORMAT == 1 ? "waveform.vcd" : "waveform.fst");
+    tfp->open("waveform.vcd");
 #endif
 
     init_monitor(argc, argv);
