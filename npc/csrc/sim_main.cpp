@@ -19,7 +19,7 @@ TOP_NAME *top = new TOP_NAME{contextp};
     #endif
 #endif
 
-static const char *wave_file = WAVE_FORMAT == 1 ? "build/waveform.vcd" : "build/waveform.fst";
+static const char *wave_file = "build/waveform.fst";
 
 int main(int argc, char *argv[])
 {
@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
     Verilated::traceEverOn(true);
     top->trace(tfp, 99);
     tfp->open(wave_file);
-    printf("Generating waveforms to %s...\n", wave_file);
 #endif
 
     init_monitor(argc, argv);
