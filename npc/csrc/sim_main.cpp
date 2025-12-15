@@ -19,7 +19,7 @@ TOP_NAME *top = new TOP_NAME{contextp};
     #endif
 #endif
 
-static const char *wave_file = "build/waveform.fst";
+static const char *wave_file = "build/waveform.vcd";
 
 int main(int argc, char *argv[])
 {
