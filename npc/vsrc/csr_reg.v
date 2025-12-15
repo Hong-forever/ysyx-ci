@@ -127,7 +127,7 @@ module csr_reg
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
             end else if(except_ret) begin
-                mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]}; //MIE<-MPIE
+                mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else begin    
                 if(I_we) begin
                     case(I_waddr)

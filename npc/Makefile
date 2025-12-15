@@ -105,7 +105,16 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
 all: run
+
+ifeq ($(WAVE_ENABLE),1)
+run: sim view_wave
+else
 run: sim
+endif
+
+view_wave:
+	@gtkwave ${NPC_HOME}/build/waveform.vcd
+
 
 
 include $(NPC_HOME)/scripts/config.mk
@@ -116,4 +125,4 @@ clean:
 	
 include ../Makefile
 
-.PHONY: sim all clean run 
+.PHONY: sim all clean run view_wave
