@@ -19,7 +19,7 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
-WAVE_FORMAT = 1 # 1: vcd, 2: fst
+WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
 WAVE_ENABLE ?= 1
 
 VERILATOR = verilator
