@@ -54,7 +54,7 @@ sim: $(NPC_EXEC)
 	@echo $(BIN) $(ARGS) $(IMG)
 	-$(BIN) $(ARGS) $(IMG)
 	ifeq ($(WAVE_ENABLE),1)
-		gtkwave $(BUILD_DIR)/waveform.$(if $(filter 1,$(WAVE_FORMAT)),vcd,fst) &
+		gtkwave ${NPC_HOME}/build/waveform.vcd
 	endif
 
 $(shell mkdir -p $(BUILD_DIR))

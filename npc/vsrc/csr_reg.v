@@ -121,7 +121,7 @@ module csr_reg
             if(except_async) begin
                 mepc <= ext_int_addr;
                 mcause <= 32'h80000004; //定时器中断
-                mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]}; //MPIE->MIE, MIE清0
+                mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
             end else if(except_sync) begin
                 mepc <= I_except_addr;
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
