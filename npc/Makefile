@@ -30,7 +30,7 @@ VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 ifeq ($(WAVE_ENABLE),1)
-	ifneq ($(WAVE_FORMAT),2)
+	ifeq ($(WAVE_FORMAT),1)
 		VERILATOR_CFLAGS += --trace-vcd
 	else 
 		VERILATOR_CFLAGS += --trace-fst
@@ -70,11 +70,11 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 ifeq ($(WAVE_ENABLE),1)
-# 	ifneq ($(WAVE_FORMAT),2)
-# 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
-# 	else
+	ifeq ($(WAVE_FORMAT),1)
+		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
+	else
 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
-# 	endif
+	endif
 endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
@@ -101,7 +101,7 @@ endif
 
 # CXXFLAGS += -fpermissive
 
-LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -fsanitize=address -fno-omit-frame-pointer
+LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -118,7 +118,7 @@ else
 run: sim
 endif
 
-ifeq ($(WAVE_ENABLE),1)
+ifeq ($(WAVE_FORMAT),1)
 view_wave:
 	@gtkwave ${NPC_HOME}/build/waveform.vcd
 else
