@@ -20,7 +20,7 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 WAVE_FORMAT ?= vcd
-WAVE_ENABLE ?= 0
+WAVE_ENABLE ?= 1
 WAVE_FILE = $(BUILD_DIR)/$(TOPNAME).$(WAVE_FORMAT)
 
 VERILATOR = verilator
@@ -107,16 +107,6 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 all: run
 run: sim
 
-wave: export WAVE_ENABLE = 1
-wave: sim
-		@echo "Waveform generated at $(WAVE_FILE)"
-	  gtkwave $(WAVE_FILE)
-
-vcd: export WAVE_FORMAT = vcd
-vcd: wave
-
-fst: export WAVE_FORMAT = fst
-fst: wave
 
 include $(NPC_HOME)/scripts/config.mk
 
