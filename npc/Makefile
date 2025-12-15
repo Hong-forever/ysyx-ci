@@ -118,7 +118,7 @@ else
 run: sim
 endif
 
-ifeq ($(WAVE_ENABLE),1)
+ifeq ($(WAVE_FORMAT),1)
 view_wave:
 	@gtkwave ${NPC_HOME}/build/waveform.vcd
 else
