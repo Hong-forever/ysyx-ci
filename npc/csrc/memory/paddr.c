@@ -118,7 +118,7 @@ extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
         if ((waddr & ~0x3u) == SERIAL_MMIO) {
             // memory-mapped serial port write
             assert(wmask == 0x1);
-            putchar((char)(wdata & 0xff));
+            putc((char)(wdata & 0xff), stderr);
         } else {
             out_of_bound(waddr, true);
         }
