@@ -15,6 +15,8 @@ module decoder
     output  wire                        O_inst_ready,
     output  wire                        O_inst_valid,
     input   wire                        I_inst_ready,
+
+    input   wire                        I_stallreq_fwd_load,
  
     output  wire    [`RegAddrBus    ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`RegAddrBus    ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
@@ -276,7 +278,7 @@ module decoder
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
     
-    assign O_inst_ready = I_inst_ready & I_inst_valid;
+    assign O_inst_ready = (I_inst_ready & I_inst_valid) & ~I_stallreq_fwd_load;
     assign O_inst_valid = O_inst_ready;
 
     assign O_rs1_raddr = rs1;

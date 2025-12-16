@@ -77,6 +77,8 @@ module riscv_ic
     wire [`ls_diff_bus] O_dec_ls_type;
     wire [`Except_Bus ] O_dec_except;
 
+    wire stallreq_fwd_load;
+
     //-------------------------------------------------------------
     // pipeline_dec_ex
     //-------------------------------------------------------------
@@ -260,6 +262,8 @@ module riscv_ic
         .O_inst_valid           (O_dec_inst_valid           ),
         .I_inst_ready           (O_ex_inst_ready            ),
 
+        .I_stallreq_fwd_load    (stallreq_fwd_load          ),
+
         .O_rs1_raddr            (O_rs1_raddr                ),
         .O_rs2_raddr            (O_rs2_raddr                ),
         .O_csr_raddr            (O_csr_raddr                ),
@@ -319,7 +323,6 @@ module riscv_ic
 
     );
 
-    wire stallreq_from_dec;
     fwd_load_stall u_fwd_load_stall
     (
         .I_ex_ls_valid          (I_ex_ls_valid              ),
@@ -333,7 +336,7 @@ module riscv_ic
 
         .I_bru_taken            (O_ex_bru_taken             ),
 
-        .O_stallreq             (stallreq_from_dec          )
+        .O_stallreq             (stallreq_fwd_load          )
 
     );
 
