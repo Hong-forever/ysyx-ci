@@ -7,7 +7,7 @@
 module csr_reg
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`CSRAddrBus    ]   I_raddr,
     output  wire    [`CSRDataBus    ]   O_rdata,
@@ -17,11 +17,10 @@ module csr_reg
     input   wire    [`CSRDataBus    ]   I_wdata,
 
     input   wire    [`INT_BUS       ]   I_int,
-
     input   wire    [`Except_Bus    ]   I_except,
     input   wire    [`InstAddrBus   ]   I_except_addr,
 
-    input   wire    [`InstAddrBus   ]   I_next_addr,
+    input   wire    [`InstAddrBus   ]   I_next_inst_addr,
 
     output  wire                        O_flush,
     output  wire    [`InstAddrBus   ]   O_flush_addr,
@@ -30,10 +29,10 @@ module csr_reg
     output  wire    [`CSRDataBus    ]   O_csr_mepc,         //mepc寄存器
     output  wire    [`CSRDataBus    ]   O_csr_mstatus,      //mstatus寄存器
     output  wire    [`CSRDataBus    ]   O_csr_mcause,       //mcause寄存器
-    output  wire    [`DoubleCSRDataBus] O_csr_mcycle,       //mcycle寄存器
+    output  wire    [`CSRDataBus]       O_csr_mcyclel,       //mcycle寄存器
+    output  wire    [`CSRDataBus]       O_csr_mcycleh,       //mcycle寄存器
     output  wire    [`CSRDataBus    ]   O_csr_mvendorid,      //mvendorid寄存器
     output  wire    [`CSRDataBus    ]   O_csr_marchid         //marchid寄存器
-
 );
 
     reg [`CSRDataBus] mstatus;
@@ -55,14 +54,14 @@ module csr_reg
     reg ext_int_valid;
     reg [`INT_BUS] int_r;
     reg [`InstAddrBus] ext_int_addr;
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             ext_int_valid <= 1'b0;
             int_r <= `INT_NONE;
             ext_int_addr <= `ZeroWord;
-        end else if(I_next_addr != `ZeroWord) begin
+        end else if(I_next_inst_addr != `ZeroWord) begin
             ext_int_valid <= `Enable;
-            ext_int_addr <= I_next_addr;
+            ext_int_addr <= I_next_inst_addr;
             int_r <= `INT_NONE;
         end else begin
             ext_int_valid = `Disable;
@@ -86,8 +85,8 @@ module csr_reg
 
     //cycle counter
     //复位撤销后就一直计数
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             cycle <= {`ZeroWord, `ZeroWord};
         end else begin
             cycle <= cycle + 1'b1;
@@ -107,8 +106,8 @@ module csr_reg
 
     //write reg
     //写寄存器操作
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             mtvec <= `ZeroWord;
             mcause <= `ZeroWord;
             mepc <= `ZeroWord;
@@ -182,7 +181,8 @@ module csr_reg
     assign O_csr_mepc = mepc;
     assign O_csr_mstatus = mstatus;
     assign O_csr_mcause = mcause;
-    assign O_csr_mcycle = cycle;
+    assign O_csr_mcyclel = cycle[31:0];
+    assign O_csr_mcycleh = cycle[63:32];
     assign O_csr_mvendorid = mvendorid;
     assign O_csr_marchid = marchid;
 

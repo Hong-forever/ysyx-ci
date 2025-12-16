@@ -7,10 +7,15 @@
 module exec
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
+
+    input   wire                        I_inst_valid,
+    output  wire                        O_inst_ready,
+    output  wire                        O_inst_valid,
+    input   wire                        I_inst_ready,
 
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
@@ -33,8 +38,6 @@ module exec
     input   wire    [`RegDataBus]       I_rs1_rdata,
     input   wire    [`RegDataBus]       I_rs2_rdata,
     input   wire    [`CSRDataBus]       I_csr_rdata,
-
-    input   wire    [`RegAddrBus]       I_rs1,      // for ftrace npc
 
     input   wire    [`RegDataBus]       I_ls_rd_wdata,
     input   wire    [`RegDataBus]       I_wb_rd_wdata,
@@ -62,9 +65,7 @@ module exec
 
     //bru
     output  wire                        O_bru_taken,
-    output  wire    [`InstAddrBus   ]   O_bru_target,
-
-    output  wire                        O_stallreq
+    output  wire    [`InstAddrBus   ]   O_bru_target
 
 );
 
@@ -164,8 +165,8 @@ module exec
     wire stallreq_mul = start_mul;
 
     reg start_mul_reg;
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             start_mul_reg <= 0;
         end else begin
             start_mul_reg <= start_mul;
@@ -180,10 +181,12 @@ module exec
     wire stallreq_div = start_div;
     wire annul_div = 0;
 
+    wire stallreq = stallreq_div | stallreq_mul;
+
     exe_alu alu
     (
         .clk                        (clk                    ),
-        .rst                        (rst                    ),
+        .rst_n                      (rst_n                  ),
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
         .I_alu_ctrl                 (I_ALUCtrl              ),
@@ -252,16 +255,20 @@ module exec
 
     assign O_except = I_except;
 
-    assign O_stallreq = stallreq_div | stallreq_mul;
+    assign O_inst_ready = ~stallreq & I_inst_ready & I_inst_valid;
+    assign O_inst_valid = O_inst_ready;
+
 
     import "DPI-C" function void ftrace_exec(input int pc, input int dnpc, input int rs1, input int rd, input int imm, input int op); //op=1 jal, op=2 jalr
 
+    wire [`RV32_RS1_WIDTH-1:0] rs1 = I_inst[`RV32_RS1];
+
     always @(*) begin
         if (I_BRUCtrl == 1) begin
-            ftrace_exec(I_inst_addr, O_bru_target, I_rs1, O_rd_waddr, I_imm, 1);
+            ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 1);
         end
         else if (I_BRUCtrl == 2) begin
-            ftrace_exec(I_inst_addr, O_bru_target, I_rs1, O_rd_waddr, I_imm, 2);
+            ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 2);
         end
     end
 

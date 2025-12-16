@@ -7,10 +7,15 @@
 module lsu
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,             //指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,
+    input   wire                        I_inst_valid,
+    output  wire                        O_inst_ready,
+    output  wire                        O_inst_valid,
+    input   wire                        I_inst_ready,
+
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
     input   wire    [`RegDataBus    ]   I_rd_wdata,
@@ -32,8 +37,6 @@ module lsu
     output  wire    [`CSRAddrBus    ]   O_csr_waddr,
     output  wire    [`CSRDataBus    ]   O_csr_wdata,
     output  wire    [`Except_Bus    ]   O_except,
-
-    output  wire                        O_stallreq,
 
     //to bus
     output  wire                        O_dbus_req,
@@ -208,6 +211,8 @@ module lsu
 
     assign O_dbus_data = dbus_data;
 
-    assign O_stallreq = 1'b0;
+    assign O_inst_ready = I_inst_ready & I_inst_valid;
+    assign O_inst_valid = O_inst_ready;
+
 
 endmodule

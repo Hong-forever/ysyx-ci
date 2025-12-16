@@ -7,7 +7,7 @@
 module riscv_ic
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     //ibus
     output  wire                        O_ibus_req,
@@ -24,12 +24,10 @@ module riscv_ic
     output  wire    [`MemDataBus    ]   O_dbus_data,
     output  wire    [`DBUS_MASK-1:0 ]   O_dbus_mask,
     input   wire    [`MemDataBus    ]   I_dbus_data,
-    input   wire                        device_skip_flag,
+    input   wire                        device_skip,
 
     //from peripheral
-    input   wire    [`INT_BUS       ]   I_int,
-    input   wire                        I_jtag_haltreq   //jtag暂停标志
-
+    input   wire    [`INT_BUS       ]   I_int
 );
 
     //-------------------------------------------------------------
@@ -37,12 +35,14 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] O_if_inst;
     wire [`InstAddrBus] O_if_inst_addr;
+    wire                O_if_inst_valid;
 
     //-------------------------------------------------------------
     // pipeline_if_dec
     //-------------------------------------------------------------
     wire [`InstBus    ] I_dec_inst;
     wire [`InstAddrBus] I_dec_inst_addr;
+    wire                I_dec_inst_valid;
 
     //-------------------------------------------------------------
     // decoder
@@ -56,6 +56,8 @@ module riscv_ic
 
     wire [`InstBus    ] O_dec_inst;
     wire [`InstAddrBus] O_dec_inst_addr;
+    wire                O_dec_inst_valid;
+    wire                O_dec_inst_ready;
     wire [`RegDataBus ] O_dec_rs1_rdata;
     wire [`RegDataBus ] O_dec_rs2_rdata;
     wire [`RegDataBus ] O_dec_imm;
@@ -80,6 +82,7 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] I_ex_inst;
     wire [`InstAddrBus] I_ex_inst_addr;
+    wire                I_ex_inst_valid;
     wire [`RegDataBus ] I_ex_rs1_rdata;
     wire [`RegDataBus ] I_ex_rs2_rdata;
     wire [`RegDataBus ] I_ex_imm;
@@ -146,6 +149,8 @@ module riscv_ic
 
     wire [`InstBus    ] O_ex_inst;
     wire [`InstAddrBus] O_ex_inst_addr;
+    wire                O_ex_inst_valid;
+    wire                O_ex_inst_ready;
     wire                O_ex_rd_we;
     wire [`RegAddrBus ] O_ex_rd_waddr;
     wire [`RegDataBus ] O_ex_rd_wdata;
@@ -163,6 +168,7 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] I_ls_inst;
     wire [`InstAddrBus] I_ls_inst_addr;
+    wire                I_ls_inst_valid;
     wire                I_ls_rd_we;
     wire [`RegAddrBus ] I_ls_rd_waddr;
     wire [`RegDataBus ] I_ls_rd_wdata;
@@ -181,6 +187,8 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] O_ls_inst;
     wire [`InstAddrBus] O_ls_inst_addr;
+    wire                O_ls_inst_valid;
+    wire                O_ls_inst_ready;
     wire                O_ls_rd_we;
     wire [`RegAddrBus ] O_ls_rd_waddr;
     wire [`RegDataBus ] O_ls_rd_wdata;
@@ -194,6 +202,7 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] I_wb_inst;
     wire [`InstAddrBus] I_wb_inst_addr;
+    wire                I_wb_inst_valid;
     wire                I_wb_rd_we;
     wire [`RegAddrBus ] I_wb_rd_waddr;
     wire [`RegDataBus ] I_wb_rd_wdata;
@@ -203,52 +212,33 @@ module riscv_ic
     wire [`Except_Bus ] I_wb_except;
 
     //-------------------------------------------------------------
-    // pipe_ctrl
+    // wb
     //-------------------------------------------------------------
-    wire                stallreq_from_if;
-    wire                stallreq_from_dec;
-    wire                stallreq_from_ex;
-    wire                stallreq_from_ls;
-    wire [`StallBus   ] Stall;
-    wire [`KillBus    ] Kill;
-
-
-    //-------------------------------------------------------------
-    // csr_reg
-    //-------------------------------------------------------------
-    wire [`CSRDataBus]  csr_mtvec;
-    wire [`CSRDataBus]  csr_mepc;
-    wire [`CSRDataBus]  csr_mstatus;
-    wire [`CSRDataBus]  csr_mcause;
-    wire [`DoubleCSRDataBus] csr_mcycle;
-    wire [`CSRDataBus]  csr_mvendorid;
-    wire [`CSRDataBus]  csr_marchid;
+    wire                O_wb_inst_ready;      
     wire                O_flush;
     wire [`InstAddrBus] O_flush_addr;
 
     //-------------------------------------------------------------
     // instantiate modules
     //-------------------------------------------------------------
-    wire wbu_device_skip_flag;
+    wire wbu_device_skip;
 
     ifetch u_ifetch
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_bru_taken            (O_ex_bru_taken             ),
         .I_bru_target           (O_ex_bru_target            ),
 
-        .I_jtag_halt            (I_jtag_haltreq             ),
-        .I_stall                (Stall[`Stall_pc]           ),
         .I_flush                (O_flush                    ),
         .I_flush_addr           (O_flush_addr               ),
 
         .O_inst                 (O_if_inst                  ),
         .O_inst_addr            (O_if_inst_addr             ),
+        .O_inst_valid           (O_if_inst_valid            ),
+        .I_inst_ready           (O_dec_inst_ready           ),
         
-        .O_stallreq             (stallreq_from_if           ),
-
         .O_ibus_req             (O_ibus_req                 ),
         .O_ibus_we              (O_ibus_we                  ),
         .O_ibus_addr            (O_ibus_addr                ),
@@ -261,10 +251,14 @@ module riscv_ic
     decoder u0_decoder
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (I_dec_inst                 ),
         .I_inst_addr            (I_dec_inst_addr            ),
+        .I_inst_valid           (I_dec_inst_valid           ),
+        .O_inst_ready           (O_dec_inst_ready           ),
+        .O_inst_valid           (O_dec_inst_valid           ),
+        .I_inst_ready           (O_ex_inst_ready            ),
 
         .O_rs1_raddr            (O_rs1_raddr                ),
         .O_rs2_raddr            (O_rs2_raddr                ),
@@ -325,6 +319,7 @@ module riscv_ic
 
     );
 
+    wire stallreq_from_dec;
     fwd_load_stall u_fwd_load_stall
     (
         .I_ex_ls_valid          (I_ex_ls_valid              ),
@@ -342,15 +337,18 @@ module riscv_ic
 
     );
 
-    wire [`RegAddrBus] I_rs1; // for ftrace npc
-
     exec u0_exec
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (I_ex_inst                  ),
         .I_inst_addr            (I_ex_inst_addr             ),
+        .I_inst_valid           (I_ex_inst_valid            ),
+        .O_inst_ready           (O_ex_inst_ready            ),
+        .O_inst_valid           (O_ex_inst_valid            ),
+        .I_inst_ready           (O_ls_inst_ready            ),
+
         .I_rd_we                (I_ex_rd_we                 ),
         .I_rd_waddr             (I_ex_rd_waddr              ),
         .I_imm                  (I_ex_imm                   ),
@@ -368,19 +366,13 @@ module riscv_ic
         .I_CSRSrc_sel           (I_ex_CSRSrc_sel            ),
         .I_ls_valid             (I_ex_ls_valid              ),
         .I_ls_type              (I_ex_ls_type               ),
-
         .I_rs1_rdata            (I_ex_rs1_rdata             ),
         .I_rs2_rdata            (I_ex_rs2_rdata             ),
         .I_csr_rdata            (I_ex_csr_rdata             ),
-
-        .I_rs1                  (I_rs1                      ), // for ftrace npc
-
         .I_ls_rd_wdata          (I_ls_fwd_rd_wdata          ),
         .I_wb_rd_wdata          (I_wb_fwd_rd_wdata          ),
-
         .I_ls_csr_wdata         (I_ls_fwd_csr_wdata         ),
         .I_wb_csr_wdata         (I_wb_fwd_csr_wdata         ),
-
         .I_csr_re               (I_ex_csr_re                ),
         .I_except               (I_ex_except                ),
 
@@ -397,20 +389,22 @@ module riscv_ic
         .O_csr_waddr            (O_ex_csr_waddr             ),
         .O_csr_wdata            (O_ex_csr_wdata             ),
         .O_except               (O_ex_except                ),
-
         .O_bru_taken            (O_ex_bru_taken             ),
-        .O_bru_target           (O_ex_bru_target            ),
-
-        .O_stallreq             (stallreq_from_ex           )
+        .O_bru_target           (O_ex_bru_target            )
     );
 
     lsu u0_lsu
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (I_ls_inst                  ),
         .I_inst_addr            (I_ls_inst_addr             ),
+        .I_inst_valid           (I_ls_inst_valid            ),
+        .O_inst_ready           (O_ls_inst_ready            ),
+        .O_inst_valid           (O_ls_inst_valid            ),
+        .I_inst_ready           (O_wb_inst_ready            ),
+
         .I_rd_we                (I_ls_rd_we                 ),
         .I_rd_waddr             (I_ls_rd_waddr              ),
         .I_rd_wdata             (I_ls_rd_wdata              ),
@@ -433,8 +427,6 @@ module riscv_ic
         .O_csr_wdata            (O_ls_csr_wdata             ),
         .O_except               (O_ls_except                ),
 
-        .O_stallreq             (stallreq_from_ls           ),
-
         .O_dbus_req             (O_dbus_req                 ),
         .O_dbus_we              (O_dbus_we                  ),
         .O_dbus_addr            (O_dbus_addr                ),
@@ -443,117 +435,75 @@ module riscv_ic
         .I_dbus_data            (I_dbus_data                )
     );
 
-    regfile u_regfile
+    wbu u_wbu
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (I_wb_inst                  ),
         .I_inst_addr            (I_wb_inst_addr             ),
+        .I_inst_valid           (I_wb_inst_valid            ),
+        .O_inst_ready           (O_wb_inst_ready            ),
+
+        .I_rs1_raddr            (O_rs1_raddr                ),
+        .I_rs2_raddr            (O_rs2_raddr                ),
+        .O_rs1_rdata            (I_rs1_rdata                ),
+        .O_rs2_rdata            (I_rs2_rdata                ),
+        .I_rd_we                (I_wb_rd_we                 ),
+        .I_rd_waddr             (I_wb_rd_waddr              ),
+        .I_rd_wdata             (I_wb_rd_wdata              ),
+
+        .I_csr_raddr            (O_csr_raddr                ),
+        .O_csr_rdata            (I_csr_rdata                ),
+        .I_csr_we               (I_wb_csr_we                ),
+        .I_csr_waddr            (I_wb_csr_waddr             ),
+        .I_csr_wdata            (I_wb_csr_wdata             ),
+
+        .I_int                  (I_int                      ),
+        .I_except               (I_wb_except                ),
+        .I_except_addr          (I_wb_inst_addr             ),
+        .I_next_inst_addr       (I_ls_inst_addr             ),
+
+        .O_flush                (O_flush                    ),
+        .O_flush_addr           (O_flush_addr               ),
 
         .I_if_addr              (O_if_inst_addr             ),
         .I_dec_addr             (O_dec_inst_addr            ),
         .I_ex_addr              (O_ex_inst_addr             ),
         .I_ls_addr              (O_ls_inst_addr             ),
 
-        .I_rs1_raddr            (O_rs1_raddr                ),
-        .I_rs2_raddr            (O_rs2_raddr                ),
-
-        .O_rs1_rdata            (I_rs1_rdata                ),
-        .O_rs2_rdata            (I_rs2_rdata                ),
-
-        .I_rd_we                (I_wb_rd_we                 ),
-        .I_rd_waddr             (I_wb_rd_waddr              ),
-        .I_rd_wdata             (I_wb_rd_wdata              ),
-
-        .I_device_skip_flag     (wbu_device_skip_flag       ),
-
-        .I_csr_mepc             (csr_mepc                   ),
-        .I_csr_mtvec            (csr_mtvec                  ),
-        .I_csr_mstatus          (csr_mstatus                ),
-        .I_csr_mcause           (csr_mcause                 ),
-        .I_csr_mcycle           (csr_mcycle                 ),
-        .I_csr_mvendorid        (csr_mvendorid              ),
-        .I_csr_marchid          (csr_marchid                ),
-
-        .I_flush                (O_flush                    ),
-        .I_flush_addr           (O_flush_addr               )
+        .I_device_skip          (wbu_device_skip            )
     );
-
-    csr_reg u_csr_reg
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .I_raddr                (O_csr_raddr                ),
-        .O_rdata                (I_csr_rdata                ),
-
-        .I_we                   (I_wb_csr_we                ),
-        .I_waddr                (I_wb_csr_waddr             ),
-        .I_wdata                (I_wb_csr_wdata             ),
-
-        .I_int                  (I_int                      ),
-
-        .I_except               (I_wb_except                ),
-        .I_except_addr          (I_wb_inst_addr             ),
-
-        .I_next_addr            (I_ls_inst_addr             ),
-
-        .O_flush                (O_flush                    ),
-        .O_flush_addr           (O_flush_addr               ),
-
-        .O_csr_mtvec            (csr_mtvec                  ),
-        .O_csr_mepc             (csr_mepc                   ),
-        .O_csr_mstatus          (csr_mstatus                ),
-        .O_csr_mcause           (csr_mcause                 ),
-        .O_csr_mcycle           (csr_mcycle                 ),
-        .O_csr_mvendorid        (csr_mvendorid              ),
-        .O_csr_marchid          (csr_marchid                )
-    );
-
 
     //------------------------------------------------------------------------
     // PIPELINE
     //------------------------------------------------------------------------
 
-    pipe_ctrl u_pipe_ctrl
-    (
-        .rst                    (rst                        ),
-        .stallreq_from_if       (stallreq_from_if           ),
-        .stallreq_from_dec      (stallreq_from_dec          ),
-        .stallreq_from_ex       (stallreq_from_ex           ),
-        .stallreq_from_ls       (stallreq_from_ls           ),
-        .stallreq_from_jtag     (I_jtag_haltreq             ),
-
-        .Stall                  (Stall                      ),
-        .Kill                   (Kill                       )
-    );
-
     pipeline_if_dec u0_pipeline_if_dec
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (O_if_inst                  ),
         .I_inst_addr            (O_if_inst_addr             ),
+        .I_inst_valid           (O_if_inst_valid            ),
 
         .O_inst                 (I_dec_inst                 ),
         .O_inst_addr            (I_dec_inst_addr            ),
+        .O_inst_valid           (I_dec_inst_valid           ),
 
-        .I_bru_taken            (O_ex_bru_taken             ),
-        .I_stall                (Stall[`Stall_if_dec]       ),
-        .I_kill                 (Kill[`Kill_if_dec]         ),
+        .I_enable               (O_if_inst_valid            ),
         .I_flush                (O_flush                    )
     );
-
 
     pipeline_dec_ex u0_pipeline_dec_ex
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (O_dec_inst                 ),
         .I_inst_addr            (O_dec_inst_addr            ),
+        .I_inst_valid           (O_dec_inst_valid           ),
         .I_rs1_rdata            (O_dec_rs1_rdata            ),
         .I_rs2_rdata            (O_dec_rs2_rdata            ),
         .I_imm                  (O_dec_imm                  ),
@@ -577,15 +527,11 @@ module riscv_ic
         .I_csr_re               (O_dec_csr_re               ),
         .I_except               (O_dec_except               ),
 
-        .I_rs1                  (O_rs1_raddr                ),
-
         .O_inst                 (I_ex_inst                  ),
         .O_inst_addr            (I_ex_inst_addr             ),
+        .O_inst_valid           (I_ex_inst_valid            ),
         .O_rs1_rdata            (I_ex_rs1_rdata             ),
         .O_rs2_rdata            (I_ex_rs2_rdata             ),
-
-        .O_rs1                  (I_rs1                      ), // for ftrace npc
-
         .O_imm                  (I_ex_imm                   ),
         .O_rd_we                (I_ex_rd_we                 ),
         .O_rd_waddr             (I_ex_rd_waddr              ),
@@ -611,19 +557,18 @@ module riscv_ic
         .O_csr_re               (I_ex_csr_re                ),
         .O_except               (I_ex_except                ),
 
-        .I_bru_taken            (O_ex_bru_taken             ),
-        .I_stall                (Stall[`Stall_dec_ex]       ),
-        .I_kill                 (Kill[`Kill_dec_ex]         ),
+        .I_enable               (O_dec_inst_valid           ),
         .I_flush                (O_flush                    )
     );
 
     pipeline_ex_ls u0_pipeline_ex_ls
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (O_ex_inst                  ),
         .I_inst_addr            (O_ex_inst_addr             ),
+        .I_inst_valid           (O_ex_inst_valid            ),
         .I_rd_we                (O_ex_rd_we                 ),
         .I_rd_waddr             (O_ex_rd_waddr              ),
         .I_rd_wdata             (O_ex_rd_wdata              ),
@@ -638,6 +583,7 @@ module riscv_ic
 
         .O_inst                 (I_ls_inst                  ),
         .O_inst_addr            (I_ls_inst_addr             ),
+        .O_inst_valid           (I_ls_inst_valid            ),
         .O_rd_we                (I_ls_rd_we                 ),
         .O_rd_waddr             (I_ls_rd_waddr              ),
         .O_rd_wdata             (I_ls_rd_wdata              ),
@@ -656,8 +602,7 @@ module riscv_ic
         .O_fwd_csr_wdata        (I_ls_fwd_csr_wdata         ),
         .O_except               (I_ls_except                ),
 
-        .I_stall                (Stall[`Stall_ex_ls]        ),
-        .I_kill                 (Kill[`Kill_ex_ls]          ),
+        .I_enable               (O_ex_inst_valid            ),
         .I_flush                (O_flush                    )
     );
 
@@ -665,10 +610,11 @@ module riscv_ic
     pipeline_ls_wb u0_pipeline_ls_wb
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_inst                 (O_ls_inst                  ),
         .I_inst_addr            (O_ls_inst_addr             ),
+        .I_inst_valid           (O_ls_inst_valid            ),
         .I_rd_we                (O_ls_rd_we                 ),
         .I_rd_waddr             (O_ls_rd_waddr              ),
         .I_rd_wdata             (O_ls_rd_wdata              ),
@@ -677,10 +623,11 @@ module riscv_ic
         .I_csr_wdata            (O_ls_csr_wdata             ),
         .I_except               (O_ls_except                ),
 
-        .I_device_skip_flag     (device_skip_flag           ),
+        .I_device_skip          (device_skip                ),
 
         .O_inst                 (I_wb_inst                  ),
         .O_inst_addr            (I_wb_inst_addr             ),
+        .O_inst_valid           (I_wb_inst_valid            ),           
         .O_rd_we                (I_wb_rd_we                 ),
         .O_rd_waddr             (I_wb_rd_waddr              ),
         .O_rd_wdata             (I_wb_rd_wdata              ),
@@ -691,11 +638,9 @@ module riscv_ic
         .O_fwd_csr_wdata        (I_wb_fwd_csr_wdata         ),
         .O_except               (I_wb_except                ),
 
-        .O_device_skip_flag     (wbu_device_skip_flag       ),
+        .O_device_skip          (wbu_device_skip            ),
 
-        .I_stall                (Stall[`Stall_ls_wb]        ),
-        .I_stallreq_from_lsu    (stallreq_from_ls           ),
-        .I_kill                 (Kill[`Kill_ls_wb]          ),
+        .I_enable               (O_ls_inst_valid            ),
         .I_flush                (O_flush                    )
     );
 

@@ -7,29 +7,32 @@
 module pipeline_if_dec
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
+    input   wire                        I_inst_valid,
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg                         O_inst_valid,
 
-    input   wire                        I_bru_taken,
-    input   wire                        I_stall,            // 流水线暂停标志
-    input   wire                        I_kill,             // 指令冲刷
+    input   wire                        I_enable,
     input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-        end else if(I_kill | I_flush  | (I_bru_taken & ~I_stall)) begin
+            O_inst_valid    <= 'b0;
+        end else if (I_flush) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-        end else if(~I_stall) begin
+            O_inst_valid    <= 'b1;
+        end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
+            O_inst_valid    <= I_inst_valid;
         end
     end
 
@@ -44,10 +47,11 @@ endmodule
 module pipeline_dec_ex
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
+    input   wire                        I_inst_valid,
     input   wire    [`RegDataBus    ]   I_rs1_rdata,        // 通用寄存器1读数据
     input   wire    [`RegDataBus    ]   I_rs2_rdata,        // 通用寄存器2读数据
     input   wire    [`RegDataBus    ]   I_imm,              // 立即数
@@ -71,15 +75,11 @@ module pipeline_dec_ex
     input   wire                        I_csr_re,
     input   wire    [`Except_Bus    ]   I_except,           // 异常
 
-    input   wire    [`RegAddrBus    ]   I_rs1,              // for ftrace npc
-
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg                         O_inst_valid,
     output  reg     [`RegDataBus    ]   O_rs1_rdata,        // 通用寄存器1读数据
     output  reg     [`RegDataBus    ]   O_rs2_rdata,        // 通用寄存器2读数据
-
-    output  reg     [`RegAddrBus    ]   O_rs1,              // for ftrace npc
-
     output  reg     [`RegDataBus    ]   O_imm,              // 立即数
     output  reg                         O_rd_we,            // 写通用寄存器标志
     output  reg     [`RegAddrBus    ]   O_rd_waddr,         // 写通用寄存器地址
@@ -105,15 +105,14 @@ module pipeline_dec_ex
     output  reg                         O_csr_re,
     output  reg     [`Except_Bus    ]   O_except,           // 异常
 
-    input   wire                        I_bru_taken,
-    input   wire                        I_stall,            // 流水线暂停标志
-    input   wire                        I_kill,             // 指令冲刷
+    input   wire                        I_enable,
     input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
+            O_inst_valid    <= 'b0;
             O_rs1_rdata     <= 'b0;
             O_rs2_rdata     <= 'b0;
             O_rd_we         <= 'b0;
@@ -140,11 +139,10 @@ module pipeline_dec_ex
             O_ls_type       <= 'b0;
             O_csr_re        <= 'b0;
             O_except        <= 'b0;
-
-            O_rs1           <= 'b0;
-        end else if(I_kill | I_flush | (I_bru_taken & ~I_stall)) begin
+        end else if (I_flush) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
+            O_inst_valid    <= 'b1;
             O_rs1_rdata     <= 'b0;
             O_rs2_rdata     <= 'b0;
             O_rd_we         <= 'b0;
@@ -171,11 +169,10 @@ module pipeline_dec_ex
             O_ls_type       <= 'b0;
             O_csr_re        <= 'b0;
             O_except        <= 'b0;
-
-            O_rs1           <= 'b0;
-        end else if(~I_stall) begin
+        end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
+            O_inst_valid    <= I_inst_valid;
             O_rs1_rdata     <= I_rs1_rdata;
             O_rs2_rdata     <= I_rs2_rdata;
             O_rd_we         <= I_rd_we;
@@ -202,8 +199,6 @@ module pipeline_dec_ex
             O_ls_type       <= I_ls_type;
             O_csr_re        <= I_csr_re;
             O_except        <= I_except;
-
-            O_rs1           <= I_rs1;
         end
     end
 
@@ -217,10 +212,11 @@ endmodule
 module pipeline_ex_ls
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,
+    input   wire                        I_inst_valid,
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
     input   wire    [`RegDataBus    ]   I_rd_wdata,
@@ -235,6 +231,7 @@ module pipeline_ex_ls
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg                         O_inst_valid,
     output  reg                         O_rd_we,
     output  reg     [`RegAddrBus    ]   O_rd_waddr,
     output  reg     [`RegDataBus    ]   O_rd_wdata,
@@ -252,73 +249,74 @@ module pipeline_ex_ls
     output  reg     [`CSRAddrBus    ]   O_fwd_csr_waddr,
     output  reg     [`CSRDataBus    ]   O_fwd_csr_wdata,
     output  reg     [`Except_Bus    ]   O_except,           // 异常
-
-    input   wire                        I_stall,            // 流水线暂停标志
-    input   wire                        I_kill,             // 指令冲刷
-    input   wire                        I_flush             // 指令冲刷
-
+    
+    input   wire                        I_enable,
+    input   wire                        I_flush
 );
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
-            O_inst        <= 'b0;
-            O_inst_addr   <= 'b0;
-            O_rd_we       <= 'b0;
-            O_rd_waddr    <= 'b0;
-            O_rd_wdata    <= 'b0;
-            O_memory_addr <= 'b0;
-            O_store_data  <= 'b0;
-            O_fwd_rd_we   <= 'b0;
-            O_fwd_rd_waddr<= 'b0;
-            O_fwd_rd_wdata<= 'b0;
-            O_fwd_csr_we  <= 'b0;
-            O_fwd_csr_waddr<= 'b0;
-            O_fwd_csr_wdata<= 'b0;
-            O_ls_valid    <= 'b0;
-            O_ls_type     <= 'b0;
-            O_csr_we      <= 'b0;
-            O_csr_waddr   <= 'b0;
-            O_csr_wdata   <= 'b0;
-            O_except      <= 'b0;
-        end else if(I_kill | I_flush) begin
-            O_inst        <= 'b0;
-            O_inst_addr   <= 'b0;
-            O_rd_we       <= 'b0;
-            O_rd_waddr    <= 'b0;
-            O_rd_wdata    <= 'b0;
-            O_memory_addr <= 'b0;
-            O_store_data  <= 'b0;
-            O_fwd_rd_we   <= 'b0;
-            O_fwd_rd_waddr<= 'b0;
-            O_fwd_rd_wdata<= 'b0;
-            O_fwd_csr_we  <= 'b0;
-            O_fwd_csr_waddr<= 'b0;
-            O_fwd_csr_wdata<= 'b0;
-            O_ls_valid    <= 'b0;
-            O_ls_type     <= 'b0;
-            O_csr_we      <= 'b0;
-            O_csr_waddr   <= 'b0;
-            O_csr_wdata   <= 'b0;
-            O_except      <= 'b0;
-        end else if(~I_stall) begin
-            O_inst        <= I_inst;
-            O_inst_addr   <= I_inst_addr;
-            O_rd_we       <= I_rd_we;
-            O_rd_waddr    <= I_rd_waddr;
-            O_rd_wdata    <= I_rd_wdata;
-            O_memory_addr <= I_memory_addr;
-            O_store_data  <= I_store_data;
-            O_fwd_rd_we   <= I_rd_we;
-            O_fwd_rd_waddr<= I_rd_waddr;
-            O_fwd_rd_wdata<= I_rd_wdata;
-            O_fwd_csr_we  <= I_csr_we;
-            O_fwd_csr_waddr<= I_csr_waddr;
-            O_fwd_csr_wdata<= I_csr_wdata;
-            O_ls_valid    <= I_ls_valid;
-            O_ls_type     <= I_ls_type;
-            O_csr_we      <= I_csr_we;
-            O_csr_waddr   <= I_csr_waddr;
-            O_csr_wdata   <= I_csr_wdata;
-            O_except      <= I_except;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_inst_valid    <= 'b0;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_memory_addr   <= 'b0;
+            O_store_data    <= 'b0;
+            O_fwd_rd_we     <= 'b0;
+            O_fwd_rd_waddr  <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_we    <= 'b0;
+            O_fwd_csr_waddr <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_ls_valid      <= 'b0;
+            O_ls_type       <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+        end else if (I_flush) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_inst_valid    <= 'b1;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_memory_addr   <= 'b0;
+            O_store_data    <= 'b0;
+            O_fwd_rd_we     <= 'b0;
+            O_fwd_rd_waddr  <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_we    <= 'b0;
+            O_fwd_csr_waddr <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_ls_valid      <= 'b0;
+            O_ls_type       <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+        end else if (I_enable) begin
+            O_inst          <= I_inst;
+            O_inst_addr     <= I_inst_addr;
+            O_inst_valid    <= I_inst_valid;
+            O_rd_we         <= I_rd_we;
+            O_rd_waddr      <= I_rd_waddr;
+            O_rd_wdata      <= I_rd_wdata;
+            O_memory_addr   <= I_memory_addr;
+            O_store_data    <= I_store_data;
+            O_fwd_rd_we     <= I_rd_we;
+            O_fwd_rd_waddr  <= I_rd_waddr;
+            O_fwd_rd_wdata  <= I_rd_wdata;
+            O_fwd_csr_we    <= I_csr_we;
+            O_fwd_csr_waddr <= I_csr_waddr;
+            O_fwd_csr_wdata <= I_csr_wdata;
+            O_ls_valid      <= I_ls_valid;
+            O_ls_type       <= I_ls_type;
+            O_csr_we        <= I_csr_we;
+            O_csr_waddr     <= I_csr_waddr;
+            O_csr_wdata     <= I_csr_wdata;
+            O_except        <= I_except;
         end
     end
 
@@ -332,24 +330,24 @@ endmodule
 module pipeline_ls_wb
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
+    input   wire                        I_inst_valid,
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
     input   wire    [`RegDataBus    ]   I_rd_wdata,
     input   wire                        I_csr_we,           // 写CSR寄存器标志
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,        // 写CSR寄存器地址
     input   wire    [`CSRDataBus    ]   I_csr_wdata,        // 写CSR寄存器数据
-
     input   wire    [`Except_Bus    ]   I_except,           // 异常
 
-    input   wire                        I_device_skip_flag,
-
+    input   wire                        I_device_skip,
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg                         O_inst_valid,
     output  reg                         O_rd_we,
     output  reg     [`RegAddrBus    ]   O_rd_waddr,
     output  reg     [`RegDataBus    ]   O_rd_wdata,
@@ -358,70 +356,61 @@ module pipeline_ls_wb
     output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`RegDataBus    ]   O_fwd_rd_wdata,
     output  reg     [`CSRDataBus    ]   O_fwd_csr_wdata,
-
     output  reg     [`Except_Bus    ]   O_except,           // 异常
 
-    output  wire                        O_device_skip_flag,
+    output  wire                        O_device_skip,
 
-    input   wire                        I_stall,            // 流水线暂停标志
-    input   wire                        I_stallreq_from_lsu, // 流水线暂停标志
-    input   wire                        I_kill,             // 指令冲刷
-    input   wire                        I_flush             // 指令冲刷
-
+    input   wire                        I_enable,
+    input   wire                        I_flush
 );
 
-    reg stall_from_lsu;
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
-            stall_from_lsu <= `Disable;
-        end else begin
-            stall_from_lsu <= I_stallreq_from_lsu;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_inst_valid    <= 'b0;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+
+            O_device_skip   <= 'b0;
+        end else if (I_flush) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_inst_valid    <= 'b1;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+
+            O_device_skip   <= 'b0;
+        end else if (I_enable) begin
+            O_inst          <= I_inst;
+            O_inst_addr     <= I_inst_addr;
+            O_inst_valid    <= I_inst_valid;
+            O_rd_we         <= I_rd_we;
+            O_rd_waddr      <= I_rd_waddr;
+            O_rd_wdata      <= I_rd_wdata;
+            O_fwd_rd_wdata  <= I_rd_wdata;
+            O_fwd_csr_wdata <= I_csr_wdata;
+            O_csr_we        <= I_csr_we;
+            O_csr_waddr     <= I_csr_waddr;
+            O_csr_wdata     <= I_csr_wdata;
+            O_except        <= I_except;
+
+            O_device_skip   <= I_device_skip;
         end
     end
-
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
-            O_inst      <= 'b0;
-            O_inst_addr <= 'b0;
-            O_rd_we     <= 'b0;
-            O_rd_waddr  <= 'b0;
-            O_rd_wdata  <= 'b0;
-            O_fwd_rd_wdata<= 'b0;
-            O_fwd_csr_wdata<= 'b0;
-            O_csr_we    <= 'b0;
-            O_csr_waddr <= 'b0;
-            O_csr_wdata <= 'b0;
-            O_except    <= 'b0;
-            O_device_skip_flag <= 'b0;
-        end else if(I_kill | I_flush) begin
-            O_inst      <= 'b0;
-            O_inst_addr <= 'b0;
-            O_rd_we     <= 'b0;
-            O_rd_waddr  <= 'b0;
-            O_rd_wdata  <= 'b0;
-            O_fwd_rd_wdata<= 'b0;
-            O_fwd_csr_wdata<= 'b0;
-            O_csr_we    <= 'b0;
-            O_csr_waddr <= 'b0;
-            O_csr_wdata <= 'b0;
-            O_except    <= 'b0;
-            O_device_skip_flag <= 'b0;
-        end else if(~I_stall | (stall_from_lsu & I_stall)) begin
-            O_inst      <= I_inst;
-            O_inst_addr <= I_inst_addr;
-            O_rd_we     <= I_rd_we;
-            O_rd_waddr  <= I_rd_waddr;
-            O_rd_wdata  <= I_rd_wdata;
-            O_fwd_rd_wdata<= I_rd_wdata;
-            O_fwd_csr_wdata<= I_csr_wdata;
-            O_csr_we    <= I_csr_we;
-            O_csr_waddr <= I_csr_waddr;
-            O_csr_wdata <= I_csr_wdata;
-            O_except    <= I_except;
-            O_device_skip_flag <= I_device_skip_flag;
-        end
-    end
-
-
 
 endmodule

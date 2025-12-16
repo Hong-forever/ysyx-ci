@@ -151,10 +151,10 @@ static void single_cycle()
 
 void reset(int n)
 {
-    top->rst = 1;
+    top->rst_n = 0;
     while (n-- > 0)
         single_cycle();
-    top->rst = 0;
+    top->rst_n = 1;
 }
 
 

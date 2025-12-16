@@ -7,11 +7,15 @@
 module decoder 
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
-
+    input   wire                        I_inst_valid,
+    output  wire                        O_inst_ready,
+    output  wire                        O_inst_valid,
+    input   wire                        I_inst_ready,
+ 
     output  wire    [`RegAddrBus    ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`RegAddrBus    ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
     output  wire    [`CSRAddrBus    ]   O_csr_raddr,        //读CSR寄存器地址
@@ -271,6 +275,9 @@ module decoder
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
+    
+    assign O_inst_ready = I_inst_ready & I_inst_valid;
+    assign O_inst_valid = O_inst_ready;
 
     assign O_rs1_raddr = rs1;
     assign O_rs2_raddr = rs2;
