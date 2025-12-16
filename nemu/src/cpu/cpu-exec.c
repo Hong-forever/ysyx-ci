@@ -198,6 +198,8 @@ void cpu_exec(uint64_t n) {
 
     execute(n);
 
+    printf("Total cycle: %lu\n", n);
+
     uint64_t timer_end = get_time();
     g_timer += timer_end - timer_start;
 
