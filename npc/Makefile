@@ -66,10 +66,10 @@ include $(FILELIST_MK)
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-ifeq ($(WAVE_ENABLE),1)
-		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
-# 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
-endif
+# ifeq ($(WAVE_ENABLE),1)
+# 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
+# # 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
+# endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
