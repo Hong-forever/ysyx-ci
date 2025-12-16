@@ -106,7 +106,6 @@ extern "C" word_t paddr_read(paddr_t raddr) {
         }
 
         out_of_bound(raddr, false);
-        npc_state.state = NPC_ABORT;
         return 0;
     }
 }
@@ -122,7 +121,6 @@ extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
             putc((char)(wdata & 0xff), stderr);
         } else {
             out_of_bound(waddr, true);
-            npc_state.state = NPC_ABORT;
         }
     }
 }
