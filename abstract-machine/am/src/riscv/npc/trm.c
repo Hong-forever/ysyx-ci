@@ -26,6 +26,7 @@ void _trm_init()
     printf("========================================\n");
     printf("Welcome to %s!\n", ysyx_logo == YSYX_LOGO ? "YSYX" : "Unknown");
     printf("Student Number: ysyx_%x\n", stu_num);
+    printf("Name: %s\n", "HUANG HAIHONG");
     printf("========================================\n");
     
     int ret = main(mainargs);

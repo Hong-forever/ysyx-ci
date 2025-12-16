@@ -19,9 +19,6 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
-WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
-WAVE_ENABLE ?= 1
-
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast -j 4
@@ -29,11 +26,17 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
+WAVE_ENABLE ?= 0
+WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
+
 ifeq ($(WAVE_ENABLE),1)
 	VERILATOR_CFLAGS += --trace-vcd
 # 		VERILATOR_CFLAGS += --trace-fst
 endif
 
+view_wave:
+	@gtkwave ${NPC_HOME}/build/waveform.vcd
+# 	@gtkwave ${NPC_HOME}/build/waveform.fst
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -112,9 +115,7 @@ else
 run: sim
 endif
 
-view_wave:
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
-# 	@gtkwave ${NPC_HOME}/build/waveform.fst
+
 
 
 
