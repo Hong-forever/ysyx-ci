@@ -157,12 +157,15 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #endif
 }
 
+uint64_t total_cycle = 0;
+
 static void execute(uint64_t n) {
     Decode s;
     for (;n > 0; n --) {
         // printf("exec: 0x%08x\n", cpu.pc);
         exec_once(&s, cpu.pc);
         g_nr_guest_inst ++;
+        total_cycle++;
         trace_and_difftest(&s, cpu.pc);
         if (nemu_state.state != NEMU_RUNNING) break;
         IFDEF(CONFIG_DEVICE, device_update());
@@ -198,7 +201,7 @@ void cpu_exec(uint64_t n) {
 
     execute(n);
 
-    printf("Total cycle: %lu\n", n);
+    printf("Total cycle: %lu\n", total_cycle);
 
     uint64_t timer_end = get_time();
     g_timer += timer_end - timer_start;
