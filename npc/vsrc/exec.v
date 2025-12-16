@@ -17,6 +17,8 @@ module exec
     output  wire                        O_inst_valid,
     input   wire                        I_inst_ready,
 
+    output  wire                        O_stallreq,
+
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
     input   wire    [`RegDataBus    ]   I_imm,
@@ -181,7 +183,7 @@ module exec
     wire stallreq_div = start_div;
     wire annul_div = 0;
 
-    wire stallreq = stallreq_div | stallreq_mul;
+    assign O_stallreq = stallreq_div | stallreq_mul;
 
     exe_alu alu
     (
@@ -255,7 +257,7 @@ module exec
 
     assign O_except = I_except;
 
-    assign O_inst_ready = ~stallreq & I_inst_ready & I_inst_valid;
+    assign O_inst_ready = ~O_stallreq & I_inst_ready & I_inst_valid;
     assign O_inst_valid = O_inst_ready;
 
 
