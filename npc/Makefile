@@ -19,7 +19,7 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
-WAVE_FORMAT ?= 2 # 1: vcd, 2: fst
+WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
 WAVE_ENABLE ?= 1
 
 VERILATOR = verilator
@@ -70,11 +70,8 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 ifeq ($(WAVE_ENABLE),1)
-	ifeq ($(WAVE_FORMAT),1)
 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
-	else
-		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
-	endif
+# 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
 endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
