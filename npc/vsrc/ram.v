@@ -5,7 +5,7 @@ module ram
     parameter RAM_DEPTH  = 4096     //RAM深度
 )(
     input   wire                        clk,        //时钟输入
-    input   wire                        rst,      //复位输入 (高电平有效)
+    input   wire                        rst_n,      //复位输入
     
     input   wire                        ce_i,
     input   wire                        we_i,       //写使能
@@ -25,8 +25,8 @@ module ram
         
     //写操作 - 字节使能写
     integer j;
-    always @(posedge clk) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             //复位时不初始化RAM以节省资源
         end else if(ce_i & we_i) begin
             for(j = 0; j < DATA_WIDTH/8; j = j + 1) begin

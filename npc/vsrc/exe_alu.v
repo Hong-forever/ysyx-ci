@@ -103,7 +103,7 @@ module exe_alu
         .UNSINGED_BOOTH         (1'b1                       )
     ) mul_inst (
         .clk                    (clk                        ),
-        .rst                    (!rst_n                     ),
+        .rst_n                  (rst_n                      ),
         .A                      (I_alu_srca                 ),
         .B                      (I_alu_srcb                 ),
         .P                      (mul_res                    ),
@@ -117,7 +117,7 @@ module exe_alu
         .UNSINGED_BOOTH         (1'b0                       )
     ) mulh_inst (
         .clk                    (clk                        ),
-        .rst                    (!rst_n                     ),
+        .rst_n                  (rst_n                      ),
         .A                      (I_alu_srca                 ),
         .B                      (I_alu_srcb                 ),
         .P                      (mulh_res                   ),
@@ -131,7 +131,7 @@ module exe_alu
         .UNSINGED_BOOTH         (1'b1                       )
     ) mulhsu_inst (
         .clk                    (clk                        ),
-        .rst                    (!rst_n                     ),
+        .rst_n                  (rst_n                      ),
         .A                      (mulhsu_op1                 ),
         .B                      (mulhsu_op2                 ),
         .P                      (mulhsu_res                 ),
