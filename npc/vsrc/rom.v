@@ -5,7 +5,7 @@ module rom
     parameter ROM_DEPTH  = 4096                 //ROM深度
 )(
     input   wire                        clk,        //时钟输入
-    input   wire                        rst,      //复位输入
+    input   wire                        rst_n,      //复位输入
 
     input   wire                        ce_i,
     input   wire  [ADDR_WIDTH-1:0   ]   addr_i,
