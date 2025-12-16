@@ -44,6 +44,8 @@ module ram
             data = 'b0;
         end else if(!we_i) begin
             data = mem[ram_addr];
+        end else begin
+            data = 'b0;
         end
     end
     assign data_o = data;
