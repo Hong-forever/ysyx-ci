@@ -26,7 +26,7 @@ void nvboard()
 static bool g_print_step = false;
 uint64_t g_nr_guest_inst = 0;
 
-#define MAX_INST_TO_PRINT 10
+#define MAX_INST_TO_PRINT 1000
 #define IRINGBUF_SIZE 256
 #define IRINGBUF_LINE 20
 
@@ -151,10 +151,10 @@ static void single_cycle()
 
 void reset(int n)
 {
-    top->rst = 1;
+    top->rst_n = 0;
     while (n-- > 0)
         single_cycle();
-    top->rst = 0;
+    top->rst_n = 1;
 }
 
 

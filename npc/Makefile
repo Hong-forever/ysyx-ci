@@ -19,9 +19,6 @@ remove_quote = $(patsubst "%",%,$(1))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
-WAVE_FORMAT ?= 2 # 1: vcd, 2: fst
-WAVE_ENABLE ?= 1
-
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast -j 4
@@ -29,14 +26,17 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
+WAVE_ENABLE ?= 0
+WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
+
 ifeq ($(WAVE_ENABLE),1)
-	ifeq ($(WAVE_FORMAT),1)
-		VERILATOR_CFLAGS += --trace-vcd
-	else 
-		VERILATOR_CFLAGS += --trace-fst
-	endif
+	VERILATOR_CFLAGS += --trace-vcd
+# 		VERILATOR_CFLAGS += --trace-fst
 endif
 
+view_wave:
+	@gtkwave ${NPC_HOME}/build/waveform.vcd
+# 	@gtkwave ${NPC_HOME}/build/waveform.fst
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -52,7 +52,8 @@ override ARGS += $(ARGS_DIFF)
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(BIN) $(ARGS) $(IMG)
-	-$(BIN) $(ARGS) $(IMG)
+# 	-$(BIN) $(ARGS) $(IMG)
+	$(BIN) $(ARGS) $(IMG)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -69,13 +70,10 @@ include $(FILELIST_MK)
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-ifeq ($(WAVE_ENABLE),1)
-	ifeq ($(WAVE_FORMAT),1)
-		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
-	else
-		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
-	endif
-endif
+# ifeq ($(WAVE_ENABLE),1)
+# 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
+# # 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
+# endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
@@ -93,10 +91,9 @@ CXXFLAGS += $(INCFLAGS)
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
-
+CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 ifeq ($(WAVE_ENABLE),1)
 	CXXFLAGS += -DWAVE_ENABLE=1
-	CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 endif
 
 # CXXFLAGS += -fpermissive
@@ -118,13 +115,7 @@ else
 run: sim
 endif
 
-ifeq ($(WAVE_FORMAT),1)
-view_wave:
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
-else
-view_wave:
-	@gtkwave ${NPC_HOME}/build/waveform.fst
-endif
+
 
 
 

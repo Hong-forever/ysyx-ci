@@ -15,7 +15,7 @@ bool initialized = false;
 
 void difftest_skip_ref();
 
-extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr, int pc, int gpr0, int gpr1, int gpr2, int gpr3,
+extern "C" void cpu_value(int diff_skip, int valid, int inst, int inst_addr, int pc, int gpr0, int gpr1, int gpr2, int gpr3,
                           int gpr4, int gpr5, int gpr6, int gpr7,
                           int gpr8, int gpr9, int gpr10, int gpr11,
                           int gpr12, int gpr13, int gpr14, int gpr15,
@@ -32,7 +32,7 @@ extern "C" void cpu_value(int diff_skip_flag, int valid, int inst, int inst_addr
     s.inst = inst;
     s.pc = inst_addr;
 
-    if (diff_skip_flag) {
+    if (diff_skip) {
         // printf("Difftest: skip ref at pc: 0x%08x\n", s.pc);
         IFDEF(CONFIG_DIFFTEST, difftest_skip_ref());
     }

@@ -7,7 +7,7 @@
 module lsu
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,             //指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,

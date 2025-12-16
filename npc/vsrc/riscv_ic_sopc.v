@@ -54,8 +54,7 @@ module top
         .device_skip            (device_skip                ),
 
         // from peripheral
-        .I_int                  (inq                        ),
-        .I_jtag_haltreq         (1'b0                       )
+        .I_int                  (inq                        )
     );
 
 

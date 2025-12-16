@@ -24,7 +24,7 @@ module pipeline_if_dec
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b0;
+            O_inst_valid    <= 'b1;
         end else if (I_flush) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
@@ -112,7 +112,7 @@ module pipeline_dec_ex
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b0;
+            O_inst_valid    <= 'b1;
             O_rs1_rdata     <= 'b0;
             O_rs2_rdata     <= 'b0;
             O_rd_we         <= 'b0;
@@ -257,7 +257,7 @@ module pipeline_ex_ls
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b0;
+            O_inst_valid    <= 'b1;
             O_rd_we         <= 'b0;
             O_rd_waddr      <= 'b0;
             O_rd_wdata      <= 'b0;
@@ -368,7 +368,7 @@ module pipeline_ls_wb
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b0;
+            O_inst_valid    <= 'b1;
             O_rd_we         <= 'b0;
             O_rd_waddr      <= 'b0;
             O_rd_wdata      <= 'b0;
