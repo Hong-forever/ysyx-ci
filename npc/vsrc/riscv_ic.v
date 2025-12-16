@@ -493,7 +493,7 @@ module riscv_ic
         .O_inst_valid           (I_dec_inst_valid           ),
 
         .I_enable               (O_if_inst_valid            ),
-        .I_flush                (O_flush                    )
+        .I_flush                (O_flush | O_ex_bru_taken   )
     );
 
     pipeline_dec_ex u0_pipeline_dec_ex
@@ -558,7 +558,7 @@ module riscv_ic
         .O_except               (I_ex_except                ),
 
         .I_enable               (O_dec_inst_valid           ),
-        .I_flush                (O_flush                    )
+        .I_flush                (O_flush | O_ex_bru_taken   )
     );
 
     pipeline_ex_ls u0_pipeline_ex_ls
