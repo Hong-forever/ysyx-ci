@@ -113,8 +113,8 @@ run: sim
 endif
 
 view_wave:
-# 	@gtkwave ${NPC_HOME}/build/waveform.vcd
-	@gtkwave ${NPC_HOME}/build/waveform.fst
+	@gtkwave ${NPC_HOME}/build/waveform.vcd
+# 	@gtkwave ${NPC_HOME}/build/waveform.fst
 
 
 
