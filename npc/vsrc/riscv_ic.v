@@ -561,7 +561,7 @@ module riscv_ic
         .O_except               (I_ex_except                ),
 
         .I_enable               (O_dec_inst_valid           ),
-        .I_flush                (O_flush | O_ex_bru_taken   )
+        .I_flush                (O_flush | O_ex_bru_taken | stallreq_fwd_load  )
     );
 
     pipeline_ex_ls u0_pipeline_ex_ls

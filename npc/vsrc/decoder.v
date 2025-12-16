@@ -279,7 +279,7 @@ module decoder
     assign O_inst_addr = I_inst_addr;
     
     assign O_inst_ready = (I_inst_ready & I_inst_valid) & ~I_stallreq_fwd_load;
-    assign O_inst_valid = O_inst_ready;
+    assign O_inst_valid = (I_inst_ready & I_inst_valid);
 
     assign O_rs1_raddr = rs1;
     assign O_rs2_raddr = rs2;
