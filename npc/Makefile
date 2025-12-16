@@ -90,10 +90,9 @@ CXXFLAGS += $(INCFLAGS)
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
-
+CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 ifeq ($(WAVE_ENABLE),1)
 	CXXFLAGS += -DWAVE_ENABLE=1
-	CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 endif
 
 # CXXFLAGS += -fpermissive
