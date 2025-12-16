@@ -58,7 +58,7 @@ module ifetch
     assign O_inst_valid = I_inst_ready & ~I_flush & ~I_bru_taken;
     
 
-    assign O_ibus_req = rst_n & O_inst_valid;
+    assign O_ibus_req = rst_n;
     assign O_ibus_we = `False;
     assign O_ibus_addr = pc;
     assign O_ibus_data = `ZeroWord;
