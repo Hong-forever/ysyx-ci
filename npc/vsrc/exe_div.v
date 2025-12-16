@@ -3,7 +3,7 @@
 module exe_div
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire                        I_signed_div,   //是否是有符号除法
     input   wire    [1:0]               I_op_div,       //除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
@@ -29,8 +29,8 @@ module exe_div
 
     assign div_temp = {1'b0, dividend[63:32]} - {1'b0, divisor};
 
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             state <= `DivFree;
             cnt <= 6'b000000;
             temp_op1 <= `ZeroWord;

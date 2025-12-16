@@ -7,7 +7,7 @@
 module exe_alu
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`RegDataBus    ]   I_alu_srca,
     input   wire    [`RegDataBus    ]   I_alu_srcb,
@@ -103,7 +103,7 @@ module exe_alu
         .UNSINGED_BOOTH         (1'b1                       )
     ) mul_inst (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst                    (!rst_n                     ),
         .A                      (I_alu_srca                 ),
         .B                      (I_alu_srcb                 ),
         .P                      (mul_res                    ),
@@ -117,7 +117,7 @@ module exe_alu
         .UNSINGED_BOOTH         (1'b0                       )
     ) mulh_inst (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst                    (!rst_n                     ),
         .A                      (I_alu_srca                 ),
         .B                      (I_alu_srcb                 ),
         .P                      (mulh_res                   ),
@@ -131,7 +131,7 @@ module exe_alu
         .UNSINGED_BOOTH         (1'b1                       )
     ) mulhsu_inst (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst                    (!rst_n                     ),
         .A                      (mulhsu_op1                 ),
         .B                      (mulhsu_op2                 ),
         .P                      (mulhsu_res                 ),
@@ -142,7 +142,7 @@ module exe_alu
     exe_div div_inst    // 除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
         .I_signed_div           (I_signed_div               ),
         .I_op_div               (I_alu_ctrl[1:0]            ),
         .I_opdata1              (I_alu_srca                 ),

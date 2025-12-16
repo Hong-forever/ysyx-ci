@@ -7,16 +7,10 @@
 module regfile
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [`InstBus       ]   I_inst,               //指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,
-
-    input   wire    [`InstAddrBus   ]   I_if_addr,
-    input   wire    [`InstAddrBus   ]   I_dec_addr,
-    input   wire    [`InstAddrBus   ]   I_ex_addr,
-    input   wire    [`InstAddrBus   ]   I_ls_addr,
-    
 
     input   wire    [`RegAddrBus    ]   I_rs1_raddr,      //读寄存器1地址
     input   wire    [`RegAddrBus    ]   I_rs2_raddr,      //读寄存器2地址
@@ -28,28 +22,46 @@ module regfile
     input   wire    [`RegAddrBus    ]   I_rd_waddr,      //写寄存器地址
     input   wire    [`RegDataBus    ]   I_rd_wdata,      //写寄存器数据
 
-
-    input   wire                        I_device_skip_flag,
-
-    input   wire    [`CSRDataBus    ]   I_csr_mepc,        //写mepc寄存器数据
-    input   wire    [`CSRDataBus    ]   I_csr_mtvec,       //写mtvec寄存器数据
-    input   wire    [`CSRDataBus    ]   I_csr_mstatus,     //写mstatus寄存器数据
-    input   wire    [`CSRDataBus    ]   I_csr_mcause,      //写mcause寄存器数据
-    input   wire    [`DoubleCSRDataBus] I_csr_mcycle,       //写mcycle寄存器数据
-    input   wire    [`CSRDataBus    ]   I_csr_mvendorid,   //写mvendorid寄存器数据
-    input   wire    [`CSRDataBus    ]   I_csr_marchid,     //写marchid寄存器数据
-    
-    input   wire                        I_flush,
-    input   wire    [`InstAddrBus   ]   I_flush_addr
-
+    output  wire    [`RegDataBus    ]   O_gpr0,           // for dpi
+    output  wire    [`RegDataBus    ]   O_gpr1,
+    output  wire    [`RegDataBus    ]   O_gpr2,
+    output  wire    [`RegDataBus    ]   O_gpr3,
+    output  wire    [`RegDataBus    ]   O_gpr4,
+    output  wire    [`RegDataBus    ]   O_gpr5,
+    output  wire    [`RegDataBus    ]   O_gpr6,
+    output  wire    [`RegDataBus    ]   O_gpr7,
+    output  wire    [`RegDataBus    ]   O_gpr8,
+    output  wire    [`RegDataBus    ]   O_gpr9,
+    output  wire    [`RegDataBus    ]   O_gpr10,
+    output  wire    [`RegDataBus    ]   O_gpr11,
+    output  wire    [`RegDataBus    ]   O_gpr12,
+    output  wire    [`RegDataBus    ]   O_gpr13,
+    output  wire    [`RegDataBus    ]   O_gpr14,
+    output  wire    [`RegDataBus    ]   O_gpr15,
+    output  wire    [`RegDataBus    ]   O_gpr16,
+    output  wire    [`RegDataBus    ]   O_gpr17,
+    output  wire    [`RegDataBus    ]   O_gpr18,
+    output  wire    [`RegDataBus    ]   O_gpr19,
+    output  wire    [`RegDataBus    ]   O_gpr20,
+    output  wire    [`RegDataBus    ]   O_gpr21,
+    output  wire    [`RegDataBus    ]   O_gpr22,
+    output  wire    [`RegDataBus    ]   O_gpr23,
+    output  wire    [`RegDataBus    ]   O_gpr24,
+    output  wire    [`RegDataBus    ]   O_gpr25,
+    output  wire    [`RegDataBus    ]   O_gpr26,
+    output  wire    [`RegDataBus    ]   O_gpr27,
+    output  wire    [`RegDataBus    ]   O_gpr28,
+    output  wire    [`RegDataBus    ]   O_gpr29,
+    output  wire    [`RegDataBus    ]   O_gpr30,
+    output  wire    [`RegDataBus    ]   O_gpr31
 );
 
     reg [`RegDataBus] regs[0:`RegNum-1];   //寄存器组
 
     integer i;
     //写寄存器
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             for(i = 0; i < `RegNum; i = i + 1) begin
                 regs[i] <= `ZeroWord;
             end
@@ -68,78 +80,6 @@ module regfile
     assign O_rs2_rdata = 
                 I_rs2_raddr == `ZeroReg ? `ZeroWord :
                 (I_rd_we && I_rd_waddr == I_rs2_raddr) ? I_rd_wdata : regs[I_rs2_raddr];
-
-    import "DPI-C" function void trap(input int reg_data, input int halt_pc);
-
-    import "DPI-C" function void cpu_value(input int diff_skip_flag, input int valid, input int inst, input int inst_addr, input int pc, 
-        input int gpr0, input int gpr1, input int gpr2, input int gpr3, 
-        input int gpr4, input int gpr5, input int gpr6, input int gpr7, 
-        input int gpr8, input int gpr9, input int gpr10, input int gpr11, 
-        input int gpr12, input int gpr13, input int gpr14, input int gpr15, 
-        input int gpr16, input int gpr17, input int gpr18, input int gpr19, 
-        input int gpr20, input int gpr21, input int gpr22, input int gpr23,
-        input int gpr24, input int gpr25, input int gpr26, input int gpr27, 
-        input int gpr28, input int gpr29, input int gpr30, input int gpr31,
-
-        input int mepc, input int mtvec, input int mstatus, 
-        input int mcause, input int mcyclel, input int mcycleh, 
-        input int mvendorid, input int marchid
-    );
-
-    reg [`InstBus] inst_r1, inst_r2;
-    reg [`InstAddrBus] inst_addr_r1, inst_addr_r2;
-    reg [`InstAddrBus] pc;
-    reg skip_flag_r;
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
-            inst_r1         <= `ZeroWord;
-            inst_addr_r1    <= `ZeroWord;
-            inst_r2         <= `ZeroWord;
-            inst_addr_r2    <= `ZeroWord;
-            pc              <= `ZeroWord;
-            skip_flag_r     <= 1'b0;
-        end else begin
-            inst_r1         <= I_inst;
-            inst_addr_r1    <= I_inst_addr;
-            inst_r2         <= inst_r1;
-            inst_addr_r2    <= inst_addr_r1;
-            pc              <= I_flush ? I_flush_addr :
-                               (I_ls_addr == `ZeroWord ? 
-                               (I_ex_addr == `ZeroWord ? 
-                               (I_dec_addr == `ZeroWord ? I_if_addr : I_dec_addr) 
-                               : I_ex_addr) 
-                               : I_ls_addr);
-            skip_flag_r     <= I_device_skip_flag;
-        end
-    end
-
-    // initial begin
-    //     $monitor("inst_r1 = %x, inst_addr_r1 = %x\n", inst_r1, inst_addr_r1);
-    // end
-
-    always @(*) begin
-
-        if(inst_r1 != `ZeroWord && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
-            cpu_value
-            (
-                skip_flag_r, 1, inst_r1, inst_addr_r1, pc, 
-                regs[0],  regs[1],  regs[2],  regs[3],  regs[4],  regs[5],  regs[6],  regs[7],
-                regs[8],  regs[9],  regs[10], regs[11], regs[12], regs[13], regs[14], regs[15],
-                regs[16], regs[17], regs[18], regs[19], regs[20], regs[21], regs[22], regs[23],
-                regs[24], regs[25], regs[26], regs[27], regs[28], regs[29], regs[30], regs[31],
-
-                I_csr_mepc, I_csr_mtvec, I_csr_mstatus, 
-                I_csr_mcause, I_csr_mcycle[31:0], I_csr_mcycle[63:32],
-                I_csr_mvendorid, I_csr_marchid
-            );
-        end
-
-        if(inst_r1 == `RV_EBREAK) begin
-            trap(regs[10], inst_addr_r1); // a0
-        end
-
-    end
-
 
     //for debug
     wire [`RegDataBus] ra_x1   = regs[1];
@@ -174,5 +114,38 @@ module regfile
     wire [`RegDataBus] t4_x29  = regs[29];
     wire [`RegDataBus] t5_x30  = regs[30];
     wire [`RegDataBus] t6_x31  = regs[31];
+
+    assign O_gpr0  = regs[0];
+    assign O_gpr1  = regs[1];
+    assign O_gpr2  = regs[2];
+    assign O_gpr3  = regs[3];
+    assign O_gpr4  = regs[4];
+    assign O_gpr5  = regs[5];
+    assign O_gpr6  = regs[6];
+    assign O_gpr7  = regs[7];
+    assign O_gpr8  = regs[8];
+    assign O_gpr9  = regs[9];
+    assign O_gpr10 = regs[10];
+    assign O_gpr11 = regs[11];
+    assign O_gpr12 = regs[12];
+    assign O_gpr13 = regs[13];
+    assign O_gpr14 = regs[14];
+    assign O_gpr15 = regs[15];
+    assign O_gpr16 = regs[16];
+    assign O_gpr17 = regs[17];
+    assign O_gpr18 = regs[18];
+    assign O_gpr19 = regs[19];
+    assign O_gpr20 = regs[20];
+    assign O_gpr21 = regs[21];
+    assign O_gpr22 = regs[22];
+    assign O_gpr23 = regs[23];
+    assign O_gpr24 = regs[24];
+    assign O_gpr25 = regs[25];
+    assign O_gpr26 = regs[26];
+    assign O_gpr27 = regs[27];
+    assign O_gpr28 = regs[28];
+    assign O_gpr29 = regs[29];
+    assign O_gpr30 = regs[30];
+    assign O_gpr31 = regs[31];
 
 endmodule //regfile
