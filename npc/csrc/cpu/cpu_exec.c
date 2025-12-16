@@ -143,6 +143,7 @@ static void single_cycle()
     top->eval();
     top->clk = 1;
     top->eval();
+    printf("cycle: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
 #ifdef WAVE_ENABLE
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
     contextp->timeInc(1);
