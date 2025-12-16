@@ -181,7 +181,7 @@ module wbu
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
             inst_r2         <= inst_r1;
-            inst_addr_r2    <= inst_addr_r1;
+            inst_addr_r2    <= inst_r1;
             pc              <= O_flush ? O_flush_addr :
                                (I_ls_addr == `ZeroWord ? 
                                (I_ex_addr == `ZeroWord ? 
