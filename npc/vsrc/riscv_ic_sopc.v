@@ -5,9 +5,6 @@ module top
     input   wire                        clk,
     input   wire                        rst_n
 );
-
-    wire clk_soc, locked;
-
     wire ibus_req;
     wire ibus_we;
     wire [`MemAddrBus] ibus_addr;
@@ -58,56 +55,52 @@ module top
     );
 
 
-    import "DPI-C" function int paddr_read(input int raddr);
-    import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
+    // import "DPI-C" function int paddr_read(input int raddr);
+    // import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    assign ibus_rdata = ibus_req ? paddr_read(ibus_addr) : `ZeroWord;
-    assign dbus_rdata = dbus_req ? paddr_read(dbus_addr) : `ZeroWord;
+    // assign ibus_rdata = ibus_req ? paddr_read(ibus_addr) : `ZeroWord;
+    // assign dbus_rdata = dbus_req ? paddr_read(dbus_addr) : `ZeroWord;
 
-    `define SERIAL_MMIO 32'h1000_0000
-    `define RTC_MMIO    32'h2000_0000
-    assign device_skip = ((dbus_addr & ~32'h3) == `SERIAL_MMIO) || ((dbus_addr & ~32'h7) == `RTC_MMIO);
+    // `define SERIAL_MMIO 32'h1000_0000
+    // `define RTC_MMIO    32'h2000_0000
+    // assign device_skip = ((dbus_addr & ~32'h3) == `SERIAL_MMIO) || ((dbus_addr & ~32'h7) == `RTC_MMIO);
 
-    // initial begin
-    //     $monitor("ibusreq=%d, pc=0x%08x, dbusreq=%d, dpc=0x%08x, idata=0x%08x, ddata=0x%08x\n", ibus_req, ibus_addr, dbus_req, dbus_addr, ibus_rdata, dbus_rdata);
+    // always @(*) begin
+    //     if (dbus_req && dbus_we) begin
+    //         paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
+    //     end
     // end
 
-    always @(*) begin
-        if (dbus_req && dbus_we) begin
-            paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
-        end
-    end
+    rom #(
+        .DATA_WIDTH     (32                     ),
+        .ADDR_WIDTH     (32                     ),
+        .ROM_DEPTH      (256                    )
+    ) irom_inst
+    (
+        .clk            (clk                    ),
+        .rst_n          (rst_n                  ),
 
-    // rom #(
-    //     .DATA_WIDTH     (32                      ),
-    //     .ADDR_WIDTH     (32                      ),
-    //     .ROM_DEPTH      (131072                  )
-    // ) irom_inst
-    // (
-    //     .clk            (clk                      ),
-    //     .rst            (rst                      ),
+        .ce_i           (ibus_req               ),
+        .addr_i         (ibus_addr              ),
+        .data_o         (ibus_rdata             )
+    );
 
-    //     .ce_i           (ibus_req                 ),
-    //     .addr_i         (ibus_addr                ),
-    //     .data_o         (ibus_rdata               )
-    // );
+    ram #(
+        .DATA_WIDTH     (32                     ),
+        .ADDR_WIDTH     (32                     ),
+        .RAM_DEPTH      (256                    )
+    ) dram_inst
+    (
+        .clk            (clk                    ),
+        .rst_n          (rst_n                  ),
 
-    // ram #(
-    //     .DATA_WIDTH     (32                      ),
-    //     .ADDR_WIDTH     (32                      ),
-    //     .RAM_DEPTH      (131072                  )
-    // ) dram_inst
-    // (
-    //     .clk            (clk                      ),
-    //     .rst            (rst                      ),
-
-    //     .ce_i           (dbus_req                 ),
-    //     .we_i           (dbus_we                  ),
-    //     .addr_i         (dbus_addr                ),
-    //     .data_i         (dbus_wdata               ),
-    //     .data_o         (dbus_rdata               ),
-    //     .sel_i          (dbus_mask                )
-    // );
+        .ce_i           (dbus_req               ),
+        .we_i           (dbus_we                ),
+        .addr_i         (dbus_addr              ),
+        .data_i         (dbus_wdata             ),
+        .data_o         (dbus_rdata             ),
+        .sel_i          (dbus_mask              )
+    );
 
 
 endmodule

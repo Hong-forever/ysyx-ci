@@ -8,7 +8,7 @@ module  Booth_mul
     parameter   UNSINGED_BOOTH  =   1'b1
 )(
     input   wire                        clk   ,
-    input   wire                        rst   ,
+    input   wire                        rst_n ,
     input   wire                        start ,
     input   wire    [LENGTH-1:0     ]   A     ,    //乘数 A
     input   wire    [LENGTH-1:0     ]   B     ,    //被乘数 B
@@ -77,8 +77,8 @@ module  Booth_mul
     endgenerate
 
     //-----------------------// first-pipeline //-----------------------//
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             pp_stg1_8th_reg <= 0;
             for(j=0; j<LENGTH/4; j=j+1) begin
                 pp_stg1_reg[j] <= 0;
@@ -114,8 +114,8 @@ module  Booth_mul
     endgenerate
 
     //-----------------------// second-pipeline //-----------------------//
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             for(j=0; j<LENGTH/4/4; j=j+1) begin
                 pp_stg2_m_reg[j] <= 0;
                 pp_stg2_l_reg[j] <= 0;
@@ -147,8 +147,8 @@ module  Booth_mul
     );
 
     //-----------------------// third-pipeline //-----------------------//
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             pp_stg_end_m_reg <= 0;
             pp_stg_end_l_reg <= 0;
             pp_stg_end_done_reg <= 0;
@@ -176,8 +176,8 @@ module  Booth_mul
     //-----------------------// forth-pipeline //-----------------------//
     reg [LENGTH*2-1:0] P_reg;
     reg done_reg;
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
             P_reg <= 0;
             done_reg <= 0;
         end else begin
