@@ -189,6 +189,33 @@ module lsu
         endcase
     end
 
+    parameter IDLE = 0;
+    parameter WAIT = 0;
+
+    reg state, nstate;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            state <= IDLE;
+        end else begin
+            state <= WAIT;
+        end
+    end
+
+    always @(*) begin
+        if(!rst_n) begin
+            nstate = IDLE;
+        end else begin
+            case(state)
+                IDLE: begin
+                    nstate = I_ls_valid ? WAIT : IDLE;
+                end
+                WAIT: begin
+                    nstate = IDLE;
+                end
+            endcase
+        end
+    end
+
 
     //------------------------------------------------------------------------
     // 输出
@@ -212,7 +239,7 @@ module lsu
 
     assign O_dbus_data = dbus_data;
 
-    assign O_ready = I_ready;
+    assign O_ready = I_ready & ((state == IDLE & ~I_ls_valid) | (state == WAIT));
     assign O_valid = O_ready;
 
 
