@@ -66,18 +66,23 @@ module top
             inst <= paddr_read(ibus_addr);
         end
     end
+
+    reg [`MemDataBus] data;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            data <= `ZeroWord;
+        end else if(dbus_req & ~dbus_we) begin
+            data <= paddr_read(dbus_addr);
+        end else if(dbus_req & dbus_we) begin
+            paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
+        end
+    end
     assign ibus_rdata = inst;
-    assign dbus_rdata = dbus_req ? paddr_read(dbus_addr) : `ZeroWord;
+    assign dbus_rdata = data;
 
     `define SERIAL_MMIO 32'h1000_0000
     `define RTC_MMIO    32'h2000_0000
     assign device_skip = ((dbus_addr & ~32'h3) == `SERIAL_MMIO) || ((dbus_addr & ~32'h7) == `RTC_MMIO);
-
-    always @(*) begin
-        if (dbus_req && dbus_we) begin
-            paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
-        end
-    end
 
 `else
     rom #(
