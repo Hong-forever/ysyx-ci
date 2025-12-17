@@ -494,7 +494,7 @@ module riscv_ic
         .O_inst_addr            (I_dec_inst_addr            ),
 
         .I_enable               (O_if_valid                 ),
-        .I_flush                (O_flush | O_ex_bru_taken   )
+        .I_flush                (O_flush | O_ex_bru_taken | ~O_if_valid)
     );
 
     pipeline_dec_ex u0_pipeline_dec_ex
