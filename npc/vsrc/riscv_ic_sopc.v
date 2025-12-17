@@ -61,9 +61,9 @@ module top
     reg [`InstBus] inst;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst = `ZeroWord;
+            inst <= `ZeroWord;
         end else if(ibus_req) begin
-            inst = paddr_read(ibus_addr);
+            inst <= paddr_read(ibus_addr);
         end
     end
     assign ibus_rdata = inst;
