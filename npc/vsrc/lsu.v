@@ -48,31 +48,26 @@ module lsu
     output  wire    [`DBUS_MASK-1:0 ]   O_dbus_mask
 );
 
-    wire [`MemDataBus] dbus_rdata;
-    
-    wire [`MemDataBus] rdata = dbus_rdata | I_dbus_data;
-
-
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
-    wire [`MemDataBus] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
-    wire [`MemDataBus] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
-    wire [`MemDataBus] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
-    wire [`MemDataBus] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
+    wire [`MemDataBus] lb_00_res = {{24{I_dbus_data[7]}},  I_dbus_data[7:0]};
+    wire [`MemDataBus] lb_01_res = {{24{I_dbus_data[15]}}, I_dbus_data[15:8]};
+    wire [`MemDataBus] lb_10_res = {{24{I_dbus_data[23]}}, I_dbus_data[23:16]};
+    wire [`MemDataBus] lb_11_res = {{24{I_dbus_data[31]}}, I_dbus_data[31:24]};
 
-    wire [`MemDataBus] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
-    wire [`MemDataBus] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
+    wire [`MemDataBus] lh_00_res = {{16{I_dbus_data[15]}}, I_dbus_data[15:0]};
+    wire [`MemDataBus] lh_10_res = {{16{I_dbus_data[31]}}, I_dbus_data[31:16]};
 
-    wire [`MemDataBus] lw_res = rdata;
+    wire [`MemDataBus] lw_res = I_dbus_data;
 
-    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
-    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
-    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
-    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
+    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, I_dbus_data[7:0]};
+    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, I_dbus_data[15:8]};
+    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, I_dbus_data[23:16]};
+    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, I_dbus_data[31:24]};
 
-    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
-    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
+    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, I_dbus_data[15:0]};
+    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, I_dbus_data[31:16]};
 
     wire [`MemDataBus] sb_00_res = {24'b0, I_store_data[7:0]};
     wire [`MemDataBus] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
@@ -220,21 +215,5 @@ module lsu
     assign O_ready = I_ready;
     assign O_valid = O_ready;
 
-    ram #(
-        .DATA_WIDTH     (32                     ),
-        .ADDR_WIDTH     (32                     ),
-        .RAM_DEPTH      (256                    )
-    ) dram_inst
-    (
-        .clk            (clk                    ),
-        .rst_n          (rst_n                  ),
-
-        .ce_i           (O_dbus_req               ),
-        .we_i           (O_dbus_we                ),
-        .addr_i         (O_dbus_addr              ),
-        .data_i         (O_dbus_data             ),
-        .data_o         (dbus_rdata             ),
-        .sel_i          (dbus_mask              )
-    );
 
 endmodule

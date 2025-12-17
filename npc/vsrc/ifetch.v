@@ -37,8 +37,6 @@ module ifetch
     wire [`InstAddrBus] npc;
     wire [`InstAddrBus] pc_plus4;
 
-    wire [`InstBus] ibus_data;
-
     // 取指PC
     reg [`InstAddrBus] pc;
     always @(posedge clk or negedge rst_n) begin
@@ -56,7 +54,7 @@ module ifetch
 
     assign pc_plus4 = pc + 32'h4;
 
-    assign O_inst = I_ibus_data | ibus_data;
+    assign O_inst = I_ibus_data;
     assign O_inst_addr = pc;
     assign O_valid = I_ready;
     
@@ -66,20 +64,6 @@ module ifetch
     assign O_ibus_addr = pc;
     assign O_ibus_data = `ZeroWord;
     assign O_ibus_mask = 4'b1111;
-
-    rom #(
-        .DATA_WIDTH     (32                     ),
-        .ADDR_WIDTH     (32                     ),
-        .ROM_DEPTH      (256                    )
-    ) irom_inst
-    (
-        .clk            (clk                    ),
-        .rst_n          (rst_n                  ),
-
-        .ce_i           (O_ibus_req               ),
-        .addr_i         (O_ibus_addr              ),
-        .data_o         (ibus_data             )
-    );
 
 
 endmodule
