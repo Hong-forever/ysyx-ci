@@ -34,15 +34,47 @@ module ifetch
     //------------------------------------------------------------------------
     // 变量定义
     //------------------------------------------------------------------------
-    wire [`InstAddrBus] npc;
-    wire [`InstAddrBus] pc_plus4;
 
-    // 取指PC
+    parameter IDLE = 0;
+    parameter WAIT = 1;
+    reg state, nstate;
+
+    reg ibus_req;
+
     reg [`InstAddrBus] pc;
+    wire [`InstAddrBus] pc_plus4;
+    wire [`InstAddrBus] npc;
+
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            state <= IDLE;
+        end else begin
+            state <= nstate;
+        end
+    end
+
+    always @(*) begin
+        if(!rst_n) begin
+            ibus_req = 1'b0;
+            nstate = IDLE;
+        end else begin
+            case(state)
+                IDLE: begin
+                    ibus_req = 1'b1;
+                    nstate = WAIT;
+                end
+                WAIT: begin
+                    ibus_req = 1'b0;
+                    nstate = I_ready ? IDLE : WAIT;
+                end
+            endcase
+        end
+    end
+
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             pc <= `RomAddrBase;
-        end else begin
+        end else if(state == WAIT) begin
             pc <= npc;
         end
     end
@@ -51,15 +83,15 @@ module ifetch
                  I_bru_taken    ? I_bru_target    :
                  I_ready        ? pc_plus4        :
                  pc;
-
+    
     assign pc_plus4 = pc + 32'h4;
 
     assign O_inst = I_ibus_data;
     assign O_inst_addr = pc;
-    assign O_valid = I_ready;
+    assign O_valid = state == WAIT;
     
 
-    assign O_ibus_req = rst_n & O_valid;
+    assign O_ibus_req = ibus_req;
     assign O_ibus_we = `False;
     assign O_ibus_addr = pc;
     assign O_ibus_data = `ZeroWord;

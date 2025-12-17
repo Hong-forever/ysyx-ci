@@ -58,7 +58,15 @@ module top
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    assign ibus_rdata = ibus_req ? paddr_read(ibus_addr) : `ZeroWord;
+    reg [`InstBus] inst;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            inst = `ZeroWord;
+        end else if(ibus_req) begin
+            inst = paddr_read(ibus_addr);
+        end
+    end
+    assign ibus_rdata = inst;
     assign dbus_rdata = dbus_req ? paddr_read(dbus_addr) : `ZeroWord;
 
     `define SERIAL_MMIO 32'h1000_0000
