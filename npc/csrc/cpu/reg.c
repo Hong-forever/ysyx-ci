@@ -155,7 +155,7 @@ bool difftest_checkregs(CPU_state *ref_r, paddr_t pc)
     CHECKDIFF(pc, "pc");
 
     for (int i = 0; i < 32; i++) {
-        CHECKDIFF(gpr[i], "gpr[%02d]", i);
+        CHECKDIFF(gpr[i], "gpr[%02d]-%s", i, regs[i]);
     }
 
     CHECKDIFF(csr.mstatus, "mstatus");
