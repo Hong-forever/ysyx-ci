@@ -197,7 +197,7 @@ module lsu
         if(!rst_n) begin
             state <= IDLE;
         end else begin
-            state <= WAIT;
+            state <= nstate;
         end
     end
 
