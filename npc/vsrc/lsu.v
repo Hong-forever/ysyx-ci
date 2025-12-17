@@ -190,7 +190,7 @@ module lsu
     end
 
     parameter IDLE = 0;
-    parameter WAIT = 0;
+    parameter WAIT = 1;
 
     reg state, nstate;
     always @(posedge clk or negedge rst_n) begin
