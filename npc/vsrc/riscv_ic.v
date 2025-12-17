@@ -76,7 +76,7 @@ module riscv_ic
     wire [`ls_diff_bus] O_dec_ls_type;
     wire [`Except_Bus ] O_dec_except;
 
-    wire                stallreq_fwd_load;
+    wire                stallreq_dec;
 
     //-------------------------------------------------------------
     // pipeline_dec_ex
@@ -198,6 +198,8 @@ module riscv_ic
     wire [`CSRDataBus ] O_ls_csr_wdata;
     wire [`Except_Bus ] O_ls_except;
 
+    wire                stallreq_ls;
+
     //-------------------------------------------------------------
     // pipeline_ls_wb
     //-------------------------------------------------------------
@@ -257,7 +259,7 @@ module riscv_ic
         .I_inst                 (I_dec_inst                 ),
         .I_inst_addr            (I_dec_inst_addr            ),
 
-        .I_ready                (O_ex_ready & ~stallreq_fwd_load),
+        .I_ready                (O_ex_ready & ~stallreq_dec ),
         .O_ready                (O_dec_ready                ),
 
         .O_rs1_raddr            (O_rs1_raddr                ),
@@ -333,7 +335,7 @@ module riscv_ic
 
         .I_bru_taken            (O_ex_bru_taken             ),
 
-        .O_stallreq             (stallreq_fwd_load          )
+        .O_stallreq             (stallreq_dec               )
 
     );
 
@@ -430,6 +432,8 @@ module riscv_ic
         .O_csr_wdata            (O_ls_csr_wdata             ),
         .O_except               (O_ls_except                ),
 
+        .O_stallreq             (stallreq_ls                ),
+
         .O_dbus_req             (O_dbus_req                 ),
         .O_dbus_we              (O_dbus_we                  ),
         .O_dbus_addr            (O_dbus_addr                ),
@@ -482,6 +486,7 @@ module riscv_ic
     // PIPELINE
     //------------------------------------------------------------------------
 
+    wire if_flush = O_flush | (O_ex_bru_taken & ~stallreq_ls) | (O_dec_ready & ~O_if_valid);
     pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
@@ -494,9 +499,10 @@ module riscv_ic
         .O_inst_addr            (I_dec_inst_addr            ),
 
         .I_enable               (O_if_valid                 ),
-        .I_flush                ((O_flush | O_ex_bru_taken) | (O_dec_ready & ~O_if_valid))
+        .I_flush                (if_flush                   )
     );
 
+    wire dec_flush = (O_flush  | stallreq_dec) | (O_ex_bru_taken & ~stallreq_ls);
     pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
@@ -557,9 +563,10 @@ module riscv_ic
         .O_except               (I_ex_except                ),
 
         .I_enable               (O_dec_valid                ),
-        .I_flush                (O_flush | O_ex_bru_taken | stallreq_fwd_load  )
+        .I_flush                (dec_flush                  )
     );
 
+    wire ex_flush = O_flush;
     pipeline_ex_ls u_pipeline_ex_ls
     (
         .clk                    (clk                        ),
@@ -600,10 +607,10 @@ module riscv_ic
         .O_except               (I_ls_except                ),
 
         .I_enable               (O_ex_valid & ~stallreq_ex  ),
-        .I_flush                (O_flush                    )
+        .I_flush                (ex_flush                   )
     );
 
-
+    wire ls_flush = O_flush;
     pipeline_ls_wb u_pipeline_ls_wb
     (
         .clk                    (clk                        ),
@@ -636,7 +643,7 @@ module riscv_ic
         .O_device_skip          (wbu_device_skip            ),
 
         .I_enable               (O_ls_valid & ~stallreq_ex  ),
-        .I_flush                (O_flush                    )
+        .I_flush                (ls_flush                   )
     );
 
 

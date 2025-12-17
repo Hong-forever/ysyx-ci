@@ -39,6 +39,8 @@ module lsu
     output  wire    [`CSRDataBus    ]   O_csr_wdata,
     output  wire    [`Except_Bus    ]   O_except,
 
+    output  wire                        O_stallreq,
+
     //to bus
     output  wire                        O_dbus_req,
     output  wire                        O_dbus_we,
@@ -239,7 +241,9 @@ module lsu
 
     assign O_dbus_data = dbus_data;
 
-    assign O_ready = I_ready & ((state == IDLE & ~I_ls_valid) | (state == WAIT));
+    assign O_stallreq = (state == IDLE) & I_ls_valid;
+
+    assign O_ready = I_ready & ~O_stallreq;
     assign O_valid = O_ready;
 
 
