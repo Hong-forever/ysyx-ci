@@ -249,7 +249,7 @@ module riscv_ic
     );
 
 
-    decoder u0_decoder
+    decoder u_decoder
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -294,7 +294,7 @@ module riscv_ic
     );
 
 
-    fwd_unit u0_fwd_unit
+    fwd_unit u_fwd_unit
     (
         .I_rs1_re               (O_dec_rs1_re               ),
         .I_rs2_re               (O_dec_rs2_re               ),
@@ -337,7 +337,7 @@ module riscv_ic
 
     );
 
-    exec u0_exec
+    exec u_exec
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -396,7 +396,7 @@ module riscv_ic
         .O_bru_target           (O_ex_bru_target            )
     );
 
-    lsu u0_lsu
+    lsu u_lsu
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -482,7 +482,7 @@ module riscv_ic
     // PIPELINE
     //------------------------------------------------------------------------
 
-    pipeline_if_dec u0_pipeline_if_dec
+    pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -494,10 +494,10 @@ module riscv_ic
         .O_inst_addr            (I_dec_inst_addr            ),
 
         .I_enable               (O_if_valid                 ),
-        .I_flush                (O_flush | O_ex_bru_taken   )
+        .I_flush                (O_flush | O_ex_bru_taken | ~O_if_valid)
     );
 
-    pipeline_dec_ex u0_pipeline_dec_ex
+    pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -560,7 +560,7 @@ module riscv_ic
         .I_flush                (O_flush | O_ex_bru_taken | stallreq_fwd_load  )
     );
 
-    pipeline_ex_ls u0_pipeline_ex_ls
+    pipeline_ex_ls u_pipeline_ex_ls
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -604,7 +604,7 @@ module riscv_ic
     );
 
 
-    pipeline_ls_wb u0_pipeline_ls_wb
+    pipeline_ls_wb u_pipeline_ls_wb
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
