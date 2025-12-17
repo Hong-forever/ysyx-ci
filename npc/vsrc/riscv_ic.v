@@ -345,8 +345,8 @@ module riscv_ic
         .I_inst                 (I_ex_inst                  ),
         .I_inst_addr            (I_ex_inst_addr             ),
 
-        .O_ready                (O_ex_ready                 ),
         .I_ready                (O_ls_ready                 ),
+        .O_ready                (O_ex_ready                 ),
 
         .I_rd_we                (I_ex_rd_we                 ),
         .I_rd_waddr             (I_ex_rd_waddr              ),

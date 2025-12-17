@@ -26,7 +26,7 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE ?= 0
+WAVE_ENABLE ?= 1
 WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
 
 ifeq ($(WAVE_ENABLE),1)
@@ -52,8 +52,8 @@ override ARGS += $(ARGS_DIFF)
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(BIN) $(ARGS) $(IMG)
-# 	-$(BIN) $(ARGS) $(IMG)
-	$(BIN) $(ARGS) $(IMG)
+	-$(BIN) $(ARGS) $(IMG)
+# 	$(BIN) $(ARGS) $(IMG)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -70,10 +70,6 @@ include $(FILELIST_MK)
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-# ifeq ($(WAVE_ENABLE),1)
-# 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_vcd_c.cpp
-# # 		CSRCS-y += ${VERILATOR_ROOT}/include/verilated_fst_c.cpp
-# endif
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
