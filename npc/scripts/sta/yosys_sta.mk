@@ -1,0 +1,14 @@
+
+DESIGN = top
+
+O = $(abspath $(BUILD_DIR)/sta_result)
+RTL_FILES = $(VSRCS)
+SDC_FILE = ${NPC_HOME}/scripts/sta/npc.sdc
+
+CLK_FREQ_MHZ = 500
+CLK_PORT_NANE = clk
+
+msta:
+	$(MAKE) -C $(YOSYS_HOME) sta DESIGN=$(DESIGN) O=$(O) RTL_FILES="$(RTL_FILES)" SDC_FILE=$(SDC_FILE) CLK_FREQ_MHZ=$(CLK_FREQ_MHZ) CLK_PORT_NANE=$(CLK_PORT_NANE)
+
+.PHONY: msta

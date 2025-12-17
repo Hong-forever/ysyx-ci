@@ -4,7 +4,7 @@
 // cpu core
 //------------------------------------------------------------------------
 
-module riscv_ic
+module top 
 (
     input   wire                        clk,
     input   wire                        rst_n,
