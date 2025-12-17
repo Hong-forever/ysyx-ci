@@ -11,10 +11,9 @@ module lsu
 
     input   wire    [`InstBus       ]   I_inst,             //指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,
-    input   wire                        I_inst_valid,
-    output  wire                        O_inst_ready,
-    output  wire                        O_inst_valid,
-    input   wire                        I_inst_ready,
+
+    input   wire                        I_ready,
+    output  wire                        O_ready,
 
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
@@ -30,6 +29,8 @@ module lsu
 
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
+    output  wire                        O_valid,
+
     output  wire                        O_rd_we,
     output  wire    [`RegAddrBus    ]   O_rd_waddr,
     output  wire    [`RegDataBus    ]   O_rd_wdata,
@@ -211,8 +212,8 @@ module lsu
 
     assign O_dbus_data = dbus_data;
 
-    assign O_inst_ready = I_inst_ready & I_inst_valid;
-    assign O_inst_valid = O_inst_ready;
+    assign O_ready = I_ready;
+    assign O_valid = O_ready;
 
 
 endmodule

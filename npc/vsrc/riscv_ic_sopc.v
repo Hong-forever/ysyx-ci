@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module top 
+module top
 (
     input   wire                        clk,
     input   wire                        rst_n
@@ -54,23 +54,24 @@ module top
         .I_int                  (inq                        )
     );
 
+`ifdef DPIC
+    import "DPI-C" function int paddr_read(input int raddr);
+    import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    // import "DPI-C" function int paddr_read(input int raddr);
-    // import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
+    assign ibus_rdata = ibus_req ? paddr_read(ibus_addr) : `ZeroWord;
+    assign dbus_rdata = dbus_req ? paddr_read(dbus_addr) : `ZeroWord;
 
-    // assign ibus_rdata = ibus_req ? paddr_read(ibus_addr) : `ZeroWord;
-    // assign dbus_rdata = dbus_req ? paddr_read(dbus_addr) : `ZeroWord;
+    `define SERIAL_MMIO 32'h1000_0000
+    `define RTC_MMIO    32'h2000_0000
+    assign device_skip = ((dbus_addr & ~32'h3) == `SERIAL_MMIO) || ((dbus_addr & ~32'h7) == `RTC_MMIO);
 
-    // `define SERIAL_MMIO 32'h1000_0000
-    // `define RTC_MMIO    32'h2000_0000
-    // assign device_skip = ((dbus_addr & ~32'h3) == `SERIAL_MMIO) || ((dbus_addr & ~32'h7) == `RTC_MMIO);
+    always @(*) begin
+        if (dbus_req && dbus_we) begin
+            paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
+        end
+    end
 
-    // always @(*) begin
-    //     if (dbus_req && dbus_we) begin
-    //         paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
-    //     end
-    // end
-
+`else
     rom #(
         .DATA_WIDTH     (32                     ),
         .ADDR_WIDTH     (32                     ),
@@ -101,6 +102,6 @@ module top
         .data_o         (dbus_rdata             ),
         .sel_i          (dbus_mask              )
     );
-
+`endif
 
 endmodule
