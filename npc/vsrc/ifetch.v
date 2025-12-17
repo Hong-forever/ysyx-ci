@@ -88,7 +88,7 @@ module ifetch
 
     assign O_inst = I_ibus_data;
     assign O_inst_addr = pc;
-    assign O_valid = state == WAIT;
+    assign O_valid = state == WAIT & I_ready;
     
 
     assign O_ibus_req = ibus_req;
