@@ -1,40 +1,55 @@
 `timescale 1ns / 1ps
 
 //------------------------------------------------------------------------
-// 宏定�?
+// VERILOG MACRO
 //------------------------------------------------------------------------
+// `define DPIC
 
 //------------------------------------------------------------------------
-// 时钟定义
+// CLOCK
 //------------------------------------------------------------------------
 `define CPU_CLOCK_HZ 325_000_000 // 325MHz
 
 
 //------------------------------------------------------------------------
-// 指令字段定义（位域范围）
+// CONSTANT DEFINITIONS
 //------------------------------------------------------------------------
-`define RV32_OP  6:0    // 操作码字�?(7�?)
-`define RV32_RD  11:7   // 目标寄存器字�?(5�?)
-`define RV32_F3  14:12  // 功能3字段(3�?)
-`define RV32_RM  14:12  // 舍入模式字段(3�?)
-`define RV32_RS1 19:15  // 源寄存器1字段(5�?)
-`define RV32_RS2 24:20  // 源寄存器2字段(5�?)
-`define RV32_F2  26:25  // 功能2字段(2�?)
-`define RV32_RS3 31:27  // 源寄存器3字段(5�?)
-`define RV32_F7  31:25  // 功能7字段(7�?)
+`define ZeroWord 32'h0
+`define ZeroReg 5'h0
+`define True 1'b1
+`define False 1'b0
+`define Enable 1'b1
+`define Disable 1'b0
+`define Stop 1'b1
+`define NoStop 1'b0
+`define INT_ASSERT 1'b1
+`define INT_DEASSERT 1'b0
 
 //------------------------------------------------------------------------
-// 字段宽度定义
+// INSTRUCTION FIELD DEFINITIONS (BIT RANGE)
 //------------------------------------------------------------------------
-`define RV32_OP_WIDTH   7   // 操作码位�?
-`define RV32_RD_WIDTH   5   // 目标寄存器字段位�?
-`define RV32_RS1_WIDTH  5   // 源寄存器1字段位数
-`define RV32_RS2_WIDTH  5   // 源寄存器2字段位数
-`define RV32_RS3_WIDTH  5   // 源寄存器3字段位数
-`define RV32_F3_WIDTH   3   // funct3字段位数
-`define RV32_RM_WIDTH   3   // 舍入模式字段位数
-`define RV32_F7_WIDTH   7   // funct7字段位数
-`define RV32_F2_WIDTH   2   // funct2字段位数
+`define RV32_OP  6:0    // Opcode field (7 bits)
+`define RV32_RD  11:7   // Destination register field (5 bits)
+`define RV32_F3  14:12  // Function 3 field (3 bits)
+`define RV32_RM  14:12  // Rounding mode field (3 bits)
+`define RV32_RS1 19:15  // Source register 1 field (5 bits)
+`define RV32_RS2 24:20  // Source register 2 field (5 bits)
+`define RV32_F2  26:25  // Function 2 field (2 bits)
+`define RV32_RS3 31:27  // Source register 3 field (5 bits)
+`define RV32_F7  31:25  // Function 7 field (7 bits)
+
+//------------------------------------------------------------------------
+// FIELD WIDTH DEFINITIONS
+//------------------------------------------------------------------------
+`define RV32_OP_WIDTH   7   // Opcode field width
+`define RV32_RD_WIDTH   5   // Destination register field width
+`define RV32_RS1_WIDTH  5   // Source register 1 field width
+`define RV32_RS2_WIDTH  5   // Source register 2 field width
+`define RV32_RS3_WIDTH  5   // Source register 3 field width
+`define RV32_F3_WIDTH   3   // funct3 field width
+`define RV32_RM_WIDTH   3   // Rounding mode field width
+`define RV32_F7_WIDTH   7   // funct7 field width
+`define RV32_F2_WIDTH   2   // funct2 field width
 
 //------------------------------------------------------------------------
 // rv32i load type inst
@@ -149,7 +164,7 @@
 
 
 //------------------------------------------------------------------------
-// 通用寄存器定�?
+// GENERAL PURPOSE REGISTER DEFINITIONS
 //------------------------------------------------------------------------
 `define RegNum 32        // reg num
 `define RegDataWidth 32
@@ -162,7 +177,7 @@
 `define LRegDataBus `RegDataWidth-1:0
 
 //------------------------------------------------------------------------
-// CSR寄存器定�?
+// CSR REGISTER DEFINITIONS
 //------------------------------------------------------------------------
 `define CSRAddrWidth 12
 `define CSRDataWidth 32
@@ -172,23 +187,7 @@
 `define DoubleCSRDataBus `DoubleCSRDataWidth-1:0
 `define CSRNum 1024
 
-//------------------------------------------------------------------------
-// 常量定义
-//------------------------------------------------------------------------
-`define ZeroWord 32'h0
-`define ZeroReg 5'h0
-`define True 1'b1
-`define False 1'b0
-`define Enable 1'b1
-`define Disable 1'b0
-`define Stop 1'b1
-`define NoStop 1'b0
-`define INT_ASSERT 1'b1
-`define INT_DEASSERT 1'b0
 
-//------------------------------------------------------------------------
-// CSR寄存器地�?定义
-//------------------------------------------------------------------------
 `define CSR_Addr_FFLAGS     12'h001     // Floating-Point Accrued Exceptions
 `define CSR_Addr_FRM        12'h002     // Floating-Point Dynamic Rounding Mode
 `define CSR_Addr_FCSR       12'h003     // Floating-Point Control and Status Register
@@ -204,7 +203,7 @@
 `define CSR_Addr_MARCHID    12'hf12     // Architecture ID
 
 //------------------------------------------------------------------------
-// 流水线暂停定�?
+// PIPELINE STALL DEFINITIONS
 //------------------------------------------------------------------------
 `define StallWidth      6
 `define StallBus        `StallWidth-1:0
@@ -216,7 +215,7 @@
 `define Stall_wb        5
 
 //------------------------------------------------------------------------
-// 流水线冲刷定�?
+// PIPELINE FLUSH DEFINITIONS
 //------------------------------------------------------------------------
 `define KillWidth      4
 `define KillBus        `KillWidth-1:0
@@ -226,7 +225,7 @@
 `define Kill_ls_wb     3
 
 //------------------------------------------------------------------------
-// ALU控制定义
+// ALU CONTROL DEFINITIONS
 //------------------------------------------------------------------------
 `define ALUCTL_WIDTH    5
 `define ALUCTL_NOP      5'b00000
@@ -239,23 +238,23 @@
 `define ALUCTL_SRL      5'b00111       // Shift Right Logical
 `define ALUCTL_SRA      5'b01000       // Shift Right Arithmetic
 `define ALUCTL_OR       5'b01001       // OR
-`define ALUCTL_AND      5'b01010      // AND
-`define ALUCTL_AUIPC    5'b01011      // add upper immediate to PC
-`define ALUCTL_LUI      5'b01100      // Load Upper Immediate
-`define ALUCTL_JAL      5'b01101      // Jump and Link
-`define ALUCTL_JALR     5'b01110      // Jump and Link Register
+`define ALUCTL_AND      5'b01010       // AND
+`define ALUCTL_AUIPC    5'b01011       // add upper immediate to PC
+`define ALUCTL_LUI      5'b01100       // Load Upper Immediate
+`define ALUCTL_JAL      5'b01101       // Jump and Link
+`define ALUCTL_JALR     5'b01110       // Jump and Link Register
 
-`define ALUCTL_MUL      5'b10000      // Multiply
-`define ALUCTL_MULH     5'b10001      // Multiply High
-`define ALUCTL_MULHSU   5'b10010      // Multiply High Signed Unsigned
-`define ALUCTL_MULHU    5'b10011      // Multiply High Unsigned
-`define ALUCTL_DIV      5'b10100      // Divide
-`define ALUCTL_DIVU     5'b10101      // Divide Unsigned
-`define ALUCTL_REM      5'b10110      // Remainder
-`define ALUCTL_REMU     5'b10111      // Remainder Unsigned
+`define ALUCTL_MUL      5'b10000       // Multiply
+`define ALUCTL_MULH     5'b10001       // Multiply High
+`define ALUCTL_MULHSU   5'b10010       // Multiply High Signed Unsigned
+`define ALUCTL_MULHU    5'b10011       // Multiply High Unsigned
+`define ALUCTL_DIV      5'b10100       // Divide
+`define ALUCTL_DIVU     5'b10101       // Divide Unsigned
+`define ALUCTL_REM      5'b10110       // Remainder
+`define ALUCTL_REMU     5'b10111       // Remainder Unsigned
 
 //------------------------------------------------------------------------
-// 分支跳转控制定义
+// BRANCH AND JUMP CONTROL DEFINITIONS
 //------------------------------------------------------------------------
 `define BRUCTL_WIDTH    4
 `define BRUCTL_NOP      4'b0000
@@ -269,7 +268,7 @@
 `define BRUCTL_BGEU     4'b1000
 
 //------------------------------------------------------------------------
-// CSR控制定义
+// CSR CONTROL DEFINITIONS
 //------------------------------------------------------------------------
 `define CSRCTL_WIDTH    2
 `define CSRCTL_NOP      2'b00
@@ -278,7 +277,7 @@
 `define CSRCTL_CLR      2'b11
 
 //------------------------------------------------------------------------
-// ALU源�?�择定义
+// ALU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define ALUSrcA_sel_width   2
 `define ALUSrcA_sel_nop     2'b00
@@ -287,7 +286,7 @@
 `define ALUSrcA_sel_0       2'b11
 
 //------------------------------------------------------------------------
-// ALU源�?�择定义
+// ALU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define ALUSrcB_sel_width   2
 `define ALUSrcB_sel_nop     2'b00
@@ -296,7 +295,7 @@
 `define ALUSrcB_sel_4       2'b11
 
 //------------------------------------------------------------------------
-// AGU源�?�择定义
+// AGU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define AGUSrc_sel_width    2
 `define AGUSrc_sel_nop      2'b00
@@ -305,7 +304,7 @@
 `define AGUSrc_sel_0        2'b11
 
 //------------------------------------------------------------------------
-// CSR源�?�择定义
+// CSR SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define CSRSrc_sel_width    2
 `define CSRSrc_sel_nop      2'b00
@@ -313,7 +312,7 @@
 `define CSRSrc_sel_imm      2'b10
 
 //------------------------------------------------------------------------
-// FWD源�?�择定义
+// FWD SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define FWDSrc_sel_width    2
 `define FWDSrc_sel_nop      2'b00
@@ -322,7 +321,7 @@
 `define FWDSrc_sel_wb       2'b11
 
 //------------------------------------------------------------------------
-// 存储和加载差异定�?
+// STORE/LOAD TYPE DEFINITIONS
 //------------------------------------------------------------------------
 `define ls_diff_width   4
 `define ls_diff_bus     `ls_diff_width-1:0
@@ -339,7 +338,7 @@
 `define ls_fsw          4'b1101
 
 //------------------------------------------------------------------------
-// 中断定义
+// INTERRUPT DEFINITIONS
 //------------------------------------------------------------------------
 `define INT_WIDTH 8
 `define INT_BUS `INT_WIDTH-1:0
@@ -349,7 +348,7 @@
 `define INT_TIMER0_ENTRY_ADDR 32'h4
 
 //------------------------------------------------------------------------
-// 异常类型定义
+// EXCEPTION TYPE DEFINITIONS
 //------------------------------------------------------------------------
 `define Except_Width                3
 `define Except_Bus                  `Except_Width-1:0
@@ -359,7 +358,7 @@
 `define EXCPT_MRET                  2
 
 //------------------------------------------------------------------------
-// 存储器定�?
+// MEMORY DEFINITIONS
 //------------------------------------------------------------------------
 `define MemAddrWidth 32
 `define MemDataWidth 32

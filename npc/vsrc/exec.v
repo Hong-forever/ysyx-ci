@@ -12,12 +12,8 @@ module exec
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
 
-    input   wire                        I_inst_valid,
-    output  wire                        O_inst_ready,
-    output  wire                        O_inst_valid,
-    input   wire                        I_inst_ready,
-
-    output  wire                        O_stallreq,
+    input   wire                        I_ready,
+    output  wire                        O_ready,
 
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
@@ -52,6 +48,10 @@ module exec
 
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
+    output  wire                        O_valid,
+
+    output  wire                        O_stallreq,
+    
     output  wire                        O_rd_we,
     output  wire    [`RegAddrBus    ]   O_rd_waddr,
     output  wire    [`RegDataBus    ]   O_rd_wdata,
@@ -257,10 +257,10 @@ module exec
 
     assign O_except = I_except;
 
-    assign O_inst_ready = ~O_stallreq & I_inst_ready & I_inst_valid;
-    assign O_inst_valid = O_inst_ready;
+    assign O_ready = ~O_stallreq & I_ready;
+    assign O_valid = O_ready;
 
-
+`ifdef DPIC
     import "DPI-C" function void ftrace_exec(input int pc, input int dnpc, input int rs1, input int rd, input int imm, input int op); //op=1 jal, op=2 jalr
 
     wire [`RV32_RS1_WIDTH-1:0] rs1 = I_inst[`RV32_RS1];
@@ -273,6 +273,6 @@ module exec
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 2);
         end
     end
-
+`endif
     
 endmodule //exu

@@ -12,13 +12,14 @@ module ifetch
     input   wire                        I_bru_taken,        //跳转指令
     input   wire    [`InstAddrBus   ]   I_bru_target,
 
+    input   wire                        I_ready,
+
     input   wire                        I_flush,            // 指令冲刷
     input   wire    [`InstAddrBus   ]   I_flush_addr,       // 冲刷跳转地址
 
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
-    output  wire                        O_inst_valid,
-    input   wire                        I_inst_ready,
+    output  wire                        O_valid,
 
     //to bus
     output  wire                        O_ibus_req,
@@ -48,17 +49,17 @@ module ifetch
 
     assign npc = I_flush        ? I_flush_addr    :
                  I_bru_taken    ? I_bru_target    :
-                 I_inst_ready   ? pc_plus4        :
+                 I_ready        ? pc_plus4        :
                  pc;
 
     assign pc_plus4 = pc + 32'h4;
 
     assign O_inst = I_ibus_data;
     assign O_inst_addr = pc;
-    assign O_inst_valid = I_inst_ready;
+    assign O_valid = I_ready;
     
 
-    assign O_ibus_req = rst_n & O_inst_valid;
+    assign O_ibus_req = rst_n & O_valid;
     assign O_ibus_we = `False;
     assign O_ibus_addr = pc;
     assign O_ibus_data = `ZeroWord;

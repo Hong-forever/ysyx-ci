@@ -35,14 +35,13 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] O_if_inst;
     wire [`InstAddrBus] O_if_inst_addr;
-    wire                O_if_inst_valid;
+    wire                O_if_valid;
 
     //-------------------------------------------------------------
     // pipeline_if_dec
     //-------------------------------------------------------------
     wire [`InstBus    ] I_dec_inst;
     wire [`InstAddrBus] I_dec_inst_addr;
-    wire                I_dec_inst_valid;
 
     //-------------------------------------------------------------
     // decoder
@@ -56,8 +55,8 @@ module riscv_ic
 
     wire [`InstBus    ] O_dec_inst;
     wire [`InstAddrBus] O_dec_inst_addr;
-    wire                O_dec_inst_valid;
-    wire                O_dec_inst_ready;
+    wire                O_dec_valid;
+    wire                O_dec_ready;
     wire [`RegDataBus ] O_dec_rs1_rdata;
     wire [`RegDataBus ] O_dec_rs2_rdata;
     wire [`RegDataBus ] O_dec_imm;
@@ -84,7 +83,6 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] I_ex_inst;
     wire [`InstAddrBus] I_ex_inst_addr;
-    wire                I_ex_inst_valid;
     wire [`RegDataBus ] I_ex_rs1_rdata;
     wire [`RegDataBus ] I_ex_rs2_rdata;
     wire [`RegDataBus ] I_ex_imm;
@@ -151,8 +149,8 @@ module riscv_ic
 
     wire [`InstBus    ] O_ex_inst;
     wire [`InstAddrBus] O_ex_inst_addr;
-    wire                O_ex_inst_valid;
-    wire                O_ex_inst_ready;
+    wire                O_ex_valid;
+    wire                O_ex_ready;
     wire                O_ex_rd_we;
     wire [`RegAddrBus ] O_ex_rd_waddr;
     wire [`RegDataBus ] O_ex_rd_wdata;
@@ -172,7 +170,6 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] I_ls_inst;
     wire [`InstAddrBus] I_ls_inst_addr;
-    wire                I_ls_inst_valid;
     wire                I_ls_rd_we;
     wire [`RegAddrBus ] I_ls_rd_waddr;
     wire [`RegDataBus ] I_ls_rd_wdata;
@@ -191,8 +188,8 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] O_ls_inst;
     wire [`InstAddrBus] O_ls_inst_addr;
-    wire                O_ls_inst_valid;
-    wire                O_ls_inst_ready;
+    wire                O_ls_valid;
+    wire                O_ls_ready;
     wire                O_ls_rd_we;
     wire [`RegAddrBus ] O_ls_rd_waddr;
     wire [`RegDataBus ] O_ls_rd_wdata;
@@ -206,7 +203,6 @@ module riscv_ic
     //-------------------------------------------------------------
     wire [`InstBus    ] I_wb_inst;
     wire [`InstAddrBus] I_wb_inst_addr;
-    wire                I_wb_inst_valid;
     wire                I_wb_rd_we;
     wire [`RegAddrBus ] I_wb_rd_waddr;
     wire [`RegDataBus ] I_wb_rd_wdata;
@@ -218,7 +214,7 @@ module riscv_ic
     //-------------------------------------------------------------
     // wb
     //-------------------------------------------------------------
-    wire                O_wb_inst_ready;      
+    wire                O_wb_ready;
     wire                O_flush;
     wire [`InstAddrBus] O_flush_addr;
 
@@ -235,13 +231,14 @@ module riscv_ic
         .I_bru_taken            (O_ex_bru_taken             ),
         .I_bru_target           (O_ex_bru_target            ),
 
+        .I_ready                (O_dec_ready                ),
+
         .I_flush                (O_flush                    ),
         .I_flush_addr           (O_flush_addr               ),
 
         .O_inst                 (O_if_inst                  ),
         .O_inst_addr            (O_if_inst_addr             ),
-        .O_inst_valid           (O_if_inst_valid            ),
-        .I_inst_ready           (O_dec_inst_ready           ),
+        .O_valid                (O_if_valid                 ),
         
         .O_ibus_req             (O_ibus_req                 ),
         .O_ibus_we              (O_ibus_we                  ),
@@ -259,12 +256,9 @@ module riscv_ic
 
         .I_inst                 (I_dec_inst                 ),
         .I_inst_addr            (I_dec_inst_addr            ),
-        .I_inst_valid           (I_dec_inst_valid           ),
-        .O_inst_ready           (O_dec_inst_ready           ),
-        .O_inst_valid           (O_dec_inst_valid           ),
-        .I_inst_ready           (O_ex_inst_ready            ),
 
-        .I_stallreq_fwd_load    (stallreq_fwd_load          ),
+        .I_ready                (O_ex_ready & ~stallreq_fwd_load),
+        .O_ready                (O_dec_ready                ),
 
         .O_rs1_raddr            (O_rs1_raddr                ),
         .O_rs2_raddr            (O_rs2_raddr                ),
@@ -275,6 +269,7 @@ module riscv_ic
 
         .O_inst                 (O_dec_inst                 ),
         .O_inst_addr            (O_dec_inst_addr            ),
+        .O_valid                (O_dec_valid                ),
         .O_rs1_rdata            (O_dec_rs1_rdata            ),
         .O_rs2_rdata            (O_dec_rs2_rdata            ),
         .O_imm                  (O_dec_imm                  ),
@@ -349,12 +344,9 @@ module riscv_ic
 
         .I_inst                 (I_ex_inst                  ),
         .I_inst_addr            (I_ex_inst_addr             ),
-        .I_inst_valid           (I_ex_inst_valid            ),
-        .O_inst_ready           (O_ex_inst_ready            ),
-        .O_inst_valid           (O_ex_inst_valid            ),
-        .I_inst_ready           (O_ls_inst_ready            ),
 
-        .O_stallreq             (stallreq_ex                ),
+        .O_ready                (O_ex_ready                 ),
+        .I_ready                (O_ls_ready                 ),
 
         .I_rd_we                (I_ex_rd_we                 ),
         .I_rd_waddr             (I_ex_rd_waddr              ),
@@ -385,6 +377,10 @@ module riscv_ic
 
         .O_inst                 (O_ex_inst                  ),
         .O_inst_addr            (O_ex_inst_addr             ),
+        .O_valid                (O_ex_valid                 ),
+
+        .O_stallreq             (stallreq_ex                ),
+
         .O_rd_we                (O_ex_rd_we                 ),
         .O_rd_waddr             (O_ex_rd_waddr              ),
         .O_rd_wdata             (O_ex_rd_wdata              ),
@@ -407,10 +403,9 @@ module riscv_ic
 
         .I_inst                 (I_ls_inst                  ),
         .I_inst_addr            (I_ls_inst_addr             ),
-        .I_inst_valid           (I_ls_inst_valid            ),
-        .O_inst_ready           (O_ls_inst_ready            ),
-        .O_inst_valid           (O_ls_inst_valid            ),
-        .I_inst_ready           (O_wb_inst_ready            ),
+
+        .I_ready                (O_wb_ready                 ),
+        .O_ready                (O_ls_ready                 ),
 
         .I_rd_we                (I_ls_rd_we                 ),
         .I_rd_waddr             (I_ls_rd_waddr              ),
@@ -426,6 +421,7 @@ module riscv_ic
 
         .O_inst                 (O_ls_inst                  ),
         .O_inst_addr            (O_ls_inst_addr             ),
+        .O_valid                (O_ls_valid                 ),
         .O_rd_we                (O_ls_rd_we                 ),
         .O_rd_waddr             (O_ls_rd_waddr              ),
         .O_rd_wdata             (O_ls_rd_wdata              ),
@@ -449,8 +445,8 @@ module riscv_ic
 
         .I_inst                 (I_wb_inst                  ),
         .I_inst_addr            (I_wb_inst_addr             ),
-        .I_inst_valid           (I_wb_inst_valid            ),
-        .O_inst_ready           (O_wb_inst_ready            ),
+
+        .O_ready                (O_wb_ready                 ),
 
         .I_rs1_raddr            (O_rs1_raddr                ),
         .I_rs2_raddr            (O_rs2_raddr                ),
@@ -493,13 +489,11 @@ module riscv_ic
 
         .I_inst                 (O_if_inst                  ),
         .I_inst_addr            (O_if_inst_addr             ),
-        .I_inst_valid           (O_if_inst_valid            ),
 
         .O_inst                 (I_dec_inst                 ),
         .O_inst_addr            (I_dec_inst_addr            ),
-        .O_inst_valid           (I_dec_inst_valid           ),
 
-        .I_enable               (O_if_inst_valid            ),
+        .I_enable               (O_if_valid                 ),
         .I_flush                (O_flush | O_ex_bru_taken   )
     );
 
@@ -510,7 +504,6 @@ module riscv_ic
 
         .I_inst                 (O_dec_inst                 ),
         .I_inst_addr            (O_dec_inst_addr            ),
-        .I_inst_valid           (O_dec_inst_valid           ),
         .I_rs1_rdata            (O_dec_rs1_rdata            ),
         .I_rs2_rdata            (O_dec_rs2_rdata            ),
         .I_imm                  (O_dec_imm                  ),
@@ -536,7 +529,6 @@ module riscv_ic
 
         .O_inst                 (I_ex_inst                  ),
         .O_inst_addr            (I_ex_inst_addr             ),
-        .O_inst_valid           (I_ex_inst_valid            ),
         .O_rs1_rdata            (I_ex_rs1_rdata             ),
         .O_rs2_rdata            (I_ex_rs2_rdata             ),
         .O_imm                  (I_ex_imm                   ),
@@ -564,7 +556,7 @@ module riscv_ic
         .O_csr_re               (I_ex_csr_re                ),
         .O_except               (I_ex_except                ),
 
-        .I_enable               (O_dec_inst_valid           ),
+        .I_enable               (O_dec_valid                ),
         .I_flush                (O_flush | O_ex_bru_taken | stallreq_fwd_load  )
     );
 
@@ -575,7 +567,6 @@ module riscv_ic
 
         .I_inst                 (O_ex_inst                  ),
         .I_inst_addr            (O_ex_inst_addr             ),
-        .I_inst_valid           (O_ex_inst_valid            ),
         .I_rd_we                (O_ex_rd_we                 ),
         .I_rd_waddr             (O_ex_rd_waddr              ),
         .I_rd_wdata             (O_ex_rd_wdata              ),
@@ -590,7 +581,6 @@ module riscv_ic
 
         .O_inst                 (I_ls_inst                  ),
         .O_inst_addr            (I_ls_inst_addr             ),
-        .O_inst_valid           (I_ls_inst_valid            ),
         .O_rd_we                (I_ls_rd_we                 ),
         .O_rd_waddr             (I_ls_rd_waddr              ),
         .O_rd_wdata             (I_ls_rd_wdata              ),
@@ -609,7 +599,7 @@ module riscv_ic
         .O_fwd_csr_wdata        (I_ls_fwd_csr_wdata         ),
         .O_except               (I_ls_except                ),
 
-        .I_enable               (O_ex_inst_valid&~stallreq_ex),
+        .I_enable               (O_ex_valid & ~stallreq_ex  ),
         .I_flush                (O_flush                    )
     );
 
@@ -621,7 +611,6 @@ module riscv_ic
 
         .I_inst                 (O_ls_inst                  ),
         .I_inst_addr            (O_ls_inst_addr             ),
-        .I_inst_valid           (O_ls_inst_valid            ),
         .I_rd_we                (O_ls_rd_we                 ),
         .I_rd_waddr             (O_ls_rd_waddr              ),
         .I_rd_wdata             (O_ls_rd_wdata              ),
@@ -634,7 +623,6 @@ module riscv_ic
 
         .O_inst                 (I_wb_inst                  ),
         .O_inst_addr            (I_wb_inst_addr             ),
-        .O_inst_valid           (I_wb_inst_valid            ),           
         .O_rd_we                (I_wb_rd_we                 ),
         .O_rd_waddr             (I_wb_rd_waddr              ),
         .O_rd_wdata             (I_wb_rd_wdata              ),
@@ -647,7 +635,7 @@ module riscv_ic
 
         .O_device_skip          (wbu_device_skip            ),
 
-        .I_enable               (O_ls_inst_valid&~stallreq_ex),
+        .I_enable               (O_ls_valid & ~stallreq_ex  ),
         .I_flush                (O_flush                    )
     );
 

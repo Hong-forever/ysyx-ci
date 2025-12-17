@@ -11,8 +11,8 @@ module wbu
 
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
-    input   wire                        I_inst_valid,
-    output  wire                        O_inst_ready,
+    
+    output  wire                        O_ready,
 
     // regfile
     input   wire    [`RegAddrBus    ]   I_rs1_raddr,
@@ -144,8 +144,9 @@ module wbu
         .O_csr_marchid          (csr_marchid                )  //marchid寄存器
     );
 
-    assign O_inst_ready = I_inst_valid;
+    assign O_ready = 1'b1;
 
+`ifdef DPIC
     ////////////////////// DPI-C //////////////////////
 
     import "DPI-C" function void trap(input int reg_data, input int halt_pc);
@@ -214,5 +215,6 @@ module wbu
         end
 
     end
+`endif
 
 endmodule

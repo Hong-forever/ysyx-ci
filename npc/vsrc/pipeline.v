@@ -11,11 +11,9 @@ module pipeline_if_dec
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
-    input   wire                        I_inst_valid,
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
-    output  reg                         O_inst_valid,
 
     input   wire                        I_enable,
     input   wire                        I_flush             // 指令冲刷
@@ -24,15 +22,12 @@ module pipeline_if_dec
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
         end else if (I_flush) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
-            O_inst_valid    <= I_inst_valid;
         end
     end
 
@@ -51,7 +46,6 @@ module pipeline_dec_ex
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
-    input   wire                        I_inst_valid,
     input   wire    [`RegDataBus    ]   I_rs1_rdata,        // 通用寄存器1读数据
     input   wire    [`RegDataBus    ]   I_rs2_rdata,        // 通用寄存器2读数据
     input   wire    [`RegDataBus    ]   I_imm,              // 立即数
@@ -77,7 +71,6 @@ module pipeline_dec_ex
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
-    output  reg                         O_inst_valid,
     output  reg     [`RegDataBus    ]   O_rs1_rdata,        // 通用寄存器1读数据
     output  reg     [`RegDataBus    ]   O_rs2_rdata,        // 通用寄存器2读数据
     output  reg     [`RegDataBus    ]   O_imm,              // 立即数
@@ -112,7 +105,6 @@ module pipeline_dec_ex
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
             O_rs1_rdata     <= 'b0;
             O_rs2_rdata     <= 'b0;
             O_rd_we         <= 'b0;
@@ -142,7 +134,6 @@ module pipeline_dec_ex
         end else if (I_flush) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
             O_rs1_rdata     <= 'b0;
             O_rs2_rdata     <= 'b0;
             O_rd_we         <= 'b0;
@@ -172,7 +163,6 @@ module pipeline_dec_ex
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
-            O_inst_valid    <= I_inst_valid;
             O_rs1_rdata     <= I_rs1_rdata;
             O_rs2_rdata     <= I_rs2_rdata;
             O_rd_we         <= I_rd_we;
@@ -216,7 +206,6 @@ module pipeline_ex_ls
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,
-    input   wire                        I_inst_valid,
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
     input   wire    [`RegDataBus    ]   I_rd_wdata,
@@ -231,7 +220,6 @@ module pipeline_ex_ls
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
-    output  reg                         O_inst_valid,
     output  reg                         O_rd_we,
     output  reg     [`RegAddrBus    ]   O_rd_waddr,
     output  reg     [`RegDataBus    ]   O_rd_wdata,
@@ -257,7 +245,6 @@ module pipeline_ex_ls
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
             O_rd_we         <= 'b0;
             O_rd_waddr      <= 'b0;
             O_rd_wdata      <= 'b0;
@@ -278,7 +265,6 @@ module pipeline_ex_ls
         end else if (I_flush) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
             O_rd_we         <= 'b0;
             O_rd_waddr      <= 'b0;
             O_rd_wdata      <= 'b0;
@@ -299,7 +285,6 @@ module pipeline_ex_ls
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
-            O_inst_valid    <= I_inst_valid;
             O_rd_we         <= I_rd_we;
             O_rd_waddr      <= I_rd_waddr;
             O_rd_wdata      <= I_rd_wdata;
@@ -334,7 +319,6 @@ module pipeline_ls_wb
 
     input   wire    [`InstBus       ]   I_inst,             // 指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
-    input   wire                        I_inst_valid,
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
     input   wire    [`RegDataBus    ]   I_rd_wdata,
@@ -347,7 +331,6 @@ module pipeline_ls_wb
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
-    output  reg                         O_inst_valid,
     output  reg                         O_rd_we,
     output  reg     [`RegAddrBus    ]   O_rd_waddr,
     output  reg     [`RegDataBus    ]   O_rd_wdata,
@@ -368,7 +351,6 @@ module pipeline_ls_wb
         if (!rst_n) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
             O_rd_we         <= 'b0;
             O_rd_waddr      <= 'b0;
             O_rd_wdata      <= 'b0;
@@ -383,7 +365,6 @@ module pipeline_ls_wb
         end else if (I_flush) begin
             O_inst          <= 'b0;
             O_inst_addr     <= 'b0;
-            O_inst_valid    <= 'b1;
             O_rd_we         <= 'b0;
             O_rd_waddr      <= 'b0;
             O_rd_wdata      <= 'b0;
@@ -398,7 +379,6 @@ module pipeline_ls_wb
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
-            O_inst_valid    <= I_inst_valid;
             O_rd_we         <= I_rd_we;
             O_rd_waddr      <= I_rd_waddr;
             O_rd_wdata      <= I_rd_wdata;

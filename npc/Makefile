@@ -117,14 +117,13 @@ endif
 
 
 
-
-
 include $(NPC_HOME)/scripts/config.mk
+include $(NPC_HOME)/scripts/sta/yosys_sta.mk
 
 
-clean:
+clean: 
 	rm -rf $(BUILD_DIR) core.*
-	
+
 include ../Makefile
 
 .PHONY: sim all clean run view_wave
