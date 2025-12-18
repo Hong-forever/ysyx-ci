@@ -74,7 +74,7 @@ module ifetch
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             pc <= `RomAddrBase;
-        end else if(state == WAIT | (state == IDLE & (I_bru_taken | I_flush))) begin
+        end else if(state == WAIT) begin
             pc <= npc;
         end
     end
