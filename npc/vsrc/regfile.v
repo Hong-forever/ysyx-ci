@@ -12,6 +12,8 @@ module regfile
     input   wire    [`InstBus       ]   I_inst,               //指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,
 
+    input   wire                        I_valid,
+
     input   wire    [`RegAddrBus    ]   I_rs1_raddr,      //读寄存器1地址
     input   wire    [`RegAddrBus    ]   I_rs2_raddr,      //读寄存器2地址
 
@@ -66,7 +68,7 @@ module regfile
                 regs[i] <= `ZeroWord;
             end
         end else begin
-            if((I_rd_we == `Enable) && (I_rd_waddr != `ZeroReg)) begin
+            if((I_rd_we == `Enable) && (I_rd_waddr != `ZeroReg) && I_valid) begin
                 regs[I_rd_waddr] <= I_rd_wdata;
             end
         end
