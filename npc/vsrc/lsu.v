@@ -204,21 +204,13 @@ module lsu
     parameter MEM  = 1;
     parameter WB   = 2;
 
-    reg dbus_req, dbus_req_r, stallreq;
+    reg dbus_req, stallreq;
     reg [1:0] state, nstate;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             state <= IDLE;
         end else begin
             state <= nstate;
-        end
-    end
-
-    always @(posedge clk or negedge rst_n) begin
-        if(!rst_n) begin
-            dbus_req_r <= 1'b0;
-        end else begin
-            dbus_req_r <= dbus_req;
         end
     end
 
@@ -230,12 +222,12 @@ module lsu
         end else begin
             case(state)
                 IDLE: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b0;
+                    dbus_req = I_ls_valid;
+                    stallreq = I_ls_valid;
                     nstate = I_ls_valid ? MEM : IDLE;
                 end
                 MEM: begin
-                    dbus_req = 1'b1;
+                    dbus_req = 1'b0;
                     stallreq = 1'b1;
                     nstate = I_dbus_ready ? WB : MEM;
                 end
@@ -269,7 +261,7 @@ module lsu
 
     assign O_except = I_except;
 
-    assign O_dbus_req = dbus_req & ~dbus_req_r;
+    assign O_dbus_req = dbus_req;
     assign O_dbus_we = I_ls_type[`ls_diff_width-1];
     assign O_dbus_addr = I_memory_addr;
     assign O_dbus_mask = dbus_mask;
