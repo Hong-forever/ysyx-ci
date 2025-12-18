@@ -233,7 +233,7 @@ module lsu
                 MEM: begin
                     dbus_req = 1'b0;
                     stallreq = 1'b1;
-                    nstate = I_ibus_ready ? DMEM : (I_dbus_ready ? IMEM : MEM);
+                    nstate = I_ibus_ready & I_dbus_ready ? WB : I_ibus_ready ? DMEM : (I_dbus_ready ? IMEM : MEM);
                 end
                 DMEM: begin
                     dbus_req = 1'b0;
