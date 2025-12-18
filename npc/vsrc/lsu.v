@@ -233,14 +233,14 @@ module lsu
 
     assign O_except = I_except;
 
-    assign O_dbus_req = I_ls_valid;
+    assign O_dbus_req = (state == IDLE) & I_ls_valid;
     assign O_dbus_we = I_ls_type[`ls_diff_width-1];
     assign O_dbus_addr = I_memory_addr;
     assign O_dbus_mask = dbus_mask;
 
     assign O_dbus_data = dbus_data;
 
-    assign stallreq = (state == IDLE) & I_ls_valid;
+    assign stallreq = O_dbus_req;
 
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
