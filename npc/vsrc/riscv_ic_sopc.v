@@ -6,20 +6,20 @@ module top
     input   wire                        rst_n
 );
     wire ibus_req;
+    wire ibus_ready;
     wire ibus_we;
     wire [`MemAddrBus] ibus_addr;
     wire [`MemDataBus] ibus_wdata;
     wire [`DBUS_MASK-1:0] ibus_mask;
     wire [`MemDataBus] ibus_rdata;
-    wire ibus_ready;
 
     wire dbus_req;
+    wire dbus_ready;
     wire dbus_we;
     wire [`MemAddrBus] dbus_addr;
     wire [`MemDataBus] dbus_wdata;
     wire [`DBUS_MASK-1:0] dbus_mask;
     wire [`MemDataBus] dbus_rdata;
-    wire dbus_ready;
 
     wire [`INT_BUS    ] inq;
     wire timer_int;
@@ -35,6 +35,7 @@ module top
 
         //ibus
         .O_ibus_req             (ibus_req                   ),
+        .I_ibus_ready           (ibus_ready                 ),
         .O_ibus_we              (ibus_we                    ),
         .O_ibus_addr            (ibus_addr                  ),
         .O_ibus_data            (ibus_wdata                 ),
@@ -43,6 +44,7 @@ module top
 
         //dbus
         .O_dbus_req             (dbus_req                   ),
+        .I_dbus_ready           (dbus_ready                 ),
         .O_dbus_we              (dbus_we                    ),
         .O_dbus_addr            (dbus_addr                  ),
         .O_dbus_data            (dbus_wdata                 ),
@@ -58,27 +60,60 @@ module top
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    reg [`InstBus] inst;
+    `define ISTALL_PERIOD 4
+    `define DSTALL_PERIOD 4
+
+    reg [`ISTALL_PERIOD-1:0] ibus_req_r;
+    reg [`DSTALL_PERIOD-1:0] dbus_req_r;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst <= `ZeroWord;
-        end else if(ibus_req) begin
-            inst <= paddr_read(ibus_addr);
+            ibus_req_r <= 0;
+            dbus_req_r <= 0;
+        end else begin
+            if(`ISTALL_PERIOD > 1) ibus_req_r <= {ibus_req_r[`ISTALL_PERIOD-2:0], ibus_req};
+            else                   ibus_req_r <= {ibus_req};
+            if(`DSTALL_PERIOD > 1) dbus_req_r <= {dbus_req_r[`DSTALL_PERIOD-2:0], dbus_req};
+            else                   dbus_req_r <= {dbus_req};
         end
     end
 
-    reg [`MemDataBus] data;
+    reg [`InstBus] inst;
+    reg inst_ready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            data <= `ZeroWord;
-        end else if(dbus_req & ~dbus_we) begin
-            data <= paddr_read(dbus_addr);
-        end else if(dbus_req & dbus_we) begin
-            paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
+            inst <= `ZeroWord;
+            inst_ready <= 1'b0;
+        end else if(ibus_req_r[3]) begin
+            inst <= paddr_read(ibus_addr);
+            inst_ready <= 1'b1;
+        end else begin
+            inst <= `ZeroWord;
+            inst_ready <= 1'b0;
         end
     end
     assign ibus_rdata = inst;
+    assign ibus_ready = inst_ready;
+
+    reg [`MemDataBus] data;
+    reg data_ready;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            data <= `ZeroWord;
+            data_ready <= 1'b0;
+        end else if(dbus_req_r[`DSTALL_PERIOD-1] & ~dbus_we) begin
+            data <= paddr_read(dbus_addr);
+            data_ready <= 1'b1;
+        end else if(dbus_req_r[`DSTALL_PERIOD-1] & dbus_we) begin
+            paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
+            data_ready <= 1'b1;
+        end else begin
+            data <= `ZeroWord;
+            data_ready <= 1'b0;
+        end
+    end
+
     assign dbus_rdata = data;
+    assign dbus_ready = data_ready;
 
     `define SERIAL_MMIO 32'h1000_0000
     `define RTC_MMIO    32'h2000_0000

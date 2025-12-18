@@ -23,6 +23,7 @@ module ifetch
 
     //to bus
     output  wire                        O_ibus_req,
+    input   wire                        I_ibus_ready,
     output  wire                        O_ibus_we,
     output  wire    [`InstAddrBus   ]   O_ibus_addr,
     output  wire    [`InstBus       ]   O_ibus_data,
@@ -36,8 +37,9 @@ module ifetch
     //------------------------------------------------------------------------
 
     parameter IDLE = 0;
-    parameter WAIT = 1;
-    reg state, nstate;
+    parameter MEM = 1;
+    parameter EXE = 2;
+    reg [1:0] state, nstate;
 
     reg ibus_req;
 
@@ -61,12 +63,20 @@ module ifetch
             case(state)
                 IDLE: begin
                     ibus_req = 1'b1;
-                    nstate = WAIT;
+                    nstate = MEM;
                 end
-                WAIT: begin
+                MEM: begin
                     ibus_req = 1'b0;
-                    nstate = I_ready ? IDLE : WAIT;
+                    nstate = I_ibus_ready ? EXE : MEM;
                 end
+                EXE: begin
+                    ibus_req = 1'b0;
+                    nstate = I_ready ? IDLE : EXE;
+                end
+                default: begin
+                    ibus_req = 1'b0;
+                    nstate = IDLE;
+                end 
             endcase
         end
     end
@@ -74,8 +84,17 @@ module ifetch
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             pc <= `RomAddrBase;
-        end else if(state == WAIT) begin
+        end else if(state == EXE) begin
             pc <= npc;
+        end
+    end
+
+    reg [`InstBus] ibus_data;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            ibus_data <= `ZeroWord;
+        end else if(I_ibus_ready) begin
+            ibus_data <= I_ibus_data;
         end
     end
 
@@ -86,9 +105,9 @@ module ifetch
     
     assign pc_plus4 = pc + 32'h4;
 
-    assign O_inst = I_ibus_data;
+    assign O_inst = ibus_data;
     assign O_inst_addr = pc;
-    assign O_valid = I_ready & state == WAIT;
+    assign O_valid = I_ready & state == EXE;
     
 
     assign O_ibus_req = ibus_req;

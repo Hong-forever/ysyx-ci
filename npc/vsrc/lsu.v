@@ -41,6 +41,7 @@ module lsu
 
     //to bus
     output  wire                        O_dbus_req,
+    input   wire                        I_dbus_ready,
     output  wire                        O_dbus_we,
     output  wire    [`MemAddrBus    ]   O_dbus_addr,
     input   wire    [`MemDataBus    ]   I_dbus_data,
@@ -51,23 +52,33 @@ module lsu
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
-    wire [`MemDataBus] lb_00_res = {{24{I_dbus_data[7]}},  I_dbus_data[7:0]};
-    wire [`MemDataBus] lb_01_res = {{24{I_dbus_data[15]}}, I_dbus_data[15:8]};
-    wire [`MemDataBus] lb_10_res = {{24{I_dbus_data[23]}}, I_dbus_data[23:16]};
-    wire [`MemDataBus] lb_11_res = {{24{I_dbus_data[31]}}, I_dbus_data[31:24]};
+    reg [`MemDataBus] dbus_rdata;
 
-    wire [`MemDataBus] lh_00_res = {{16{I_dbus_data[15]}}, I_dbus_data[15:0]};
-    wire [`MemDataBus] lh_10_res = {{16{I_dbus_data[31]}}, I_dbus_data[31:16]};
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            dbus_rdata <= 0;
+        end else if(I_dbus_ready) begin
+            dbus_rdata <= I_dbus_data;
+        end
+    end
 
-    wire [`MemDataBus] lw_res = I_dbus_data;
+    wire [`MemDataBus] lb_00_res = {{24{dbus_rdata[7]}},  dbus_rdata[7:0]};
+    wire [`MemDataBus] lb_01_res = {{24{dbus_rdata[15]}}, dbus_rdata[15:8]};
+    wire [`MemDataBus] lb_10_res = {{24{dbus_rdata[23]}}, dbus_rdata[23:16]};
+    wire [`MemDataBus] lb_11_res = {{24{dbus_rdata[31]}}, dbus_rdata[31:24]};
 
-    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, I_dbus_data[7:0]};
-    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, I_dbus_data[15:8]};
-    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, I_dbus_data[23:16]};
-    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, I_dbus_data[31:24]};
+    wire [`MemDataBus] lh_00_res = {{16{dbus_rdata[15]}}, dbus_rdata[15:0]};
+    wire [`MemDataBus] lh_10_res = {{16{dbus_rdata[31]}}, dbus_rdata[31:16]};
 
-    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, I_dbus_data[15:0]};
-    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, I_dbus_data[31:16]};
+    wire [`MemDataBus] lw_res = dbus_rdata;
+
+    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, dbus_rdata[7:0]};
+    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, dbus_rdata[15:8]};
+    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, dbus_rdata[23:16]};
+    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, dbus_rdata[31:24]};
+
+    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, dbus_rdata[15:0]};
+    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, dbus_rdata[31:16]};
 
     wire [`MemDataBus] sb_00_res = {24'b0, I_store_data[7:0]};
     wire [`MemDataBus] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
@@ -82,7 +93,6 @@ module lsu
     // 地址明辨
     wire [1:0] memory_byte_addr = I_memory_addr[1:0];
 
-    wire stallreq;
     //------------------------------------------------------------------------
     // 访存逻辑
     //------------------------------------------------------------------------
@@ -191,9 +201,11 @@ module lsu
     end
 
     parameter IDLE = 0;
-    parameter WAIT = 1;
+    parameter MEM  = 1;
+    parameter WB   = 2;
 
-    reg state, nstate;
+    reg dbus_req, stallreq;
+    reg [1:0] state, nstate;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             state <= IDLE;
@@ -204,13 +216,29 @@ module lsu
 
     always @(*) begin
         if(!rst_n) begin
+            dbus_req = 1'b0;
+            stallreq = 1'b0;
             nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    nstate = I_ls_valid ? WAIT : IDLE;
+                    dbus_req = I_ls_valid;
+                    stallreq = I_ls_valid;
+                    nstate = I_ls_valid ? MEM : IDLE;
                 end
-                WAIT: begin
+                MEM: begin
+                    dbus_req = 1'b0;
+                    stallreq = 1'b1;
+                    nstate = I_dbus_ready ? WB : MEM;
+                end
+                WB: begin
+                    dbus_req = 1'b0;
+                    stallreq = 1'b0;
+                    nstate = IDLE;
+                end
+                default: begin
+                    dbus_req = 1'b0;
+                    stallreq = 1'b0;
                     nstate = IDLE;
                 end
             endcase
@@ -233,17 +261,14 @@ module lsu
 
     assign O_except = I_except;
 
-    assign O_dbus_req = (state == IDLE) & I_ls_valid;
+    assign O_dbus_req = dbus_req;
     assign O_dbus_we = I_ls_type[`ls_diff_width-1];
     assign O_dbus_addr = I_memory_addr;
     assign O_dbus_mask = dbus_mask;
 
     assign O_dbus_data = dbus_data;
 
-    assign stallreq = O_dbus_req;
-
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
-
 
 endmodule
