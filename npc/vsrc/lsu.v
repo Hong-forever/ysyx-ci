@@ -46,9 +46,7 @@ module lsu
     output  wire    [`MemAddrBus    ]   O_dbus_addr,
     input   wire    [`MemDataBus    ]   I_dbus_data,
     output  wire    [`MemDataBus    ]   O_dbus_data,
-    output  wire    [`DBUS_MASK-1:0 ]   O_dbus_mask,
-
-    input   wire                        I_ibus_ready
+    output  wire    [`DBUS_MASK-1:0 ]   O_dbus_mask
 );
 
     //------------------------------------------------------------------------
@@ -204,12 +202,10 @@ module lsu
 
     parameter IDLE = 0;
     parameter MEM  = 1;
-    parameter DMEM = 2;
-    parameter IMEM = 3;
-    parameter WB   = 4;
+    parameter WB   = 2;
 
     reg dbus_req, stallreq;
-    reg [2:0] state, nstate;
+    reg [1:0] state, nstate;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             state <= IDLE;
@@ -233,17 +229,7 @@ module lsu
                 MEM: begin
                     dbus_req = 1'b0;
                     stallreq = 1'b1;
-                    nstate = I_ibus_ready & I_dbus_ready ? WB : I_ibus_ready ? DMEM : (I_dbus_ready ? IMEM : MEM);
-                end
-                DMEM: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b1;
-                    nstate = I_dbus_ready ? WB : DMEM;
-                end
-                IMEM: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b0;
-                    nstate = I_ibus_ready ? IDLE : IMEM;
+                    nstate = I_dbus_ready ? WB : MEM;
                 end
                 WB: begin
                     dbus_req = 1'b0;

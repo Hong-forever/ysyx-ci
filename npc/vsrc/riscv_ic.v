@@ -436,9 +436,7 @@ module riscv_ic
         .O_dbus_addr            (O_dbus_addr                ),
         .O_dbus_data            (O_dbus_data                ),
         .O_dbus_mask            (O_dbus_mask                ),
-        .I_dbus_data            (I_dbus_data                ),
-
-        .I_ibus_ready           (I_ibus_ready               )
+        .I_dbus_data            (I_dbus_data                )
     );
 
     wbu u_wbu
