@@ -442,7 +442,6 @@ module riscv_ic
         .I_inst                 (I_wb_inst                  ),
         .I_inst_addr            (I_wb_inst_addr             ),
 
-        .I_valid                (O_if_valid                 ),
         .O_ready                (O_wb_ready                 ),
 
         .I_rs1_raddr            (O_rs1_raddr                ),
@@ -481,7 +480,7 @@ module riscv_ic
 
     // wire if_flush = O_flush | (O_ex_bru_taken & O_ls_ready) | (O_dec_ready & ~O_if_valid);
     wire if_enable = O_if_valid;
-    wire if_flush = O_flush | (O_ex_bru_taken & O_ls_ready & O_if_valid);
+    wire if_flush = (O_flush | (O_ex_bru_taken & O_ls_ready)) & O_if_valid;
     pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
@@ -500,7 +499,7 @@ module riscv_ic
     wire dec_buble = stallreq_dec & O_ex_ready;
 
     wire dec_enable = O_dec_valid & O_if_valid;
-    wire dec_flush = (O_flush | dec_buble) | (O_ex_bru_taken & O_ls_ready & O_if_valid);
+    wire dec_flush = ((O_flush | (O_ex_bru_taken & O_ls_ready)) & O_if_valid) | dec_buble;
     pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
@@ -565,7 +564,7 @@ module riscv_ic
     );
 
     wire ex_enable = (O_ex_valid & O_if_valid) | dec_buble;
-    wire ex_flush = O_flush;
+    wire ex_flush = O_flush & O_if_valid;
     pipeline_ex_ls u_pipeline_ex_ls
     (
         .clk                    (clk                        ),
@@ -610,7 +609,7 @@ module riscv_ic
     );
 
     wire ls_enable = (O_ls_valid & O_ex_valid & O_if_valid) | dec_buble;
-    wire ls_flush = O_flush;
+    wire ls_flush = O_flush & O_if_valid;
     pipeline_ls_wb u_pipeline_ls_wb
     (
         .clk                    (clk                        ),

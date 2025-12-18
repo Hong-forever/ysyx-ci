@@ -12,7 +12,6 @@ module wbu
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
     
-    input   wire                        I_valid,
     output  wire                        O_ready,
 
     // regfile
@@ -70,8 +69,6 @@ module wbu
         .I_inst                 (I_inst                     ),
         .I_inst_addr            (I_inst_addr                ),
 
-        .I_valid                (I_valid                    ),
-
         .I_rs1_raddr            (I_rs1_raddr                ),
         .I_rs2_raddr            (I_rs2_raddr                ),
 
@@ -120,8 +117,6 @@ module wbu
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-
-        .I_valid                (I_valid                    ),
 
         .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
@@ -200,7 +195,7 @@ module wbu
 
     always @(*) begin
 
-        if((inst_r1 != `ZeroWord && inst_addr_r1 != `ZeroWord) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1)) begin
+        if((inst_r1 != `ZeroWord && inst_addr_r1 != `ZeroWord) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
             cpu_value
             (
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 
