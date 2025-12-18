@@ -6,20 +6,20 @@ module top
     input   wire                        rst_n
 );
     wire ibus_req;
+    wire ibus_ready;
     wire ibus_we;
     wire [`MemAddrBus] ibus_addr;
     wire [`MemDataBus] ibus_wdata;
     wire [`DBUS_MASK-1:0] ibus_mask;
     wire [`MemDataBus] ibus_rdata;
-    wire ibus_ready;
 
     wire dbus_req;
+    wire dbus_ready;
     wire dbus_we;
     wire [`MemAddrBus] dbus_addr;
     wire [`MemDataBus] dbus_wdata;
     wire [`DBUS_MASK-1:0] dbus_mask;
     wire [`MemDataBus] dbus_rdata;
-    wire dbus_ready;
 
     wire [`INT_BUS    ] inq;
     wire timer_int;
@@ -35,6 +35,7 @@ module top
 
         //ibus
         .O_ibus_req             (ibus_req                   ),
+        .I_ibus_ready           (ibus_ready                 ),
         .O_ibus_we              (ibus_we                    ),
         .O_ibus_addr            (ibus_addr                  ),
         .O_ibus_data            (ibus_wdata                 ),
@@ -58,14 +59,31 @@ module top
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
+    reg [3:0] ibus_req_r;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            ibus_req_r <= 1'b0;
+        end else begin
+            ibus_req_r <= {ibus_req_r[2:0], ibus_req};
+        end
+    end
+
     reg [`InstBus] inst;
+    reg inst_ready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             inst <= `ZeroWord;
-        end else if(ibus_req) begin
+            inst_ready <= 1'b0;
+        end else if(ibus_req_r[3]) begin
             inst <= paddr_read(ibus_addr);
+            inst_ready <= 1'b1;
+        end else begin
+            inst <= `ZeroWord;
+            inst_ready <= 1'b0;
         end
     end
+    assign ibus_rdata = inst;
+    assign ibus_ready = inst_ready;
 
     reg [`MemDataBus] data;
     always @(posedge clk or negedge rst_n) begin
@@ -77,7 +95,7 @@ module top
             paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
         end
     end
-    assign ibus_rdata = inst;
+
     assign dbus_rdata = data;
 
     `define SERIAL_MMIO 32'h1000_0000

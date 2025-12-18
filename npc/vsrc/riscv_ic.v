@@ -11,6 +11,7 @@ module riscv_ic
 
     //ibus
     output  wire                        O_ibus_req,
+    input   wire                        I_ibus_ready,
     output  wire                        O_ibus_we,
     output  wire    [`InstAddrBus    ]  O_ibus_addr,
     output  wire    [`InstBus        ]  O_ibus_data,
@@ -239,6 +240,7 @@ module riscv_ic
         .O_valid                (O_if_valid                 ),
         
         .O_ibus_req             (O_ibus_req                 ),
+        .I_ibus_ready           (I_ibus_ready               ),
         .O_ibus_we              (O_ibus_we                  ),
         .O_ibus_addr            (O_ibus_addr                ),
         .O_ibus_data            (O_ibus_data                ),
