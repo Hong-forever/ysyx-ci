@@ -12,7 +12,6 @@ module wbu
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
     
-    input   wire                        I_valid,
     output  wire                        O_ready,
 
     // regfile
@@ -118,8 +117,6 @@ module wbu
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-
-        .I_valid                (I_valid                    ),
 
         .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
