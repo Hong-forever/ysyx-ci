@@ -129,13 +129,14 @@ module decoder
     wire inst_is_type_b = (opcode == `RV32I_OP_TYPE_B);
     wire inst_is_type_s = (opcode == `RV32I_OP_TYPE_S);
     wire inst_is_type_l = (opcode == `RV32I_OP_TYPE_IL);
-    wire inst_is_csr = (opcode == `RV_OP_CSR);
-    wire inst_is_csrrw = inst_is_csr & (funct3 == `RV_F3_CSRRW);
-    wire inst_is_csrrs = inst_is_csr & (funct3 == `RV_F3_CSRRS);
-    wire inst_is_csrrc = inst_is_csr & (funct3 == `RV_F3_CSRRC);
-    wire inst_is_csrrwi = inst_is_csr & (funct3 == `RV_F3_CSRRWI);
-    wire inst_is_csrrsi = inst_is_csr & (funct3 == `RV_F3_CSRRSI);
-    wire inst_is_csrrci = inst_is_csr & (funct3 == `RV_F3_CSRRCI);
+    
+    wire inst_is_csrrw = (opcode == `RV_OP_CSR) & (funct3 == `RV_F3_CSRRW);
+    wire inst_is_csrrs = (opcode == `RV_OP_CSR) & (funct3 == `RV_F3_CSRRS);
+    wire inst_is_csrrc = (opcode == `RV_OP_CSR) & (funct3 == `RV_F3_CSRRC);
+    wire inst_is_csrrwi = (opcode == `RV_OP_CSR) & (funct3 == `RV_F3_CSRRWI);
+    wire inst_is_csrrsi = (opcode == `RV_OP_CSR) & (funct3 == `RV_F3_CSRRSI);
+    wire inst_is_csrrci = (opcode == `RV_OP_CSR) & (funct3 == `RV_F3_CSRRCI);
+    wire inst_is_csr = inst_is_csrrw | inst_is_csrrs | inst_is_csrrc | inst_is_csrrwi | inst_is_csrrsi | inst_is_csrrci;
 
     wire rs1_re = inst_is_type_l | inst_is_type_i | inst_is_type_s | inst_is_type_r_m | inst_is_type_b | inst_is_jalr | inst_is_jal | inst_is_csrrw | inst_is_csrrs | inst_is_csrrc;
     wire rs2_re = inst_is_type_s | inst_is_type_r_m | inst_is_type_b;
