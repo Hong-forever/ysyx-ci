@@ -106,6 +106,9 @@ module top
         end else if(dbus_req_r[`DSTALL_PERIOD-1] & dbus_we) begin
             paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
             data_ready <= 1'b1;
+        end else begin
+            data <= `ZeroWord;
+            data_ready <= 1'b0;
         end
     end
 
