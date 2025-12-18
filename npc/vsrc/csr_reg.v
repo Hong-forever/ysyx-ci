@@ -9,6 +9,8 @@ module csr_reg
     input   wire                        clk,
     input   wire                        rst_n,
 
+    input   wire                        I_valid,
+
     input   wire    [`CSRAddrBus    ]   I_raddr,
     output  wire    [`CSRDataBus    ]   O_rdata,
 
@@ -186,7 +188,7 @@ module csr_reg
     //------------------------------------------------------------------------
     assign O_rdata = rdata1;
 
-    assign O_flush = except_call | except_mret;
+    assign O_flush = (except_call | except_mret) & I_valid;
     assign O_flush_addr =   except_call ? mtvec :
                             except_mret ? mepc  : `ZeroWord;
 
