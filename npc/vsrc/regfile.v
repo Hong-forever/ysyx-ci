@@ -68,7 +68,7 @@ module regfile
                 regs[i] <= `ZeroWord;
             end
         end else begin
-            if((I_rd_we == `Enable) && (I_rd_waddr != `ZeroReg)) begin
+            if((I_rd_we == `Enable) && (I_rd_waddr != `ZeroReg) && I_valid) begin
                 regs[I_rd_waddr] <= I_rd_wdata;
             end
         end
