@@ -183,7 +183,7 @@ module wbu
             inst_addr_r2    <= `ZeroWord;
             pc              <= `ZeroWord;
             skip_r          <= 1'b0;
-        end else begin
+        end else if(I_valid) begin
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
             inst_r2         <= inst_r1;
@@ -200,7 +200,7 @@ module wbu
 
     always @(*) begin
 
-        if((inst_r1 != `ZeroWord && inst_addr_r1 != `ZeroWord) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
+        if((inst_r1 != `ZeroWord && inst_addr_r1 != `ZeroWord) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) && I_valid) begin
             cpu_value
             (
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 
