@@ -478,9 +478,9 @@ module riscv_ic
     // PIPELINE
     //------------------------------------------------------------------------
 
-    // wire if_flush = O_flush | (O_ex_bru_taken & ~O_ls_ready) | (O_dec_ready & ~O_if_valid);
+    // wire if_flush = O_flush | (O_ex_bru_taken & O_ls_ready) | (O_dec_ready & ~O_if_valid);
     wire if_enable = O_if_valid;
-    wire if_flush = (O_flush | (O_ex_bru_taken & ~O_ls_ready)) & O_if_valid;
+    wire if_flush = (O_flush | (O_ex_bru_taken & O_ls_ready)) & O_if_valid;
     pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
@@ -497,7 +497,7 @@ module riscv_ic
     );
 
     wire dec_enable = O_dec_valid & O_if_valid;
-    wire dec_flush = ((O_flush  | stallreq_dec) | (O_ex_bru_taken & ~O_ls_ready)) & O_if_valid;
+    wire dec_flush = ((O_flush  | stallreq_dec) | (O_ex_bru_taken & O_ls_ready)) & O_if_valid;
     pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
