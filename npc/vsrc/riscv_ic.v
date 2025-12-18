@@ -163,8 +163,6 @@ module riscv_ic
     wire [`CSRDataBus ] O_ex_csr_wdata;
     wire [`Except_Bus ] O_ex_except;
 
-    wire                stallreq_ex;
-
     //-------------------------------------------------------------
     // pipeline_ex_ls
     //-------------------------------------------------------------
@@ -197,8 +195,6 @@ module riscv_ic
     wire [`CSRAddrBus ] O_ls_csr_waddr;
     wire [`CSRDataBus ] O_ls_csr_wdata;
     wire [`Except_Bus ] O_ls_except;
-
-    wire                stallreq_ls;
 
     //-------------------------------------------------------------
     // pipeline_ls_wb
@@ -381,8 +377,6 @@ module riscv_ic
         .O_inst_addr            (O_ex_inst_addr             ),
         .O_valid                (O_ex_valid                 ),
 
-        .O_stallreq             (stallreq_ex                ),
-
         .O_rd_we                (O_ex_rd_we                 ),
         .O_rd_waddr             (O_ex_rd_waddr              ),
         .O_rd_wdata             (O_ex_rd_wdata              ),
@@ -431,8 +425,6 @@ module riscv_ic
         .O_csr_waddr            (O_ls_csr_waddr             ),
         .O_csr_wdata            (O_ls_csr_wdata             ),
         .O_except               (O_ls_except                ),
-
-        .O_stallreq             (stallreq_ls                ),
 
         .O_dbus_req             (O_dbus_req                 ),
         .O_dbus_we              (O_dbus_we                  ),
@@ -486,7 +478,9 @@ module riscv_ic
     // PIPELINE
     //------------------------------------------------------------------------
 
-    wire if_flush = O_flush | (O_ex_bru_taken & ~stallreq_ls) | (O_dec_ready & ~O_if_valid);
+    // wire if_flush = O_flush | (O_ex_bru_taken & O_ls_ready) | (O_dec_ready & ~O_if_valid);
+    wire if_enable = O_if_valid;
+    wire if_flush = (O_flush | (O_ex_bru_taken & O_ls_ready)) & O_if_valid;
     pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
@@ -498,11 +492,14 @@ module riscv_ic
         .O_inst                 (I_dec_inst                 ),
         .O_inst_addr            (I_dec_inst_addr            ),
 
-        .I_enable               (O_if_valid                 ),
+        .I_enable               (if_enable                  ),
         .I_flush                (if_flush                   )
     );
 
-    wire dec_flush = (O_flush  | stallreq_dec) | (O_ex_bru_taken & ~stallreq_ls);
+    wire dec_buble = stallreq_dec & O_ex_ready;
+
+    wire dec_enable = O_dec_valid & O_if_valid;
+    wire dec_flush = ((O_flush | (O_ex_bru_taken & O_ls_ready)) & O_if_valid) | dec_buble;
     pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
@@ -562,11 +559,12 @@ module riscv_ic
         .O_csr_re               (I_ex_csr_re                ),
         .O_except               (I_ex_except                ),
 
-        .I_enable               (O_dec_valid                ),
+        .I_enable               (dec_enable                 ),
         .I_flush                (dec_flush                  )
     );
 
-    wire ex_flush = O_flush;
+    wire ex_enable = (O_ex_valid & O_if_valid) | dec_buble;
+    wire ex_flush = O_flush & O_if_valid;
     pipeline_ex_ls u_pipeline_ex_ls
     (
         .clk                    (clk                        ),
@@ -606,11 +604,12 @@ module riscv_ic
         .O_fwd_csr_wdata        (I_ls_fwd_csr_wdata         ),
         .O_except               (I_ls_except                ),
 
-        .I_enable               (O_ex_valid & ~stallreq_ex  ),
+        .I_enable               (ex_enable                  ),
         .I_flush                (ex_flush                   )
     );
 
-    wire ls_flush = O_flush;
+    wire ls_enable = (O_ls_valid & O_ex_valid & O_if_valid) | dec_buble;
+    wire ls_flush = O_flush & O_if_valid;
     pipeline_ls_wb u_pipeline_ls_wb
     (
         .clk                    (clk                        ),
@@ -642,7 +641,7 @@ module riscv_ic
 
         .O_device_skip          (wbu_device_skip            ),
 
-        .I_enable               (O_ls_valid & ~stallreq_ex  ),
+        .I_enable               (ls_enable                  ),
         .I_flush                (ls_flush                   )
     );
 

@@ -76,7 +76,20 @@ module csr_reg
     wire except_sync = is_ecall; // for ysyx
     wire except_async = ext_int_valid & ((|I_int) | (|int_r)) & global_int_enable; 
     wire except_call = except_sync | except_async;
-    wire except_ret = is_mret;
+    wire except_mret = is_mret;
+
+    reg e_sync_r, e_async_r, e_mret_r;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            e_sync_r <= 1'b0;
+            e_async_r <= 1'b0;
+            e_mret_r <= 1'b0;
+        end else begin
+            e_sync_r <= except_sync;
+            e_async_r <= except_async;
+            e_mret_r <= except_mret;
+        end
+    end
     
 
     `define YSYX_LOGO      32'h79737978 //ysyx的logo
@@ -117,15 +130,15 @@ module csr_reg
             mvendorid <= `YSYX_LOGO;
             marchid <= `YSYX_STU_NUM;
         end else begin
-            if(except_async) begin
+            if(except_async & ~e_async_r) begin
                 mepc <= ext_int_addr;
                 mcause <= 32'h80000004; //定时器中断
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_sync) begin
+            end else if(except_sync & ~e_sync_r) begin
                 mepc <= I_except_addr;
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_ret) begin
+            end else if(except_mret & ~e_mret_r) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else begin    
                 if(I_we) begin
@@ -173,9 +186,9 @@ module csr_reg
     //------------------------------------------------------------------------
     assign O_rdata = rdata1;
 
-    assign O_flush = except_call | except_ret;
+    assign O_flush = except_call | except_mret;
     assign O_flush_addr =   except_call ? mtvec :
-                            except_ret  ? mepc  : `ZeroWord;
+                            except_mret ? mepc  : `ZeroWord;
 
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;

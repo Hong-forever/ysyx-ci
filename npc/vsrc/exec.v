@@ -50,8 +50,6 @@ module exec
     output  wire    [`InstAddrBus   ]   O_inst_addr,
     output  wire                        O_valid,
 
-    output  wire                        O_stallreq,
-    
     output  wire                        O_rd_we,
     output  wire    [`RegAddrBus    ]   O_rd_waddr,
     output  wire    [`RegDataBus    ]   O_rd_wdata,
@@ -160,6 +158,8 @@ module exec
     //------------------------------------------------------------------------
     // alu运算
     //------------------------------------------------------------------------
+    wire stallreq;
+
     wire [`RegDataBus] alu_result;
 
     wire mul_ready;
@@ -183,7 +183,7 @@ module exec
     wire stallreq_div = start_div;
     wire annul_div = 0;
 
-    assign O_stallreq = stallreq_div | stallreq_mul;
+    assign stallreq = stallreq_div | stallreq_mul;
 
     exe_alu alu
     (
@@ -257,7 +257,7 @@ module exec
 
     assign O_except = I_except;
 
-    assign O_ready = ~O_stallreq & I_ready;
+    assign O_ready = ~stallreq & I_ready;
     assign O_valid = O_ready;
 
 `ifdef DPIC

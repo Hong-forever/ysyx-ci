@@ -39,8 +39,6 @@ module lsu
     output  wire    [`CSRDataBus    ]   O_csr_wdata,
     output  wire    [`Except_Bus    ]   O_except,
 
-    output  wire                        O_stallreq,
-
     //to bus
     output  wire                        O_dbus_req,
     output  wire                        O_dbus_we,
@@ -84,6 +82,7 @@ module lsu
     // 地址明辨
     wire [1:0] memory_byte_addr = I_memory_addr[1:0];
 
+    wire stallreq;
     //------------------------------------------------------------------------
     // 访存逻辑
     //------------------------------------------------------------------------
@@ -234,16 +233,16 @@ module lsu
 
     assign O_except = I_except;
 
-    assign O_dbus_req = I_ls_valid;
+    assign O_dbus_req = (state == IDLE) & I_ls_valid;
     assign O_dbus_we = I_ls_type[`ls_diff_width-1];
     assign O_dbus_addr = I_memory_addr;
     assign O_dbus_mask = dbus_mask;
 
     assign O_dbus_data = dbus_data;
 
-    assign O_stallreq = (state == IDLE) & I_ls_valid;
+    assign stallreq = O_dbus_req;
 
-    assign O_ready = I_ready & ~O_stallreq;
+    assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
 
 
