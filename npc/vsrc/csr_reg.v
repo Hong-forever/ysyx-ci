@@ -119,15 +119,15 @@ module csr_reg
             mvendorid <= `YSYX_LOGO;
             marchid <= `YSYX_STU_NUM;
         end else begin
-            if(except_async & I_valid) begin
+            if(except_async & ~I_valid) begin
                 mepc <= ext_int_addr;
                 mcause <= 32'h80000004; //定时器中断
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_sync & I_valid) begin
+            end else if(except_sync & ~I_valid) begin
                 mepc <= I_except_addr;
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_mret & I_valid) begin
+            end else if(except_mret & ~I_valid) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else begin    
                 if(I_we) begin
