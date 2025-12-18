@@ -73,6 +73,10 @@ module ifetch
                     ibus_req = 1'b0;
                     nstate = I_ready ? IDLE : EXE;
                 end
+                default: begin
+                    ibus_req = 1'b0;
+                    nstate = IDLE;
+                end
             endcase
         end
     end

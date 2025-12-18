@@ -20,11 +20,13 @@ module riscv_ic
 
     //dbus
     output  wire                        O_dbus_req,
+    input   wire                        I_dbus_ready,
     output  wire                        O_dbus_we,
     output  wire    [`MemAddrBus    ]   O_dbus_addr,
     output  wire    [`MemDataBus    ]   O_dbus_data,
     output  wire    [`DBUS_MASK-1:0 ]   O_dbus_mask,
     input   wire    [`MemDataBus    ]   I_dbus_data,
+
     input   wire                        device_skip,
 
     //from peripheral
@@ -429,6 +431,7 @@ module riscv_ic
         .O_except               (O_ls_except                ),
 
         .O_dbus_req             (O_dbus_req                 ),
+        .I_dbus_ready           (I_dbus_ready               ),
         .O_dbus_we              (O_dbus_we                  ),
         .O_dbus_addr            (O_dbus_addr                ),
         .O_dbus_data            (O_dbus_data                ),

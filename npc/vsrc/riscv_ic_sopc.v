@@ -44,6 +44,7 @@ module top
 
         //dbus
         .O_dbus_req             (dbus_req                   ),
+        .I_dbus_ready           (dbus_ready                 ),
         .O_dbus_we              (dbus_we                    ),
         .O_dbus_addr            (dbus_addr                  ),
         .O_dbus_data            (dbus_wdata                 ),
@@ -59,12 +60,20 @@ module top
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    reg [3:0] ibus_req_r;
+    `define ISTALL_PERIOD 4
+    `define DSTALL_PERIOD 3
+
+    reg [`ISTALL_PERIOD-1:0] ibus_req_r;
+    reg [`DSTALL_PERIOD-1:0] dbus_req_r;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            ibus_req_r <= 1'b0;
+            ibus_req_r <= 0;
+            dbus_req_r <= 0;
         end else begin
-            ibus_req_r <= {ibus_req_r[2:0], ibus_req};
+            if(`ISTALL_PERIOD > 1) ibus_req_r <= {ibus_req_r[`ISTALL_PERIOD-2:0], ibus_req};
+            else                   ibus_req_r <= {ibus_req};
+            if(`DSTALL_PERIOD > 1) dbus_req_r <= {dbus_req_r[`DSTALL_PERIOD-2:0], dbus_req};
+            else                   dbus_req_r <= {dbus_req};
         end
     end
 
@@ -86,17 +95,22 @@ module top
     assign ibus_ready = inst_ready;
 
     reg [`MemDataBus] data;
+    reg data_ready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             data <= `ZeroWord;
-        end else if(dbus_req & ~dbus_we) begin
+            data_ready <= 1'b0;
+        end else if(dbus_req_r[`DSTALL_PERIOD-1] & ~dbus_we) begin
             data <= paddr_read(dbus_addr);
-        end else if(dbus_req & dbus_we) begin
+            data_ready <= 1'b1;
+        end else if(dbus_req_r[`DSTALL_PERIOD-1] & dbus_we) begin
             paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
+            data_ready <= 1'b1;
         end
     end
 
     assign dbus_rdata = data;
+    assign dbus_ready = data_ready;
 
     `define SERIAL_MMIO 32'h1000_0000
     `define RTC_MMIO    32'h2000_0000
