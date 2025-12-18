@@ -216,6 +216,8 @@ module lsu
 
     always @(*) begin
         if(!rst_n) begin
+            dbus_req = 1'b0;
+            stallreq = 1'b0;
             nstate = IDLE;
         end else begin
             case(state)
@@ -225,8 +227,8 @@ module lsu
                     nstate = MEM;
                 end
                 MEM: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b1;
+                    dbus_req = I_ls_valid;
+                    stallreq = I_ls_valid;
                     nstate = I_ls_valid ? (I_dbus_ready ? WB : MEM) : IDLE;
                 end
                 WB: begin

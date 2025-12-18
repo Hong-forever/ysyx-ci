@@ -76,7 +76,7 @@ module ifetch
                 default: begin
                     ibus_req = 1'b0;
                     nstate = IDLE;
-                end
+                end 
             endcase
         end
     end
