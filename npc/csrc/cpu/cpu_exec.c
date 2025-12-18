@@ -124,7 +124,7 @@ extern "C" void trap(int reg_data, int halt_pc)
     npc_state.halt_pc = halt_pc;
     npc_state.halt_ret = reg_data + 1;
     npc_state.state = NPC_END;
-    printf("Total cycles: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
+    // printf("Total cycles: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
 }
 
 extern TOP_NAME *top ;
