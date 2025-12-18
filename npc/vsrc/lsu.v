@@ -204,8 +204,8 @@ module lsu
 
     parameter IDLE = 0;
     parameter MEM  = 1;
-    parameter IMEM = 2;
-    parameter DMEM = 3;
+    parameter DMEM = 2;
+    parameter IMEM = 3;
     parameter WB   = 4;
 
     reg dbus_req, stallreq;
@@ -233,17 +233,17 @@ module lsu
                 MEM: begin
                     dbus_req = 1'b0;
                     stallreq = 1'b1;
-                    nstate = I_ibus_ready ? IMEM : (I_dbus_ready ? DMEM : MEM);
-                end
-                IMEM: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b1;
-                    nstate = I_dbus_ready ? WB : IMEM;
+                    nstate = I_ibus_ready ? DMEM : (I_dbus_ready ? IMEM : MEM);
                 end
                 DMEM: begin
                     dbus_req = 1'b0;
                     stallreq = 1'b1;
-                    nstate = I_ibus_ready ? IDLE : DMEM;
+                    nstate = I_dbus_ready ? WB : DMEM;
+                end
+                IMEM: begin
+                    dbus_req = 1'b0;
+                    stallreq = 1'b0;
+                    nstate = I_ibus_ready ? IDLE : IMEM;
                 end
                 WB: begin
                     dbus_req = 1'b0;
