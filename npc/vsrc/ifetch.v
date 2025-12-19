@@ -91,12 +91,12 @@ module ifetch
         end
     end
 
-    reg [`InstBus] ibus_rdata_r;
+    reg [`InstBus] inst;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            ibus_rdata_r <= `ZeroWord;
+            inst <= `ZeroWord;
         end else if(ibus_respValid) begin
-            ibus_rdata_r <= ibus_rdata;
+            inst <= ibus_rdata;
         end
     end
 
@@ -118,7 +118,7 @@ module ifetch
     
     assign pc_plus4 = pc + 32'h4;
 
-    assign O_inst = ibus_rdata_r;
+    assign O_inst = inst;
     assign O_inst_addr = pc;
     assign O_valid = I_ready & state == EXE;
     

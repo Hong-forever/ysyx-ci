@@ -55,32 +55,32 @@ module lsu
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
-    reg [`MemDataBus] dbus_rdata_r;
+    reg [`MemDataBus] rdata;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            dbus_rdata_r <= 0;
+            rdata <= 0;
         end else if(dbus_respValid) begin
-            dbus_rdata_r <= dbus_rdata;
+            rdata <= dbus_rdata;
         end
     end
 
-    wire [`MemDataBus] lb_00_res = {{24{dbus_rdata_r[7]}},  dbus_rdata_r[7:0]};
-    wire [`MemDataBus] lb_01_res = {{24{dbus_rdata_r[15]}}, dbus_rdata_r[15:8]};
-    wire [`MemDataBus] lb_10_res = {{24{dbus_rdata_r[23]}}, dbus_rdata_r[23:16]};
-    wire [`MemDataBus] lb_11_res = {{24{dbus_rdata_r[31]}}, dbus_rdata_r[31:24]};
+    wire [`MemDataBus] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
+    wire [`MemDataBus] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
+    wire [`MemDataBus] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
+    wire [`MemDataBus] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
 
-    wire [`MemDataBus] lh_00_res = {{16{dbus_rdata_r[15]}}, dbus_rdata_r[15:0]};
-    wire [`MemDataBus] lh_10_res = {{16{dbus_rdata_r[31]}}, dbus_rdata_r[31:16]};
+    wire [`MemDataBus] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
+    wire [`MemDataBus] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
 
-    wire [`MemDataBus] lw_res = dbus_rdata_r;
+    wire [`MemDataBus] lw_res = rdata;
 
-    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, dbus_rdata_r[7:0]};
-    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, dbus_rdata_r[15:8]};
-    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, dbus_rdata_r[23:16]};
-    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, dbus_rdata_r[31:24]};
+    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
+    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
+    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
+    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
 
-    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, dbus_rdata_r[15:0]};
-    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, dbus_rdata_r[31:16]};
+    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
+    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
 
     wire [`MemDataBus] sb_00_res = {24'b0, I_store_data[7:0]};
     wire [`MemDataBus] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
