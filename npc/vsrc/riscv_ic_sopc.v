@@ -60,7 +60,7 @@ module top
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    `define ISTALL_PERIOD 2
+    `define ISTALL_PERIOD 4
     `define DSTALL_PERIOD 2
 
     reg [`ISTALL_PERIOD-1:0] ibus_req_r;
