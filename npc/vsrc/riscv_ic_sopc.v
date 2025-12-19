@@ -60,20 +60,56 @@ module top
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    `define ISTALL_PERIOD 5
-    `define DSTALL_PERIOD 2
+    `define RAMDOM_WIDTH 8
+    wire [`RAMDOM_WIDTH-1:0] irandom,drandom;
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h2                       ),
+        .O_random               (irandom                    )
+    );
 
-    reg [`ISTALL_PERIOD-1:0] ibus_req_r;
-    reg [`DSTALL_PERIOD-1:0] dbus_req_r;
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) dlfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h3                       ),
+        .O_random               (drandom                    )
+    );
+
+    reg ireq, dreq;
+    reg [`RAMDOM_WIDTH-1:0] iramdom_r, dramdom_r;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            ibus_req_r <= 0;
-            dbus_req_r <= 0;
+            ireq <= 1'b0;
+            dreq <= 1'b0;
+            iramdom_r <= 0;
+            dramdom_r <= 0;
         end else begin
-            if(`ISTALL_PERIOD > 1) ibus_req_r <= {ibus_req_r[`ISTALL_PERIOD-2:0], ibus_req};
-            else                   ibus_req_r <= {ibus_req};
-            if(`DSTALL_PERIOD > 1) dbus_req_r <= {dbus_req_r[`DSTALL_PERIOD-2:0], dbus_req};
-            else                   dbus_req_r <= {dbus_req};
+            if(ibus_req) begin
+                ireq <= 1'b0;
+                iramdom_r <= irandom;
+            end else begin
+                iramdom_r <= iramdom_r - 1;
+                if(iramdom_r == 0) begin
+                    ireq <= 1'b1;
+                end
+            end
+
+            if(dbus_req) begin
+                dreq <= 1'b0;
+                dramdom_r <= drandom;
+            end else begin
+                dramdom_r <= dramdom_r - 1;
+                if(dramdom_r == 0) begin
+                    dreq <= 1'b1;
+                end
+            end
         end
     end
 
@@ -83,7 +119,7 @@ module top
         if(!rst_n) begin
             inst <= `ZeroWord;
             inst_ready <= 1'b0;
-        end else if(ibus_req_r[`ISTALL_PERIOD-1]) begin
+        end else if(ireq) begin
             inst <= paddr_read(ibus_addr);
             inst_ready <= 1'b1;
         end else begin
@@ -100,10 +136,10 @@ module top
         if(!rst_n) begin
             data <= `ZeroWord;
             data_ready <= 1'b0;
-        end else if(dbus_req_r[`DSTALL_PERIOD-1] & ~dbus_we) begin
+        end else if(dreq & ~dbus_we) begin
             data <= paddr_read(dbus_addr);
             data_ready <= 1'b1;
-        end else if(dbus_req_r[`DSTALL_PERIOD-1] & dbus_we) begin
+        end else if(dreq & dbus_we) begin
             paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
             data_ready <= 1'b1;
         end else begin
