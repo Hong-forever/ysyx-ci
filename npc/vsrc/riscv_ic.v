@@ -10,22 +10,27 @@ module riscv_ic
     input   wire                        rst_n,
 
     //ibus
-    output  wire                        O_ibus_req,
-    input   wire                        I_ibus_ready,
-    output  wire                        O_ibus_we,
-    output  wire    [`InstAddrBus    ]  O_ibus_addr,
-    output  wire    [`InstBus        ]  O_ibus_data,
-    output  wire    [`DBUS_MASK-1:0  ]  O_ibus_mask,
-    input   wire    [`InstBus        ]  I_ibus_data,
+    output  wire                        ibus_reqValid,
+    input   wire                        ibus_reqReady,
+    input   wire                        ibus_respValid,
+    output  wire                        ibus_respReady,
+    output  wire                        ibus_we,
+    output  wire    [`InstAddrBus   ]   ibus_addr,
+    input   wire    [`InstBus       ]   ibus_rdata,
+    output  wire    [`InstBus       ]   ibus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   ibus_mask,
 
     //dbus
-    output  wire                        O_dbus_req,
-    input   wire                        I_dbus_ready,
-    output  wire                        O_dbus_we,
-    output  wire    [`MemAddrBus    ]   O_dbus_addr,
-    output  wire    [`MemDataBus    ]   O_dbus_data,
-    output  wire    [`DBUS_MASK-1:0 ]   O_dbus_mask,
-    input   wire    [`MemDataBus    ]   I_dbus_data,
+    output  wire                        dbus_reqValid,
+    input   wire                        dbus_reqReady,
+    input   wire                        dbus_respValid,
+    output  wire                        dbus_respReady,
+    output  wire                        dbus_we,
+    output  wire    [`MemAddrBus    ]   dbus_addr,
+    input   wire    [`MemDataBus    ]   dbus_rdata,
+    output  wire    [`MemDataBus    ]   dbus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   dbus_mask,
+
 
     input   wire                        device_skip,
 
@@ -241,13 +246,16 @@ module riscv_ic
         .O_inst_addr            (O_if_inst_addr             ),
         .O_valid                (O_if_valid                 ),
         
-        .O_ibus_req             (O_ibus_req                 ),
-        .I_ibus_ready           (I_ibus_ready               ),
-        .O_ibus_we              (O_ibus_we                  ),
-        .O_ibus_addr            (O_ibus_addr                ),
-        .O_ibus_data            (O_ibus_data                ),
-        .O_ibus_mask            (O_ibus_mask                ),
-        .I_ibus_data            (I_ibus_data                )
+        //to bus
+        .ibus_reqValid          (ibus_reqValid              ),
+        .ibus_reqReady          (ibus_reqReady              ),
+        .ibus_respValid         (ibus_respValid             ),
+        .ibus_respReady         (ibus_respReady             ),
+        .ibus_we                (ibus_we                    ),
+        .ibus_addr              (ibus_addr                  ),
+        .ibus_rdata             (ibus_rdata                 ),
+        .ibus_wdata             (ibus_wdata                 ),
+        .ibus_mask              (ibus_mask                  )
     );
 
 
@@ -431,13 +439,15 @@ module riscv_ic
         .O_csr_wdata            (O_ls_csr_wdata             ),
         .O_except               (O_ls_except                ),
 
-        .O_dbus_req             (O_dbus_req                 ),
-        .I_dbus_ready           (I_dbus_ready               ),
-        .O_dbus_we              (O_dbus_we                  ),
-        .O_dbus_addr            (O_dbus_addr                ),
-        .O_dbus_data            (O_dbus_data                ),
-        .O_dbus_mask            (O_dbus_mask                ),
-        .I_dbus_data            (I_dbus_data                )
+        .dbus_reqValid          (dbus_reqValid              ),
+        .dbus_reqReady          (dbus_reqReady              ),
+        .dbus_respValid         (dbus_respValid             ),
+        .dbus_respReady         (dbus_respReady             ),
+        .dbus_we                (dbus_we                    ),
+        .dbus_addr              (dbus_addr                  ),
+        .dbus_rdata             (dbus_rdata                 ),
+        .dbus_wdata             (dbus_wdata                 ),
+        .dbus_mask              (dbus_mask                  )
     );
 
     wbu u_wbu

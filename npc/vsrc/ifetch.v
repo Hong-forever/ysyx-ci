@@ -22,13 +22,15 @@ module ifetch
     output  wire                        O_valid,
 
     //to bus
-    output  wire                        O_ibus_req,
-    input   wire                        I_ibus_ready,
-    output  wire                        O_ibus_we,
-    output  wire    [`InstAddrBus   ]   O_ibus_addr,
-    output  wire    [`InstBus       ]   O_ibus_data,
-    output  wire    [`DBUS_MASK-1:0 ]   O_ibus_mask,
-    input   wire    [`InstBus       ]   I_ibus_data
+    output  wire                        ibus_reqValid,
+    input   wire                        ibus_reqReady,
+    input   wire                        ibus_respValid,
+    output  wire                        ibus_respReady,
+    output  wire                        ibus_we,
+    output  wire    [`InstAddrBus   ]   ibus_addr,
+    input   wire    [`InstBus       ]   ibus_rdata,
+    output  wire    [`InstBus       ]   ibus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   ibus_mask
 
 );
 
@@ -41,7 +43,7 @@ module ifetch
     parameter EXE = 2;
     reg [1:0] state, nstate;
 
-    reg ibus_req;
+    reg inst_reqValid;
 
     reg [`InstAddrBus] pc;
     wire [`InstAddrBus] pc_plus4;
@@ -57,24 +59,24 @@ module ifetch
 
     always @(*) begin
         if(!rst_n) begin
-            ibus_req = 1'b1;
+            inst_reqValid = 1'b1;
             nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    ibus_req = 1'b1;
-                    nstate = MEM;
+                    inst_reqValid = 1'b1;
+                    nstate = ibus_reqReady ? MEM : IDLE;
                 end
                 MEM: begin
-                    ibus_req = 1'b0;
-                    nstate = I_ibus_ready ? EXE : MEM;
+                    inst_reqValid = 1'b0;
+                    nstate = ibus_respValid ? EXE : MEM;
                 end
                 EXE: begin
-                    ibus_req = 1'b0;
+                    inst_reqValid = 1'b0;
                     nstate = I_ready ? IDLE : EXE;
                 end
                 default: begin
-                    ibus_req = 1'b0;
+                    inst_reqValid = 1'b0;
                     nstate = IDLE;
                 end 
             endcase
@@ -89,12 +91,23 @@ module ifetch
         end
     end
 
-    reg [`InstBus] ibus_data;
+    reg [`InstBus] ibus_rdata_r;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            ibus_data <= `ZeroWord;
-        end else if(I_ibus_ready) begin
-            ibus_data <= I_ibus_data;
+            ibus_rdata_r <= `ZeroWord;
+        end else if(ibus_respValid) begin
+            ibus_rdata_r <= ibus_rdata;
+        end
+    end
+
+    reg inst_respReady;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            inst_respReady <= 1'b0;
+        end else if(ibus_respValid) begin
+            inst_respReady <= 1'b1;
+        end else begin
+            inst_respReady <= 1'b0;
         end
     end
 
@@ -105,16 +118,17 @@ module ifetch
     
     assign pc_plus4 = pc + 32'h4;
 
-    assign O_inst = ibus_data;
+    assign O_inst = ibus_rdata_r;
     assign O_inst_addr = pc;
     assign O_valid = I_ready & state == EXE;
     
 
-    assign O_ibus_req = ibus_req;
-    assign O_ibus_we = `False;
-    assign O_ibus_addr = pc;
-    assign O_ibus_data = `ZeroWord;
-    assign O_ibus_mask = 4'b1111;
+    assign ibus_reqValid = inst_reqValid;
+    assign ibus_respReady = inst_respReady;
+    assign ibus_we = `False;
+    assign ibus_addr = pc;
+    assign ibus_wdata = `ZeroWord;
+    assign ibus_mask = 4'b1111;
 
 
 endmodule
