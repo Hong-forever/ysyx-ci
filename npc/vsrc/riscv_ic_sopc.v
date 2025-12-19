@@ -61,7 +61,7 @@ module top
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
     `define RAMDOM_WIDTH 8
-    wire [`RAMDOM_WIDTH-1:0] irandom,drandom;
+    wire [`RAMDOM_WIDTH-1:0] irandom, irandom2, drandom, drandom2;
     lfsr #(
         .WIDTH                  (`RAMDOM_WIDTH              )      
     ) ilfsr_inst
@@ -81,28 +81,48 @@ module top
         .I_seed                 (8'h3                       ),
         .O_random               (drandom                    )
     );
+    
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst2
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h4                       ),
+        .O_random               (irandom2                   )
+    );
 
-    reg ireq, dreq, iflag, dflag;
-    reg [`RAMDOM_WIDTH-1:0] iramdom_r, dramdom_r;
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) dlfsr_inst2
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h5                       ),
+        .O_random               (drandom2                   )
+    );
+
+    reg ireq, dreq, ireq_flag, dreq_flag;
+    reg [`RAMDOM_WIDTH-1:0] irandom_req, drandom_req;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             ireq <= 1'b0;
-            iflag <= 1'b0;
+            ireq_flag <= 1'b0;
             dreq <= 1'b0;
-            dflag <= 1'b0;
-            iramdom_r <= 0;
-            dramdom_r <= 0;
+            dreq_flag <= 1'b0;
+            irandom_req <= 0;
+            drandom_req <= 0;
         end else begin
             if(ibus_req) begin
                 ireq <= 1'b0;
-                iramdom_r <= irandom;
-                iflag <= 1'b1;
+                irandom_req <= irandom;
+                ireq_flag <= 1'b1;
             end else begin
-                if(iflag) begin
-                    iramdom_r <= iramdom_r - 1;
-                    if(iramdom_r == 0) begin
+                if(ireq_flag) begin
+                    irandom_req <= irandom_req - 1;
+                    if(irandom_req == 0) begin
                         ireq <= 1'b1;
-                        iflag <= 1'b0;
+                        ireq_flag <= 1'b0;
                     end
                 end else begin
                     ireq <= 1'b0;
@@ -111,14 +131,14 @@ module top
 
             if(dbus_req) begin
                 dreq <= 1'b0;
-                dramdom_r <= drandom;
-                dflag <= 1'b1;
+                drandom_req <= drandom;
+                dreq_flag <= 1'b1;
             end else begin
-                if(dflag) begin
-                    dramdom_r <= dramdom_r - 1;
-                    if(dramdom_r == 0) begin
+                if(dreq_flag) begin
+                    drandom_req <= drandom_req - 1;
+                    if(drandom_req == 0) begin
                         dreq <= 1'b1;
-                        dflag <= 1'b0;
+                        dreq_flag <= 1'b0;
                     end
                 end else begin
                     dreq <= 1'b0;
@@ -141,8 +161,6 @@ module top
             inst_ready <= 1'b0;
         end
     end
-    assign ibus_rdata = inst;
-    assign ibus_ready = inst_ready;
 
     reg [`MemDataBus] data;
     reg data_ready;
@@ -162,8 +180,66 @@ module top
         end
     end
 
-    assign dbus_rdata = data;
-    assign dbus_ready = data_ready;
+    reg irdy, drdy, irdy_flag, drdy_flag;
+    reg [`RAMDOM_WIDTH-1:0] irandom_rdy, drandom_rdy;
+    reg [`InstBus] inst_rdy;
+    reg [`MemDataBus] data_rdy;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            irdy <= 1'b0;
+            irdy_flag <= 1'b0;
+            drdy <= 1'b0;
+            drdy_flag <= 1'b0;
+            irandom_rdy <= 0;
+            drandom_rdy <= 0;
+            inst_rdy <= `ZeroWord;
+            data_rdy <= `ZeroWord;
+        end else begin
+            if(inst_ready) begin
+                irdy <= 1'b0;
+                irandom_rdy <= irandom2;
+                irdy_flag <= 1'b1;
+                inst_rdy <= `ZeroWord;
+            end else begin
+                if(irdy_flag) begin
+                    irandom_rdy <= irandom_rdy - 1;
+                    if(irandom_rdy == 0) begin
+                        irdy <= 1'b1;
+                        irdy_flag <= 1'b0;
+                        inst_rdy <= inst;
+                    end
+                end else begin
+                    irdy <= 1'b0;
+                    inst_rdy <= `ZeroWord;
+                end
+            end
+
+            if(data_ready) begin
+                drdy <= 1'b0;
+                drandom_rdy <= drandom2;
+                drdy_flag <= 1'b1;
+                data_rdy <= `ZeroWord;
+            end else begin
+                if(drdy_flag) begin
+                    drandom_rdy <= drandom_rdy - 1;
+                    if(drandom_rdy == 0) begin
+                        drdy <= 1'b1;
+                        drdy_flag <= 1'b0;
+                        data_rdy <= data;
+                    end
+                end else begin
+                    drdy <= 1'b0;
+                    data_rdy <= `ZeroWord;
+                end
+            end
+        end
+    end
+
+    assign ibus_rdata = inst_rdy;
+    assign ibus_ready = irdy;
+
+    assign dbus_rdata = data_rdy;
+    assign dbus_ready = drdy;
 
     `define SERIAL_MMIO 32'h1000_0000
     `define RTC_MMIO    32'h2000_0000
