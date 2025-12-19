@@ -82,32 +82,46 @@ module top
         .O_random               (drandom                    )
     );
 
-    reg ireq, dreq;
+    reg ireq, dreq, iflag, dflag;
     reg [`RAMDOM_WIDTH-1:0] iramdom_r, dramdom_r;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             ireq <= 1'b0;
+            iflag <= 1'b0;
             dreq <= 1'b0;
+            dflag <= 1'b0;
             iramdom_r <= 0;
             dramdom_r <= 0;
         end else begin
             if(ibus_req) begin
                 ireq <= 1'b0;
                 iramdom_r <= irandom;
+                iflag <= 1'b1;
             end else begin
-                iramdom_r <= iramdom_r - 1;
-                if(iramdom_r == 0) begin
-                    ireq <= 1'b1;
+                if(iflag) begin
+                    iramdom_r <= iramdom_r - 1;
+                    if(iramdom_r == 0) begin
+                        ireq <= 1'b1;
+                        iflag <= 1'b0;
+                    end
+                end else begin
+                    ireq <= 1'b0;
                 end
             end
 
             if(dbus_req) begin
                 dreq <= 1'b0;
                 dramdom_r <= drandom;
+                dflag <= 1'b1;
             end else begin
-                dramdom_r <= dramdom_r - 1;
-                if(dramdom_r == 0) begin
-                    dreq <= 1'b1;
+                if(dflag) begin
+                    dramdom_r <= dramdom_r - 1;
+                    if(dramdom_r == 0) begin
+                        dreq <= 1'b1;
+                        dflag <= 1'b0;
+                    end
+                end else begin
+                    dreq <= 1'b0;
                 end
             end
         end
