@@ -147,7 +147,7 @@ module top
         end
     end
 
-    reg [`InstBus] inst;
+    reg [`InstBus] inst, inst_r;
     reg inst_ready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
@@ -162,7 +162,7 @@ module top
         end
     end
 
-    reg [`MemDataBus] data;
+    reg [`MemDataBus] data, data_r;
     reg data_ready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
@@ -192,6 +192,8 @@ module top
             drdy_flag <= 1'b0;
             irandom_rdy <= 0;
             drandom_rdy <= 0;
+            inst_r <= `ZeroWord;
+            data_r <= `ZeroWord;
             inst_rdy <= `ZeroWord;
             data_rdy <= `ZeroWord;
         end else begin
@@ -199,6 +201,7 @@ module top
                 irdy <= 1'b0;
                 irandom_rdy <= irandom2;
                 irdy_flag <= 1'b1;
+                inst_r <= inst;
                 inst_rdy <= `ZeroWord;
             end else begin
                 if(irdy_flag) begin
@@ -206,7 +209,8 @@ module top
                     if(irandom_rdy == 0) begin
                         irdy <= 1'b1;
                         irdy_flag <= 1'b0;
-                        inst_rdy <= inst;
+                        inst_r <= `ZeroWord;
+                        inst_rdy <= inst_r;
                     end
                 end else begin
                     irdy <= 1'b0;
@@ -218,6 +222,7 @@ module top
                 drdy <= 1'b0;
                 drandom_rdy <= drandom2;
                 drdy_flag <= 1'b1;
+                data_r <= data;
                 data_rdy <= `ZeroWord;
             end else begin
                 if(drdy_flag) begin
@@ -225,7 +230,8 @@ module top
                     if(drandom_rdy == 0) begin
                         drdy <= 1'b1;
                         drdy_flag <= 1'b0;
-                        data_rdy <= data;
+                        data_r <= `ZeroWord;
+                        data_rdy <= data_r;
                     end
                 end else begin
                     drdy <= 1'b0;
