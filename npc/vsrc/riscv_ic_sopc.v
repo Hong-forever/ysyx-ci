@@ -5,16 +5,16 @@ module top
     input   wire                        clk,
     input   wire                        rst_n
 );
-    wire ibus_req;
-    wire ibus_ready;
+    wire ibus_reqValid, ibus_reqReady;
+    wire ibus_respValid, ibus_respReady;
     wire ibus_we;
     wire [`MemAddrBus] ibus_addr;
     wire [`MemDataBus] ibus_wdata;
     wire [`DBUS_MASK-1:0] ibus_mask;
     wire [`MemDataBus] ibus_rdata;
 
-    wire dbus_req;
-    wire dbus_ready;
+    wire dbus_reqValid, dbus_reqReady;
+    wire dbus_respValid, dbus_respReady;
     wire dbus_we;
     wire [`MemAddrBus] dbus_addr;
     wire [`MemDataBus] dbus_wdata;
@@ -34,22 +34,26 @@ module top
         .rst_n                  (rst_n                      ),
 
         //ibus
-        .O_ibus_req             (ibus_req                   ),
-        .I_ibus_ready           (ibus_ready                 ),
-        .O_ibus_we              (ibus_we                    ),
-        .O_ibus_addr            (ibus_addr                  ),
-        .O_ibus_data            (ibus_wdata                 ),
-        .O_ibus_mask            (ibus_mask                  ),
-        .I_ibus_data            (ibus_rdata                 ),
+        .ibus_reqValid          (ibus_reqValid              ),
+        .ibus_reqReady          (ibus_reqReady              ),
+        .ibus_respValid         (ibus_respValid             ),
+        .ibus_respReady         (ibus_respReady             ),
+        .ibus_we                (ibus_we                    ),
+        .ibus_addr              (ibus_addr                  ),
+        .ibus_rdata             (ibus_rdata                 ),
+        .ibus_wdata             (ibus_wdata                 ),
+        .ibus_mask              (ibus_mask                  ),
 
         //dbus
-        .O_dbus_req             (dbus_req                   ),
-        .I_dbus_ready           (dbus_ready                 ),
-        .O_dbus_we              (dbus_we                    ),
-        .O_dbus_addr            (dbus_addr                  ),
-        .O_dbus_data            (dbus_wdata                 ),
-        .O_dbus_mask            (dbus_mask                  ),
-        .I_dbus_data            (dbus_rdata                 ),
+        .dbus_reqValid          (dbus_reqValid              ),
+        .dbus_reqReady          (dbus_reqReady              ),
+        .dbus_respValid         (dbus_respValid             ),
+        .dbus_respReady         (dbus_respReady             ),
+        .dbus_we                (dbus_we                    ),
+        .dbus_addr              (dbus_addr                  ),
+        .dbus_rdata             (dbus_rdata                 ),
+        .dbus_wdata             (dbus_wdata                 ),
+        .dbus_mask              (dbus_mask                  ),
         .device_skip            (device_skip                ),
 
         // from peripheral
@@ -62,59 +66,36 @@ module top
 
     `define RAMDOM_WIDTH 8
     wire [`RAMDOM_WIDTH-1:0] irandom, irandom2, drandom, drandom2;
-    lfsr #(
-        .WIDTH                  (`RAMDOM_WIDTH              )      
-    ) ilfsr_inst
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h2                       ),
-        .O_random               (irandom                    )
-    );
-
-    lfsr #(
-        .WIDTH                  (`RAMDOM_WIDTH              )      
-    ) dlfsr_inst
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h3                       ),
-        .O_random               (drandom                    )
-    );
-    
-    lfsr #(
-        .WIDTH                  (`RAMDOM_WIDTH              )      
-    ) ilfsr_inst2
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h4                       ),
-        .O_random               (irandom2                   )
-    );
-
-    lfsr #(
-        .WIDTH                  (`RAMDOM_WIDTH              )      
-    ) dlfsr_inst2
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h5                       ),
-        .O_random               (drandom2                   )
-    );
 
     reg ireq, dreq, ireq_flag, dreq_flag;
     reg [`RAMDOM_WIDTH-1:0] irandom_req, drandom_req;
+
+    reg ireqReady, dreqReady;
+
+    reg [`MemAddrBus] iaddr, daddr;
+    reg [`MemDataBus] dwdata;
+    reg [`DBUS_MASK-1:0] dmask;
+
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             ireq <= 1'b0;
+            iaddr <= `ZeroWord;
             ireq_flag <= 1'b0;
-            dreq <= 1'b0;
-            dreq_flag <= 1'b0;
+            ireqReady <= 1'b0;
             irandom_req <= 0;
+
+            dreq <= 1'b0;
+            daddr <= `ZeroWord;
+            dwdata <= `ZeroWord;
+            dmask <= 0;
+            dreq_flag <= 1'b0;
+            dreqReady <= 1'b0;
             drandom_req <= 0;
         end else begin
-            if(ibus_req) begin
+            if(ibus_reqValid) begin
                 ireq <= 1'b0;
+                ireqReady <= 1'b1;
+                iaddr <= ibus_addr;
                 irandom_req <= irandom;
                 ireq_flag <= 1'b1;
             end else begin
@@ -127,10 +108,15 @@ module top
                 end else begin
                     ireq <= 1'b0;
                 end
+                ireqReady <= 1'b0;
             end
 
-            if(dbus_req) begin
+            if(dbus_reqValid) begin
                 dreq <= 1'b0;
+                dreqReady <= 1'b1;
+                daddr <= dbus_addr;
+                dwdata <= dbus_wdata;
+                dmask <= dbus_mask;
                 drandom_req <= drandom;
                 dreq_flag <= 1'b1;
             end else begin
@@ -143,18 +129,19 @@ module top
                 end else begin
                     dreq <= 1'b0;
                 end
+                dreqReady <= 1'b0;
             end
         end
     end
 
-    reg [`InstBus] inst, inst_r;
+    reg [`InstBus] inst;
     reg inst_ready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             inst <= `ZeroWord;
             inst_ready <= 1'b0;
         end else if(ireq) begin
-            inst <= paddr_read(ibus_addr);
+            inst <= paddr_read(iaddr);
             inst_ready <= 1'b1;
         end else begin
             inst <= `ZeroWord;
@@ -162,20 +149,20 @@ module top
         end
     end
 
-    reg [`MemDataBus] data, data_r;
+    reg [`MemDataBus] rdata;
     reg data_ready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            data <= `ZeroWord;
+            rdata <= `ZeroWord;
             data_ready <= 1'b0;
         end else if(dreq & ~dbus_we) begin
-            data <= paddr_read(dbus_addr);
+            rdata <= paddr_read(daddr);
             data_ready <= 1'b1;
         end else if(dreq & dbus_we) begin
-            paddr_write(dbus_addr, dbus_wdata, {28'b0, dbus_mask});
+            paddr_write(daddr, dwdata, {28'b0, dmask});
             data_ready <= 1'b1;
         end else begin
-            data <= `ZeroWord;
+            rdata <= `ZeroWord;
             data_ready <= 1'b0;
         end
     end
@@ -188,31 +175,27 @@ module top
         if(!rst_n) begin
             irdy <= 1'b0;
             irdy_flag <= 1'b0;
+            inst_rdy <= `ZeroWord;
+            irandom_rdy <= 0;
+
             drdy <= 1'b0;
             drdy_flag <= 1'b0;
-            irandom_rdy <= 0;
-            drandom_rdy <= 0;
-            inst_r <= `ZeroWord;
-            data_r <= `ZeroWord;
-            inst_rdy <= `ZeroWord;
             data_rdy <= `ZeroWord;
+            drandom_rdy <= 0;
         end else begin
             if(inst_ready) begin
                 irdy <= 1'b0;
-                irandom_rdy <= irandom2;
                 irdy_flag <= 1'b1;
-                inst_r <= inst;
-                inst_rdy <= `ZeroWord;
+                inst_rdy <= inst;
+                irandom_rdy <= irandom2;
             end else begin
                 if(irdy_flag) begin
                     irandom_rdy <= irandom_rdy - 1;
                     if(irandom_rdy == 0) begin
                         irdy <= 1'b1;
                         irdy_flag <= 1'b0;
-                        inst_r <= `ZeroWord;
-                        inst_rdy <= inst_r;
                     end
-                end else begin
+                end else if(ibus_respReady) begin
                     irdy <= 1'b0;
                     inst_rdy <= `ZeroWord;
                 end
@@ -220,20 +203,17 @@ module top
 
             if(data_ready) begin
                 drdy <= 1'b0;
-                drandom_rdy <= drandom2;
                 drdy_flag <= 1'b1;
-                data_r <= data;
-                data_rdy <= `ZeroWord;
+                data_rdy <= rdata;
+                drandom_rdy <= drandom2;
             end else begin
                 if(drdy_flag) begin
                     drandom_rdy <= drandom_rdy - 1;
                     if(drandom_rdy == 0) begin
                         drdy <= 1'b1;
                         drdy_flag <= 1'b0;
-                        data_r <= `ZeroWord;
-                        data_rdy <= data_r;
                     end
-                end else begin
+                end else if(dbus_respReady) begin
                     drdy <= 1'b0;
                     data_rdy <= `ZeroWord;
                 end
@@ -241,15 +221,58 @@ module top
         end
     end
 
+    assign ibus_reqReady = ireqReady;
+    assign ibus_respValid = irdy;
     assign ibus_rdata = inst_rdy;
-    assign ibus_ready = irdy;
 
+    assign dbus_reqReady = dreqReady;
+    assign dbus_respValid = drdy;
     assign dbus_rdata = data_rdy;
-    assign dbus_ready = drdy;
 
     `define SERIAL_MMIO 32'h1000_0000
     `define RTC_MMIO    32'h2000_0000
     assign device_skip = ((dbus_addr & ~32'h3) == `SERIAL_MMIO) || ((dbus_addr & ~32'h7) == `RTC_MMIO);
+
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h0                       ),
+        .O_random               (irandom                    )
+    );
+
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) dlfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h0                       ),
+        .O_random               (drandom                    )
+    );
+    
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst2
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h0                       ),
+        .O_random               (irandom2                   )
+    );
+
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) dlfsr_inst2
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (8'h0                       ),
+        .O_random               (drandom2                   )
+    );
+
 
 `else
     rom #(
@@ -261,7 +284,7 @@ module top
         .clk            (clk                    ),
         .rst_n          (rst_n                  ),
 
-        .ce_i           (ibus_req               ),
+        .ce_i           (ibus_reqValid               ),
         .addr_i         (ibus_addr              ),
         .data_o         (ibus_rdata             )
     );
@@ -275,7 +298,7 @@ module top
         .clk            (clk                    ),
         .rst_n          (rst_n                  ),
 
-        .ce_i           (dbus_req               ),
+        .ce_i           (dbus_reqValid               ),
         .we_i           (dbus_we                ),
         .addr_i         (dbus_addr              ),
         .data_i         (dbus_wdata             ),

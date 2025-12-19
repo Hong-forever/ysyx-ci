@@ -41,44 +41,46 @@ module lsu
     output  wire    [`Except_Bus    ]   O_except,
 
     //to bus
-    output  wire                        O_dbus_req,
-    input   wire                        I_dbus_ready,
-    output  wire                        O_dbus_we,
-    output  wire    [`MemAddrBus    ]   O_dbus_addr,
-    input   wire    [`MemDataBus    ]   I_dbus_data,
-    output  wire    [`MemDataBus    ]   O_dbus_data,
-    output  wire    [`DBUS_MASK-1:0 ]   O_dbus_mask
+    output  wire                        dbus_reqValid,
+    input   wire                        dbus_reqReady,
+    input   wire                        dbus_respValid,
+    output  wire                        dbus_respReady,
+    output  wire                        dbus_we,
+    output  wire    [`MemAddrBus    ]   dbus_addr,
+    input   wire    [`MemDataBus    ]   dbus_rdata,
+    output  wire    [`MemDataBus    ]   dbus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   dbus_mask
 );
 
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
-    reg [`MemDataBus] dbus_rdata;
+    reg [`MemDataBus] dbus_rdata_r;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            dbus_rdata <= 0;
-        end else if(I_dbus_ready) begin
-            dbus_rdata <= I_dbus_data;
+            dbus_rdata_r <= 0;
+        end else if(dbus_respValid) begin
+            dbus_rdata_r <= dbus_rdata;
         end
     end
 
-    wire [`MemDataBus] lb_00_res = {{24{dbus_rdata[7]}},  dbus_rdata[7:0]};
-    wire [`MemDataBus] lb_01_res = {{24{dbus_rdata[15]}}, dbus_rdata[15:8]};
-    wire [`MemDataBus] lb_10_res = {{24{dbus_rdata[23]}}, dbus_rdata[23:16]};
-    wire [`MemDataBus] lb_11_res = {{24{dbus_rdata[31]}}, dbus_rdata[31:24]};
+    wire [`MemDataBus] lb_00_res = {{24{dbus_rdata_r[7]}},  dbus_rdata_r[7:0]};
+    wire [`MemDataBus] lb_01_res = {{24{dbus_rdata_r[15]}}, dbus_rdata_r[15:8]};
+    wire [`MemDataBus] lb_10_res = {{24{dbus_rdata_r[23]}}, dbus_rdata_r[23:16]};
+    wire [`MemDataBus] lb_11_res = {{24{dbus_rdata_r[31]}}, dbus_rdata_r[31:24]};
 
-    wire [`MemDataBus] lh_00_res = {{16{dbus_rdata[15]}}, dbus_rdata[15:0]};
-    wire [`MemDataBus] lh_10_res = {{16{dbus_rdata[31]}}, dbus_rdata[31:16]};
+    wire [`MemDataBus] lh_00_res = {{16{dbus_rdata_r[15]}}, dbus_rdata_r[15:0]};
+    wire [`MemDataBus] lh_10_res = {{16{dbus_rdata_r[31]}}, dbus_rdata_r[31:16]};
 
-    wire [`MemDataBus] lw_res = dbus_rdata;
+    wire [`MemDataBus] lw_res = dbus_rdata_r;
 
-    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, dbus_rdata[7:0]};
-    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, dbus_rdata[15:8]};
-    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, dbus_rdata[23:16]};
-    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, dbus_rdata[31:24]};
+    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, dbus_rdata_r[7:0]};
+    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, dbus_rdata_r[15:8]};
+    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, dbus_rdata_r[23:16]};
+    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, dbus_rdata_r[31:24]};
 
-    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, dbus_rdata[15:0]};
-    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, dbus_rdata[31:16]};
+    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, dbus_rdata_r[15:0]};
+    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, dbus_rdata_r[31:16]};
 
     wire [`MemDataBus] sb_00_res = {24'b0, I_store_data[7:0]};
     wire [`MemDataBus] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
@@ -142,28 +144,28 @@ module lsu
     //------------------------------------------------------------------------
     // 存储逻辑
     //------------------------------------------------------------------------
-    reg [`MemDataBus] dbus_data;
+    reg [`MemDataBus] wdata;
     always @(*) begin
-        dbus_data = `ZeroWord;
+        wdata = `ZeroWord;
         case(I_ls_type)
             `ls_sb: begin
                 case(memory_byte_addr)
-                    2'b00: dbus_data = sb_00_res;
-                    2'b01: dbus_data = sb_01_res;
-                    2'b10: dbus_data = sb_10_res;
-                    2'b11: dbus_data = sb_11_res;
+                    2'b00: wdata = sb_00_res;
+                    2'b01: wdata = sb_01_res;
+                    2'b10: wdata = sb_10_res;
+                    2'b11: wdata = sb_11_res;
                     default: begin end
                 endcase
             end
             `ls_sh: begin
                 case(memory_byte_addr[1])
-                    1'b0: dbus_data = sh_00_res;
-                    1'b1: dbus_data = sh_10_res;
+                    1'b0: wdata = sh_00_res;
+                    1'b1: wdata = sh_10_res;
                     default: begin end
                 endcase
             end
             `ls_sw: begin
-                dbus_data = sw_res;
+                wdata = sw_res;
             end
             default: begin end
         endcase
@@ -173,39 +175,41 @@ module lsu
     // 字节选通
     //------------------------------------------------------------------------
 
-    reg [`DBUS_MASK-1:0] dbus_mask;
+    reg [`DBUS_MASK-1:0] data_mask;
     always @(*) begin
-        dbus_mask = 'b0000;
+        data_mask = 'b0000;
         case(I_ls_type)
             `ls_lb, `ls_lbu, `ls_sb: begin
                 case(memory_byte_addr)
-                    2'b00: dbus_mask = 4'b0001;
-                    2'b01: dbus_mask = 4'b0010;
-                    2'b10: dbus_mask = 4'b0100;
-                    2'b11: dbus_mask = 4'b1000;
+                    2'b00: data_mask = 4'b0001;
+                    2'b01: data_mask = 4'b0010;
+                    2'b10: data_mask = 4'b0100;
+                    2'b11: data_mask = 4'b1000;
                     default: begin end
                 endcase
             end
             `ls_lh, `ls_lhu, `ls_sh: begin
                 case(memory_byte_addr[1])
-                    1'b0: dbus_mask = 4'b0011;
-                    1'b1: dbus_mask = 4'b1100;
+                    1'b0: data_mask = 4'b0011;
+                    1'b1: data_mask = 4'b1100;
                     default: begin end
                 endcase
             end
             `ls_lw, `ls_sw: begin
-                dbus_mask = 4'b1111;
+                data_mask = 4'b1111;
             end
             default: begin end
         endcase
     end
 
-    reg valid_r;
+    reg valid;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            valid_r <= 1'b0;
-        end else begin
-            valid_r <= I_valid;
+            valid <= 1'b0;
+        end else if(I_valid) begin
+            valid <= 1'b1;
+        end else if(I_ls_valid & dbus_reqReady) begin
+            valid <= 1'b0;
         end
     end
 
@@ -213,7 +217,7 @@ module lsu
     parameter MEM  = 1;
     parameter WB   = 2;
 
-    reg dbus_req, stallreq;
+    reg data_reqValid;
     reg [1:0] state, nstate;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
@@ -225,32 +229,51 @@ module lsu
 
     always @(*) begin
         if(!rst_n) begin
-            dbus_req = 1'b0;
-            stallreq = 1'b0;
+            data_reqValid = 1'b0;
             nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    dbus_req = I_ls_valid & valid_r;
-                    stallreq = I_ls_valid & valid_r;
-                    nstate = I_ls_valid & valid_r ? MEM : IDLE;
+                    data_reqValid = I_ls_valid & valid;
+                    nstate = I_ls_valid & dbus_reqReady ? MEM : IDLE;
                 end
                 MEM: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b1;
-                    nstate = I_dbus_ready ? WB : MEM;
+                    data_reqValid = 1'b0;
+                    nstate = dbus_respValid ? WB : MEM;
                 end
                 WB: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b0;
+                    data_reqValid = 1'b0;
                     nstate = IDLE;
                 end
                 default: begin
-                    dbus_req = 1'b0;
-                    stallreq = 1'b0;
+                    data_reqValid = 1'b0;
                     nstate = IDLE;
                 end
             endcase
+        end
+    end
+
+    reg data_respReady;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            data_respReady <= 1'b0;
+        end else if(dbus_respValid) begin
+            data_respReady <= 1'b1;
+        end else begin
+            data_respReady <= 1'b0;
+        end
+    end
+
+    reg stallreq;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            stallreq <= 1'b0;
+        end else begin
+            if(data_reqValid || state == MEM) begin
+                stallreq <= 1'b1;
+            end else if(dbus_reqReady || state == WB) begin
+                stallreq <= 1'b0;
+            end
         end
     end
 
@@ -270,12 +293,13 @@ module lsu
 
     assign O_except = I_except;
 
-    assign O_dbus_req = dbus_req;
-    assign O_dbus_we = I_ls_type[`ls_diff_width-1];
-    assign O_dbus_addr = I_memory_addr;
-    assign O_dbus_mask = dbus_mask;
+    assign dbus_reqValid = data_reqValid;
+    assign dbus_respReady = data_respReady;
+    assign dbus_we = I_ls_type[`ls_diff_width-1];
+    assign dbus_addr = I_memory_addr;
+    assign dbus_mask = data_mask;
 
-    assign O_dbus_data = dbus_data;
+    assign dbus_wdata = wdata;
 
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
