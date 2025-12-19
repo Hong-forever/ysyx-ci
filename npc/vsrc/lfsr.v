@@ -17,14 +17,14 @@ module lfsr
     reg [WIDTH-1:0] lfsr_reg;
     wire feedback;
 
-    assign feedback = lfsr_reg[4] ^ lfsr_reg[2] ^ lfsr_reg[1] ^ lfsr_reg[0];
+    assign feedback = lfsr_reg[4] ^ lfsr_reg[3] ^ lfsr_reg[2] ^ lfsr_reg[0];
     assign O_random = lfsr_reg;
 
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             lfsr_reg <= I_seed;
         end else begin
-            lfsr_reg <= {feedback, lfsr_reg[WIDTH-2:0]};
+            lfsr_reg <= {feedback, lfsr_reg[WIDTH-1:1]};
         end
     end
 endmodule
