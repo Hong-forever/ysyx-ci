@@ -239,7 +239,7 @@ module top
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h0                       ),
+        .I_seed                 (8'h1                       ),
         .O_random               (irandom                    )
     );
 
@@ -249,7 +249,7 @@ module top
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h0                       ),
+        .I_seed                 (8'h2                       ),
         .O_random               (drandom                    )
     );
     
@@ -259,7 +259,7 @@ module top
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h0                       ),
+        .I_seed                 (8'h3                       ),
         .O_random               (irandom2                   )
     );
 
@@ -269,7 +269,7 @@ module top
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-        .I_seed                 (8'h0                       ),
+        .I_seed                 (8'h4                       ),
         .O_random               (drandom2                   )
     );
 

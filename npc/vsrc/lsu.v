@@ -264,18 +264,21 @@ module lsu
         end
     end
 
-    reg stallreq;
+    reg stallreq_mem;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            stallreq <= 1'b0;
+            stallreq_mem <= 1'b0;
         end else begin
             if(data_reqValid || state == MEM) begin
-                stallreq <= 1'b1;
+                stallreq_mem <= 1'b1;
             end else if(dbus_reqReady || state == WB) begin
-                stallreq <= 1'b0;
+                stallreq_mem <= 1'b0;
             end
         end
     end
+
+    wire stallreq_ls_req = data_reqValid;
+    wire stallreq = stallreq_mem | stallreq_ls_req;
 
 
     //------------------------------------------------------------------------
