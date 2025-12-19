@@ -12,6 +12,7 @@ module lsu
     input   wire    [`InstBus       ]   I_inst,             //指令内容
     input   wire    [`InstAddrBus   ]   I_inst_addr,
 
+    input   wire                        I_valid,
     input   wire                        I_ready,
     output  wire                        O_ready,
 
@@ -53,7 +54,6 @@ module lsu
     // 存取结果
     //------------------------------------------------------------------------
     reg [`MemDataBus] dbus_rdata;
-
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             dbus_rdata <= 0;
@@ -200,6 +200,15 @@ module lsu
         endcase
     end
 
+    reg valid_r;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            valid_r <= 1'b0;
+        end else begin
+            valid_r <= I_valid;
+        end
+    end
+
     parameter IDLE = 0;
     parameter MEM  = 1;
     parameter WB   = 2;
@@ -222,9 +231,9 @@ module lsu
         end else begin
             case(state)
                 IDLE: begin
-                    dbus_req = I_ls_valid;
-                    stallreq = I_ls_valid;
-                    nstate = I_ls_valid ? MEM : IDLE;
+                    dbus_req = I_ls_valid & valid_r;
+                    stallreq = I_ls_valid & valid_r;
+                    nstate = I_ls_valid & valid_r ? MEM : IDLE;
                 end
                 MEM: begin
                     dbus_req = 1'b0;

@@ -404,6 +404,7 @@ module riscv_ic
         .I_inst                 (I_ls_inst                  ),
         .I_inst_addr            (I_ls_inst_addr             ),
 
+        .I_valid                (ex_enable                  ),
         .I_ready                (O_wb_ready                 ),
         .O_ready                (O_ls_ready                 ),
 
