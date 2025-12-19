@@ -57,7 +57,7 @@ module ifetch
 
     always @(*) begin
         if(!rst_n) begin
-            ibus_req = 1'b0;
+            ibus_req = 1'b1;
             nstate = IDLE;
         end else begin
             case(state)

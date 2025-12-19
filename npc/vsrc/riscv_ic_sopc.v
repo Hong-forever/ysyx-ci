@@ -60,8 +60,8 @@ module top
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
-    `define ISTALL_PERIOD 4
-    `define DSTALL_PERIOD 4
+    `define ISTALL_PERIOD 5
+    `define DSTALL_PERIOD 2
 
     reg [`ISTALL_PERIOD-1:0] ibus_req_r;
     reg [`DSTALL_PERIOD-1:0] dbus_req_r;
@@ -70,10 +70,11 @@ module top
             ibus_req_r <= 0;
             dbus_req_r <= 0;
         end else begin
-            if(`ISTALL_PERIOD > 1) ibus_req_r <= {ibus_req_r[`ISTALL_PERIOD-2:0], ibus_req};
-            else                   ibus_req_r <= {ibus_req};
-            if(`DSTALL_PERIOD > 1) dbus_req_r <= {dbus_req_r[`DSTALL_PERIOD-2:0], dbus_req};
-            else                   dbus_req_r <= {dbus_req};
+            ibus_req_r <= {ibus_req_r[`ISTALL_PERIOD-2:0], ibus_req};
+            dbus_req_r <= {dbus_req_r[`DSTALL_PERIOD-2:0], dbus_req};
+
+            // ibus_req_r <= ibus_req;
+            // dbus_req_r <= dbus_req;
         end
     end
 
@@ -83,7 +84,7 @@ module top
         if(!rst_n) begin
             inst <= `ZeroWord;
             inst_ready <= 1'b0;
-        end else if(ibus_req_r[3]) begin
+        end else if(ibus_req_r[`ISTALL_PERIOD-1]) begin
             inst <= paddr_read(ibus_addr);
             inst_ready <= 1'b1;
         end else begin
