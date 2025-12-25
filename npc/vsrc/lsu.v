@@ -247,11 +247,11 @@ module lsu
             case(state)
                 IDLE: begin
                     data_reqValid = I_ls_valid & valid;
-                    nstate = data_reqValid & dbus_reqReady ? MEM : IDLE;
+                    nstate = data_reqValid & (dbus_awready | dbus_arready) ? MEM : IDLE;
                 end
                 MEM: begin
                     data_reqValid = 1'b0;
-                    nstate = dbus_respValid ? WB : MEM;
+                    nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
                 end
                 WB: begin
                     data_reqValid = 1'b0;
@@ -265,14 +265,26 @@ module lsu
         end
     end
 
-    reg data_respReady;
+
+    reg data_bready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            data_respReady <= 1'b1;
-        end else if(dbus_respValid) begin
-            data_respReady <= 1'b0;
+            data_bready <= 1'b1;
+        end else if(dbus_bvalid) begin
+            data_bready <= 1'b0;
         end else begin
-            data_respReady <= 1'b1;
+            data_bready <= 1'b1;
+        end
+    end
+
+    reg data_rready;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            data_rready <= 1'b1;
+        end else if(dbus_rvalid) begin
+            data_rready <= 1'b0;
+        end else begin
+            data_rready <= 1'b1;
         end
     end
 
@@ -283,7 +295,7 @@ module lsu
         end else begin
             if(data_reqValid || state == MEM) begin
                 stallreq_mem <= 1'b1;
-            end else if(dbus_reqReady || state == WB) begin
+            end else if(dbus_awready || dbus_arready || state == WB) begin
                 stallreq_mem <= 1'b0;
             end
         end
@@ -291,7 +303,6 @@ module lsu
 
     wire stallreq_ls_req = data_reqValid;
     wire stallreq = stallreq_mem | stallreq_ls_req;
-
 
     //------------------------------------------------------------------------
     // 输出
@@ -310,13 +321,6 @@ module lsu
 
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
-
-    assign dbus_reqValid = data_reqValid;
-    assign dbus_respReady = data_respReady;
-    assign dbus_we = I_ls_type[`ls_diff_width-1];
-    assign dbus_addr = I_memory_addr;
-    assign dbus_mask = data_mask;
-    assign dbus_wdata = wdata;
 
     assign dbus_awvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
     assign dbus_awaddr = I_memory_addr;

@@ -76,11 +76,11 @@ module ifetch
             case(state)
                 IDLE: begin
                     inst_reqValid = 1'b1;
-                    nstate = ibus_reqReady ? MEM : IDLE;
+                    nstate = ibus_arready ? MEM : IDLE;
                 end
                 MEM: begin
                     inst_reqValid = 1'b0;
-                    nstate = ibus_respValid ? EXE : MEM;
+                    nstate = ibus_rvalid ? EXE : MEM;
                 end
                 EXE: begin
                     inst_reqValid = 1'b0;
@@ -106,19 +106,19 @@ module ifetch
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             inst <= `ZeroWord;
-        end else if(ibus_respValid) begin
+        end else if(ibus_rvalid) begin
             inst <= ibus_rdata;
         end
     end
 
-    reg inst_respReady;
+    reg inst_rready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst_respReady <= 1'b1;
-        end else if(ibus_respValid) begin
-            inst_respReady <= 1'b0;
+            inst_rready <= 1'b1;
+        end else if(ibus_rvalid) begin
+            inst_rready <= 1'b0;
         end else begin
-            inst_respReady <= 1'b1;
+            inst_rready <= 1'b1;
         end
     end
 
@@ -145,7 +145,7 @@ module ifetch
     assign ibus_arvalid = inst_reqValid;
     assign ibus_araddr = pc;
 
-    assign ibus_rready = ;
+    assign ibus_rready = inst_rready;
 
 
 endmodule
