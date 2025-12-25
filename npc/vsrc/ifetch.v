@@ -59,7 +59,7 @@ module ifetch
 
     always @(*) begin
         if(!rst_n) begin
-            inst_reqValid = 1'b1;
+            inst_reqValid = 1'b0;
             nstate = IDLE;
         end else begin
             case(state)
