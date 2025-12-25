@@ -235,7 +235,7 @@ module lsu
             case(state)
                 IDLE: begin
                     data_reqValid = I_ls_valid & valid;
-                    nstate = I_ls_valid & dbus_reqReady ? MEM : IDLE;
+                    nstate = data_reqValid & dbus_reqReady ? MEM : IDLE;
                 end
                 MEM: begin
                     data_reqValid = 1'b0;
