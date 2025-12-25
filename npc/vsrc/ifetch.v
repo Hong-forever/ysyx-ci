@@ -59,7 +59,7 @@ module ifetch
 
     always @(*) begin
         if(!rst_n) begin
-            inst_reqValid = 1'b0;
+            inst_reqValid = 1'b1;
             nstate = IDLE;
         end else begin
             case(state)
@@ -103,11 +103,11 @@ module ifetch
     reg inst_respReady;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst_respReady <= 1'b1;
-        end else if(ibus_respValid) begin
             inst_respReady <= 1'b0;
-        end else begin
+        end else if(ibus_respValid) begin
             inst_respReady <= 1'b1;
+        end else begin
+            inst_respReady <= 1'b0;
         end
     end
 

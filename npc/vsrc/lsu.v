@@ -235,7 +235,7 @@ module lsu
             case(state)
                 IDLE: begin
                     data_reqValid = I_ls_valid & valid;
-                    nstate = data_reqValid & dbus_reqReady ? MEM : IDLE;
+                    nstate = I_ls_valid & dbus_reqReady ? MEM : IDLE;
                 end
                 MEM: begin
                     data_reqValid = 1'b0;
@@ -256,11 +256,11 @@ module lsu
     reg data_respReady;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            data_respReady <= 1'b1;
-        end else if(dbus_respValid) begin
             data_respReady <= 1'b0;
-        end else begin
+        end else if(dbus_respValid) begin
             data_respReady <= 1'b1;
+        end else begin
+            data_respReady <= 1'b0;
         end
     end
 
@@ -271,7 +271,7 @@ module lsu
         end else begin
             if(data_reqValid || state == MEM) begin
                 stallreq_mem <= 1'b1;
-            end else if(dbus_reqReady || state == WB) begin
+            end else if(state == WB) begin
                 stallreq_mem <= 1'b0;
             end
         end
