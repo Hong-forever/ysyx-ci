@@ -371,5 +371,7 @@
 `define InstAddrBus `InstAddrWidth-1:0
 
 `define DBUS_MASK 4
+`define AXI_RESP_BUS 1:0
+
 
 `define RomAddrBase 32'h8000_0000

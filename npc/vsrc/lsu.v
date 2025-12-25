@@ -41,15 +41,27 @@ module lsu
     output  wire    [`Except_Bus    ]   O_except,
 
     //to bus
-    output  wire                        dbus_reqValid,
-    input   wire                        dbus_reqReady,
-    input   wire                        dbus_respValid,
-    output  wire                        dbus_respReady,
-    output  wire                        dbus_we,
-    output  wire    [`MemAddrBus    ]   dbus_addr,
-    input   wire    [`MemDataBus    ]   dbus_rdata,
+    output  wire                        dbus_awvalid,
+    input   wire                        dbus_awready,
+    output  wire    [`MemAddrBus    ]   dbus_awaddr,
+
+    output  wire                        dbus_wvalid,
+    input   wire                        dbus_wready,
     output  wire    [`MemDataBus    ]   dbus_wdata,
-    output  wire    [`DBUS_MASK-1:0 ]   dbus_mask
+    output  wire    [`DBUS_MASK-1:0 ]   dbus_wstrb,
+
+    input   wire                        dbus_bvalid,
+    output  wire                        dbus_bready,
+    input   wire    [`AXI_RESP_BUS  ]   dbus_bresp,
+
+    output  wire                        dbus_arvalid,
+    input   wire                        dbus_arready,
+    output  wire    [`MemAddrBus    ]   dbus_araddr,
+
+    input   wire                        dbus_rvalid,
+    output  wire                        dbus_rready,
+    input   wire    [`MemDataBus    ]   dbus_rdata,
+    input   wire    [`AXI_RESP_BUS  ]   dbus_rresp
 );
 
     //------------------------------------------------------------------------
@@ -296,15 +308,28 @@ module lsu
 
     assign O_except = I_except;
 
+    assign O_ready = I_ready & ~stallreq;
+    assign O_valid = O_ready;
+
     assign dbus_reqValid = data_reqValid;
     assign dbus_respReady = data_respReady;
     assign dbus_we = I_ls_type[`ls_diff_width-1];
     assign dbus_addr = I_memory_addr;
     assign dbus_mask = data_mask;
-
     assign dbus_wdata = wdata;
 
-    assign O_ready = I_ready & ~stallreq;
-    assign O_valid = O_ready;
+    assign dbus_awvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
+    assign dbus_awaddr = I_memory_addr;
+
+    assign dbus_wvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
+    assign dbus_wdata = wdata;
+
+    assign dbus_bready = ;
+
+    assign dbus_arvalid = data_reqValid & ~I_ls_type[`ls_diff_width-1];
+    assign dbus_araddr = I_memory_addr;
+
+    assign dbus_rready = ;
+
 
 endmodule

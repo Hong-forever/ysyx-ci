@@ -22,16 +22,27 @@ module ifetch
     output  wire                        O_valid,
 
     //to bus
-    output  wire                        ibus_reqValid,
-    input   wire                        ibus_reqReady,
-    input   wire                        ibus_respValid,
-    output  wire                        ibus_respReady,
-    output  wire                        ibus_we,
-    output  wire    [`InstAddrBus   ]   ibus_addr,
-    input   wire    [`InstBus       ]   ibus_rdata,
-    output  wire    [`InstBus       ]   ibus_wdata,
-    output  wire    [`DBUS_MASK-1:0 ]   ibus_mask
+    output  wire                        ibus_awvalid,
+    input   wire                        ibus_awready,
+    output  wire    [`InstAddrBus   ]   ibus_awaddr,
 
+    output  wire                        ibus_wvalid,
+    input   wire                        ibus_wready,
+    output  wire    [`InstBus       ]   ibus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   ibus_wstrb,
+
+    input   wire                        ibus_bvalid,
+    output  wire                        ibus_bready,
+    input   wire    [`AXI_RESP_BUS  ]   ibus_bresp,
+
+    output  wire                        ibus_arvalid,
+    input   wire                        ibus_arready,
+    output  wire    [`InstAddrBus   ]   ibus_araddr,
+
+    input   wire                        ibus_rvalid,
+    output  wire                        ibus_rready,
+    input   wire    [`InstBus       ]   ibus_rdata,
+    input   wire    [`AXI_RESP_BUS  ]   ibus_rresp
 );
 
     //------------------------------------------------------------------------
@@ -122,13 +133,19 @@ module ifetch
     assign O_inst_addr = pc;
     assign O_valid = I_ready & state == EXE;
     
+    assign ibus_awvalid = 1'b0;
+    assign ibus_awaddr = `ZeroWord;
 
-    assign ibus_reqValid = inst_reqValid;
-    assign ibus_respReady = inst_respReady;
-    assign ibus_we = `False;
-    assign ibus_addr = pc;
+    assign ibus_wvalid = 1'b0;
     assign ibus_wdata = `ZeroWord;
-    assign ibus_mask = 4'b1111;
+    assign ibus_wstrb = 4'b0000;
+
+    assign ibus_bready = 1'b0;
+
+    assign ibus_arvalid = inst_reqValid;
+    assign ibus_araddr = pc;
+
+    assign ibus_rready = ;
 
 
 endmodule
