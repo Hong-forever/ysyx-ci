@@ -271,7 +271,7 @@ module lsu
         end else begin
             if(data_reqValid || state == MEM) begin
                 stallreq_mem <= 1'b1;
-            end else if(state == WB) begin
+            end else if(dbus_respValid || state == WB) begin
                 stallreq_mem <= 1'b0;
             end
         end
