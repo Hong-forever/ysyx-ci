@@ -494,9 +494,10 @@ module riscv_ic
     // PIPELINE
     //------------------------------------------------------------------------
 
-    // wire if_flush = O_flush | (O_ex_bru_taken & O_ls_ready) | (O_dec_ready & ~O_if_valid);
+    wire cpu_execute = O_if_valid;
+
     wire if_enable = O_if_valid;
-    wire if_flush = (O_flush | (O_ex_bru_taken & O_ls_ready)) & O_if_valid;
+    wire if_flush = (O_flush | (O_ex_bru_taken & O_ls_ready)) & cpu_execute;
     pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
@@ -514,8 +515,8 @@ module riscv_ic
 
     wire dec_buble = stallreq_dec & O_ex_ready;
 
-    wire dec_enable = O_dec_valid & O_if_valid;
-    wire dec_flush = ((O_flush | (O_ex_bru_taken & O_ls_ready)) & O_if_valid) | dec_buble;
+    wire dec_enable = O_dec_valid & cpu_execute;
+    wire dec_flush = ((O_flush | (O_ex_bru_taken & O_ls_ready)) & cpu_execute) | dec_buble;
     pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
@@ -579,8 +580,8 @@ module riscv_ic
         .I_flush                (dec_flush                  )
     );
 
-    wire ex_enable = (O_ex_valid & O_if_valid) | dec_buble;
-    wire ex_flush = O_flush & O_if_valid;
+    wire ex_enable = (O_ex_valid & cpu_execute) | dec_buble;
+    wire ex_flush = O_flush & cpu_execute;
     pipeline_ex_ls u_pipeline_ex_ls
     (
         .clk                    (clk                        ),
@@ -624,8 +625,8 @@ module riscv_ic
         .I_flush                (ex_flush                   )
     );
 
-    wire ls_enable = (O_ls_valid & O_ex_valid & O_if_valid) | dec_buble;
-    wire ls_flush = O_flush & O_if_valid;
+    wire ls_enable = (O_ls_valid & O_ex_valid & cpu_execute) | dec_buble;
+    wire ls_flush = O_flush & cpu_execute;
     pipeline_ls_wb u_pipeline_ls_wb
     (
         .clk                    (clk                        ),
