@@ -81,7 +81,7 @@ module top
             ireq <= 1'b0;
             iaddr <= `ZeroWord;
             ireq_flag <= 1'b0;
-            ireqReady <= 1'b0;
+            ireqReady <= 1'b1;
             irandom_req <= 0;
 
             dreq <= 1'b0;
@@ -89,12 +89,12 @@ module top
             dwdata <= `ZeroWord;
             dmask <= 0;
             dreq_flag <= 1'b0;
-            dreqReady <= 1'b0;
+            dreqReady <= 1'b1;
             drandom_req <= 0;
         end else begin
             if(ibus_reqValid) begin
                 ireq <= 1'b0;
-                ireqReady <= 1'b1;
+                ireqReady <= 1'b0;
                 iaddr <= ibus_addr;
                 irandom_req <= irandom;
                 ireq_flag <= 1'b1;
@@ -108,12 +108,12 @@ module top
                 end else begin
                     ireq <= 1'b0;
                 end
-                ireqReady <= 1'b0;
+                ireqReady <= 1'b1;
             end
 
             if(dbus_reqValid) begin
                 dreq <= 1'b0;
-                dreqReady <= 1'b1;
+                dreqReady <= 1'b0;
                 daddr <= dbus_addr;
                 dwdata <= dbus_wdata;
                 dmask <= dbus_mask;
@@ -129,7 +129,7 @@ module top
                 end else begin
                     dreq <= 1'b0;
                 end
-                dreqReady <= 1'b0;
+                dreqReady <= 1'b1;
             end
         end
     end
