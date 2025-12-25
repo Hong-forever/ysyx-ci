@@ -103,11 +103,11 @@ module ifetch
     reg inst_respReady;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst_respReady <= 1'b0;
-        end else if(ibus_respValid) begin
             inst_respReady <= 1'b1;
-        end else begin
+        end else if(ibus_respValid) begin
             inst_respReady <= 1'b0;
+        end else begin
+            inst_respReady <= 1'b1;
         end
     end
 

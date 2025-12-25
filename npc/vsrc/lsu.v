@@ -256,11 +256,11 @@ module lsu
     reg data_respReady;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            data_respReady <= 1'b0;
-        end else if(dbus_respValid) begin
             data_respReady <= 1'b1;
-        end else begin
+        end else if(dbus_respValid) begin
             data_respReady <= 1'b0;
+        end else begin
+            data_respReady <= 1'b1;
         end
     end
 
