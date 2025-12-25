@@ -293,10 +293,10 @@ module lsu
         if(!rst_n) begin
             stallreq_mem <= 1'b0;
         end else begin
-            if(data_reqValid || state == MEM) begin
-                stallreq_mem <= 1'b1;
-            end else if(dbus_awready || dbus_arready || state == WB) begin
+            if(dbus_bvalid || dbus_rvalid || state == WB) begin
                 stallreq_mem <= 1'b0;
+            end else if(data_reqValid || state == MEM) begin
+                stallreq_mem <= 1'b1;
             end
         end
     end
@@ -328,12 +328,12 @@ module lsu
     assign dbus_wvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
     assign dbus_wdata = wdata;
 
-    assign dbus_bready = ;
+    assign dbus_bready = data_bready;
 
     assign dbus_arvalid = data_reqValid & ~I_ls_type[`ls_diff_width-1];
     assign dbus_araddr = I_memory_addr;
 
-    assign dbus_rready = ;
+    assign dbus_rready = data_rready;
 
 
 endmodule
