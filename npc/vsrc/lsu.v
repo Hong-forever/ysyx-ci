@@ -281,10 +281,10 @@ module lsu
         if(!rst_n) begin
             stallreq_mem <= 1'b0;
         end else begin
-            if(data_reqValid || state == MEM) begin
-                stallreq_mem <= 1'b1;
-            end else if(dbus_reqReady || state == WB) begin
+            if(dbus_respValid || state == WB) begin
                 stallreq_mem <= 1'b0;
+            end else if(data_reqValid || state == MEM) begin
+                stallreq_mem <= 1'b1;
             end
         end
     end
