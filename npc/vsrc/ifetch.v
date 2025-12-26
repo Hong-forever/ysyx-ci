@@ -54,7 +54,7 @@ module ifetch
     parameter EXE = 2;
     reg [1:0] state, nstate;
 
-    reg inst_reqValid;
+    reg inst_arvalid;
 
     reg [`InstAddrBus] pc;
     wire [`InstAddrBus] pc_plus4;
@@ -70,24 +70,24 @@ module ifetch
 
     always @(*) begin
         if(!rst_n) begin
-            inst_reqValid = 1'b0;
+            inst_arvalid = 1'b0;
             nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    inst_reqValid = 1'b1;
-                    nstate = ibus_reqReady ? MEM : IDLE;
+                    inst_arvalid = 1'b1;
+                    nstate = ibus_arvalid & ibus_arready ? MEM : IDLE;
                 end
                 MEM: begin
-                    inst_reqValid = 1'b0;
-                    nstate = ibus_respValid ? EXE : MEM;
+                    inst_arvalid = 1'b0;
+                    nstate = ibus_rvalid ? EXE : MEM;
                 end
                 EXE: begin
-                    inst_reqValid = 1'b0;
+                    inst_arvalid = 1'b0;
                     nstate = I_ready ? IDLE : EXE;
                 end
                 default: begin
-                    inst_reqValid = 1'b0;
+                    inst_arvalid = 1'b0;
                     nstate = IDLE;
                 end 
             endcase
@@ -106,19 +106,19 @@ module ifetch
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             inst <= `ZeroWord;
-        end else if(ibus_respValid) begin
+        end else if(ibus_rvalid) begin
             inst <= ibus_rdata;
         end
     end
 
-    reg inst_respReady;
+    reg inst_rready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst_respReady <= 1'b1;
-        end else if(ibus_respValid) begin
-            inst_respReady <= 1'b0;
+            inst_rready <= 1'b1;
+        end else if(ibus_rvalid) begin
+            inst_rready <= 1'b0;
         end else begin
-            inst_respReady <= 1'b1;
+            inst_rready <= 1'b1;
         end
     end
 
@@ -142,10 +142,48 @@ module ifetch
 
     assign ibus_bready = 1'b0;
 
-    assign ibus_arvalid = inst_reqValid;
+    // assign ibus_arvalid = inst_arvalid;
     assign ibus_araddr = pc;
 
-    assign ibus_rready = ;
+    assign ibus_rready = inst_rready;
+
+    reg arvalid_r;
+    wire [`RAMDOM_WIDTH-1:0] irandom;
+    reg [`RAMDOM_WIDTH-1:0] irandom_r;
+    reg req_flag;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            arvalid_r <= 1'b0;
+            irandom_r <= 0;
+            req_flag <= 1'b0;
+        end else if(req_flag) begin
+            irandom_r <= irandom_r - 1;
+            if(irandom_r == 0) begin
+                arvalid_r <= 1'b1;
+                req_flag <= 1'b0;
+            end
+        end else if(state == IDLE && inst_arvalid && ibus_arready && !arvalid_r) begin
+            arvalid_r <= 1'b0;
+            irandom_r <= irandom;
+            req_flag <= 1'b1;
+        end else if(ibus_arvalid && ibus_arready) begin
+            arvalid_r <= 1'b0;
+        end
+    end
+
+    assign ibus_arvalid = arvalid_r;
+
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (`SEED1                     ),
+        .O_random               (irandom                    )
+    );
+
+
 
 
 endmodule
