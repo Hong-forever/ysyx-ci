@@ -41,15 +41,27 @@ module lsu
     output  wire    [`Except_Bus    ]   O_except,
 
     //to bus
-    output  wire                        dbus_reqValid,
-    input   wire                        dbus_reqReady,
-    input   wire                        dbus_respValid,
-    output  wire                        dbus_respReady,
-    output  wire                        dbus_we,
-    output  wire    [`MemAddrBus    ]   dbus_addr,
-    input   wire    [`MemDataBus    ]   dbus_rdata,
+    output  wire                        dbus_awvalid,
+    input   wire                        dbus_awready,
+    output  wire    [`MemAddrBus    ]   dbus_awaddr,
+
+    output  wire                        dbus_wvalid,
+    input   wire                        dbus_wready,
     output  wire    [`MemDataBus    ]   dbus_wdata,
-    output  wire    [`DBUS_MASK-1:0 ]   dbus_mask
+    output  wire    [`DBUS_MASK-1:0 ]   dbus_wstrb,
+
+    input   wire                        dbus_bvalid,
+    output  wire                        dbus_bready,
+    input   wire    [`AXI_RESP_BUS  ]   dbus_bresp,
+
+    output  wire                        dbus_arvalid,
+    input   wire                        dbus_arready,
+    output  wire    [`MemAddrBus    ]   dbus_araddr,
+
+    input   wire                        dbus_rvalid,
+    output  wire                        dbus_rready,
+    input   wire    [`MemDataBus    ]   dbus_rdata,
+    input   wire    [`AXI_RESP_BUS  ]   dbus_rresp
 );
 
     //------------------------------------------------------------------------
@@ -59,7 +71,7 @@ module lsu
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rdata <= 0;
-        end else if(dbus_respValid) begin
+        end else if(dbus_rvalid) begin
             rdata <= dbus_rdata;
         end
     end
@@ -208,7 +220,7 @@ module lsu
             valid <= 1'b0;
         end else if(I_valid) begin
             valid <= 1'b1;
-        end else if(I_ls_valid & dbus_reqReady) begin
+        end else if(I_ls_valid & (dbus_arready | dbus_awready)) begin
             valid <= 1'b0;
         end
     end
@@ -235,11 +247,11 @@ module lsu
             case(state)
                 IDLE: begin
                     data_reqValid = I_ls_valid & valid;
-                    nstate = data_reqValid & dbus_reqReady ? MEM : IDLE;
+                    nstate = data_reqValid & (dbus_awready | dbus_arready) ? MEM : IDLE;
                 end
                 MEM: begin
                     data_reqValid = 1'b0;
-                    nstate = dbus_respValid ? WB : MEM;
+                    nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
                 end
                 WB: begin
                     data_reqValid = 1'b0;
@@ -253,14 +265,26 @@ module lsu
         end
     end
 
-    reg data_respReady;
+
+    reg data_bready;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            data_respReady <= 1'b1;
-        end else if(dbus_respValid) begin
-            data_respReady <= 1'b0;
+            data_bready <= 1'b1;
+        end else if(dbus_bvalid) begin
+            data_bready <= 1'b0;
         end else begin
-            data_respReady <= 1'b1;
+            data_bready <= 1'b1;
+        end
+    end
+
+    reg data_rready;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            data_rready <= 1'b1;
+        end else if(dbus_rvalid) begin
+            data_rready <= 1'b0;
+        end else begin
+            data_rready <= 1'b1;
         end
     end
 
@@ -269,7 +293,7 @@ module lsu
         if(!rst_n) begin
             stallreq_mem <= 1'b0;
         end else begin
-            if(dbus_respValid || state == WB) begin
+            if(dbus_bvalid || dbus_rvalid || state == WB) begin
                 stallreq_mem <= 1'b0;
             end else if(data_reqValid || state == MEM) begin
                 stallreq_mem <= 1'b1;
@@ -279,7 +303,6 @@ module lsu
 
     wire stallreq_ls_req = data_reqValid;
     wire stallreq = stallreq_mem | stallreq_ls_req;
-
 
     //------------------------------------------------------------------------
     // 输出
@@ -296,15 +319,21 @@ module lsu
 
     assign O_except = I_except;
 
-    assign dbus_reqValid = data_reqValid;
-    assign dbus_respReady = data_respReady;
-    assign dbus_we = I_ls_type[`ls_diff_width-1];
-    assign dbus_addr = I_memory_addr;
-    assign dbus_mask = data_mask;
-
-    assign dbus_wdata = wdata;
-
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
+
+    assign dbus_awvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
+    assign dbus_awaddr = I_memory_addr;
+
+    assign dbus_wvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
+    assign dbus_wdata = wdata;
+
+    assign dbus_bready = data_bready;
+
+    assign dbus_arvalid = data_reqValid & ~I_ls_type[`ls_diff_width-1];
+    assign dbus_araddr = I_memory_addr;
+
+    assign dbus_rready = data_rready;
+
 
 endmodule
