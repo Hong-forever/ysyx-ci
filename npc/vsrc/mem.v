@@ -8,7 +8,8 @@ module mem
 #(
     parameter DATA_WIDTH = 32,                  //数据总线宽度
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
-    parameter ROM_DEPTH  = 4096                 //ROM深度
+    parameter ROM_DEPTH  = 4096,                //ROM深度
+    parameter LFSR_SEED  = 0                    //LFSR初始值
 )(
     input   wire                        clk,        //时钟输入
     input   wire                        rst_n,      //复位输入
