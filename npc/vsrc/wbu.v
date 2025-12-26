@@ -32,7 +32,6 @@ module wbu
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,
     input   wire    [`CSRDataBus    ]   I_csr_wdata,
 
-    input   wire    [`INT_BUS       ]   I_int,
     input   wire    [`Except_Bus    ]   I_except,
     input   wire    [`InstAddrBus   ]   I_except_addr,
 
@@ -125,7 +124,6 @@ module wbu
         .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 
-        .I_int                  (I_int                      ),
         .I_except               (I_except                   ),
         .I_except_addr          (I_except_addr              ),
 
