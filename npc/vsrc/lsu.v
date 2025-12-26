@@ -356,6 +356,8 @@ module lsu
                     avalid_r <= 1'b1;
                     req_flag <= 1'b0;
                 end
+            end else if((dbus_awvalid & dbus_awready) | (dbus_arvalid & dbus_arready)) begin
+                avalid_r <= 1'b0;
             end
         end
     end

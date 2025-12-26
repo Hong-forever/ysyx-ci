@@ -81,7 +81,7 @@ module ifetch
                 end
                 REQ: begin
                     inst_arvalid = 1'b1;
-                    nstate = ibus_arready ? MEM : REQ;
+                    nstate = ibus_arvalid & ibus_arready ? MEM : REQ;
                 end
                 MEM: begin
                     inst_arvalid = 1'b0;
@@ -172,6 +172,8 @@ module ifetch
                     arvalid_r <= 1'b1;
                     req_flag <= 1'b0;
                 end
+            end else if(ibus_arvalid && ibus_arready) begin
+                arvalid_r <= 1'b0;
             end
         end
     end
