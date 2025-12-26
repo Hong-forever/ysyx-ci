@@ -9,7 +9,7 @@ module mem
     parameter DATA_WIDTH = 32,                  //数据总线宽度
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
     parameter ROM_DEPTH  = 4096,                //ROM深度
-    parameter LFSR_SEED  = 8'b0                 //LFSR初始值
+    parameter LFSR_SEED  = 8'd0                 //LFSR初始值
 )(
     input   wire                        clk,        //时钟输入
     input   wire                        rst_n,      //复位输入
@@ -119,12 +119,12 @@ module mem
             rdata <= `ZeroWord;
             rdata_valid <= 1'b0;
         end else begin
-            if(rhandshake) begin
-                rdata <= paddr_read(araddr_i);
-                rdata_valid <= 1'b1;
-            end else if(rvalid_o && rready_i) begin
+            if(rvalid_o && rready_i) begin
                 rdata <= `ZeroWord;
                 rdata_valid <= 1'b0;
+            end else if(rhandshake) begin
+                rdata <= paddr_read(araddr_i);
+                rdata_valid <= 1'b1;
             end
         end
     end
@@ -134,11 +134,11 @@ module mem
         if(!rst_n) begin
             wdata_valid <= 1'b0;
         end else begin
-            if(whandshake) begin
+            if(bvalid_o && bready_i) begin
+                wdata_valid <= 1'b0;
+            end else if(whandshake) begin
                 paddr_write(awaddr_i, wdata_i, {28'b0, wstrb_i});
                 wdata_valid <= 1'b1;
-            end else if(bvalid_o && bready_i) begin
-                wdata_valid <= 1'b0;
             end
         end
     end
