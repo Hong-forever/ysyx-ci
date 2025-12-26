@@ -167,6 +167,7 @@ module top
             end else if(dbus_rready && rdata_valid) begin
                 rdata <= `ZeroWord;
                 rdata_valid <= 1'b0;
+            end else if(~dbus_rready && ~rdata_valid) begin
                 rskip <= 1'b0;
             end
         end
@@ -187,6 +188,7 @@ module top
                 end
             end else if(dbus_bready && wdata_valid) begin
                 wdata_valid <= 1'b0;
+            end else if(~dbus_bready && ~wdata_valid) begin
                 wskip <= 1'b0;
             end
         end
