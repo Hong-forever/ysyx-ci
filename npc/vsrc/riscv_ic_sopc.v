@@ -110,7 +110,6 @@ module top
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
     `define SERIAL_MMIO 32'h1000_0000
     `define RTC_MMIO    32'h2000_0000
-    `define RAMDOM_WIDTH 8
 
     wire [`RAMDOM_WIDTH-1:0] irandom, irandom2, drandom, drandom2;
 

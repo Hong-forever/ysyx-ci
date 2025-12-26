@@ -55,7 +55,7 @@ module ifetch
     parameter EXE = 3;
     reg [1:0] state, nstate;
 
-    reg inst_reqValid;
+    reg inst_arvalid;
 
     reg [`InstAddrBus] pc;
     wire [`InstAddrBus] pc_plus4;
@@ -71,28 +71,28 @@ module ifetch
 
     always @(*) begin
         if(!rst_n) begin
-            inst_reqValid = 1'b0;
+            inst_arvalid = 1'b0;
             nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    inst_reqValid = 1'b0;
+                    inst_arvalid = 1'b0;
                     nstate = REQ;
                 end
                 REQ: begin
-                    inst_reqValid = 1'b1;
+                    inst_arvalid = 1'b1;
                     nstate = ibus_arready ? MEM : REQ;
                 end
                 MEM: begin
-                    inst_reqValid = 1'b0;
+                    inst_arvalid = 1'b0;
                     nstate = ibus_rvalid ? EXE : MEM;
                 end
                 EXE: begin
-                    inst_reqValid = 1'b0;
+                    inst_arvalid = 1'b0;
                     nstate = I_ready ? REQ : EXE;
                 end
                 default: begin
-                    inst_reqValid = 1'b0;
+                    inst_arvalid = 1'b0;
                     nstate = IDLE;
                 end 
             endcase
@@ -147,10 +147,48 @@ module ifetch
 
     assign ibus_bready = 1'b0;
 
-    assign ibus_arvalid = inst_reqValid;
+    // assign ibus_arvalid = inst_arvalid;
     assign ibus_araddr = pc;
 
     assign ibus_rready = inst_rready;
+
+    reg arvalid_r;
+    wire [`RAMDOM_WIDTH-1:0] irandom;
+    reg [`RAMDOM_WIDTH-1:0] irandom_r;
+    reg req_flag;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            arvalid_r <= 1'b0;
+            irandom_r <= 0;
+            req_flag <= 1'b0;
+        end else if(ibus_arready && inst_arvalid) begin
+            arvalid_r <= 1'b0;
+            irandom_r <= irandom;
+            req_flag <= 1'b1;
+        end else begin
+            if(req_flag) begin
+                irandom_r <= irandom_r - 1;
+                if(irandom_r == 0) begin
+                    arvalid_r <= 1'b1;
+                    req_flag <= 1'b0;
+                end
+            end
+        end
+    end
+
+    assign ibus_arvalid = arvalid_r;
+
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (`SEED1                     ),
+        .O_random               (irandom                    )
+    );
+
+
 
 
 endmodule
