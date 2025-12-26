@@ -40,6 +40,8 @@ module lsu
     output  wire    [`CSRDataBus    ]   O_csr_wdata,
     output  wire    [`Except_Bus    ]   O_except,
 
+    output  wire                        O_device_skip,
+
     //to bus
     output  wire                        dbus_awvalid,
     input   wire                        dbus_awready,
@@ -229,7 +231,7 @@ module lsu
     parameter MEM  = 1;
     parameter WB   = 2;
 
-    reg data_reqValid;
+    reg data_avalid;
     reg [1:0] state, nstate;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
@@ -241,24 +243,24 @@ module lsu
 
     always @(*) begin
         if(!rst_n) begin
-            data_reqValid = 1'b0;
+            data_avalid = 1'b0;
             nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    data_reqValid = I_ls_valid & valid;
-                    nstate = data_reqValid & (dbus_awready | dbus_arready) ? MEM : IDLE;
+                    data_avalid = I_ls_valid & valid;
+                    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
                 end
                 MEM: begin
-                    data_reqValid = 1'b0;
+                    data_avalid = 1'b0;
                     nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
                 end
                 WB: begin
-                    data_reqValid = 1'b0;
+                    data_avalid = 1'b0;
                     nstate = IDLE;
                 end
                 default: begin
-                    data_reqValid = 1'b0;
+                    data_avalid = 1'b0;
                     nstate = IDLE;
                 end
             endcase
@@ -295,13 +297,13 @@ module lsu
         end else begin
             if(dbus_bvalid || dbus_rvalid || state == WB) begin
                 stallreq_mem <= 1'b0;
-            end else if(data_reqValid || state == MEM) begin
+            end else if(data_avalid || state == MEM) begin
                 stallreq_mem <= 1'b1;
             end
         end
     end
 
-    wire stallreq_ls_req = data_reqValid;
+    wire stallreq_ls_req = data_avalid;
     wire stallreq = stallreq_mem | stallreq_ls_req;
 
     //------------------------------------------------------------------------
@@ -322,19 +324,59 @@ module lsu
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
 
-    assign dbus_awvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
+    assign O_device_skip = I_ls_valid & (((I_memory_addr & ~32'h3) == `SERIAL_MMIO) | ((I_memory_addr & ~32'h7) == `RTC_MMIO));
+
+    // assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_awaddr = I_memory_addr;
 
-    assign dbus_wvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
+    // assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_wdata = wdata;
     assign dbus_wstrb = data_mask;
 
     assign dbus_bready = data_bready;
 
-    assign dbus_arvalid = data_reqValid & ~I_ls_type[`ls_diff_width-1];
+    // assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
     assign dbus_araddr = I_memory_addr;
 
     assign dbus_rready = data_rready;
+
+    reg avalid_r;
+    wire [`RAMDOM_WIDTH-1:0] drandom;
+    reg [`RAMDOM_WIDTH-1:0] drandom_r;
+    reg req_flag;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            avalid_r <= 1'b0;
+            drandom_r <= 0;
+            req_flag <= 1'b0;
+        end else if(req_flag) begin
+            drandom_r <= drandom_r - 1;
+            if(drandom_r == 0) begin
+                avalid_r <= 1'b1;
+                req_flag <= 1'b0;
+            end
+        end else if(state == IDLE && (data_avalid & (dbus_awready | dbus_arready)) && !avalid_r) begin
+            avalid_r <= 1'b0;
+            drandom_r <= drandom;
+            req_flag <= 1'b1;
+        end else if((dbus_awvalid & dbus_awready) | (dbus_arvalid & dbus_arready)) begin
+            avalid_r <= 1'b0;
+        end
+    end
+
+    assign dbus_awvalid = avalid_r & I_ls_type[`ls_diff_width-1];
+    assign dbus_wvalid = avalid_r & I_ls_type[`ls_diff_width-1];
+    assign dbus_arvalid = avalid_r & ~I_ls_type[`ls_diff_width-1];
+
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (`SEED2                     ),
+        .O_random               (drandom                    )
+    );
 
 
 endmodule

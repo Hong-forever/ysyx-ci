@@ -5,10 +5,16 @@
 //------------------------------------------------------------------------
 `define DPIC
 
+`define RAMDOM_WIDTH 8
+
+`define SEED1 8'd1
+`define SEED2 8'd2
+`define SEED3 8'd0
+`define SEED4 8'd0
+
 //------------------------------------------------------------------------
 // CLOCK
 //------------------------------------------------------------------------
-`define CPU_CLOCK_HZ 325_000_000 // 325MHz
 
 
 //------------------------------------------------------------------------
@@ -126,7 +132,6 @@
 `define DivStart 1'b1
 `define DivStop 1'b0
 
-
 //------------------------------------------------------------------------
 // rv32i B type inst
 //------------------------------------------------------------------------
@@ -162,7 +167,6 @@
 `define RV_F3_CSRRSI 3'b110
 `define RV_F3_CSRRCI 3'b111
 
-
 //------------------------------------------------------------------------
 // GENERAL PURPOSE REGISTER DEFINITIONS
 //------------------------------------------------------------------------
@@ -187,7 +191,6 @@
 `define DoubleCSRDataBus `DoubleCSRDataWidth-1:0
 `define CSRNum 1024
 
-
 `define CSR_Addr_FFLAGS     12'h001     // Floating-Point Accrued Exceptions
 `define CSR_Addr_FRM        12'h002     // Floating-Point Dynamic Rounding Mode
 `define CSR_Addr_FCSR       12'h003     // Floating-Point Control and Status Register
@@ -201,28 +204,6 @@
 `define CSR_Addr_CYCLEH     12'hc80     // Upper 32 bits of Cycle counter
 `define CSR_Addr_MVENDORID  12'hf11     // Vendor ID
 `define CSR_Addr_MARCHID    12'hf12     // Architecture ID
-
-//------------------------------------------------------------------------
-// PIPELINE STALL DEFINITIONS
-//------------------------------------------------------------------------
-`define StallWidth      6
-`define StallBus        `StallWidth-1:0
-`define Stall_pc        0
-`define Stall_if_dec    1
-`define Stall_dec_ex    2
-`define Stall_ex_ls     3
-`define Stall_ls_wb     4
-`define Stall_wb        5
-
-//------------------------------------------------------------------------
-// PIPELINE FLUSH DEFINITIONS
-//------------------------------------------------------------------------
-`define KillWidth      4
-`define KillBus        `KillWidth-1:0
-`define Kill_if_dec    0
-`define Kill_dec_ex    1
-`define Kill_ex_ls     2
-`define Kill_ls_wb     3
 
 //------------------------------------------------------------------------
 // ALU CONTROL DEFINITIONS
@@ -338,16 +319,6 @@
 `define ls_fsw          4'b1101
 
 //------------------------------------------------------------------------
-// INTERRUPT DEFINITIONS
-//------------------------------------------------------------------------
-`define INT_WIDTH 8
-`define INT_BUS `INT_WIDTH-1:0
-`define INT_NONE 8'h0
-`define INT_RET 8'hff
-`define INT_TIMER0 8'b00000001
-`define INT_TIMER0_ENTRY_ADDR 32'h4
-
-//------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS
 //------------------------------------------------------------------------
 `define Except_Width                3
@@ -373,5 +344,7 @@
 `define DBUS_MASK 4
 `define AXI_RESP_BUS 1:0
 
+`define SERIAL_MMIO 32'h1000_0000
+`define RTC_MMIO    32'h2000_0000
 
 `define RomAddrBase 32'h8000_0000

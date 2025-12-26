@@ -53,12 +53,7 @@ module riscv_ic
     input   wire                        dbus_rvalid,
     output  wire                        dbus_rready,
     input   wire    [`MemDataBus    ]   dbus_rdata,
-    input   wire    [`AXI_RESP_BUS  ]   dbus_rresp,
-
-    input   wire                        device_skip,
-
-    //from peripheral
-    input   wire    [`INT_BUS       ]   I_int
+    input   wire    [`AXI_RESP_BUS  ]   dbus_rresp
 );
 
     //-------------------------------------------------------------
@@ -250,6 +245,7 @@ module riscv_ic
     //-------------------------------------------------------------
     // instantiate modules
     //-------------------------------------------------------------
+    wire lsu_device_skip;
     wire wbu_device_skip;
 
     ifetch u_ifetch
@@ -458,6 +454,8 @@ module riscv_ic
         .I_csr_wdata            (I_ls_csr_wdata             ),
         .I_except               (I_ls_except                ),
 
+        .O_device_skip          (lsu_device_skip            ),
+
         .O_inst                 (O_ls_inst                  ),
         .O_inst_addr            (O_ls_inst_addr             ),
         .O_valid                (O_ls_valid                 ),
@@ -513,7 +511,6 @@ module riscv_ic
         .I_csr_waddr            (I_wb_csr_waddr             ),
         .I_csr_wdata            (I_wb_csr_wdata             ),
 
-        .I_int                  (I_int                      ),
         .I_except               (I_wb_except                ),
         .I_except_addr          (I_wb_inst_addr             ),
         .I_next_inst_addr       (I_ls_inst_addr             ),
@@ -681,7 +678,7 @@ module riscv_ic
         .I_csr_wdata            (O_ls_csr_wdata             ),
         .I_except               (O_ls_except                ),
 
-        .I_device_skip          (device_skip                ),
+        .I_device_skip          (lsu_device_skip            ),
 
         .O_inst                 (I_wb_inst                  ),
         .O_inst_addr            (I_wb_inst_addr             ),
