@@ -139,14 +139,14 @@ extern VerilatedContext *contextp;
 
 static void single_cycle()
 {
-    top->clk = 1;
+    top->clk = 0;
     top->eval();
 #ifdef WAVE_ENABLE
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
     contextp->timeInc(1);
     tfp->dump(contextp->time());
 #endif
-    top->clk = 0;
+    top->clk = 1;
     top->eval();
 #ifdef WAVE_ENABLE
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
