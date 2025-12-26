@@ -10,50 +10,32 @@ module riscv_ic
     input   wire                        rst_n,
 
     //ibus
-    output  wire                        ibus_awvalid,
-    input   wire                        ibus_awready,
-    output  wire    [`InstAddrBus   ]   ibus_awaddr,
-
-    output  wire                        ibus_wvalid,
-    input   wire                        ibus_wready,
-    output  wire    [`InstBus       ]   ibus_wdata,
-    output  wire    [`DBUS_MASK-1:0 ]   ibus_wstrb,
-
-    input   wire                        ibus_bvalid,
-    output  wire                        ibus_bready,
-    input   wire    [`AXI_RESP_BUS  ]   ibus_bresp,
-
-    output  wire                        ibus_arvalid,
-    input   wire                        ibus_arready,
-    output  wire    [`InstAddrBus   ]   ibus_araddr,
-
-    input   wire                        ibus_rvalid,
-    output  wire                        ibus_rready,
+    output  wire                        ibus_reqValid,
+    input   wire                        ibus_reqReady,
+    input   wire                        ibus_respValid,
+    output  wire                        ibus_respReady,
+    output  wire                        ibus_we,
+    output  wire    [`InstAddrBus   ]   ibus_addr,
     input   wire    [`InstBus       ]   ibus_rdata,
-    input   wire    [`AXI_RESP_BUS  ]   ibus_rresp,
+    output  wire    [`InstBus       ]   ibus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   ibus_mask,
 
     //dbus
-    output  wire                        dbus_awvalid,
-    input   wire                        dbus_awready,
-    output  wire    [`MemAddrBus    ]   dbus_awaddr,
-
-    output  wire                        dbus_wvalid,
-    input   wire                        dbus_wready,
-    output  wire    [`MemDataBus    ]   dbus_wdata,
-    output  wire    [`DBUS_MASK-1:0 ]   dbus_wstrb,
-
-    input   wire                        dbus_bvalid,
-    output  wire                        dbus_bready,
-    input   wire    [`AXI_RESP_BUS  ]   dbus_bresp,
-
-    output  wire                        dbus_arvalid,
-    input   wire                        dbus_arready,
-    output  wire    [`MemAddrBus    ]   dbus_araddr,
-
-    input   wire                        dbus_rvalid,
-    output  wire                        dbus_rready,
+    output  wire                        dbus_reqValid,
+    input   wire                        dbus_reqReady,
+    input   wire                        dbus_respValid,
+    output  wire                        dbus_respReady,
+    output  wire                        dbus_we,
+    output  wire    [`MemAddrBus    ]   dbus_addr,
     input   wire    [`MemDataBus    ]   dbus_rdata,
-    input   wire    [`AXI_RESP_BUS  ]   dbus_rresp
+    output  wire    [`MemDataBus    ]   dbus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   dbus_mask,
+
+
+    input   wire                        device_skip,
+
+    //from peripheral
+    input   wire    [`INT_BUS       ]   I_int
 );
 
     //-------------------------------------------------------------
@@ -245,7 +227,6 @@ module riscv_ic
     //-------------------------------------------------------------
     // instantiate modules
     //-------------------------------------------------------------
-    wire lsu_device_skip;
     wire wbu_device_skip;
 
     ifetch u_ifetch
@@ -266,24 +247,17 @@ module riscv_ic
         .O_valid                (O_if_valid                 ),
         
         //to bus
-        .ibus_awvalid           (ibus_awvalid               ),
-        .ibus_awready           (ibus_awready               ),
-        .ibus_awaddr            (ibus_awaddr                ),
-        .ibus_wvalid            (ibus_wvalid                ),
-        .ibus_wready            (ibus_wready                ),
-        .ibus_wdata             (ibus_wdata                 ),
-        .ibus_wstrb             (ibus_wstrb                 ),
-        .ibus_bvalid            (ibus_bvalid                ),
-        .ibus_bready            (ibus_bready                ),
-        .ibus_bresp             (ibus_bresp                 ),
-        .ibus_arvalid           (ibus_arvalid               ),
-        .ibus_arready           (ibus_arready               ),
-        .ibus_araddr            (ibus_araddr                ),
-        .ibus_rvalid            (ibus_rvalid                ),
-        .ibus_rready            (ibus_rready                ),
+        .ibus_reqValid          (ibus_reqValid              ),
+        .ibus_reqReady          (ibus_reqReady              ),
+        .ibus_respValid         (ibus_respValid             ),
+        .ibus_respReady         (ibus_respReady             ),
+        .ibus_we                (ibus_we                    ),
+        .ibus_addr              (ibus_addr                  ),
         .ibus_rdata             (ibus_rdata                 ),
-        .ibus_rresp             (ibus_rresp                 )
+        .ibus_wdata             (ibus_wdata                 ),
+        .ibus_mask              (ibus_mask                  )
     );
+
 
     decoder u_decoder
     (
@@ -454,8 +428,6 @@ module riscv_ic
         .I_csr_wdata            (I_ls_csr_wdata             ),
         .I_except               (I_ls_except                ),
 
-        .O_device_skip          (lsu_device_skip            ),
-
         .O_inst                 (O_ls_inst                  ),
         .O_inst_addr            (O_ls_inst_addr             ),
         .O_valid                (O_ls_valid                 ),
@@ -467,24 +439,15 @@ module riscv_ic
         .O_csr_wdata            (O_ls_csr_wdata             ),
         .O_except               (O_ls_except                ),
 
-        //to bus
-        .dbus_awvalid           (dbus_awvalid               ),
-        .dbus_awready           (dbus_awready               ),
-        .dbus_awaddr            (dbus_awaddr                ),
-        .dbus_wvalid            (dbus_wvalid                ),
-        .dbus_wready            (dbus_wready                ),
-        .dbus_wdata             (dbus_wdata                 ),
-        .dbus_wstrb             (dbus_wstrb                 ),
-        .dbus_bvalid            (dbus_bvalid                ),
-        .dbus_bready            (dbus_bready                ),
-        .dbus_bresp             (dbus_bresp                 ),
-        .dbus_arvalid           (dbus_arvalid               ),
-        .dbus_arready           (dbus_arready               ),
-        .dbus_araddr            (dbus_araddr                ),
-        .dbus_rvalid            (dbus_rvalid                ),
-        .dbus_rready            (dbus_rready                ),
+        .dbus_reqValid          (dbus_reqValid              ),
+        .dbus_reqReady          (dbus_reqReady              ),
+        .dbus_respValid         (dbus_respValid             ),
+        .dbus_respReady         (dbus_respReady             ),
+        .dbus_we                (dbus_we                    ),
+        .dbus_addr              (dbus_addr                  ),
         .dbus_rdata             (dbus_rdata                 ),
-        .dbus_rresp             (dbus_rresp                 )
+        .dbus_wdata             (dbus_wdata                 ),
+        .dbus_mask              (dbus_mask                  )
     );
 
     wbu u_wbu
@@ -511,6 +474,7 @@ module riscv_ic
         .I_csr_waddr            (I_wb_csr_waddr             ),
         .I_csr_wdata            (I_wb_csr_wdata             ),
 
+        .I_int                  (I_int                      ),
         .I_except               (I_wb_except                ),
         .I_except_addr          (I_wb_inst_addr             ),
         .I_next_inst_addr       (I_ls_inst_addr             ),
@@ -678,7 +642,7 @@ module riscv_ic
         .I_csr_wdata            (O_ls_csr_wdata             ),
         .I_except               (O_ls_except                ),
 
-        .I_device_skip          (lsu_device_skip            ),
+        .I_device_skip          (device_skip                ),
 
         .O_inst                 (I_wb_inst                  ),
         .O_inst_addr            (I_wb_inst_addr             ),

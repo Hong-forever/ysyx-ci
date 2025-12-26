@@ -28,8 +28,6 @@ int main(int argc, char *argv[])
 
 #ifdef WAVE_ENABLE
     Verilated::traceEverOn(true);
-    tfp->set_time_unit("1ns"); // time unit is 1 ps
-    tfp->set_time_resolution("1ps"); // time precision is 1 ps
     top->trace(tfp, 99);
     tfp->open(wave_file);
 #endif
