@@ -220,10 +220,10 @@ module lsu
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             valid <= 1'b0;
-        end else if(I_ls_valid & (dbus_arready | dbus_awready)) begin
-            valid <= 1'b0;
         end else if(I_valid) begin
             valid <= 1'b1;
+        end else if(I_ls_valid & (dbus_arready | dbus_awready)) begin
+            valid <= 1'b0;
         end
     end
 
