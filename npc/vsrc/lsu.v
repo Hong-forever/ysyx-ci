@@ -351,7 +351,7 @@ module lsu
                 avalid_r <= 1'b1;
                 req_flag <= 1'b0;
             end
-        end else if(data_avalid & (dbus_awready | dbus_arready)) begin
+        end else if(state == IDLE && (data_avalid & (dbus_awready | dbus_arready))) begin
             avalid_r <= 1'b0;
             drandom_r <= drandom;
             req_flag <= 1'b1;
