@@ -96,7 +96,8 @@ module top
     mem #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              ),
-        .ROM_DEPTH              (4096                       )
+        .MEM_DEPTH              (4096                       ),
+        .LFSR_SEED              (`SEED3                     )
     ) rom_inst (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -123,7 +124,8 @@ module top
     mem #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              ),
-        .ROM_DEPTH              (4096                       )
+        .MEM_DEPTH              (4096                       ),
+        .LFSR_SEED              (`SEED4                     )
     ) ram_inst (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
