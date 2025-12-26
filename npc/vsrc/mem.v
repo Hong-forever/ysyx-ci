@@ -9,7 +9,7 @@ module mem
     parameter DATA_WIDTH = 32,                  //数据总线宽度
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
     parameter ROM_DEPTH  = 4096,                //ROM深度
-    parameter LFSR_SEED  = 0                    //LFSR初始值
+    parameter LFSR_SEED  = 8'b0                 //LFSR初始值
 )(
     input   wire                        clk,        //时钟输入
     input   wire                        rst_n,      //复位输入
@@ -49,12 +49,68 @@ module mem
             awready <= 1'b1;
             wready  <= 1'b1;
         end else begin
-            arready <= ~(arvalid_i & arready);
-            awready <= ~(awvalid_i & awready);
-            wready  <= ~(wvalid_i  & wready );
+            if(arvalid_i && arready) begin
+                arready <= 1'b0;
+            end else if(rvalid_o && rready_i) begin
+                arready <= 1'b1;
+            end
+            if(awvalid_i && awready) begin
+                awready <= 1'b0;
+            end else if(bvalid_o && bready_i) begin
+                awready <= 1'b1;
+            end
+            if(wvalid_i && wready) begin
+                wready <= 1'b0;
+            end else if(bvalid_o && bready_i) begin
+                wready <= 1'b1;
+            end
         end
     end
 
+    wire [`RAMDOM_WIDTH-1:0] random;
+    reg [`RAMDOM_WIDTH-1:0] random_r;
+    reg [`RAMDOM_WIDTH-1:0] random_w;
+
+    reg rflag, wflag;
+    reg rhandshake, whandshake;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            rflag <= 1'b0;
+            random_r <= 0;
+            rhandshake <= 1'b0;
+            wflag <= 1'b0;
+            random_w <= 0;
+            whandshake <= 1'b0;
+        end else begin
+            if(rflag) begin
+                random_r <= random_r - 1;
+                if(random_r == 0) begin
+                    rhandshake <= 1'b1;
+                    rflag <= 1'b0;
+                end
+            end else if(arvalid_i && arready) begin
+                rflag <= 1'b1;
+                random_r <= random;
+                rhandshake <= 1'b0;
+            end else if(rvalid_o && rready_i) begin
+                rhandshake <= 1'b0;
+            end
+
+            if(wflag) begin
+                random_w <= random_w - 1;
+                if(random_w == 0) begin
+                    whandshake <= 1'b1;
+                    wflag <= 1'b0;
+                end
+            end else if(awvalid_i && awready && wvalid_i && wready) begin
+                wflag <= 1'b1;
+                random_w <= random;
+                whandshake <= 1'b0;
+            end else if(bvalid_o && bready_i) begin
+                whandshake <= 1'b0;
+            end
+        end
+    end
 
     reg [`MemDataBus] rdata;
     reg               rdata_valid;
@@ -63,10 +119,10 @@ module mem
             rdata <= `ZeroWord;
             rdata_valid <= 1'b0;
         end else begin
-            if(arvalid_i && arready) begin
+            if(rhandshake) begin
                 rdata <= paddr_read(araddr_i);
                 rdata_valid <= 1'b1;
-            end else if(rready_i && rdata_valid) begin
+            end else if(rvalid_o && rready_i) begin
                 rdata <= `ZeroWord;
                 rdata_valid <= 1'b0;
             end
@@ -78,7 +134,7 @@ module mem
         if(!rst_n) begin
             wdata_valid <= 1'b0;
         end else begin
-            if(awvalid_i && awready && wvalid_i && wready) begin
+            if(whandshake) begin
                 paddr_write(awaddr_i, wdata_i, {28'b0, wstrb_i});
                 wdata_valid <= 1'b1;
             end else if(bvalid_o && bready_i) begin
@@ -96,5 +152,15 @@ module mem
     assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
 
+
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (LFSR_SEED                  ),
+        .O_random               (random                     )
+    );
 
 endmodule
