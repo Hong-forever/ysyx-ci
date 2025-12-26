@@ -6,10 +6,10 @@
 `define DPIC
 `define RAMDOM_WIDTH 8
 
-`define SEED1 8'd1
-`define SEED2 8'd2
-`define SEED3 8'd3
-`define SEED4 8'd5
+`define SEED1 8'd0
+`define SEED2 8'd0
+`define SEED3 8'd0
+`define SEED4 8'd0
 
 //------------------------------------------------------------------------
 // CLOCK
