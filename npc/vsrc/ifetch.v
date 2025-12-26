@@ -50,9 +50,8 @@ module ifetch
     //------------------------------------------------------------------------
 
     parameter IDLE = 0;
-    parameter REQ = 1;
-    parameter MEM = 2;
-    parameter EXE = 3;
+    parameter MEM = 1;
+    parameter EXE = 2;
     reg [1:0] state, nstate;
 
     reg inst_arvalid;
@@ -76,12 +75,8 @@ module ifetch
         end else begin
             case(state)
                 IDLE: begin
-                    inst_arvalid = 1'b0;
-                    nstate = REQ;
-                end
-                REQ: begin
                     inst_arvalid = 1'b1;
-                    nstate = ibus_arvalid & ibus_arready ? MEM : REQ;
+                    nstate = ibus_arvalid & ibus_arready ? MEM : IDLE;
                 end
                 MEM: begin
                     inst_arvalid = 1'b0;
@@ -89,7 +84,7 @@ module ifetch
                 end
                 EXE: begin
                     inst_arvalid = 1'b0;
-                    nstate = I_ready ? REQ : EXE;
+                    nstate = I_ready ? IDLE : EXE;
                 end
                 default: begin
                     inst_arvalid = 1'b0;
@@ -167,7 +162,7 @@ module ifetch
                 arvalid_r <= 1'b1;
                 req_flag <= 1'b0;
             end
-        end else if(state == REQ && inst_arvalid && ibus_arready && !arvalid_r) begin
+        end else if(state == IDLE && inst_arvalid && ibus_arready && !arvalid_r) begin
             arvalid_r <= 1'b0;
             irandom_r <= irandom;
             req_flag <= 1'b1;
