@@ -16,7 +16,6 @@ module csr_reg
     input   wire    [`CSRAddrBus    ]   I_waddr,
     input   wire    [`CSRDataBus    ]   I_wdata,
 
-    input   wire    [`INT_BUS       ]   I_int,
     input   wire    [`Except_Bus    ]   I_except,
     input   wire    [`InstAddrBus   ]   I_except_addr,
 
@@ -51,42 +50,18 @@ module csr_reg
     wire is_ebreak = I_except[`EXCPT_EBREAK];
     wire is_mret  = I_except[`EXCPT_MRET];
 
-    reg ext_int_valid;
-    reg [`INT_BUS] int_r;
-    reg [`InstAddrBus] ext_int_addr;
-    always @(posedge clk or negedge rst_n) begin
-        if(!rst_n) begin
-            ext_int_valid <= 1'b0;
-            int_r <= `INT_NONE;
-            ext_int_addr <= `ZeroWord;
-        end else if(I_next_inst_addr != `ZeroWord) begin
-            ext_int_valid <= `Enable;
-            ext_int_addr <= I_next_inst_addr;
-            int_r <= `INT_NONE;
-        end else begin
-            ext_int_valid = `Disable;
-            ext_int_addr = `ZeroWord;
-            int_r <= I_int;
-        end
-    end
-
-    wire global_int_enable = mstatus[3]; //MIE位
-
     // wire except_sync = is_ecall | is_ebreak;
     wire except_sync = is_ecall; // for ysyx
-    wire except_async = ext_int_valid & ((|I_int) | (|int_r)) & global_int_enable; 
-    wire except_call = except_sync | except_async;
+    wire except_call = except_sync;
     wire except_mret = is_mret;
 
-    reg e_sync_r, e_async_r, e_mret_r;
+    reg e_sync_r, e_mret_r;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             e_sync_r <= 1'b0;
-            e_async_r <= 1'b0;
             e_mret_r <= 1'b0;
         end else begin
             e_sync_r <= except_sync;
-            e_async_r <= except_async;
             e_mret_r <= except_mret;
         end
     end
@@ -130,11 +105,7 @@ module csr_reg
             mvendorid <= `YSYX_LOGO;
             marchid <= `YSYX_STU_NUM;
         end else begin
-            if(except_async & ~e_async_r) begin
-                mepc <= ext_int_addr;
-                mcause <= 32'h80000004; //定时器中断
-                mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_sync & ~e_sync_r) begin
+            if(except_sync & ~e_sync_r) begin
                 mepc <= I_except_addr;
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
