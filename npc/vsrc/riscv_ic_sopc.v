@@ -93,127 +93,59 @@ module top
         .dbus_rresp             (dbus_rresp                 )
     );
 
-`ifdef DPIC
-    import "DPI-C" function int paddr_read(input int raddr);
-    import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
+    mem #(
+        .ADDR_WIDTH             (`MemAddrWidth              ),
+        .DATA_WIDTH             (`MemDataWidth              ),
+        .ROM_DEPTH              (4096                       )
+    ) rom_inst (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
 
-    reg                    i_arready;
-    reg                    d_awready;
-    reg                    d_wready;
-    reg                    d_arready;
-    always @(posedge clk or negedge rst_n) begin
-        if(!rst_n) begin
-            i_arready <= 1'b1;
-            d_awready <= 1'b1;
-            d_wready  <= 1'b1;
-            d_arready <= 1'b1;
-        end else begin
-            i_arready <= ~(ibus_arvalid & i_arready);
-            d_awready <= ~(dbus_awvalid & d_awready);
-            d_wready  <= ~(dbus_wvalid  & d_wready );
-            d_arready <= ~(dbus_arvalid & d_arready);
-        end
-    end
+        .awvalid_i              (ibus_awvalid               ),
+        .awready_o              (ibus_awready               ),
+        .awaddr_i               (ibus_awaddr                ),
+        .wvalid_i               (ibus_wvalid                ),
+        .wready_o               (ibus_wready                ),
+        .wdata_i                (ibus_wdata                 ),
+        .wstrb_i                (ibus_wstrb                 ),
+        .bvalid_o               (ibus_bvalid                ),
+        .bready_i               (ibus_bready                ),
+        .bresp_o                (ibus_bresp                 ),
+        .arvalid_i              (ibus_arvalid               ),
+        .arready_o              (ibus_arready               ),
+        .araddr_i               (ibus_araddr                ),
+        .rvalid_o               (ibus_rvalid                ),
+        .rready_i               (ibus_rready                ),
+        .rdata_o                (ibus_rdata                 ),
+        .rresp_o                (ibus_rresp                 )
+    );
 
-    reg [`InstBus] inst;
-    reg            inst_valid;
-    always @(posedge clk or negedge rst_n) begin
-        if(!rst_n) begin
-            inst <= `ZeroWord;
-            inst_valid <= 1'b0;
-        end else begin
-            if(ibus_arvalid && i_arready) begin
-                inst <= paddr_read(ibus_araddr);
-                inst_valid <= 1'b1;
-            end else if(ibus_rready && inst_valid) begin
-                inst <= `ZeroWord;
-                inst_valid <= 1'b0;
-            end
-        end
-    end
+    mem #(
+        .ADDR_WIDTH             (`MemAddrWidth              ),
+        .DATA_WIDTH             (`MemDataWidth              ),
+        .ROM_DEPTH              (4096                       )
+    ) ram_inst (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
 
-    reg [`MemDataBus] rdata;
-    reg               rdata_valid;
-    always @(posedge clk or negedge rst_n) begin
-        if(!rst_n) begin
-            rdata <= `ZeroWord;
-            rdata_valid <= 1'b0;
-        end else begin
-            if(dbus_arvalid && d_arready) begin
-                rdata <= paddr_read(dbus_araddr);
-                rdata_valid <= 1'b1;
-            end else if(dbus_rready && rdata_valid) begin
-                rdata <= `ZeroWord;
-                rdata_valid <= 1'b0;
-            end
-        end
-    end
+        .awvalid_i              (dbus_awvalid               ),
+        .awready_o              (dbus_awready               ),
+        .awaddr_i               (dbus_awaddr                ),
+        .wvalid_i               (dbus_wvalid                ),
+        .wready_o               (dbus_wready                ),
+        .wdata_i                (dbus_wdata                 ),
+        .wstrb_i                (dbus_wstrb                 ),
+        .bvalid_o               (dbus_bvalid                ),
+        .bready_i               (dbus_bready                ),
+        .bresp_o                (dbus_bresp                 ),
+        .arvalid_i              (dbus_arvalid               ),
+        .arready_o              (dbus_arready               ),
+        .araddr_i               (dbus_araddr                ),
+        .rvalid_o               (dbus_rvalid                ),
+        .rready_i               (dbus_rready                ),
+        .rdata_o                (dbus_rdata                 ),
+        .rresp_o                (dbus_rresp                 )
+    );
 
-    reg wdata_valid;
-    always @(posedge clk or negedge rst_n) begin
-        if(!rst_n) begin
-            wdata_valid <= 1'b0;
-        end else begin
-            if(dbus_awvalid && d_awready && dbus_wvalid && d_wready) begin
-                paddr_write(dbus_awaddr, dbus_wdata, {28'b0, dbus_wstrb});
-                wdata_valid <= 1'b1;
-            end else if(dbus_bready && wdata_valid) begin
-                wdata_valid <= 1'b0;
-            end
-        end
-    end
-
-    assign ibus_arready = i_arready;
-    assign ibus_rvalid  = inst_valid;
-    assign ibus_rdata   = inst;
-
-    assign dbus_awready = d_awready;
-    assign dbus_wready  = d_wready;
-    assign dbus_bvalid  = wdata_valid;
-    assign dbus_arready = d_arready;
-    assign dbus_rvalid  = rdata_valid;
-    assign dbus_rdata   = rdata;
-
-    // lfsr #(
-    //     .WIDTH                  (`RAMDOM_WIDTH              )      
-    // ) ilfsr_inst
-    // (
-    //     .clk                    (clk                        ),
-    //     .rst_n                  (rst_n                      ),
-    //     .I_seed                 (8'h0                       ),
-    //     .O_random               (irandom                    )
-    // );
-
-    // lfsr #(
-    //     .WIDTH                  (`RAMDOM_WIDTH              )      
-    // ) dlfsr_inst
-    // (
-    //     .clk                    (clk                        ),
-    //     .rst_n                  (rst_n                      ),
-    //     .I_seed                 (8'h0                       ),
-    //     .O_random               (drandom                    )
-    // );
-    
-    // lfsr #(
-    //     .WIDTH                  (`RAMDOM_WIDTH              )      
-    // ) ilfsr_inst2
-    // (
-    //     .clk                    (clk                        ),
-    //     .rst_n                  (rst_n                      ),
-    //     .I_seed                 (8'h0                       ),
-    //     .O_random               (irandom2                   )
-    // );
-
-    // lfsr #(
-    //     .WIDTH                  (`RAMDOM_WIDTH              )      
-    // ) dlfsr_inst2
-    // (
-    //     .clk                    (clk                        ),
-    //     .rst_n                  (rst_n                      ),
-    //     .I_seed                 (8'h0                       ),
-    //     .O_random               (drandom2                   )
-    // );
-
-`endif
 
 endmodule
