@@ -93,5 +93,59 @@ module top
         .dbus_rresp             (dbus_rresp                 )
     );
 
+    mem #(
+        .ADDR_WIDTH             (`MemAddrWidth              ),
+        .DATA_WIDTH             (`MemDataWidth              ),
+        .ROM_DEPTH              (4096                       )
+    ) rom_inst (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+
+        .awvalid_i              (ibus_awvalid               ),
+        .awready_o              (ibus_awready               ),
+        .awaddr_i               (ibus_awaddr                ),
+        .wvalid_i               (ibus_wvalid                ),
+        .wready_o               (ibus_wready                ),
+        .wdata_i                (ibus_wdata                 ),
+        .wstrb_i                (ibus_wstrb                 ),
+        .bvalid_o               (ibus_bvalid                ),
+        .bready_i               (ibus_bready                ),
+        .bresp_o                (ibus_bresp                 ),
+        .arvalid_i              (ibus_arvalid               ),
+        .arready_o              (ibus_arready               ),
+        .araddr_i               (ibus_araddr                ),
+        .rvalid_o               (ibus_rvalid                ),
+        .rready_i               (ibus_rready                ),
+        .rdata_o                (ibus_rdata                 ),
+        .rresp_o                (ibus_rresp                 )
+    );
+
+    mem #(
+        .ADDR_WIDTH             (`MemAddrWidth              ),
+        .DATA_WIDTH             (`MemDataWidth              ),
+        .ROM_DEPTH              (4096                       )
+    ) ram_inst (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+
+        .awvalid_i              (dbus_awvalid               ),
+        .awready_o              (dbus_awready               ),
+        .awaddr_i               (dbus_awaddr                ),
+        .wvalid_i               (dbus_wvalid                ),
+        .wready_o               (dbus_wready                ),
+        .wdata_i                (dbus_wdata                 ),
+        .wstrb_i                (dbus_wstrb                 ),
+        .bvalid_o               (dbus_bvalid                ),
+        .bready_i               (dbus_bready                ),
+        .bresp_o                (dbus_bresp                 ),
+        .arvalid_i              (dbus_arvalid               ),
+        .arready_o              (dbus_arready               ),
+        .araddr_i               (dbus_araddr                ),
+        .rvalid_o               (dbus_rvalid                ),
+        .rready_i               (dbus_rready                ),
+        .rdata_o                (dbus_rdata                 ),
+        .rresp_o                (dbus_rresp                 )
+    );
+
 
 endmodule
