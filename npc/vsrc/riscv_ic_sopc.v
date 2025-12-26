@@ -127,7 +127,7 @@ module top
         end else begin
             i_arready <= ~(ibus_arvalid & i_arready);
             d_awready <= ~(dbus_awvalid & d_awready);
-            d_wready  <= ~(dbus_wvalid  & d_wready);
+            d_wready  <= ~(dbus_wvalid  & d_wready );
             d_arready <= ~(dbus_arvalid & d_arready);
         end
     end

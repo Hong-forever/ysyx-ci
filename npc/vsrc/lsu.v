@@ -327,6 +327,7 @@ module lsu
 
     assign dbus_wvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
     assign dbus_wdata = wdata;
+    assign dbus_wstrb = data_mask;
 
     assign dbus_bready = data_bready;
 
