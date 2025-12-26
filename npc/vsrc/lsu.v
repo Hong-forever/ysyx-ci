@@ -345,20 +345,18 @@ module lsu
             avalid_r <= 1'b0;
             drandom_r <= 0;
             req_flag <= 1'b0;
+        end else if(req_flag) begin
+            drandom_r <= drandom_r - 1;
+            if(drandom_r == 0) begin
+                avalid_r <= 1'b1;
+                req_flag <= 1'b0;
+            end
         end else if(data_avalid & (dbus_awready | dbus_arready)) begin
             avalid_r <= 1'b0;
             drandom_r <= drandom;
             req_flag <= 1'b1;
-        end else begin
-            if(req_flag) begin
-                drandom_r <= drandom_r - 1;
-                if(drandom_r == 0) begin
-                    avalid_r <= 1'b1;
-                    req_flag <= 1'b0;
-                end
-            end else if((dbus_awvalid & dbus_awready) | (dbus_arvalid & dbus_arready)) begin
-                avalid_r <= 1'b0;
-            end
+        end else if((dbus_awvalid & dbus_awready) | (dbus_arvalid & dbus_arready)) begin
+            avalid_r <= 1'b0;
         end
     end
 

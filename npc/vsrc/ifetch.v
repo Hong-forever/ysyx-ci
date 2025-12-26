@@ -161,20 +161,18 @@ module ifetch
             arvalid_r <= 1'b0;
             irandom_r <= 0;
             req_flag <= 1'b0;
-        end else if(ibus_arready && inst_arvalid) begin
+        end else if(req_flag) begin
+            irandom_r <= irandom_r - 1;
+            if(irandom_r == 0) begin
+                arvalid_r <= 1'b1;
+                req_flag <= 1'b0;
+            end
+        end else if(inst_arvalid && ibus_arready) begin
             arvalid_r <= 1'b0;
             irandom_r <= irandom;
             req_flag <= 1'b1;
-        end else begin
-            if(req_flag) begin
-                irandom_r <= irandom_r - 1;
-                if(irandom_r == 0) begin
-                    arvalid_r <= 1'b1;
-                    req_flag <= 1'b0;
-                end
-            end else if(ibus_arvalid && ibus_arready) begin
-                arvalid_r <= 1'b0;
-            end
+        end else if(ibus_arvalid && ibus_arready) begin
+            arvalid_r <= 1'b0;
         end
     end
 
