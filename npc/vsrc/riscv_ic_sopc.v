@@ -54,7 +54,7 @@ module top
 
     assign inq = {{(`INT_WIDTH-1){1'b0}}, timer_int};
 
-    reg device_skip;
+    wire device_skip;
     
     riscv_ic riscv_ic_inst
     (
@@ -151,36 +151,43 @@ module top
 
     reg [`MemDataBus] rdata;
     reg               rdata_valid;
+    reg               rskip;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             rdata <= `ZeroWord;
             rdata_valid <= 1'b0;
+            rskip <= 1'b0;
         end else begin
             if(dbus_arvalid && d_arready) begin
                 rdata <= paddr_read(dbus_araddr);
                 rdata_valid <= 1'b1;
+                if((dbus_araddr & ~32'h7) == `RTC_MMIO || (dbus_araddr & ~32'h3) == `SERIAL_MMIO) begin
+                    rskip <= 1'b1;
+                end
             end else if(dbus_rready && rdata_valid) begin
                 rdata <= `ZeroWord;
                 rdata_valid <= 1'b0;
+                rskip <= 1'b0;
             end
         end
     end
 
     reg wdata_valid;
+    reg wskip;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             wdata_valid <= 1'b0;
-            device_skip <= 1'b0;
+            wskip <= 1'b0;
         end else begin
             if(dbus_awvalid && d_awready && dbus_wvalid && d_wready) begin
                 paddr_write(dbus_awaddr, dbus_wdata, {28'b0, dbus_wstrb});
                 wdata_valid <= 1'b1;
                 if((dbus_awaddr & ~32'h7) == `RTC_MMIO || (dbus_awaddr & ~32'h3) == `SERIAL_MMIO) begin
-                    device_skip <= 1'b1;
+                    wskip <= 1'b1;
                 end
             end else if(dbus_bready && wdata_valid) begin
                 wdata_valid <= 1'b0;
-                device_skip <= 1'b0;
+                wskip <= 1'b0;
             end
         end
     end
@@ -195,6 +202,8 @@ module top
     assign dbus_arready = d_arready;
     assign dbus_rvalid  = rdata_valid;
     assign dbus_rdata   = rdata;
+
+    assign device_skip = rskip | wskip;
 
     // lfsr #(
     //     .WIDTH                  (`RAMDOM_WIDTH              )      
