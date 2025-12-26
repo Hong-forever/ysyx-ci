@@ -71,7 +71,7 @@ module lsu
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rdata <= 0;
-        end else if(dbus_respValid) begin
+        end else if(dbus_rvalid) begin
             rdata <= dbus_rdata;
         end
     end
@@ -220,7 +220,7 @@ module lsu
             valid <= 1'b0;
         end else if(I_valid) begin
             valid <= 1'b1;
-        end else if(I_ls_valid & dbus_reqReady) begin
+        end else if(I_ls_valid & (dbus_arready | dbus_awready)) begin
             valid <= 1'b0;
         end
     end
@@ -327,6 +327,7 @@ module lsu
 
     assign dbus_wvalid = data_reqValid & I_ls_type[`ls_diff_width-1];
     assign dbus_wdata = wdata;
+    assign dbus_wstrb = data_mask;
 
     assign dbus_bready = data_bready;
 
