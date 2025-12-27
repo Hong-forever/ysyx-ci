@@ -42,14 +42,14 @@ _default:
 	@echo "Please run 'make' under subprojects."
 
 SUBDIRS := $(shell find . -mindepth 1 -type d -exec test -e '{}/Makefile' \; -print)
-# EXCLUDE_DIRS := $(wildcard ./nemu/)
+EXCLUDE_DIRS := $(wildcard ./nemu/)
 SUBDIRS-y := $(filter-out $(EXCLUDE_DIRS), $(SUBDIRS))
 allclean:
 	@echo "clean up all subprojects"
 	@for dir in $(SUBDIRS-y); do \
 		$(MAKE) -C $$dir clean || true; \
 	done
-# 	@$(MAKE) -C ${NEMU_HOME} clean || true
+	@$(MAKE) -C ${NEMU_HOME} clean || true
 	@echo "allclean finished."
 
 .PHONY: .git_commit .clean_index _default
