@@ -41,4 +41,12 @@ endef
 _default:
 	@echo "Please run 'make' under subprojects."
 
+SUBDIRS := $(shell find . -mindepth 1 -type d -exec test -e '{}/Makefile' \; -print)
+allclean:
+	@echo "clean up all subprojects"
+	@for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean || true; \
+	done
+	@echo "allclean finished."
+
 .PHONY: .git_commit .clean_index _default
