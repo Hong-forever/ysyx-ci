@@ -26,7 +26,7 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE := 1
+# WAVE_ENABLE := 1
 WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
 
 ifeq ($(WAVE_ENABLE),1)
@@ -52,8 +52,8 @@ override ARGS += $(ARGS_DIFF)
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(BIN) $(ARGS) $(IMG)
-	-$(BIN) $(ARGS) $(IMG)
-# 	$(BIN) $(ARGS) $(IMG)
+# 	-$(BIN) $(ARGS) $(IMG)
+	$(BIN) $(ARGS) $(IMG)
 
 $(shell mkdir -p $(BUILD_DIR))
 
