@@ -28,7 +28,7 @@ VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 WAVE_ENABLE ?= 1
 # 1: vcd, 2: fst
-WAVE_FORMAT ?= 2
+WAVE_FORMAT ?= 1
 
 ifeq ($(WAVE_FORMAT),1)
 VERILATOR_CFLAGS += --trace-vcd
