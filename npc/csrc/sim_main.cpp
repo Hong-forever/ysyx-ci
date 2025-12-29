@@ -11,7 +11,7 @@ IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
 VerilatedContext *contextp = new VerilatedContext;
 TOP_NAME *top = new TOP_NAME{contextp};
-#ifdef WAVE_ENABLE
+#if WAVE_ENABLE == 1
     #if WAVE_FORMAT == 1
         VerilatedVcdC *tfp = new VerilatedVcdC;
     #else
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     IFDEF(CONFIG_USE_NVBOARD, nvboard());
     contextp->commandArgs(argc, argv);
 
-#ifdef WAVE_ENABLE
+#if WAVE_ENABLE == 1
     Verilated::traceEverOn(true);
     tfp->set_time_unit("1ns"); // time unit is 1 ps
     tfp->set_time_resolution("1ps"); // time precision is 1 ps
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     
     cleanup_ftrace();
 
-#ifdef WAVE_ENABLE
+#if WAVE_ENABLE == 1
     if (tfp) {
         printf("Finalizing waveforms...\n");
         tfp->close();
