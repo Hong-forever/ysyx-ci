@@ -116,11 +116,11 @@ module mem
     reg               rdata_valid;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            rdata <= `Zero;
+            rdata <= `ZeroWord;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= `Zero;
+                rdata <= `ZeroWord;
                 rdata_valid <= 1'b0;
             end else if(rhandshake) begin
                 rdata <= paddr_read(araddr_i);

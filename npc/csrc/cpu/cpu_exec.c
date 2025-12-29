@@ -129,7 +129,7 @@ extern "C" void trap(int reg_data, int halt_pc)
 
 extern TOP_NAME *top ;
 extern VerilatedContext *contextp;
-#if WAVE_ENABLE == 1
+#ifdef WAVE_ENABLE
     #if WAVE_FORMAT == 1
         extern VerilatedVcdC *tfp;
     #else
@@ -141,14 +141,14 @@ static void single_cycle()
 {
     top->clk = 0;
     top->eval();
-#if WAVE_ENABLE == 1
+#ifdef WAVE_ENABLE
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
     contextp->timeInc(1);
     tfp->dump(contextp->time());
 #endif
     top->clk = 1;
     top->eval();
-#if WAVE_ENABLE == 1
+#ifdef WAVE_ENABLE
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
     contextp->timeInc(1);
     tfp->dump(contextp->time());

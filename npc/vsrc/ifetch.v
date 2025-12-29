@@ -105,7 +105,7 @@ module ifetch
     reg [`InstBus] inst;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst <= `Zero;
+            inst <= `ZeroWord;
         end else if(ibus_rvalid) begin
             inst <= ibus_rdata;
         end
@@ -134,10 +134,10 @@ module ifetch
     assign O_valid = I_ready & state == EXE;
     
     assign ibus_awvalid = 1'b0;
-    assign ibus_awaddr = `Zero;
+    assign ibus_awaddr = `ZeroWord;
 
     assign ibus_wvalid = 1'b0;
-    assign ibus_wdata = `Zero;
+    assign ibus_wdata = `ZeroWord;
     assign ibus_wstrb = 4'b0000;
 
     assign ibus_bready = 1'b0;

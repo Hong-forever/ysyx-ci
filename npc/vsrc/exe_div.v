@@ -33,17 +33,17 @@ module exe_div
         if(!rst_n) begin
             state <= `DivFree;
             cnt <= 6'b000000;
-            temp_op1 <= `Zero;
-            temp_op2 <= `Zero;
-            dividend <= `Zero;
-            divisor <= `Zero;
+            temp_op1 <= `ZeroWord;
+            temp_op2 <= `ZeroWord;
+            dividend <= {`ZeroWord, `ZeroWord};
+            divisor <= `ZeroWord;
             ready <= `DivResultNotReady;
-            result <= `Zero;
+            result <= {`ZeroWord, `ZeroWord};
         end else begin
             case(state)
                 `DivFree: begin
                     if(I_start == `DivStart && I_annul == 1'b0) begin
-                        if(I_opdata2 == `Zero) begin
+                        if(I_opdata2 == `ZeroWord) begin
                             state <= `DivByZero;
                         end else begin
                             state <= `DivOn;
@@ -59,20 +59,20 @@ module exe_div
                                 temp_op2 = I_opdata2;
                             end
                         end
-                        dividend <= `Zero;
+                        dividend <= {`ZeroWord, `ZeroWord};
                         dividend[32:1] <= temp_op1;
                         divisor <= temp_op2;
                     end else begin
                         ready <= `DivResultNotReady;
-                        result <= `Zero;
+                        result <= {`ZeroWord, `ZeroWord};
                     end
                 end
                 `DivByZero: begin
                     case(I_op_div)
                         2'b00: result <= -1;
                         2'b01: result <= -1;
-                        2'b10: result <= {I_opdata1, 32'b0};
-                        2'b11: result <= {I_opdata1, 32'b0};
+                        2'b10: result <= {I_opdata1, `ZeroWord};
+                        2'b11: result <= {I_opdata1, `ZeroWord};
                     endcase
                     ready <= `DivResultReady;
                     state <= `DivFree;
@@ -106,7 +106,7 @@ module exe_div
                     if(I_start == `DivStop) begin
                         state <= `DivFree;
                         ready <= `DivResultNotReady;
-                        result <= `Zero;
+                        result <= {`ZeroWord, `ZeroWord};
                     end
                 end
             endcase

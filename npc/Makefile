@@ -26,22 +26,17 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE ?= 1
-# 1: vcd, 2: fst
-WAVE_FORMAT ?= 1
+# WAVE_ENABLE := 1
+WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
 
-ifeq ($(WAVE_FORMAT),1)
-VERILATOR_CFLAGS += --trace-vcd
-else
-VERILATOR_CFLAGS += --trace-fst
+ifeq ($(WAVE_ENABLE),1)
+	VERILATOR_CFLAGS += --trace-vcd
+# 		VERILATOR_CFLAGS += --trace-fst
 endif
 
 view_wave:
-ifeq ($(WAVE_FORMAT),1)
 	@gtkwave ${NPC_HOME}/build/waveform.vcd
-else
-	@gtkwave ${NPC_HOME}/build/waveform.fst
-endif
+# 	@gtkwave ${NPC_HOME}/build/waveform.fst
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -56,11 +51,9 @@ override ARGS += $(ARGS_DIFF)
 
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-ifeq ($(WAVE_ENABLE),1)
-	-$(BIN) $(ARGS) $(IMG)
-else
+	@echo $(BIN) $(ARGS) $(IMG)
+# 	-$(BIN) $(ARGS) $(IMG)
 	$(BIN) $(ARGS) $(IMG)
-endif
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -94,8 +87,10 @@ CXXFLAGS += $(INCFLAGS)
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
-CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
+ifeq ($(WAVE_ENABLE),1)
+	CXXFLAGS += -DWAVE_ENABLE=1
+endif
 
 # CXXFLAGS += -fpermissive
 

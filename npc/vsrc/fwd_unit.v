@@ -32,12 +32,12 @@ module fwd_unit
     output  wire    [`FWDSrc_sel_width-1:0] O_FWDCtrl_csr
 );
 
-    assign O_FWDCtrl_rs1 = (I_rs1_re & I_rs1_raddr != `Zero)? 
+    assign O_FWDCtrl_rs1 = (I_rs1_re & I_rs1_raddr != `ZeroReg)? 
                             (I_ls_rd_we & (I_ls_rd_waddr == I_rs1_raddr))? `FWDSrc_sel_ls :
                             (I_wb_rd_we & (I_wb_rd_waddr == I_rs1_raddr))? `FWDSrc_sel_wb :
                             `FWDSrc_sel_nfw : `FWDSrc_sel_nop;
 
-    assign O_FWDCtrl_rs2 = (I_rs2_re & I_rs2_raddr != `Zero)? 
+    assign O_FWDCtrl_rs2 = (I_rs2_re & I_rs2_raddr != `ZeroReg)? 
                             (I_ls_rd_we & (I_ls_rd_waddr == I_rs2_raddr))? `FWDSrc_sel_ls :
                             (I_wb_rd_we & (I_wb_rd_waddr == I_rs2_raddr))? `FWDSrc_sel_wb :
                             `FWDSrc_sel_nfw : `FWDSrc_sel_nop;

@@ -83,7 +83,7 @@ module exe_alu
             `ALUCTL_DIVU:   res = rv32m_divu_res;
             `ALUCTL_REM:    res = rv32m_rem_res;
             `ALUCTL_REMU:   res = rv32m_remu_res;
-            default:        res = `Zero;
+            default:        res = `ZeroWord;
         endcase
     end
 
