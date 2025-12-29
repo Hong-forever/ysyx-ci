@@ -35,14 +35,13 @@ else
 	VERILATOR_CFLAGS += --trace-fst
 endif
 
+view_wave:
 ifeq ($(WAVE_FORMAT),1)
-view_wave:
 	@echo "Viewing waveform in VCD format..."
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
+	@gtkwave $(NPC_HOME)/build/waveform.vcd
 else
-view_wave:
 	@echo "Viewing waveform in FST format..."
-	@gtkwave ${NPC_HOME}/build/waveform.fst
+	@gtkwave $(NPC_HOME)/build/waveform.fst
 endif
 
 BUILD_DIR = ./build
