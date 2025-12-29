@@ -159,28 +159,28 @@ module axi_arbiter
     assign S_wstrb    = (state == M0_ACCESS) ? M0_wstrb   :
                         (state == M1_ACCESS) ? M1_wstrb   : 0;
     assign S_bready   = (state == M0_ACCESS) ? M0_bready  :
-                        (state == M1_ACCESS) ? M1_bready  : 1;
+                        (state == M1_ACCESS) ? M1_bready  : 0;
     assign S_arvalid  = (state == M0_ACCESS) ? M0_arvalid :
                         (state == M1_ACCESS) ? M1_arvalid : 0;
     assign S_araddr   = (state == M0_ACCESS) ? M0_araddr  :
                         (state == M1_ACCESS) ? M1_araddr  : 0;
     assign S_rready   = (state == M0_ACCESS) ? M0_rready  :
-                        (state == M1_ACCESS) ? M1_rready  : 1;
+                        (state == M1_ACCESS) ? M1_rready  : 0;
 
-    assign M0_awready = (state == M0_ACCESS) ? S_awready  : 1;
-    assign M0_wready  = (state == M0_ACCESS) ? S_wready   : 1;
+    assign M0_awready = (state == M0_ACCESS) ? S_awready  : 0;
+    assign M0_wready  = (state == M0_ACCESS) ? S_wready   : 0;
     assign M0_bvalid  = (state == M0_ACCESS) ? S_bvalid   : 0;
     assign M0_bresp   = (state == M0_ACCESS) ? S_bresp    : 0;
-    assign M0_arready = (state == M0_ACCESS) ? S_arready  : 1;
+    assign M0_arready = (state == M0_ACCESS) ? S_arready  : 0;
     assign M0_rvalid  = (state == M0_ACCESS) ? S_rvalid   : 0;
     assign M0_rdata   = (state == M0_ACCESS) ? S_rdata    : 0;
     assign M0_rresp   = (state == M0_ACCESS) ? S_rresp    : 0;
 
-    assign M1_awready = (state == M1_ACCESS) ? S_awready  : 1;
-    assign M1_wready  = (state == M1_ACCESS) ? S_wready   : 1;
+    assign M1_awready = (state == M1_ACCESS) ? S_awready  : 0;
+    assign M1_wready  = (state == M1_ACCESS) ? S_wready   : 0;
     assign M1_bvalid  = (state == M1_ACCESS) ? S_bvalid   : 0;
     assign M1_bresp   = (state == M1_ACCESS) ? S_bresp    : 0;
-    assign M1_arready = (state == M1_ACCESS) ? S_arready  : 1;
+    assign M1_arready = (state == M1_ACCESS) ? S_arready  : 0;
     assign M1_rvalid  = (state == M1_ACCESS) ? S_rvalid   : 0;
     assign M1_rdata   = (state == M1_ACCESS) ? S_rdata    : 0;
     assign M1_rresp   = (state == M1_ACCESS) ? S_rresp    : 0;
