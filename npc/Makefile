@@ -29,11 +29,11 @@ VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 WAVE_ENABLE := 1
 WAVE_FORMAT := 1 
 
-# ifeq ($(WAVE_FORMAT),1)
-VERILATOR_CFLAGS += --trace-vcd
-# else
-# VERILATOR_CFLAGS += --trace-fst
-# endif
+ifeq ($(WAVE_FORMAT),1)
+	VERILATOR_CFLAGS += --trace-vcd
+else
+	VERILATOR_CFLAGS += --trace-fst
+endif
 
 ifeq ($(WAVE_FORMAT),1)
 view_wave:
