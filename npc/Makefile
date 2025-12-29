@@ -27,10 +27,13 @@ VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 WAVE_ENABLE := 0
-WAVE_FORMAT := 1 
+WAVE_VCD := 1 
 
+ifeq ($(WAVE_VCD),1)
 VERILATOR_CFLAGS += --trace-vcd
-# VERILATOR_CFLAGS += --trace-fst
+else
+VERILATOR_CFLAGS += --trace-fst
+endif
 
 view_wave:
 	@echo "Viewing waveform in VCD format..."
@@ -91,7 +94,7 @@ CXXFLAGS += $(INCFLAGS)
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
-CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
+CXXFLAGS += -DWAVE_FORMAT=$(WAVE_VCD)
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 
 # CXXFLAGS += -fpermissive
