@@ -82,7 +82,7 @@ module exec
             `FWDSrc_sel_nfw     :   final_rs1_rdata = I_rs1_rdata;
             `FWDSrc_sel_ls      :   final_rs1_rdata = I_ls_rd_wdata;
             `FWDSrc_sel_wb      :   final_rs1_rdata = I_wb_rd_wdata;
-            default             :   final_rs1_rdata = `ZeroWord;
+            default             :   final_rs1_rdata = `Zero;
         endcase
     end
 
@@ -91,7 +91,7 @@ module exec
             `FWDSrc_sel_nfw     :   final_rs2_rdata = I_rs2_rdata;
             `FWDSrc_sel_ls      :   final_rs2_rdata = I_ls_rd_wdata;
             `FWDSrc_sel_wb      :   final_rs2_rdata = I_wb_rd_wdata;
-            default             :   final_rs2_rdata = `ZeroWord;
+            default             :   final_rs2_rdata = `Zero;
         endcase
     end
 
@@ -100,7 +100,7 @@ module exec
             `FWDSrc_sel_nfw     :   final_csr_rdata = I_csr_rdata;
             `FWDSrc_sel_ls      :   final_csr_rdata = I_ls_csr_wdata;
             `FWDSrc_sel_wb      :   final_csr_rdata = I_wb_csr_wdata;
-            default             :   final_csr_rdata = `ZeroWord;
+            default             :   final_csr_rdata = `Zero;
         endcase
     end
 
@@ -109,7 +109,7 @@ module exec
             `FWDSrc_sel_nfw     :   final_agu_src = I_rs1_rdata;
             `FWDSrc_sel_ls      :   final_agu_src = I_ls_rd_wdata;
             `FWDSrc_sel_wb      :   final_agu_src = I_wb_rd_wdata;
-            default             :   final_agu_src = `ZeroWord;
+            default             :   final_agu_src = `Zero;
         endcase
     end
 
@@ -125,7 +125,7 @@ module exec
         case(I_ALUSrcA_sel)
             `ALUSrcA_sel_rs1: alu_srca = final_rs1_rdata;
             `ALUSrcA_sel_pc:  alu_srca = I_inst_addr;
-            default:          alu_srca = `ZeroWord;
+            default:          alu_srca = `Zero;
         endcase
     end
 
@@ -134,7 +134,7 @@ module exec
             `ALUSrcB_sel_rs2: alu_srcb = final_rs2_rdata;
             `ALUSrcB_sel_imm: alu_srcb = I_imm;
             `ALUSrcB_sel_4:   alu_srcb = 4;
-            default:          alu_srcb = `ZeroWord;
+            default:          alu_srcb = `Zero;
         endcase
     end
 
@@ -142,7 +142,7 @@ module exec
         case(I_AGUSrc_sel)
             `AGUSrc_sel_rs1: agu_src = final_agu_src;
             `AGUSrc_sel_pc:  agu_src = I_inst_addr;
-            default:         agu_src = `ZeroWord;
+            default:         agu_src = `Zero;
         endcase
     end
 
@@ -150,8 +150,8 @@ module exec
         case(I_CSRSrc_sel)
             `CSRSrc_sel_rs1: csr_src = final_rs1_rdata;
             `CSRSrc_sel_imm: csr_src = I_imm;
-            `CSRSrc_sel_nop: csr_src = `ZeroWord;
-            default        : csr_src = `ZeroWord;
+            `CSRSrc_sel_nop: csr_src = `Zero;
+            default        : csr_src = `Zero;
         endcase
     end
 

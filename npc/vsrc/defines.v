@@ -20,16 +20,11 @@
 //------------------------------------------------------------------------
 // CONSTANT DEFINITIONS
 //------------------------------------------------------------------------
-`define ZeroWord 32'h0
-`define ZeroReg 5'h0
+`define Zero 0
 `define True 1'b1
 `define False 1'b0
 `define Enable 1'b1
 `define Disable 1'b0
-`define Stop 1'b1
-`define NoStop 1'b0
-`define INT_ASSERT 1'b1
-`define INT_DEASSERT 1'b0
 
 //------------------------------------------------------------------------
 // INSTRUCTION FIELD DEFINITIONS (BIT RANGE)
