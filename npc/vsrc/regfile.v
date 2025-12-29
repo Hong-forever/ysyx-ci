@@ -56,13 +56,13 @@ module regfile
     output  wire    [`RegDataBus    ]   O_gpr31
 );
 
-    reg [`RegDataBus] regs[0:`RegNum-1];   //寄存器组
+    reg [`RegDataBus] regs[1:`RegNum-1];   //寄存器组
 
     integer i;
     //写寄存器
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            for(i = 0; i < `RegNum; i = i + 1) begin
+            for(i = 1; i < `RegNum; i = i + 1) begin
                 regs[i] <= `ZeroWord;
             end
         end else begin
@@ -115,7 +115,7 @@ module regfile
     wire [`RegDataBus] t5_x30  = regs[30];
     wire [`RegDataBus] t6_x31  = regs[31];
 
-    assign O_gpr0  = regs[0];
+    assign O_gpr0  = `ZeroWord;
     assign O_gpr1  = regs[1];
     assign O_gpr2  = regs[2];
     assign O_gpr3  = regs[3];
