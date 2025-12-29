@@ -160,7 +160,7 @@ module lsu
     //------------------------------------------------------------------------
     reg [`MemDataBus] wdata;
     always @(*) begin
-        wdata = `ZeroWord;
+        wdata = `Zero;
         case(I_ls_type)
             `ls_sb: begin
                 case(memory_byte_addr)

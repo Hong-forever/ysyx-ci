@@ -37,8 +37,13 @@ module mem
     output  wire    [1:0 ]              rresp_o
 );
 
+`ifdef DPIC
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
+`else
+    // 内存数组
+    reg [DATA_WIDTH-1:0] mem_array [0:MEM_DEPTH-1];
+`endif
 
     reg                    arready;
     reg                    awready;
@@ -112,15 +117,16 @@ module mem
         end
     end
 
+`ifdef DPIC
     reg [`MemDataBus] rdata;
     reg               rdata_valid;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            rdata <= `ZeroWord;
+            rdata <= `Zero;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= `ZeroWord;
+                rdata <= `Zero;
                 rdata_valid <= 1'b0;
             end else if(rhandshake) begin
                 rdata <= paddr_read(araddr_i);
@@ -142,6 +148,48 @@ module mem
             end
         end
     end
+
+`else
+    reg [`MemDataBus] rdata;
+    reg               rdata_valid;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            rdata <= `Zero;
+            rdata_valid <= 1'b0;
+        end else begin
+            if(rvalid_o && rready_i) begin
+                rdata <= `Zero;
+                rdata_valid <= 1'b0;
+            end else if(rhandshake) begin
+                rdata <= mem_array[araddr_i[ADDR_WIDTH-1:2]];
+                rdata_valid <= 1'b1;
+            end
+        end
+    end
+
+    wire [DATA_WIDTH-1:0] wdata_mask = 
+    {
+        (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][31:24]),
+        (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][23:16]),
+        (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][15:8 ]),
+        (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][7 :0 ])
+    };
+
+    reg wdata_valid;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            wdata_valid <= 1'b0;
+        end else begin
+            if(bvalid_o && bready_i) begin
+                wdata_valid <= 1'b0;
+            end else if(whandshake) begin
+                mem_array[awaddr_i[ADDR_WIDTH-1:2]] <= wdata_mask;
+                wdata_valid <= 1'b1;
+            end
+        end
+    end
+
+`endif
 
     assign awready_o = awready;
     assign wready_o  = wready;
