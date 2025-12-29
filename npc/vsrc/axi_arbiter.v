@@ -121,7 +121,7 @@ module axi_arbiter
                     end
                 end
                 M0_ACCESS: begin
-                    if((M0_rready && M0_rvalid) || (M0_bready && M0_bvalid)) begin
+                    if((S_rvalid && M0_rready) || (S_bvalid && M0_bready)) begin
                         if(m1_req && s_resp) begin
                             nstate = M1_ACCESS;
                         end else begin
@@ -132,7 +132,7 @@ module axi_arbiter
                     end
                 end
                 M1_ACCESS: begin
-                    if((M1_rready && M1_rvalid) || (M1_bready && M1_bvalid)) begin
+                    if((S_rvalid && M1_rready) || (S_bvalid && M1_bready)) begin
                         if(m0_req && s_resp) begin
                             nstate = M0_ACCESS;
                         end else begin
