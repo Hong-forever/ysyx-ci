@@ -162,7 +162,7 @@ module ifetch
                 arvalid_r <= 1'b1;
                 req_flag <= 1'b0;
             end
-        end else if(state == IDLE && inst_arvalid && ibus_arready && !arvalid_r) begin
+        end else if(state == IDLE && inst_arvalid && !arvalid_r) begin
             arvalid_r <= 1'b0;
             irandom_r <= irandom;
             req_flag <= 1'b1;
