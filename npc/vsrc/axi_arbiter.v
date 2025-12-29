@@ -70,7 +70,7 @@ module axi_arbiter
     input   wire    [1:0]               S_rresp
 );
 
-    parameter IDLE = 2'b00;
+    parameter IDLE      = 2'b00;
     parameter ARBITRATE = 2'b01;
     parameter M0_ACCESS = 2'b10;
     parameter M1_ACCESS = 2'b11;

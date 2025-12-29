@@ -26,17 +26,24 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-# WAVE_ENABLE := 1
-WAVE_FORMAT ?= 1 # 1: vcd, 2: fst
+WAVE_ENABLE := 1
+# vcd:1 fst:2
+WAVE_FORMAT := 1
 
-ifeq ($(WAVE_ENABLE),1)
-	VERILATOR_CFLAGS += --trace-vcd
-# 		VERILATOR_CFLAGS += --trace-fst
+ifeq ($(WAVE_FORMAT),1)
+VERILATOR_CFLAGS += --trace-vcd
+else
+VERILATOR_CFLAGS += --trace-fst
 endif
 
 view_wave:
+ifeq ($(WAVE_FORMAT),1)
+	@echo "Viewing waveform in VCD format..."
 	@gtkwave ${NPC_HOME}/build/waveform.vcd
-# 	@gtkwave ${NPC_HOME}/build/waveform.fst
+else
+	@echo "Viewing waveform in FST format..."
+	@gtkwave ${NPC_HOME}/build/waveform.fst
+endif
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -52,8 +59,11 @@ override ARGS += $(ARGS_DIFF)
 sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(BIN) $(ARGS) $(IMG)
-# 	-$(BIN) $(ARGS) $(IMG)
+ifeq ($(WAVE_ENABLE),1)
+	-$(BIN) $(ARGS) $(IMG)
+else
 	$(BIN) $(ARGS) $(IMG)
+endif
 
 $(shell mkdir -p $(BUILD_DIR))
 
