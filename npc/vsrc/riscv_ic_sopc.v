@@ -182,7 +182,7 @@ module top
     mem #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              ),
-        .MEM_DEPTH              (4096                       ),
+        .MEM_DEPTH              (512                        ),
         .LFSR_SEED              (`SEED4                     )
     ) ram_inst (
         .clk                    (clk                        ),
