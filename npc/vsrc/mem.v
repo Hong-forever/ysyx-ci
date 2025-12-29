@@ -179,6 +179,9 @@ module mem
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             wdata_valid <= 1'b0;
+            for(int i = 0; i < MEM_DEPTH; i = i + 1) begin
+                mem_array[i] <= `Zero;
+            end
         end else begin
             if(bvalid_o && bready_i) begin
                 wdata_valid <= 1'b0;
