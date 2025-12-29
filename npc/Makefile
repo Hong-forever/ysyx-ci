@@ -26,8 +26,8 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE := 1
-WAVE_FORMAT := 1 
+override WAVE_ENABLE := 1
+override WAVE_FORMAT := 1 
 
 ifeq ($(WAVE_FORMAT),1)
 	VERILATOR_CFLAGS += --trace-vcd
