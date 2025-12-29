@@ -56,6 +56,7 @@ sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(BIN) $(ARGS) $(IMG)
 ifeq ($(WAVE_ENABLE),1)
+	@echo "Waveform enabled: generating waveform file..."
 	-$(BIN) $(ARGS) $(IMG)
 else
 	$(BIN) $(ARGS) $(IMG)
