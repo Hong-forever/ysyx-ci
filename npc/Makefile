@@ -27,14 +27,13 @@ VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 WAVE_ENABLE := 1
-# vcd:1 fst:2
-WAVE_FORMAT := 1
+WAVE_FORMAT := 1 
 
-ifeq ($(WAVE_FORMAT),1)
+# ifeq ($(WAVE_FORMAT),1)
 VERILATOR_CFLAGS += --trace-vcd
-else
-VERILATOR_CFLAGS += --trace-fst
-endif
+# else
+# VERILATOR_CFLAGS += --trace-fst
+# endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
@@ -98,9 +97,7 @@ CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-un
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
-ifeq ($(WAVE_ENABLE),1)
-	CXXFLAGS += -DWAVE_ENABLE=1
-endif
+CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 
 # CXXFLAGS += -fpermissive
 

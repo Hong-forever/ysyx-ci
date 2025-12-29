@@ -16,7 +16,6 @@ module top
     wire                    ibus_bvalid;
     wire                    ibus_bready;
     wire [`AXI_RESP_BUS  ]  ibus_bresp;
-
     wire                    ibus_arvalid;
     wire                    ibus_arready;
     wire [`InstAddrBus   ]  ibus_araddr;
