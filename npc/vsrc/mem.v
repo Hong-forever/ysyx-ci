@@ -161,7 +161,7 @@ module mem
                 rdata <= `Zero;
                 rdata_valid <= 1'b0;
             end else if(rhandshake) begin
-                rdata <= mem_array[araddr_i[ADDR_WIDTH-1:2]];
+                rdata <= mem_array[araddr_i[$clog2(MEM_DEPTH)-1:2]];
                 rdata_valid <= 1'b1;
             end
         end
@@ -169,10 +169,10 @@ module mem
 
     wire [DATA_WIDTH-1:0] wdata_mask = 
     {
-        (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][31:24]),
-        (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][23:16]),
-        (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][15:8 ]),
-        (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[ADDR_WIDTH-1:2]][7 :0 ])
+        (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][31:24]),
+        (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][23:16]),
+        (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][15:8 ]),
+        (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][7 :0 ])
     };
 
     reg wdata_valid;
@@ -183,7 +183,7 @@ module mem
             if(bvalid_o && bready_i) begin
                 wdata_valid <= 1'b0;
             end else if(whandshake) begin
-                mem_array[awaddr_i[ADDR_WIDTH-1:2]] <= wdata_mask;
+                mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]] <= wdata_mask;
                 wdata_valid <= 1'b1;
             end
         end
