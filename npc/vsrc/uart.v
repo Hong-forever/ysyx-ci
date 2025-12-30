@@ -62,9 +62,6 @@
 //         end
 //     end
 
-//     wire [`RAMDOM_WIDTH-1:0] random;
-//     reg [`RAMDOM_WIDTH-1:0] random_r;
-//     reg [`RAMDOM_WIDTH-1:0] random_w;
 
 //     reg [`MemDataBus] rdata;
 //     reg               rdata_valid;
@@ -76,71 +73,37 @@
 //             if(rvalid_o && rready_i) begin
 //                 rdata <= `Zero;
 //                 rdata_valid <= 1'b0;
-//             end else if(rhandshake) begin
-//                 rdata <= paddr_read(araddr_i);
-//                 rdata_valid <= 1'b1;
-//             end
-//         end
-//     end
-
-//     reg wdata_valid;
-//     always @(posedge clk or negedge rst_n) begin
-//         if(!rst_n) begin
-//             wdata_valid <= 1'b0;
-//         end else begin
-//             if(bvalid_o && bready_i) begin
-//                 wdata_valid <= 1'b0;
-//             end else if(whandshake) begin
-//                 paddr_write(awaddr_i, wdata_i, {28'b0, wstrb_i});
-//                 wdata_valid <= 1'b1;
-//             end
-//         end
-//     end
-
-// `else
-//     reg [`MemDataBus] rdata;
-//     reg               rdata_valid;
-//     always @(posedge clk or negedge rst_n) begin
-//         if(!rst_n) begin
-//             rdata <= `Zero;
-//             rdata_valid <= 1'b0;
-//         end else begin
-//             if(rvalid_o && rready_i) begin
+//             end else if(arvalid_i && arready_o) begin
 //                 rdata <= `Zero;
-//                 rdata_valid <= 1'b0;
-//             end else if(rhandshake) begin
-//                 rdata <= mem_array[araddr_i[$clog2(MEM_DEPTH)-1:2]];
 //                 rdata_valid <= 1'b1;
 //             end
 //         end
 //     end
 
-//     wire [DATA_WIDTH-1:0] wdata_mask = 
-//     {
-//         (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][31:24]),
-//         (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][23:16]),
-//         (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][15:8 ]),
-//         (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]][7 :0 ])
-//     };
+//     initial begin
+//         if(arvalid_i) begin
+//             $error("UART read is not supported!");
+//         end
+//     end
 
 //     reg wdata_valid;
 //     always @(posedge clk or negedge rst_n) begin
 //         if(!rst_n) begin
 //             wdata_valid <= 1'b0;
-//             for(int i = 0; i < MEM_DEPTH; i = i + 1) begin
-//                 mem_array[i] <= `Zero;
-//             end
 //         end else begin
 //             if(bvalid_o && bready_i) begin
 //                 wdata_valid <= 1'b0;
-//             end else if(whandshake) begin
-//                 mem_array[awaddr_i[$clog2(MEM_DEPTH)-1:2]] <= wdata_mask;
+//             end else if(wvalid_i && wready_o) begin
 //                 wdata_valid <= 1'b1;
 //             end
 //         end
 //     end
 
-// `endif
+//     always @(*) begin
+//         if(wvalid_i && wready_o) begin
+//             $write("%c", wdata_i[7:0]);
+//         end
+//     end
 
 //     assign awready_o = awready;
 //     assign wready_o  = wready;
