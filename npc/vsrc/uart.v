@@ -99,6 +99,7 @@ module uart
         end
         if(wvalid_i && wready_o) begin
             $write("%c", wdata_i[7:0]);
+            $fflush();
         end
     end
 
