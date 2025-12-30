@@ -7,9 +7,7 @@
 module Interconnect
 #(
     parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 32,
-    parameter MASTER_NUM = 2,
-    parameter SLAVE_NUM  = 2
+    parameter DATA_WIDTH = 32
 )(
     input   wire                        clk,
     input   wire                        rst_n,
@@ -88,7 +86,26 @@ module Interconnect
     input   wire                        S1_rvalid,
     output  wire                        S1_rready,
     input   wire    [DATA_WIDTH-1:0 ]   S1_rdata,
-    input   wire    [1:0            ]   S1_rresp
+    input   wire    [1:0            ]   S1_rresp,
+
+    // to slave2
+    output  wire                        S2_awvalid,
+    input   wire                        S2_awready,
+    output  wire    [ADDR_WIDTH-1:0 ]   S2_awaddr,
+    output  wire                        S2_wvalid,
+    input   wire                        S2_wready,
+    output  wire    [DATA_WIDTH-1:0 ]   S2_wdata,
+    output  wire    [DATA_WIDTH/8-1:0]  S2_wstrb,
+    input   wire                        S2_bvalid,
+    output  wire                        S2_bready,
+    input   wire    [1:0            ]   S2_bresp,
+    output  wire                        S2_arvalid,
+    input   wire                        S2_arready,
+    output  wire    [ADDR_WIDTH-1:0 ]   S2_araddr,
+    input   wire                        S2_rvalid,
+    output  wire                        S2_rready,
+    input   wire    [DATA_WIDTH-1:0 ]   S2_rdata,
+    input   wire    [1:0            ]   S2_rresp
 );
 
     wire                    m_awvalid;
@@ -236,7 +253,26 @@ module Interconnect
         .M1_rvalid              (S1_rvalid                  ),
         .M1_rready              (S1_rready                  ),
         .M1_rdata               (S1_rdata                   ),
-        .M1_rresp               (S1_rresp                   )
+        .M1_rresp               (S1_rresp                   ),
+
+        // slave2
+        .M2_awvalid             (S2_awvalid                 ),
+        .M2_awready             (S2_awready                 ),
+        .M2_awaddr              (S2_awaddr                  ),
+        .M2_wvalid              (S2_wvalid                  ),
+        .M2_wready              (S2_wready                  ),
+        .M2_wdata               (S2_wdata                   ),
+        .M2_wstrb               (S2_wstrb                   ),
+        .M2_bvalid              (S2_bvalid                  ),
+        .M2_bready              (S2_bready                  ),
+        .M2_bresp               (S2_bresp                   ),
+        .M2_arvalid             (S2_arvalid                 ),
+        .M2_arready             (S2_arready                 ),
+        .M2_araddr              (S2_araddr                  ),
+        .M2_rvalid              (S2_rvalid                  ),
+        .M2_rready              (S2_rready                  ),
+        .M2_rdata               (S2_rdata                   ),
+        .M2_rresp               (S2_rresp                   )
     );
 
 

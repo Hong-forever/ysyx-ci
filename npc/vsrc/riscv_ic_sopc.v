@@ -77,6 +77,24 @@ module top
     wire                    s1_rready;
     wire [`MemDataBus    ]  s1_rdata;
     wire [`AXI_RESP_BUS  ]  s1_rresp;
+    
+    wire                    s2_awvalid;
+    wire                    s2_awready;
+    wire [`MemAddrBus    ]  s2_awaddr;
+    wire                    s2_wvalid;
+    wire                    s2_wready;
+    wire [`MemDataBus    ]  s2_wdata;
+    wire [`DBUS_MASK-1:0 ]  s2_wstrb;
+    wire                    s2_bvalid;
+    wire                    s2_bready;
+    wire [`AXI_RESP_BUS  ]  s2_bresp;
+    wire                    s2_arvalid;
+    wire                    s2_arready;
+    wire [`MemAddrBus    ]  s2_araddr;
+    wire                    s2_rvalid;
+    wire                    s2_rready;
+    wire [`MemDataBus    ]  s2_rdata;
+    wire [`AXI_RESP_BUS  ]  s2_rresp;
 
     riscv_ic riscv_ic_inst
     (
@@ -124,9 +142,7 @@ module top
 
     Interconnect #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
-        .DATA_WIDTH             (`MemDataWidth              ),
-        .MASTER_NUM             (2                          ),
-        .SLAVE_NUM              (2                          )
+        .DATA_WIDTH             (`MemDataWidth              )
     ) interconnect_inst (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -205,7 +221,26 @@ module top
         .S1_rvalid              (s1_rvalid                  ),
         .S1_rready              (s1_rready                  ),
         .S1_rdata               (s1_rdata                   ),
-        .S1_rresp               (s1_rresp                   )
+        .S1_rresp               (s1_rresp                   ),
+
+        // slave2
+        .S2_awvalid             (s2_awvalid                 ),
+        .S2_awready             (s2_awready                 ),
+        .S2_awaddr              (s2_awaddr                  ),
+        .S2_wvalid              (s2_wvalid                  ),
+        .S2_wready              (s2_wready                  ),
+        .S2_wdata               (s2_wdata                   ),
+        .S2_wstrb               (s2_wstrb                   ),
+        .S2_bvalid              (s2_bvalid                  ),
+        .S2_bready              (s2_bready                  ),
+        .S2_bresp               (s2_bresp                   ),
+        .S2_arvalid             (s2_arvalid                 ),
+        .S2_arready             (s2_arready                 ),
+        .S2_araddr              (s2_araddr                  ),
+        .S2_rvalid              (s2_rvalid                  ),
+        .S2_rready              (s2_rready                  ),
+        .S2_rdata               (s2_rdata                   ),
+        .S2_rresp               (s2_rresp                   )
     );
 
     mem #(
@@ -260,6 +295,32 @@ module top
         .rready_i               (s1_rready                  ),
         .rdata_o                (s1_rdata                   ),
         .rresp_o                (s1_rresp                   )
+    );
+
+    clint #(
+        .ADDR_WIDTH             (`MemAddrWidth              ),
+        .DATA_WIDTH             (`MemDataWidth              )
+    ) clint_inst (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+
+        .awvalid_i              (s2_awvalid                 ),
+        .awready_o              (s2_awready                 ),
+        .awaddr_i               (s2_awaddr                  ),
+        .wvalid_i               (s2_wvalid                  ),
+        .wready_o               (s2_wready                  ),
+        .wdata_i                (s2_wdata                   ),
+        .wstrb_i                (s2_wstrb                   ),
+        .bvalid_o               (s2_bvalid                  ),
+        .bready_i               (s2_bready                  ),
+        .bresp_o                (s2_bresp                   ),
+        .arvalid_i              (s2_arvalid                 ),
+        .arready_o              (s2_arready                 ),
+        .araddr_i               (s2_araddr                  ),
+        .rvalid_o               (s2_rvalid                  ),
+        .rready_i               (s2_rready                  ),
+        .rdata_o                (s2_rdata                   ),
+        .rresp_o                (s2_rresp                   )
     );
 
 endmodule

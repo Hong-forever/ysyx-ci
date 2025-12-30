@@ -7,8 +7,7 @@
 module xbar
 #(
     parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 32,
-    parameter SLAVE_NUM  = 2
+    parameter DATA_WIDTH = 32
 )(
     input   wire                        clk,
     input   wire                        rst_n,
@@ -68,15 +67,41 @@ module xbar
     input   wire                        M1_rvalid,
     output  reg                         M1_rready,
     input   wire    [DATA_WIDTH-1:0]    M1_rdata,
-    input   wire    [1:0]               M1_rresp
+    input   wire    [1:0]               M1_rresp,
+
+    // slave2
+    output  reg                         M2_awvalid,
+    input   wire                        M2_awready,
+    output  reg     [ADDR_WIDTH-1:0]    M2_awaddr,
+    output  reg                         M2_wvalid,
+    input   wire                        M2_wready,
+    output  reg     [DATA_WIDTH-1:0]    M2_wdata,
+    output  reg     [DATA_WIDTH/8-1:0]  M2_wstrb,
+    input   wire                        M2_bvalid,
+    output  reg                         M2_bready,
+    input   wire    [1:0]               M2_bresp,
+    output  reg                         M2_arvalid,
+    input   wire                        M2_arready,
+    output  reg     [ADDR_WIDTH-1:0]    M2_araddr,
+    input   wire                        M2_rvalid,
+    output  reg                         M2_rready,
+    input   wire    [DATA_WIDTH-1:0]    M2_rdata,
+    input   wire    [1:0]               M2_rresp
 );
     // Address decoding
-    wire sel_slave0   = (32'h8000_0000 <= S_araddr && S_araddr < 32'h8100_0000) ||
-                        (32'h8000_0000 <= S_awaddr && S_awaddr < 32'h8100_0000) ;
+    parameter MEM_BASE    = 32'h8000_0000;
+    parameter SERIAL_BASE = 32'h1000_0000;
+    parameter RTC_BASE    = 32'h2000_0000;
 
-    wire sel_slave1   = (32'h1000_0000 <= S_araddr && S_araddr < 32'h1000_1000) ||
-                        (32'h1000_0000 <= S_awaddr && S_awaddr < 32'h1000_1000) ;
+    wire sel_slave0   = (MEM_BASE <= S_araddr && S_araddr < MEM_BASE + 32'h0100_0000) ||
+                        (MEM_BASE <= S_awaddr && S_awaddr < MEM_BASE + 32'h0100_0000) ;
+
+    wire sel_slave1   = (SERIAL_BASE <= S_araddr && S_araddr < SERIAL_BASE + 32'h0000_1000) ||
+                        (SERIAL_BASE <= S_awaddr && S_awaddr < SERIAL_BASE + 32'h0000_1000) ;
     
+    wire sel_slave2   = (RTC_BASE <= S_araddr && S_araddr < RTC_BASE + 32'h0000_0008) ||
+                        (RTC_BASE <= S_awaddr && S_awaddr < RTC_BASE + 32'h0000_0008) ;
+
     always @(*) begin
         case(1'b1)
             sel_slave0: begin
@@ -117,6 +142,25 @@ module xbar
                 S_rdata    = M1_rdata;
                 S_rresp    = M1_rresp;
             end
+            sel_slave2: begin
+                M2_awvalid = S_awvalid;
+                M2_awaddr  = S_awaddr;
+                M2_wvalid  = S_wvalid;
+                M2_wdata   = S_wdata;
+                M2_wstrb   = S_wstrb;
+                M2_bready  = S_bready;
+                M2_arvalid = S_arvalid;
+                M2_araddr  = S_araddr;
+                M2_rready  = S_rready;
+                S_awready  = M2_awready;
+                S_wready   = M2_wready;
+                S_bvalid   = M2_bvalid;
+                S_bresp    = M2_bresp;
+                S_arready  = M2_arready;
+                S_rvalid   = M2_rvalid;
+                S_rdata    = M2_rdata;
+                S_rresp    = M2_rresp;
+            end
             default: begin
                 M0_awvalid = 0;
                 M0_awaddr  = 0;
@@ -127,6 +171,7 @@ module xbar
                 M0_arvalid = 0;
                 M0_araddr  = 0;
                 M0_rready  = 0;
+
                 M1_awvalid = 0;
                 M1_awaddr  = 0;
                 M1_wvalid  = 0;
@@ -136,11 +181,22 @@ module xbar
                 M1_arvalid = 0;
                 M1_araddr  = 0;
                 M1_rready  = 0;
-                S_awready  = M0_awready | M1_awready;
-                S_wready   = M0_wready  | M1_wready;
+
+                M2_awvalid = 0;
+                M2_awaddr  = 0;
+                M2_wvalid  = 0;
+                M2_wdata   = 0;
+                M2_wstrb   = 0;
+                M2_bready  = 0;
+                M2_arvalid = 0;
+                M2_araddr  = 0;
+                M2_rready  = 0;
+
+                S_awready  = M0_awready | M1_awready | M2_awready;
+                S_wready   = M0_wready  | M1_wready  | M2_wready;
                 S_bvalid   = 0;
                 S_bresp    = 0;
-                S_arready  = M0_arready | M1_arready;
+                S_arready  = M0_arready | M1_arready | M2_arready;
                 S_rvalid   = 0;
                 S_rdata    = 0;
                 S_rresp    = 0;
