@@ -47,27 +47,27 @@ module top
     wire [`MemDataBus    ]  dbus_rdata;
     wire [`AXI_RESP_BUS  ]  dbus_rresp;
 
-    wire                    s_awvalid;
-    wire                    s_awready;
-    wire [`MemAddrBus    ]  s_awaddr;
+    wire                    m_awvalid;
+    wire                    m_awready;
+    wire [`MemAddrBus    ]  m_awaddr;
     
-    wire                    s_wvalid;
-    wire                    s_wready;
-    wire [`MemDataBus    ]  s_wdata;
-    wire [`DBUS_MASK-1:0 ]  s_wstrb;
+    wire                    m_wvalid;
+    wire                    m_wready;
+    wire [`MemDataBus    ]  m_wdata;
+    wire [`DBUS_MASK-1:0 ]  m_wstrb;
 
-    wire                    s_bvalid;
-    wire                    s_bready;
-    wire [`AXI_RESP_BUS  ]  s_bresp;
+    wire                    m_bvalid;
+    wire                    m_bready;
+    wire [`AXI_RESP_BUS  ]  m_bresp;
 
-    wire                    s_arvalid;
-    wire                    s_arready;
-    wire [`MemAddrBus    ]  s_araddr;
+    wire                    m_arvalid;
+    wire                    m_arready;
+    wire [`MemAddrBus    ]  m_araddr;
 
-    wire                    s_rvalid;
-    wire                    s_rready;
-    wire [`MemDataBus    ]  s_rdata;
-    wire [`AXI_RESP_BUS  ]  s_rresp;
+    wire                    m_rvalid;
+    wire                    m_rready;
+    wire [`MemDataBus    ]  m_rdata;
+    wire [`AXI_RESP_BUS  ]  m_rresp;
 
 
     riscv_ic riscv_ic_inst
@@ -159,24 +159,24 @@ module top
         .M1_rdata               (dbus_rdata                 ),
         .M1_rresp               (dbus_rresp                 ),
 
-        // slave (mem)
-        .S_awvalid              (s_awvalid                  ),
-        .S_awready              (s_awready                  ),
-        .S_awaddr               (s_awaddr                   ),
-        .S_wvalid               (s_wvalid                   ),
-        .S_wready               (s_wready                   ),
-        .S_wdata                (s_wdata                    ),
-        .S_wstrb                (s_wstrb                    ),
-        .S_bvalid               (s_bvalid                   ),
-        .S_bready               (s_bready                   ),
-        .S_bresp                (s_bresp                    ),
-        .S_arvalid              (s_arvalid                  ),
-        .S_arready              (s_arready                  ),
-        .S_araddr               (s_araddr                   ),
-        .S_rvalid               (s_rvalid                   ),
-        .S_rready               (s_rready                   ),
-        .S_rdata                (s_rdata                    ),
-        .S_rresp                (s_rresp                    )
+        // master (output to slave)
+        .M_awvalid              (m_awvalid                  ),
+        .M_awready              (m_awready                  ),
+        .M_awaddr               (m_awaddr                   ),
+        .M_wvalid               (m_wvalid                   ),
+        .M_wready               (m_wready                   ),
+        .M_wdata                (m_wdata                    ),
+        .M_wstrb                (m_wstrb                    ),
+        .M_bvalid               (m_bvalid                   ),
+        .M_bready               (m_bready                   ),
+        .M_bresp                (m_bresp                    ),
+        .M_arvalid              (m_arvalid                  ),
+        .M_arready              (m_arready                  ),
+        .M_araddr               (m_araddr                   ),
+        .M_rvalid               (m_rvalid                   ),
+        .M_rready               (m_rready                   ),
+        .M_rdata                (m_rdata                    ),
+        .M_rresp                (m_rresp                    )
     );
 
     mem #(
@@ -188,23 +188,23 @@ module top
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
 
-        .awvalid_i              (s_awvalid                  ),
-        .awready_o              (s_awready                  ),
-        .awaddr_i               (s_awaddr                   ),
-        .wvalid_i               (s_wvalid                   ),
-        .wready_o               (s_wready                   ),
-        .wdata_i                (s_wdata                    ),
-        .wstrb_i                (s_wstrb                    ),
-        .bvalid_o               (s_bvalid                   ),
-        .bready_i               (s_bready                   ),
-        .bresp_o                (s_bresp                    ),
-        .arvalid_i              (s_arvalid                  ),
-        .arready_o              (s_arready                  ),
-        .araddr_i               (s_araddr                   ),
-        .rvalid_o               (s_rvalid                   ),
-        .rready_i               (s_rready                   ),
-        .rdata_o                (s_rdata                    ),
-        .rresp_o                (s_rresp                    )
+        .awvalid_i              (m_awvalid                  ),
+        .awready_o              (m_awready                  ),
+        .awaddr_i               (m_awaddr                   ),
+        .wvalid_i               (m_wvalid                   ),
+        .wready_o               (m_wready                   ),
+        .wdata_i                (m_wdata                    ),
+        .wstrb_i                (m_wstrb                    ),
+        .bvalid_o               (m_bvalid                   ),
+        .bready_i               (m_bready                   ),
+        .bresp_o                (m_bresp                    ),
+        .arvalid_i              (m_arvalid                  ),
+        .arready_o              (m_arready                  ),
+        .araddr_i               (m_araddr                   ),
+        .rvalid_o               (m_rvalid                   ),
+        .rready_i               (m_rready                   ),
+        .rdata_o                (m_rdata                    ),
+        .rresp_o                (m_rresp                    )
     );
 
 
