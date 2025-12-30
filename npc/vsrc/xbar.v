@@ -72,10 +72,13 @@ module xbar
 );
     // Address decoding
     wire sel_slave0   = (32'h8000_0000 <= S_araddr && S_araddr < 32'h8100_0000) ||
-                        (32'h8000_0000 <= S_awaddr && S_awaddr < 32'h8100_0000);
+                        (32'h8000_0000 <= S_awaddr && S_awaddr < 32'h8100_0000) ||
+                        (32'h1000_0000 <= S_araddr && S_araddr < 32'h1000_1000) ||
+                        (32'h1000_0000 <= S_awaddr && S_awaddr < 32'h1000_1000) ;
 
-    wire sel_slave1   = (32'h1000_0000 <= S_araddr && S_araddr < 32'h1000_1000) ||
-                        (32'h1000_0000 <= S_awaddr && S_awaddr < 32'h1000_1000);
+    wire sel_slave1 = 1'b0;
+    // wire sel_slave1   = (32'h1000_0000 <= S_araddr && S_araddr < 32'h1000_1000) ||
+    //                     (32'h1000_0000 <= S_awaddr && S_awaddr < 32'h1000_1000) ;
     
     always @(*) begin
         case(1'b1)
