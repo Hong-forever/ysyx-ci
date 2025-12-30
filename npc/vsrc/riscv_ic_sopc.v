@@ -140,10 +140,10 @@ module top
         .dbus_rresp             (dbus_rresp                 )
     );
 
-    axi_arbiter #(
+    arbiter #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              )
-    ) axi_arbiter_inst (
+    ) arbiter_inst (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
 
