@@ -19,7 +19,6 @@ module top
     wire                    ibus_arvalid;
     wire                    ibus_arready;
     wire [`InstAddrBus   ]  ibus_araddr;
-
     wire                    ibus_rvalid;
     wire                    ibus_rready;
     wire [`InstBus       ]  ibus_rdata;
@@ -28,20 +27,16 @@ module top
     wire                    dbus_awvalid;
     wire                    dbus_awready;
     wire [`MemAddrBus    ]  dbus_awaddr;
-    
     wire                    dbus_wvalid;
     wire                    dbus_wready;
     wire [`MemDataBus    ]  dbus_wdata;
     wire [`DBUS_MASK-1:0 ]  dbus_wstrb;
-
     wire                    dbus_bvalid;
     wire                    dbus_bready;
     wire [`AXI_RESP_BUS  ]  dbus_bresp;
-
     wire                    dbus_arvalid;
     wire                    dbus_arready;
     wire [`MemAddrBus    ]  dbus_araddr;
-
     wire                    dbus_rvalid;
     wire                    dbus_rready;
     wire [`MemDataBus    ]  dbus_rdata;
@@ -50,25 +45,56 @@ module top
     wire                    m_awvalid;
     wire                    m_awready;
     wire [`MemAddrBus    ]  m_awaddr;
-    
     wire                    m_wvalid;
     wire                    m_wready;
     wire [`MemDataBus    ]  m_wdata;
     wire [`DBUS_MASK-1:0 ]  m_wstrb;
-
     wire                    m_bvalid;
     wire                    m_bready;
     wire [`AXI_RESP_BUS  ]  m_bresp;
-
     wire                    m_arvalid;
     wire                    m_arready;
     wire [`MemAddrBus    ]  m_araddr;
-
     wire                    m_rvalid;
     wire                    m_rready;
     wire [`MemDataBus    ]  m_rdata;
     wire [`AXI_RESP_BUS  ]  m_rresp;
 
+    wire                    s0_awvalid;
+    wire                    s0_awready;
+    wire [`MemAddrBus    ]  s0_awaddr;
+    wire                    s0_wvalid;
+    wire                    s0_wready;
+    wire [`MemDataBus    ]  s0_wdata;
+    wire [`DBUS_MASK-1:0 ]  s0_wstrb;
+    wire                    s0_bvalid;
+    wire                    s0_bready;
+    wire [`AXI_RESP_BUS  ]  s0_bresp;
+    wire                    s0_arvalid;
+    wire                    s0_arready;
+    wire [`MemAddrBus    ]  s0_araddr;
+    wire                    s0_rvalid;
+    wire                    s0_rready;
+    wire [`MemDataBus    ]  s0_rdata;
+    wire [`AXI_RESP_BUS  ]  s0_rresp;
+
+    wire                    s1_awvalid;
+    wire                    s1_awready;
+    wire [`MemAddrBus    ]  s1_awaddr;
+    wire                    s1_wvalid;
+    wire                    s1_wready;
+    wire [`MemDataBus    ]  s1_wdata;
+    wire [`DBUS_MASK-1:0 ]  s1_wstrb;
+    wire                    s1_bvalid;
+    wire                    s1_bready;
+    wire [`AXI_RESP_BUS  ]  s1_bresp;
+    wire                    s1_arvalid;
+    wire                    s1_arready;
+    wire [`MemAddrBus    ]  s1_araddr;
+    wire                    s1_rvalid;
+    wire                    s1_rready;
+    wire [`MemDataBus    ]  s1_rdata;
+    wire [`AXI_RESP_BUS  ]  s1_rresp;
 
     riscv_ic riscv_ic_inst
     (
@@ -179,6 +205,72 @@ module top
         .M_rresp                (m_rresp                    )
     );
 
+    xbar #(
+        .ADDR_WIDTH             (`MemAddrWidth              ),
+        .DATA_WIDTH             (`MemDataWidth              ),
+        .SLAVE_NUM              (2                          )
+    ) xbar_inst (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+
+        // slave (from arbiter)
+        .S_awvalid              (m_awvalid                  ),
+        .S_awready              (m_awready                  ),
+        .S_awaddr               (m_awaddr                   ),
+        .S_wvalid               (m_wvalid                   ),
+        .S_wready               (m_wready                   ),
+        .S_wdata                (m_wdata                    ),
+        .S_wstrb                (m_wstrb                    ),
+        .S_bvalid               (m_bvalid                   ),
+        .S_bready               (m_bready                   ),
+        .S_bresp                (m_bresp                    ),
+        .S_arvalid              (m_arvalid                  ),
+        .S_arready              (m_arready                  ),
+        .S_araddr               (m_araddr                   ),
+        .S_rvalid               (m_rvalid                   ),
+        .S_rready               (m_rready                   ),
+        .S_rdata                (m_rdata                    ),
+        .S_rresp                (m_rresp                    ),
+
+        // master0 (to mem)
+        .M0_awvalid             (s0_awvalid                 ),
+        .M0_awready             (s0_awready                 ),
+        .M0_awaddr              (s0_awaddr                  ),
+        .M0_wvalid              (s0_wvalid                  ),
+        .M0_wready              (s0_wready                  ),
+        .M0_wdata               (s0_wdata                   ),
+        .M0_wstrb               (s0_wstrb                   ),
+        .M0_bvalid              (s0_bvalid                  ),
+        .M0_bready              (s0_bready                  ),
+        .M0_bresp               (s0_bresp                   ),
+        .M0_arvalid             (s0_arvalid                 ),
+        .M0_arready             (s0_arready                 ),
+        .M0_araddr              (s0_araddr                  ),
+        .M0_rvalid              (s0_rvalid                  ),
+        .M0_rready              (s0_rready                  ),
+        .M0_rdata               (s0_rdata                   ),
+        .M0_rresp               (s0_rresp                   ),
+
+        // master1
+        .M1_awvalid             (s1_awvalid                 ),
+        .M1_awready             (s1_awready                 ),
+        .M1_awaddr              (s1_awaddr                  ),
+        .M1_wvalid              (s1_wvalid                  ),
+        .M1_wready              (s1_wready                  ),
+        .M1_wdata               (s1_wdata                   ),
+        .M1_wstrb               (s1_wstrb                   ),
+        .M1_bvalid              (s1_bvalid                  ),
+        .M1_bready              (s1_bready                  ),
+        .M1_bresp               (s1_bresp                   ),
+        .M1_arvalid             (s1_arvalid                 ),
+        .M1_arready             (s1_arready                 ),
+        .M1_araddr              (s1_araddr                  ),
+        .M1_rvalid              (s1_rvalid                  ),
+        .M1_rready              (s1_rready                  ),
+        .M1_rdata               (s1_rdata                   ),
+        .M1_rresp               (s1_rresp                   )
+    );
+
     mem #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              ),
@@ -188,24 +280,25 @@ module top
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
 
-        .awvalid_i              (m_awvalid                  ),
-        .awready_o              (m_awready                  ),
-        .awaddr_i               (m_awaddr                   ),
-        .wvalid_i               (m_wvalid                   ),
-        .wready_o               (m_wready                   ),
-        .wdata_i                (m_wdata                    ),
-        .wstrb_i                (m_wstrb                    ),
-        .bvalid_o               (m_bvalid                   ),
-        .bready_i               (m_bready                   ),
-        .bresp_o                (m_bresp                    ),
-        .arvalid_i              (m_arvalid                  ),
-        .arready_o              (m_arready                  ),
-        .araddr_i               (m_araddr                   ),
-        .rvalid_o               (m_rvalid                   ),
-        .rready_i               (m_rready                   ),
-        .rdata_o                (m_rdata                    ),
-        .rresp_o                (m_rresp                    )
+        .awvalid_i              (s0_awvalid                 ),
+        .awready_o              (s0_awready                 ),
+        .awaddr_i               (s0_awaddr                  ),
+        .wvalid_i               (s0_wvalid                  ),
+        .wready_o               (s0_wready                  ),
+        .wdata_i                (s0_wdata                   ),
+        .wstrb_i                (s0_wstrb                   ),
+        .bvalid_o               (s0_bvalid                  ),
+        .bready_i               (s0_bready                  ),
+        .bresp_o                (s0_bresp                   ),
+        .arvalid_i              (s0_arvalid                 ),
+        .arready_o              (s0_arready                 ),
+        .araddr_i               (s0_araddr                  ),
+        .rvalid_o               (s0_rvalid                  ),
+        .rready_i               (s0_rready                  ),
+        .rdata_o                (s0_rdata                   ),
+        .rresp_o                (s0_rresp                   )
     );
+
 
 
 endmodule
