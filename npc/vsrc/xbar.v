@@ -139,11 +139,11 @@ module xbar
                 M1_arvalid = 0;
                 M1_araddr  = 0;
                 M1_rready  = 0;
-                S_awready  = 0;
-                S_wready   = 0;
+                S_awready  = M0_awready | M1_awready;
+                S_wready   = M0_wready  | M1_wready;
                 S_bvalid   = 0;
                 S_bresp    = 0;
-                S_arready  = 0;
+                S_arready  = M0_arready | M1_arready;
                 S_rvalid   = 0;
                 S_rdata    = 0;
                 S_rresp    = 0;

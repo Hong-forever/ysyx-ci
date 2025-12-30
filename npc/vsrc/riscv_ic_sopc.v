@@ -276,7 +276,7 @@ module top
         .DATA_WIDTH             (`MemDataWidth              ),
         .MEM_DEPTH              (512                        ),
         .LFSR_SEED              (`SEED4                     )
-    ) ram_inst (
+    ) mem_inst (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
 
