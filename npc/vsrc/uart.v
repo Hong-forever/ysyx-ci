@@ -98,7 +98,7 @@ module uart
             $error("UART read is not supported!");
         end
         if(wvalid_i && wready_o) begin
-            $write("%c", wdata_i[7:0]);
+            $write("char: %c\n", wdata_i[7:0]);
         end
     end
 
