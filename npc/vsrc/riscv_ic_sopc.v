@@ -236,6 +236,30 @@ module top
         .rresp_o                (s0_rresp                   )
     );
 
+    uart #(
+        .ADDR_WIDTH             (`MemAddrWidth              ),
+        .DATA_WIDTH             (`MemDataWidth              )
+    ) uart_inst (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
 
+        .awvalid_i              (s1_awvalid                 ),
+        .awready_o              (s1_awready                 ),
+        .awaddr_i               (s1_awaddr                  ),
+        .wvalid_i               (s1_wvalid                  ),
+        .wready_o               (s1_wready                  ),
+        .wdata_i                (s1_wdata                   ),
+        .wstrb_i                (s1_wstrb                   ),
+        .bvalid_o               (s1_bvalid                  ),
+        .bready_i               (s1_bready                  ),
+        .bresp_o                (s1_bresp                   ),
+        .arvalid_i              (s1_arvalid                 ),
+        .arready_o              (s1_arready                 ),
+        .araddr_i               (s1_araddr                  ),
+        .rvalid_o               (s1_rvalid                  ),
+        .rready_i               (s1_rready                  ),
+        .rdata_o                (s1_rdata                   ),
+        .rresp_o                (s1_rresp                   )
+    );
 
 endmodule
