@@ -143,14 +143,14 @@ static void single_cycle()
     top->eval();
 #if WAVE_ENABLE == 1
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
-    contextp->timeInc(0.5);
+    contextp->timeInc(1);
     tfp->dump(contextp->time());
 #endif
     top->clk = 1;
     top->eval();
 #if WAVE_ENABLE == 1
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
-    contextp->timeInc(0.5);
+    contextp->timeInc(1);
     tfp->dump(contextp->time());
 #endif
 }
