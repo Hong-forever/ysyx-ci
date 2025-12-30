@@ -15,7 +15,7 @@ void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime)
     uint32_t time_hi = inl(RTC_PORT+ 4);
     uint32_t time_lo = inl(RTC_PORT);
 
-    uptime->us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) / 1000ULL;
+    uptime->us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * 1000ULL;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc)
