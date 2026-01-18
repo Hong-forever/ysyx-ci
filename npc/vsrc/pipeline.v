@@ -4,7 +4,7 @@
 // 取指译码流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_if_dec
+module ysyx_25110270_pipeline_if_dec
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -39,7 +39,7 @@ endmodule
 // 译码执行流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_dec_ex
+module ysyx_25110270_pipeline_dec_ex
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -199,7 +199,7 @@ endmodule
 // 执行访存流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_ex_ls
+module ysyx_25110270_pipeline_ex_ls
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -312,7 +312,7 @@ endmodule
 // 访存写回流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_ls_wb
+module ysyx_25110270_pipeline_ls_wb
 (
     input   wire                        clk,
     input   wire                        rst_n,

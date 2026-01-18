@@ -4,7 +4,7 @@
 // 指令解包模块
 //------------------------------------------------------------------------
 
-module RV32_Inst_Unpack
+module ysyx_25110270_RV32_Inst_Unpack
 (
     input   wire    [`InstBus           ] I_inst,
     output  wire    [`RV32_OP_WIDTH-1:0 ] opcode,

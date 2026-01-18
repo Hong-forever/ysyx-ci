@@ -4,7 +4,7 @@
 // 前递单元
 //------------------------------------------------------------------------
 
-module fwd_unit
+module ysyx_25110270_fwd_unit
 (
     input   wire                        I_rs1_re,
     input   wire                        I_rs2_re,

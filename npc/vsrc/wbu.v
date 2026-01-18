@@ -4,7 +4,7 @@
 // 写回单元
 //------------------------------------------------------------------------
 
-module wbu
+module ysyx_25110270_wbu
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -60,7 +60,7 @@ module wbu
     wire [`CSRDataBus] csr_mvendorid;
     wire [`CSRDataBus] csr_marchid;
 
-    regfile u_regfile
+    ysyx_25110270_regfile u_regfile
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -112,7 +112,7 @@ module wbu
         .O_gpr31                (gpr31                      )
     );
 
-    csr_reg u_csr_reg
+    ysyx_25110270_csr_reg u_csr_reg
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),

@@ -96,7 +96,7 @@ module top
     wire [`MemDataBus    ]  s2_rdata;
     wire [`AXI_RESP_BUS  ]  s2_rresp;
 
-    riscv_ic riscv_ic_inst
+    ysyx_25110270 cpu
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),

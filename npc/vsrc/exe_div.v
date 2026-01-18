@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module exe_div
+module ysyx_25110270_exe_div
 (
     input   wire                        clk,
     input   wire                        rst_n,

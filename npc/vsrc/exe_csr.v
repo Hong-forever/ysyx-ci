@@ -4,7 +4,7 @@
 // 执行CSR模块
 //------------------------------------------------------------------------
 
-module exe_csr
+module ysyx_25110270_exe_csr
 (
     input   wire    [`CSRDataBus    ]   I_csr_src,
     input   wire    [`CSRDataBus    ]   I_csr_rdata,

@@ -4,7 +4,7 @@
 // 执行模块
 //------------------------------------------------------------------------
 
-module exec
+module ysyx_25110270_exec
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -185,7 +185,7 @@ module exec
 
     assign stallreq = stallreq_div | stallreq_mul;
 
-    exe_alu alu
+    ysyx_25110270_exe_alu alu
     (
         .clk                        (clk                    ),
         .rst_n                      (rst_n                  ),
@@ -213,7 +213,7 @@ module exec
     // bru运算
     //------------------------------------------------------------------------
     wire bru_taken;
-    exe_bru bru
+    ysyx_25110270_exe_bru bru
     (
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
@@ -225,7 +225,7 @@ module exec
     // csr运算
     //------------------------------------------------------------------------
     wire [`CSRDataBus] csr_wdata;
-    exe_csr csr
+    ysyx_25110270_exe_csr csr
     (
         .I_csr_src                  (csr_src                ),
         .I_csr_rdata                (final_csr_rdata        ),

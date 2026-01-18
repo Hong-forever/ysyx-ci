@@ -4,7 +4,7 @@
 // 译码单元
 //------------------------------------------------------------------------
 
-module decoder 
+module ysyx_25110270_decoder 
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -66,7 +66,7 @@ module decoder
     wire [`RV32_RS1_WIDTH-1:0] rs1;
     wire [`RV32_RS2_WIDTH-1:0] rs2;
     
-    RV32_Inst_Unpack inst_unpack_inst
+    ysyx_25110270_RV32_Inst_Unpack inst_unpack_inst
     (
         .I_inst                 (I_inst                     ),
         .opcode                 (opcode                     ),
@@ -81,7 +81,7 @@ module decoder
     // 立即数生成
     //------------------------------------------------------------------------
     wire [`RegDataBus] imm;
-    ImmGen_unit imm_gen_inst
+    ysyx_25110270_ImmGen_unit imm_gen_inst
     (
         .I_inst                 (I_inst                     ),
         .O_imm                  (imm                        )
@@ -92,7 +92,7 @@ module decoder
     //------------------------------------------------------------------------
     wire [`ALUSrcA_sel_width-1:0] ALUSrcA_sel;
     wire [`ALUSrcB_sel_width-1:0] ALUSrcB_sel;
-    ALUSrcSel_unit alu_src_sel_inst
+    ysyx_25110270_ALUSrcSel_unit alu_src_sel_inst
     (
         .opcode                 (opcode                     ),
         .ALUSrcA_sel            (ALUSrcA_sel                ),
@@ -100,14 +100,14 @@ module decoder
     );
 
     wire [`AGUSrc_sel_width-1:0] AGUSrc_sel;
-    AGUSrcSel_unit agu_src_sel_inst
+    ysyx_25110270_AGUSrcSel_unit agu_src_sel_inst
     (
         .opcode                 (opcode                     ),
         .AGUSrc_sel             (AGUSrc_sel                 )
     );
 
     wire [`CSRSrc_sel_width-1:0] CSRSrc_sel;
-    CSRSrcSel_unit csr_src_sel_inst
+    ysyx_25110270_CSRSrcSel_unit csr_src_sel_inst
     (
         .opcode                 (opcode                     ),
         .funct3                 (funct3                     ),
@@ -263,7 +263,7 @@ module decoder
     //------------------------------------------------------------------------
     // 异常解码
     //------------------------------------------------------------------------
-    dec_except dec_except_inst
+    ysyx_25110270_dec_except dec_except_inst
     (
         .I_inst                 (I_inst                     ),
         .O_except               (except                     )

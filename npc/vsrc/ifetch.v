@@ -4,7 +4,7 @@
 // 取指单元
 //------------------------------------------------------------------------
 
-module ifetch
+module ysyx_25110270_ifetch
 (
     input   wire                        clk,
     input   wire                        rst_n,
