@@ -75,7 +75,7 @@ module ysyx_25110270_csr_reg
     //复位撤销后就一直计数
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            cycle <= `Zero;
+            cycle <= 0;
         end else begin
             cycle <= cycle + 1'b1;
         end
@@ -85,12 +85,12 @@ module ysyx_25110270_csr_reg
     //写寄存器操作
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            mtvec <= `Zero;
-            mcause <= `Zero;
-            mepc <= `Zero;
-            mie <= `Zero;
-            mstatus <= `Zero;
-            mscratch <= `Zero;
+            mtvec <= 0;
+            mcause <= 0;
+            mepc <= 0;
+            mie <= 0;
+            mstatus <= 0;
+            mscratch <= 0;
             mvendorid <= `YSYX_LOGO;
             marchid <= `YSYX_STU_NUM;
         end else begin
@@ -135,7 +135,7 @@ module ysyx_25110270_csr_reg
                 `CSR_Addr_CYCLEH:   rdata1 = cycle[63:32];
                 `CSR_Addr_MVENDORID:rdata1 = mvendorid;
                 `CSR_Addr_MARCHID:  rdata1 = marchid;
-                default:            rdata1 = `Zero;
+                default:            rdata1 = 0;
             endcase
         end
     end
@@ -148,7 +148,7 @@ module ysyx_25110270_csr_reg
 
     assign O_flush = except_call | except_mret;
     assign O_flush_addr =   except_call ? mtvec :
-                            except_mret ? mepc  : `Zero;
+                            except_mret ? mepc  : 0;
 
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;

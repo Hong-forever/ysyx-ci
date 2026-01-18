@@ -67,14 +67,14 @@ module ysyx_25110270_uart
     reg               rdata_valid;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            rdata <= `Zero;
+            rdata <= 0;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= `Zero;
+                rdata <= 0;
                 rdata_valid <= 1'b0;
             end else if(arvalid_i && arready_o) begin
-                rdata <= `Zero;
+                rdata <= 0;
                 rdata_valid <= 1'b1;
             end
         end

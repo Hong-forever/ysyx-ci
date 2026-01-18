@@ -20,7 +20,6 @@
 //------------------------------------------------------------------------
 // CONSTANT DEFINITIONS
 //------------------------------------------------------------------------
-`define Zero 0
 `define True 1'b1
 `define False 1'b0
 `define Enable 1'b1
@@ -337,7 +336,6 @@
 `define InstAddrBus `InstAddrWidth-1:0
 
 `define DBUS_MASK 4
-`define AXI_RESP_BUS 1:0
 
 `define SERIAL_MMIO 32'h1000_0000
 `define RTC_MMIO    32'h2000_0000
