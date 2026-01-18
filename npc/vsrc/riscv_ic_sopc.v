@@ -243,7 +243,7 @@ module top
         .S2_rresp               (s2_rresp                   )
     );
 
-    mem #(
+    ysyx_25110270_mem #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              ),
         .MEM_DEPTH              (512                        ),
@@ -271,7 +271,7 @@ module top
         .rresp_o                (s0_rresp                   )
     );
 
-    uart #(
+    ysyx_25110270_uart #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              )
     ) uart_inst (
@@ -297,7 +297,7 @@ module top
         .rresp_o                (s1_rresp                   )
     );
 
-    clint #(
+    ysyx_25110270_clint #(
         .ADDR_WIDTH             (`MemAddrWidth              ),
         .DATA_WIDTH             (`MemDataWidth              )
     ) clint_inst (
