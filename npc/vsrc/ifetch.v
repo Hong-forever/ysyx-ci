@@ -24,25 +24,33 @@ module ysyx_25110270_ifetch
     //to bus
     output  wire                        ibus_awvalid,
     input   wire                        ibus_awready,
-    output  wire    [`InstAddrBus   ]   ibus_awaddr,
-
+    output  wire    [31:0]              ibus_awaddr,
+    output  wire    [3:0]               ibus_awid,
+    output  wire    [7:0]               ibus_awlen,
+    output  wire    [2:0]               ibus_awsize,
+    output  wire    [1:0]               ibus_awburst,
     output  wire                        ibus_wvalid,
     input   wire                        ibus_wready,
-    output  wire    [`InstBus       ]   ibus_wdata,
-    output  wire    [`DBUS_MASK-1:0 ]   ibus_wstrb,
-
+    output  wire    [31:0]              ibus_wdata,
+    output  wire    [3:0]               ibus_wstrb,
+    output  wire                        ibus_wlast,
     input   wire                        ibus_bvalid,
     output  wire                        ibus_bready,
-    input   wire    [`AXI_RESP_BUS  ]   ibus_bresp,
-
+    input   wire    [1:0]               ibus_bresp,
+    input   wire    [3:0]               ibus_bid,
     output  wire                        ibus_arvalid,
     input   wire                        ibus_arready,
-    output  wire    [`InstAddrBus   ]   ibus_araddr,
-
+    output  wire    [31:0]              ibus_araddr,
+    output  wire    [3:0]               ibus_arid,
+    output  wire    [7:0]               ibus_arlen,
+    output  wire    [2:0]               ibus_arsize,
+    output  wire    [1:0]               ibus_arburst,
     input   wire                        ibus_rvalid,
     output  wire                        ibus_rready,
-    input   wire    [`InstBus       ]   ibus_rdata,
-    input   wire    [`AXI_RESP_BUS  ]   ibus_rresp
+    input   wire    [31:0]              ibus_rdata,
+    input   wire    [1:0]               ibus_rresp,
+    input   wire                        ibus_rlast,
+    input   wire    [3:0]               ibus_rid
 );
 
     //------------------------------------------------------------------------
@@ -105,8 +113,8 @@ module ysyx_25110270_ifetch
     reg [`InstBus] inst;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst <= `Zero;
-        end else if(ibus_rvalid) begin
+            inst <= 0;
+        end else if(ibus_rvalid && ibus_rready) begin
             inst <= ibus_rdata;
         end
     end
@@ -115,7 +123,7 @@ module ysyx_25110270_ifetch
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             inst_rready <= 1'b1;
-        end else if(ibus_rvalid) begin
+        end else if(ibus_rvalid && ibus_rready) begin
             inst_rready <= 1'b0;
         end else begin
             inst_rready <= 1'b1;
@@ -134,13 +142,23 @@ module ysyx_25110270_ifetch
     assign O_valid = I_ready & state == EXE;
     
     assign ibus_awvalid = 1'b0;
-    assign ibus_awaddr = `Zero;
+    assign ibus_awaddr = 0;
+    assign ibus_awid = 0;
+    assign ibus_awlen = 0;
+    assign ibus_awsize = 0;
+    assign ibus_awburst = 2'b01;
 
     assign ibus_wvalid = 1'b0;
-    assign ibus_wdata = `Zero;
-    assign ibus_wstrb = 4'b0000;
+    assign ibus_wdata = 0;
+    assign ibus_wstrb = 0;
+    assign ibus_wlast = 1'b0;
 
     assign ibus_bready = 1'b0;
+
+    assign ibus_arid = 0;
+    assign ibus_arlen = 8'b0000_0000;
+    assign ibus_arsize = 3'b010;
+    assign ibus_arburst = 2'b01;
 
     // assign ibus_arvalid = inst_arvalid;
     assign ibus_araddr = pc;
@@ -182,8 +200,5 @@ module ysyx_25110270_ifetch
         .I_seed                 (`SEED1                     ),
         .O_random               (irandom                    )
     );
-
-
-
 
 endmodule

@@ -22,7 +22,7 @@ module ysyx_25110270_exe_csr
             `CSRCTL_WRI:   csr_wdata = rv_csrrw_res;
             `CSRCTL_SET:   csr_wdata = rv_csrrs_res;
             `CSRCTL_CLR:   csr_wdata = rv_csrrc_res;
-            `CSRCTL_NOP:   csr_wdata = `Zero;
+            `CSRCTL_NOP:   csr_wdata = 0;
         endcase
     end
 

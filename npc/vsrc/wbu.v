@@ -170,11 +170,11 @@ module ysyx_25110270_wbu
     reg skip_r;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            inst_r1         <= `Zero;
-            inst_addr_r1    <= `Zero;
-            inst_r2         <= `Zero;
-            inst_addr_r2    <= `Zero;
-            pc              <= `Zero;
+            inst_r1         <= 0;
+            inst_addr_r1    <= 0;
+            inst_r2         <= 0;
+            inst_addr_r2    <= 0;
+            pc              <= 0;
             skip_r          <= 1'b0;
         end else begin
             inst_r1         <= I_inst;
@@ -182,9 +182,9 @@ module ysyx_25110270_wbu
             inst_r2         <= inst_r1;
             inst_addr_r2    <= inst_addr_r1;
             pc              <= O_flush ? O_flush_addr :
-                               (I_ls_addr == `Zero ? 
-                               (I_ex_addr == `Zero ? 
-                               (I_dec_addr == `Zero ? I_if_addr : I_dec_addr) 
+                               (I_ls_addr == 0 ? 
+                               (I_ex_addr == 0 ? 
+                               (I_dec_addr == 0 ? I_if_addr : I_dec_addr) 
                                : I_ex_addr) 
                                : I_ls_addr);
             skip_r          <= I_device_skip;
@@ -193,7 +193,7 @@ module ysyx_25110270_wbu
 
     always @(*) begin
 
-        if((inst_r1 != `Zero && inst_addr_r1 != `Zero) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
+        if((inst_r1 != 0 && inst_addr_r1 != 0) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
             cpu_value
             (
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 
