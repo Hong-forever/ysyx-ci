@@ -4,7 +4,7 @@
 // CSR寄存器
 //------------------------------------------------------------------------
 
-module csr_reg
+module ysyx_25110270_csr_reg
 (
     input   wire                        clk,
     input   wire                        rst_n,

@@ -4,7 +4,7 @@
 // 立即数生成单元
 //------------------------------------------------------------------------
 
-module ImmGen_unit
+module ysyx_25110270_ImmGen_unit
 (
     input   wire    [`InstBus       ]   I_inst,
     output  wire    [`RegDataBus    ]   O_imm

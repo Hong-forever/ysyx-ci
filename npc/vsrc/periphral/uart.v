@@ -4,7 +4,7 @@
 // UART模块
 //------------------------------------------------------------------------
 
-module uart
+module ysyx_25110270_uart
 #(
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
     parameter DATA_WIDTH = 8,                   //数据总线宽度

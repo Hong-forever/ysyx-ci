@@ -4,7 +4,7 @@
 // 通用寄存器
 //------------------------------------------------------------------------
 
-module regfile
+module ysyx_25110270_regfile
 (
     input   wire                        clk,
     input   wire                        rst_n,

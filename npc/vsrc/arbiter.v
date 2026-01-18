@@ -4,7 +4,7 @@
 // AXI仲裁器模块
 //------------------------------------------------------------------------
 
-module arbiter
+module ysyx_25110270_arbiter
 #(
     parameter ADDR_WIDTH = 32,
     parameter DATA_WIDTH = 32

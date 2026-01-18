@@ -4,7 +4,7 @@
 // 访存单元
 //------------------------------------------------------------------------
 
-module lsu
+module ysyx_25110270_lsu
 (
     input   wire                        clk,
     input   wire                        rst_n,

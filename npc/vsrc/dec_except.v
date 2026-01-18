@@ -4,7 +4,7 @@
 // 异常指令译码单元
 //------------------------------------------------------------------------
 
-module dec_except
+module ysyx_25110270_dec_except
 (
     input   wire    [`InstBus       ]   I_inst,
     // output  wire                        O_except_valid,

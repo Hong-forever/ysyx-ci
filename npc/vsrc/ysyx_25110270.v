@@ -4,10 +4,10 @@
 // cpu core
 //------------------------------------------------------------------------
 
-module riscv_ic
+module ysyx_25110270
 (
-    input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                        clock,
+    input   wire                        reset,
 
     //ibus
     output  wire                        ibus_awvalid,
@@ -55,6 +55,9 @@ module riscv_ic
     input   wire    [`MemDataBus    ]   dbus_rdata,
     input   wire    [`AXI_RESP_BUS  ]   dbus_rresp
 );
+
+    wire clk = clock;
+    wire rst_n = ~reset;
 
     //-------------------------------------------------------------
     // ifetch
@@ -248,7 +251,7 @@ module riscv_ic
     wire lsu_device_skip;
     wire wbu_device_skip;
 
-    ifetch u_ifetch
+    ysyx_25110270_ifetch u_ifetch
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -285,7 +288,7 @@ module riscv_ic
         .ibus_rresp             (ibus_rresp                 )
     );
 
-    decoder u_decoder
+    ysyx_25110270_decoder u_decoder
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -330,7 +333,7 @@ module riscv_ic
     );
 
 
-    fwd_unit u_fwd_unit
+    ysyx_25110270_fwd_unit u_fwd_unit
     (
         .I_rs1_re               (O_dec_rs1_re               ),
         .I_rs2_re               (O_dec_rs2_re               ),
@@ -356,7 +359,7 @@ module riscv_ic
 
     );
 
-    fwd_load_stall u_fwd_load_stall
+    ysyx_25110270_fwd_load_stall u_fwd_load_stall
     (
         .I_ex_ls_valid          (I_ex_ls_valid              ),
         .I_ex_ls_load           (~I_ex_ls_type[`ls_diff_width-1]),
@@ -373,7 +376,7 @@ module riscv_ic
 
     );
 
-    exec u_exec
+    ysyx_25110270_exec u_exec
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -430,7 +433,7 @@ module riscv_ic
         .O_bru_target           (O_ex_bru_target            )
     );
 
-    lsu u_lsu
+    ysyx_25110270_lsu u_lsu
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -487,7 +490,7 @@ module riscv_ic
         .dbus_rresp             (dbus_rresp                 )
     );
 
-    wbu u_wbu
+    ysyx_25110270_wbu u_wbu
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -534,7 +537,7 @@ module riscv_ic
 
     wire if_enable = O_if_valid;
     wire if_flush = (O_flush | (O_ex_bru_taken & O_ls_ready)) & cpu_execute;
-    pipeline_if_dec u_pipeline_if_dec
+    ysyx_25110270_pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -553,7 +556,7 @@ module riscv_ic
 
     wire dec_enable = O_dec_valid & cpu_execute;
     wire dec_flush = ((O_flush | (O_ex_bru_taken & O_ls_ready)) & cpu_execute) | dec_buble;
-    pipeline_dec_ex u_pipeline_dec_ex
+    ysyx_25110270_pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -618,7 +621,7 @@ module riscv_ic
 
     wire ex_enable = (O_ex_valid & cpu_execute) | dec_buble;
     wire ex_flush = O_flush & cpu_execute;
-    pipeline_ex_ls u_pipeline_ex_ls
+    ysyx_25110270_pipeline_ex_ls u_pipeline_ex_ls
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -663,7 +666,7 @@ module riscv_ic
 
     wire ls_enable = (O_ls_valid & O_ex_valid & cpu_execute) | dec_buble;
     wire ls_flush = O_flush & cpu_execute;
-    pipeline_ls_wb u_pipeline_ls_wb
+    ysyx_25110270_pipeline_ls_wb u_pipeline_ls_wb
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -698,5 +701,10 @@ module riscv_ic
         .I_flush                (ls_flush                   )
     );
 
+    ysyx_25110270_arbiter u_arbiter
+    (
 
-endmodule //riscv_ic
+    );
+
+
+endmodule //ysyx_25110270

@@ -4,7 +4,7 @@
 // clint模块
 //------------------------------------------------------------------------
 
-module clint
+module ysyx_25110270_clint
 #(
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
     parameter DATA_WIDTH = 32                   //数据总线宽度
