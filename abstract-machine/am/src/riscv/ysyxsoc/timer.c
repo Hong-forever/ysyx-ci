@@ -6,24 +6,24 @@ static uint64_t us = 0;
 
 void __am_timer_init()
 {
-    // uint32_t time_hi = inl(RTC_PORT+ 4);
-    // uint32_t time_lo = inl(RTC_PORT);
+    // uint32_t time_hi = inl(CLINT_PORT+ 4);
+    // uint32_t time_lo = inl(CLINT_PORT);
 
     // us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD;
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime)
 {
-    uint32_t time_hi = inl(RTC_PORT+ 4);
-    uint32_t time_lo = inl(RTC_PORT);
+    uint32_t time_hi = inl(CLINT_PORT+ 4);
+    uint32_t time_lo = inl(CLINT_PORT);
 
     uptime->us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD;
 }
 
-void __am_timer_rtc(AM_TIMER_RTC_T *rtc)
+void __am_timer_rtc(AM_TIMER_CLINT_T *rtc)
 {
-    uint32_t time_hi = inl(RTC_PORT+ 4);
-    uint32_t time_lo = inl(RTC_PORT);
+    uint32_t time_hi = inl(CLINT_PORT+ 4);
+    uint32_t time_lo = inl(CLINT_PORT);
 
     // ysyxsoc's period is 10us
     uint64_t up_us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD; 
