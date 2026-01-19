@@ -369,7 +369,11 @@ module ysyx_25110270_lsu
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
 
-    assign O_device_skip = I_ls_valid & (((I_memory_addr & ~32'h3) == `SERIAL_MMIO) | ((I_memory_addr & ~32'h7) == `RTC_MMIO));
+    assign O_device_skip = I_ls_valid & 
+    (
+        (I_memory_addr >= `SERIAL_BASE & I_memory_addr < (`SERIAL_BASE + `SERIAL_SIZE)) |
+        (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE + `CLINT_SIZE)  ) 
+    );
 
     // assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_awaddr = I_memory_addr;
