@@ -39,7 +39,37 @@ module ysyx_25110270
     input   wire    [31:0]              io_master_rdata,
     input   wire    [1:0]               io_master_rresp,
     input   wire                        io_master_rlast,
-    input   wire    [3:0]               io_master_rid
+    input   wire    [3:0]               io_master_rid,
+
+    input   wire                        io_slave_awvalid,
+    output  wire                        io_slave_awready,
+    input   wire    [31:0]              io_slave_awaddr,
+    input   wire    [3:0]               io_slave_awid,
+    input   wire    [7:0]               io_slave_awlen,
+    input   wire    [2:0]               io_slave_awsize,
+    input   wire    [1:0]               io_slave_awburst,
+    input   wire                        io_slave_wvalid,
+    output  wire                        io_slave_wready,
+    input   wire    [31:0]              io_slave_wdata,
+    input   wire    [3:0]               io_slave_wstrb,
+    input   wire                        io_slave_wlast,
+    output  wire                        io_slave_bvalid,
+    input   wire                        io_slave_bready,
+    output  wire    [1:0]               io_slave_bresp,
+    output  wire    [3:0]               io_slave_bid,
+    input   wire                        io_slave_arvalid,
+    output  wire                        io_slave_arready,
+    input   wire    [31:0]              io_slave_araddr,
+    input   wire    [3:0]               io_slave_arid,
+    input   wire    [7:0]               io_slave_arlen,
+    input   wire    [2:0]               io_slave_arsize,
+    input   wire    [1:0]               io_slave_arburst,
+    output  wire                        io_slave_rvalid,
+    input   wire                        io_slave_rready,
+    output  wire    [31:0]              io_slave_rdata,
+    output  wire    [1:0]               io_slave_rresp,
+    output  wire                        io_slave_rlast,
+    output  wire    [3:0]               io_slave_rid
 );
 
     wire clk = clock;
