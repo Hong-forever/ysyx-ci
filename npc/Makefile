@@ -10,7 +10,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 endif
 
-TOPNAME = top
+TOPNAME = ysyxSoCFull
 
 GUEST_ISA ?= riscv32
 
@@ -22,8 +22,11 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast -j 4
+VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
 VERILATOR_CFLAGS += -I./vsrc
+VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
+VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 WAVE_ENABLE ?= 1
@@ -77,6 +80,9 @@ include $(FILELIST_MK)
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+
+VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
+VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)

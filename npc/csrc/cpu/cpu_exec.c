@@ -2,6 +2,10 @@
 #include "utils.h"
 #include <locale.h>
 
+#define CLK clock
+#define RST reset
+#define RST_ACTIVE 1
+
 int cpu_inst_valid = 0;
 
 IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc, paddr_t npc));
@@ -139,14 +143,14 @@ extern VerilatedContext *contextp;
 
 static void single_cycle()
 {
-    top->clk = 0;
+    top->CLK = 0;
     top->eval();
 #if WAVE_ENABLE == 1
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
     contextp->timeInc(1);
     tfp->dump(contextp->time());
 #endif
-    top->clk = 1;
+    top->CLK = 1;
     top->eval();
 #if WAVE_ENABLE == 1
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
@@ -155,12 +159,12 @@ static void single_cycle()
 #endif
 }
 
-void reset(int n)
+void cpu_reset(int n)
 {
-    top->rst_n = 0;
+    top->RST = RST_ACTIVE;
     while (n-- > 0)
         single_cycle();
-    top->rst_n = 1;
+    top->RST = ~RST_ACTIVE;
 }
 
 
