@@ -7,10 +7,10 @@
 !*.cc
 !*.v
 !*.cpp
+!*.hex
 !.gitignore
-!resource/
 !README.md
 !Kconfig
 include/config
 include/generated
-build
+build/
