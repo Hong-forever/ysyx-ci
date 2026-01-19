@@ -7,7 +7,7 @@
 !*.cc
 !*.v
 !*.cpp
-!resource
+!resource/
 !.gitignore
 !README.md
 !Kconfig
