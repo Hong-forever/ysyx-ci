@@ -133,12 +133,10 @@ module ysyx_25110270_xbar
     input   wire    [3:0]               M2_rid
 );
     // Address decoding
-    parameter MEM_BASE    = 32'h8000_0000;
-    parameter SERIAL_BASE = 32'h1000_0000;
-    parameter RTC_BASE    = 32'h2000_0000;
+    parameter CLINT_BASE  = 32'h0200_0000;
 
-    wire sel_slave0   = (RTC_BASE <= S_araddr && S_araddr < RTC_BASE + 32'h0000_0008) ||
-                        (RTC_BASE <= S_awaddr && S_awaddr < RTC_BASE + 32'h0000_0008) ;
+    wire sel_slave0   = (CLINT_BASE <= S_araddr && S_araddr < CLINT_BASE + 32'h0001_0000) ||
+                        (CLINT_BASE <= S_awaddr && S_awaddr < CLINT_BASE + 32'h0001_0000) ;
     wire sel_slave1   = ~sel_slave0;
     wire sel_slave2   = 0;
     
