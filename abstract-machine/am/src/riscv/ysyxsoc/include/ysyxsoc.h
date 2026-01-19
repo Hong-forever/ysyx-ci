@@ -9,8 +9,8 @@
 extern char _pmem_start;
 #define PMEM_SIZE (128 * 1024 * 1024)
 #define PMEM_END ((uintptr_t)&_pmem_start + PMEM_SIZE)
-#define npc_trap(code) asm volatile("mv a0, %0; ebreak" : : "r"(code))
-#define npc_csr_read(csr_id) ({ \
+#define ysyxsoc_trap(code) asm volatile("mv a0, %0; ebreak" : : "r"(code))
+#define ysyxsoc_csr_read(csr_id) ({ \
     uint32_t val; \
     asm volatile("csrr %0, %1" : "=r"(val) : "i"(csr_id)); \
     val; \

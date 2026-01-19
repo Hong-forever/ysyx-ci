@@ -1,4 +1,4 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
 void __am_timer_init();
 

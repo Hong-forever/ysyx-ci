@@ -1,4 +1,4 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
 static Context *(*user_handler)(Event, Context *) = NULL;
 

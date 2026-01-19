@@ -1,4 +1,4 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
 #define NPC_PERIOD 9 // in us
 
@@ -25,7 +25,7 @@ void __am_timer_rtc(AM_TIMER_RTC_T *rtc)
     uint32_t time_hi = inl(RTC_PORT+ 4);
     uint32_t time_lo = inl(RTC_PORT);
 
-    // npc's period is 10us
+    // ysyxsoc's period is 10us
     uint64_t up_us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD; 
 
     uint64_t s = (us + up_us) / 1000000ULL;

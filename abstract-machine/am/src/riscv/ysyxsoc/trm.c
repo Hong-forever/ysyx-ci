@@ -1,4 +1,4 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
 extern char _heap_start;
 int main(const char *args);
@@ -13,16 +13,16 @@ void putch(char ch)
 
 void halt(int code)
 {
-    npc_trap(code);
+    ysyxsoc_trap(code);
     while (1)
         ;
 }
 
 void _trm_init()
 {
-    uint32_t ysyx_logo = npc_csr_read(CSR_MVENDORID);
+    uint32_t ysyx_logo = ysyxsoc_csr_read(CSR_MVENDORID);
     // printf("mvendorid: 0x%08x\n", ysyx_logo);
-    uint32_t stu_num = npc_csr_read(CSR_MARCHID);
+    uint32_t stu_num = ysyxsoc_csr_read(CSR_MARCHID);
     printf("========================================\n");
     printf("Welcome to %s!\n", ysyx_logo == YSYX_LOGO ? "YSYX" : "Unknown");
     printf("Student Number: ysyx_%x\n", stu_num);
