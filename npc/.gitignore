@@ -4,9 +4,12 @@
 !Makefile
 !*.mk
 !*.[cSh]
-!*.v
 !*.cc
+!*.v
 !*.cpp
 !.gitignore
 !README.md
-build/
+!Kconfig
+include/config
+include/generated
+build/    
