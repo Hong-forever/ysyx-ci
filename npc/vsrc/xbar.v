@@ -137,14 +137,11 @@ module ysyx_25110270_xbar
     parameter SERIAL_BASE = 32'h1000_0000;
     parameter RTC_BASE    = 32'h2000_0000;
 
-    wire sel_slave0   = (MEM_BASE <= S_araddr && S_araddr < MEM_BASE + 32'h0800_0000) ||
-                        (MEM_BASE <= S_awaddr && S_awaddr < MEM_BASE + 32'h0800_0000) ;
-
-    wire sel_slave1   = (SERIAL_BASE <= S_araddr && S_araddr < SERIAL_BASE + 32'h0000_1000) ||
-                        (SERIAL_BASE <= S_awaddr && S_awaddr < SERIAL_BASE + 32'h0000_1000) ;
-    
-    wire sel_slave2   = (RTC_BASE <= S_araddr && S_araddr < RTC_BASE + 32'h0000_0008) ||
+    wire sel_slave0   = (RTC_BASE <= S_araddr && S_araddr < RTC_BASE + 32'h0000_0008) ||
                         (RTC_BASE <= S_awaddr && S_awaddr < RTC_BASE + 32'h0000_0008) ;
+    wire sel_slave1   = ~sel_slave0;
+    wire sel_slave2   = 0;
+    
 
     always @(*) begin
         case(1'b1)
