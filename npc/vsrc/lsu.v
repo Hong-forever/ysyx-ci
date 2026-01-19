@@ -4,7 +4,7 @@
 // 访存单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_lsu
+module lsu
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -45,33 +45,25 @@ module ysyx_25110270_lsu
     //to bus
     output  wire                        dbus_awvalid,
     input   wire                        dbus_awready,
-    output  wire    [31:0]              dbus_awaddr,
-    output  wire    [3:0]               dbus_awid,
-    output  wire    [7:0]               dbus_awlen,
-    output  wire    [2:0]               dbus_awsize,
-    output  wire    [1:0]               dbus_awburst,
+    output  wire    [`MemAddrBus    ]   dbus_awaddr,
+
     output  wire                        dbus_wvalid,
     input   wire                        dbus_wready,
-    output  wire    [31:0]              dbus_wdata,
-    output  wire    [3:0]               dbus_wstrb,
-    output  wire                        dbus_wlast,
+    output  wire    [`MemDataBus    ]   dbus_wdata,
+    output  wire    [`DBUS_MASK-1:0 ]   dbus_wstrb,
+
     input   wire                        dbus_bvalid,
     output  wire                        dbus_bready,
-    input   wire    [1:0]               dbus_bresp,
-    input   wire    [3:0]               dbus_bid,
+    input   wire    [`AXI_RESP_BUS  ]   dbus_bresp,
+
     output  wire                        dbus_arvalid,
     input   wire                        dbus_arready,
-    output  wire    [31:0]              dbus_araddr,
-    output  wire    [3:0]               dbus_arid,
-    output  wire    [7:0]               dbus_arlen,
-    output  wire    [2:0]               dbus_arsize,
-    output  wire    [1:0]               dbus_arburst,
+    output  wire    [`MemAddrBus    ]   dbus_araddr,
+
     input   wire                        dbus_rvalid,
     output  wire                        dbus_rready,
-    input   wire    [31:0]              dbus_rdata,
-    input   wire    [1:0]               dbus_rresp,
-    input   wire                        dbus_rlast,
-    input   wire    [3:0]               dbus_rid
+    input   wire    [`MemDataBus    ]   dbus_rdata,
+    input   wire    [`AXI_RESP_BUS  ]   dbus_rresp
 );
 
     //------------------------------------------------------------------------
@@ -81,7 +73,7 @@ module ysyx_25110270_lsu
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rdata <= 0;
-        end else if(dbus_rvalid && dbus_rready) begin
+        end else if(dbus_rvalid) begin
             rdata <= dbus_rdata;
         end
     end
@@ -117,23 +109,14 @@ module ysyx_25110270_lsu
     // 地址明辨
     wire [1:0] memory_byte_addr = I_memory_addr[1:0];
 
-    wire is_sb  = (I_ls_type == `ls_sb);
-    wire is_sh  = (I_ls_type == `ls_sh);
-    wire is_sw  = (I_ls_type == `ls_sw);
-    wire is_lb  = (I_ls_type == `ls_lb);
-    wire is_lbu = (I_ls_type == `ls_lbu);
-    wire is_lhu = (I_ls_type == `ls_lhu);
-    wire is_lh  = (I_ls_type == `ls_lh);
-    wire is_lw  = (I_ls_type == `ls_lw);
-
     //------------------------------------------------------------------------
     // 访存逻辑
     //------------------------------------------------------------------------
     reg [`RegDataBus] rd_data;
     always @(*) begin
         rd_data = I_rd_wdata;
-        case(1'b1)
-            is_lb: begin
+        case(I_ls_type)
+            `ls_lb: begin
                 case(memory_byte_addr)
                     2'b00: rd_data = lb_00_res;
                     2'b01: rd_data = lb_01_res;
@@ -142,17 +125,17 @@ module ysyx_25110270_lsu
                     default: begin end
                 endcase
             end
-            is_lh: begin
+            `ls_lh: begin
                 case(memory_byte_addr[1])
                     1'b0: rd_data = lh_00_res;
                     1'b1: rd_data = lh_10_res;
                     default: begin end
                 endcase
             end
-            is_lw: begin
+            `ls_lw: begin
                 rd_data = lw_res;
             end
-            is_lbu: begin
+            `ls_lbu: begin
                 case(memory_byte_addr)
                     2'b00: rd_data = lbu_00_res;
                     2'b01: rd_data = lbu_01_res;
@@ -161,7 +144,7 @@ module ysyx_25110270_lsu
                     default: begin end
                 endcase
             end
-            is_lhu: begin
+            `ls_lhu: begin
                 case(memory_byte_addr[1])
                     1'b0: rd_data = lhu_00_res;
                     1'b1: rd_data = lhu_10_res;
@@ -177,9 +160,9 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     reg [`MemDataBus] wdata;
     always @(*) begin
-        wdata = 0;
-        case(1'b1)
-            is_sb: begin
+        wdata = `Zero;
+        case(I_ls_type)
+            `ls_sb: begin
                 case(memory_byte_addr)
                     2'b00: wdata = sb_00_res;
                     2'b01: wdata = sb_01_res;
@@ -188,14 +171,14 @@ module ysyx_25110270_lsu
                     default: begin end
                 endcase
             end
-            is_sh: begin
+            `ls_sh: begin
                 case(memory_byte_addr[1])
                     1'b0: wdata = sh_00_res;
                     1'b1: wdata = sh_10_res;
                     default: begin end
                 endcase
             end
-            is_sw: begin
+            `ls_sw: begin
                 wdata = sw_res;
             end
             default: begin end
@@ -209,8 +192,8 @@ module ysyx_25110270_lsu
     reg [`DBUS_MASK-1:0] data_mask;
     always @(*) begin
         data_mask = 'b0000;
-        case(1'b1)
-            is_sb: begin
+        case(I_ls_type)
+            `ls_lb, `ls_lbu, `ls_sb: begin
                 case(memory_byte_addr)
                     2'b00: data_mask = 4'b0001;
                     2'b01: data_mask = 4'b0010;
@@ -219,43 +202,15 @@ module ysyx_25110270_lsu
                     default: begin end
                 endcase
             end
-            is_sh: begin
+            `ls_lh, `ls_lhu, `ls_sh: begin
                 case(memory_byte_addr[1])
                     1'b0: data_mask = 4'b0011;
                     1'b1: data_mask = 4'b1100;
                     default: begin end
                 endcase
             end
-            is_sw: begin
+            `ls_lw, `ls_sw: begin
                 data_mask = 4'b1111;
-            end
-            default: begin end
-        endcase
-    end
-    
-    reg [2:0] data_awsize;
-    reg [2:0] data_arsize;
-    always @(*) begin
-        data_awsize = 3'b000;
-        data_arsize = 3'b000;
-        case(1'b1)
-            is_sb: begin
-                data_awsize = 3'b000;
-            end
-            is_sh: begin
-                data_awsize = 3'b001;
-            end
-            is_sw: begin
-                data_awsize = 3'b010;
-            end
-            is_lb, is_lbu: begin
-                data_arsize = 3'b000;
-            end
-            is_lh, is_lhu: begin
-                data_arsize = 3'b001;
-            end
-            is_lw: begin
-                data_arsize = 3'b010;
             end
             default: begin end
         endcase
@@ -317,7 +272,7 @@ module ysyx_25110270_lsu
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             data_bready <= 1'b1;
-        end else if(dbus_bvalid && dbus_bready) begin
+        end else if(dbus_bvalid) begin
             data_bready <= 1'b0;
         end else begin
             data_bready <= 1'b1;
@@ -328,7 +283,7 @@ module ysyx_25110270_lsu
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             data_rready <= 1'b1;
-        end else if(dbus_rvalid && dbus_rready) begin
+        end else if(dbus_rvalid) begin
             data_rready <= 1'b0;
         end else begin
             data_rready <= 1'b1;
@@ -340,7 +295,7 @@ module ysyx_25110270_lsu
         if(!rst_n) begin
             stallreq_mem <= 1'b0;
         end else begin
-            if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
+            if(dbus_bvalid || dbus_rvalid || state == WB) begin
                 stallreq_mem <= 1'b0;
             end else if(data_avalid || state == MEM) begin
                 stallreq_mem <= 1'b1;
@@ -369,32 +324,19 @@ module ysyx_25110270_lsu
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
 
-    assign O_device_skip = I_ls_valid & 
-    (
-        (I_memory_addr >= `SERIAL_BASE & I_memory_addr < (`SERIAL_BASE + `SERIAL_SIZE)) |
-        (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE + `CLINT_SIZE)  ) 
-    );
+    assign O_device_skip = I_ls_valid & (((I_memory_addr & ~32'h3) == `SERIAL_MMIO) | ((I_memory_addr & ~32'h7) == `RTC_MMIO));
 
     // assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_awaddr = I_memory_addr;
-    assign dbus_awid = 4'b0000;
-    assign dbus_awlen = 8'b0000_0000;
-    assign dbus_awsize = data_awsize;
-    assign dbus_awburst = 2'b01;
 
     // assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_wdata = wdata;
     assign dbus_wstrb = data_mask;
-    assign dbus_wlast = dbus_wvalid;
 
     assign dbus_bready = data_bready;
 
     // assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
     assign dbus_araddr = I_memory_addr;
-    assign dbus_arid = 4'b0000;
-    assign dbus_arlen = 8'b0000_0000;
-    assign dbus_arsize = data_arsize;
-    assign dbus_arburst = 2'b01;
 
     assign dbus_rready = data_rready;
 
@@ -417,7 +359,7 @@ module ysyx_25110270_lsu
             avalid_r <= 1'b0;
             drandom_r <= drandom;
             req_flag <= 1'b1;
-        end else if((dbus_awvalid && dbus_awready) || (dbus_arvalid && dbus_arready)) begin
+        end else if((dbus_awvalid & dbus_awready) | (dbus_arvalid & dbus_arready)) begin
             avalid_r <= 1'b0;
         end
     end

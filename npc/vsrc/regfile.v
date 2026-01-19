@@ -4,7 +4,7 @@
 // 通用寄存器
 //------------------------------------------------------------------------
 
-module ysyx_25110270_regfile
+module regfile
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -63,10 +63,10 @@ module ysyx_25110270_regfile
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             for(i = 1; i < `RegNum; i = i + 1) begin
-                regs[i] <= 0;
+                regs[i] <= `Zero;
             end
         end else begin
-            if((I_rd_we == `Enable) && (I_rd_waddr != 0)) begin
+            if((I_rd_we == `Enable) && (I_rd_waddr != `Zero)) begin
                 regs[I_rd_waddr] <= I_rd_wdata;
             end
         end
@@ -74,11 +74,11 @@ module ysyx_25110270_regfile
 
     //读寄存器
     assign O_rs1_rdata = 
-                I_rs1_raddr == 0 ? 0 :
+                I_rs1_raddr == `Zero ? `Zero :
                 (I_rd_we && I_rd_waddr == I_rs1_raddr) ? I_rd_wdata : regs[I_rs1_raddr];
 
     assign O_rs2_rdata = 
-                I_rs2_raddr == 0 ? 0 :
+                I_rs2_raddr == `Zero ? `Zero :
                 (I_rd_we && I_rd_waddr == I_rs2_raddr) ? I_rd_wdata : regs[I_rs2_raddr];
 
     //for debug
@@ -115,7 +115,7 @@ module ysyx_25110270_regfile
     wire [`RegDataBus] t5_x30  = regs[30];
     wire [`RegDataBus] t6_x31  = regs[31];
 
-    assign O_gpr0  = 0;
+    assign O_gpr0  = `Zero;
     assign O_gpr1  = regs[1];
     assign O_gpr2  = regs[2];
     assign O_gpr3  = regs[3];

@@ -4,7 +4,7 @@
 // 存储器模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_mem 
+module mem 
 #(
     parameter DATA_WIDTH = 32,                  //数据总线宽度
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
@@ -122,11 +122,11 @@ module ysyx_25110270_mem
     reg               rdata_valid;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            rdata <= 0;
+            rdata <= `Zero;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= 0;
+                rdata <= `Zero;
                 rdata_valid <= 1'b0;
             end else if(rhandshake) begin
                 rdata <= paddr_read(araddr_i);
@@ -154,11 +154,11 @@ module ysyx_25110270_mem
     reg               rdata_valid;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            rdata <= 0;
+            rdata <= `Zero;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= 0;
+                rdata <= `Zero;
                 rdata_valid <= 1'b0;
             end else if(rhandshake) begin
                 rdata <= mem_array[araddr_i[$clog2(MEM_DEPTH)-1:2]];
@@ -180,7 +180,7 @@ module ysyx_25110270_mem
         if(!rst_n) begin
             wdata_valid <= 1'b0;
             for(int i = 0; i < MEM_DEPTH; i = i + 1) begin
-                mem_array[i] <= 0;
+                mem_array[i] <= `Zero;
             end
         end else begin
             if(bvalid_o && bready_i) begin

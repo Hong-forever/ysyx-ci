@@ -1,7 +1,7 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#include <VysyxSoCFull.h>
+#include <Vtop.h>
 #include "macro.h"
 #include <verilated.h>
 

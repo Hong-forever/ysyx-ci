@@ -4,7 +4,7 @@
 // UART模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_uart
+module uart
 #(
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
     parameter DATA_WIDTH = 8,                   //数据总线宽度
@@ -67,14 +67,14 @@ module ysyx_25110270_uart
     reg               rdata_valid;
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            rdata <= 0;
+            rdata <= `Zero;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= 0;
+                rdata <= `Zero;
                 rdata_valid <= 1'b0;
             end else if(arvalid_i && arready_o) begin
-                rdata <= 0;
+                rdata <= `Zero;
                 rdata_valid <= 1'b1;
             end
         end

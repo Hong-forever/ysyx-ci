@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module ysyx_25110270_exe_div
+module exe_div
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -33,17 +33,17 @@ module ysyx_25110270_exe_div
         if(!rst_n) begin
             state <= `DivFree;
             cnt <= 6'b000000;
-            temp_op1 <= 0;
-            temp_op2 <= 0;
-            dividend <= 0;
-            divisor <= 0;
+            temp_op1 <= `Zero;
+            temp_op2 <= `Zero;
+            dividend <= `Zero;
+            divisor <= `Zero;
             ready <= `DivResultNotReady;
-            result <= 0;
+            result <= `Zero;
         end else begin
             case(state)
                 `DivFree: begin
                     if(I_start == `DivStart && I_annul == 1'b0) begin
-                        if(I_opdata2 == 0) begin
+                        if(I_opdata2 == `Zero) begin
                             state <= `DivByZero;
                         end else begin
                             state <= `DivOn;
@@ -59,12 +59,12 @@ module ysyx_25110270_exe_div
                                 temp_op2 = I_opdata2;
                             end
                         end
-                        dividend <= 0;
+                        dividend <= `Zero;
                         dividend[32:1] <= temp_op1;
                         divisor <= temp_op2;
                     end else begin
                         ready <= `DivResultNotReady;
-                        result <= 0;
+                        result <= `Zero;
                     end
                 end
                 `DivByZero: begin
@@ -94,7 +94,7 @@ module ysyx_25110270_exe_div
                                 dividend[64:33] <= (~dividend[64:33] + 1);
                             end
                             state <= `DivEnd;
-                            cnt <= 0;
+                            cnt <= 6'b000000;
                         end
                     end else begin
                         state <= `DivFree;
@@ -106,7 +106,7 @@ module ysyx_25110270_exe_div
                     if(I_start == `DivStop) begin
                         state <= `DivFree;
                         ready <= `DivResultNotReady;
-                        result <= 0;
+                        result <= `Zero;
                     end
                 end
             endcase

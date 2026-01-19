@@ -4,7 +4,7 @@
 // ALU源选择单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_ALUSrcSel_unit
+module ALUSrcSel_unit
 (
     input   wire    [`RV32_OP_WIDTH-1:0    ] opcode, 
     output  reg     [`ALUSrcA_sel_width-1:0] ALUSrcA_sel,
@@ -44,7 +44,7 @@ endmodule
 // AGU源选择单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_AGUSrcSel_unit   
+module AGUSrcSel_unit   
 (
     input   wire    [`RV32_OP_WIDTH-1:0    ] opcode,
     output  reg     [`AGUSrc_sel_width-1:0] AGUSrc_sel
@@ -67,7 +67,7 @@ endmodule
 // CSR源选择单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_CSRSrcSel_unit
+module CSRSrcSel_unit
 (
     input   wire    [`RV32_OP_WIDTH-1:0    ] opcode,
     input   wire    [`RV32_F3_WIDTH-1:0    ] funct3,

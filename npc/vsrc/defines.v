@@ -20,6 +20,7 @@
 //------------------------------------------------------------------------
 // CONSTANT DEFINITIONS
 //------------------------------------------------------------------------
+`define Zero 0
 `define True 1'b1
 `define False 1'b0
 `define Enable 1'b1
@@ -336,10 +337,9 @@
 `define InstAddrBus `InstAddrWidth-1:0
 
 `define DBUS_MASK 4
+`define AXI_RESP_BUS 1:0
 
-`define CLINT_BASE    32'h0200_0000
-`define CLINT_SIZE    32'h0001_0000
-`define SERIAL_BASE   32'h1000_0000
-`define SERIAL_SIZE   32'h0000_1000
+`define SERIAL_MMIO 32'h1000_0000
+`define RTC_MMIO    32'h2000_0000
 
-`define RomAddrBase 32'h2000_0000
+`define RomAddrBase 32'h8000_0000
