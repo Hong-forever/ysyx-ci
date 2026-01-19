@@ -5,9 +5,11 @@
 !*.mk
 !*.[cSh]
 !*.cc
+!*.v
+!*.cpp
 !.gitignore
 !README.md
 !Kconfig
 include/config
 include/generated
-build/
+build/    
