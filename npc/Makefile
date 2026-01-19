@@ -52,6 +52,8 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(NPC_HOME)/scripts/difftest.mk
 
+IMG ?= /home/hhh/Desktop/char-test.bin
+
 NPC_EXEC := $(BIN) $(IMG)
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt

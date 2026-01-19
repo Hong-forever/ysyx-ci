@@ -337,6 +337,9 @@
 
 `define DBUS_MASK 4
 
-`define CLINT_MMIO    32'h0200_0000
+`define CLINT_BASE    32'h0200_0000
+`define CLINT_SIZE    32'h0001_0000
+`define SERIAL_BASE   32'h1000_0000
+`define SERIAL_SIZE   32'h0000_1000
 
 `define RomAddrBase 32'h2000_0000

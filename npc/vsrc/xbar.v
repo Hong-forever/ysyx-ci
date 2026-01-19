@@ -132,11 +132,8 @@ module ysyx_25110270_xbar
     input   wire                        M2_rlast,
     input   wire    [3:0]               M2_rid
 );
-    // Address decoding
-    parameter CLINT_BASE  = 32'h0200_0000;
-
-    wire sel_slave0   = (CLINT_BASE <= S_araddr && S_araddr < CLINT_BASE + 32'h0001_0000) ||
-                        (CLINT_BASE <= S_awaddr && S_awaddr < CLINT_BASE + 32'h0001_0000) ;
+    wire sel_slave0   = (`CLINT_BASE <= S_araddr && S_araddr < `CLINT_BASE + `CLINT_SIZE) ||
+                        (`CLINT_BASE <= S_awaddr && S_awaddr < `CLINT_BASE + `CLINT_SIZE) ;
     wire sel_slave1   = ~sel_slave0;
     wire sel_slave2   = 0;
     
