@@ -4,7 +4,6 @@
 
 #define CLK clock
 #define RST reset
-#define RST_ACTIVE 1
 
 int cpu_inst_valid = 0;
 
@@ -161,10 +160,10 @@ static void single_cycle()
 
 void cpu_reset(int n)
 {
-    top->RST = RST_ACTIVE;
+    top->RST = 1;
     while (n-- > 0)
         single_cycle();
-    top->RST = ~RST_ACTIVE;
+    top->RST = 0;
 }
 
 
