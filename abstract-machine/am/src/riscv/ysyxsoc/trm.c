@@ -11,7 +11,7 @@ static void serial_init()
 {
     outb(SERIAL_PORT + 3, 0x80); // Enable DLAB
     outb(SERIAL_PORT + 1, 0x00); // Set baud rate divisor
-    outb(SERIAL_PORT + 0, 100); // Divisor low byte
+    outb(SERIAL_PORT + 0, 10); // Divisor low byte
     outb(SERIAL_PORT + 3, 0x03); // 8 bits, no parity, one stop bit
 }
 
