@@ -24,6 +24,7 @@ static inline bool in_pmem(paddr_t addr) {
 }
 
 paddr_t *guest_to_host(paddr_t paddr) {
+    printf("paddr: 0x%08x\n", paddr);
     return pmem + ((paddr - CONFIG_MBASE) >> 2);
 }
 
