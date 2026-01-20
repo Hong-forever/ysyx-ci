@@ -32,6 +32,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+  _bss_end = .;
   } > sram
   _stack_top = ORIGIN(sram);
   . = _stack_top + LENGTH(sram);
