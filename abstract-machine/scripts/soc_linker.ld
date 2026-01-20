@@ -23,6 +23,7 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
+    *(.sdata*)
 	  
     _bss_start = .;
     *(.bss*)
@@ -31,6 +32,7 @@ SECTIONS {
     _bss_end = .;
   } > ram AT>rom : data
   _data_loadaddr = LOADADDR(.data);
+
   edata = .;
   _data = .;
 
