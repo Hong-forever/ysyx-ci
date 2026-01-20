@@ -72,7 +72,7 @@ static long load_img()
     PRINTF_BLUE("The image is %s, size = 0x%08lx\n", img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    printf("Loading image to memory...\n");
+    printf("0x%08x\n",CONFIG_MBASE);
     int ret = fread(guest_to_host(CONFIG_MBASE), size, 1, fp);
     assert(ret == 1);
 
