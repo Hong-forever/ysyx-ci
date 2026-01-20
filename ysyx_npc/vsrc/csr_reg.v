@@ -56,7 +56,7 @@ module ysyx_25110270_csr_reg
     wire except_mret = is_mret;
 
     reg e_sync_r, e_mret_r;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             e_sync_r <= 1'b0;
             e_mret_r <= 1'b0;
@@ -73,7 +73,7 @@ module ysyx_25110270_csr_reg
 
     //cycle counter
     //复位撤销后就一直计数
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             cycle <= 0;
         end else begin
@@ -83,7 +83,7 @@ module ysyx_25110270_csr_reg
 
     //write reg
     //写寄存器操作
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             mtvec <= 0;
             mcause <= 0;

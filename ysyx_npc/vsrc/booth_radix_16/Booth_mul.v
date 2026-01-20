@@ -77,7 +77,7 @@ module ysyx_25110270_Booth_mul
     endgenerate
 
     //-----------------------// first-pipeline //-----------------------//
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             pp_stg1_8th_reg <= 0;
             for(j=0; j<LENGTH/4; j=j+1) begin
@@ -114,7 +114,7 @@ module ysyx_25110270_Booth_mul
     endgenerate
 
     //-----------------------// second-pipeline //-----------------------//
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             for(j=0; j<LENGTH/4/4; j=j+1) begin
                 pp_stg2_m_reg[j] <= 0;
@@ -147,7 +147,7 @@ module ysyx_25110270_Booth_mul
     );
 
     //-----------------------// third-pipeline //-----------------------//
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             pp_stg_end_m_reg <= 0;
             pp_stg_end_l_reg <= 0;
@@ -176,7 +176,7 @@ module ysyx_25110270_Booth_mul
     //-----------------------// forth-pipeline //-----------------------//
     reg [LENGTH*2-1:0] P_reg;
     reg done_reg;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             P_reg <= 0;
             done_reg <= 0;

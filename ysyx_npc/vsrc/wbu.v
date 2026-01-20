@@ -168,7 +168,7 @@ module ysyx_25110270_wbu
     reg [`InstAddrBus] inst_addr_r1, inst_addr_r2;
     reg [`InstAddrBus] pc;
     reg skip_r;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             inst_r1         <= 0;
             inst_addr_r1    <= 0;

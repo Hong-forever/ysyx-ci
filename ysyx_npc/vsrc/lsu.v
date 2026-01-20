@@ -78,7 +78,7 @@ module ysyx_25110270_lsu
     // 存取结果
     //------------------------------------------------------------------------
     reg [`MemDataBus] rdata;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             rdata <= 0;
         end else if(dbus_rvalid && dbus_rready) begin
@@ -262,7 +262,7 @@ module ysyx_25110270_lsu
     end
 
     reg valid;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             valid <= 1'b0;
         end else if(I_valid) begin
@@ -278,7 +278,7 @@ module ysyx_25110270_lsu
 
     reg data_avalid;
     reg [1:0] state, nstate;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
         end else begin
@@ -314,7 +314,7 @@ module ysyx_25110270_lsu
 
 
     reg data_bready;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             data_bready <= 1'b1;
         end else if(dbus_bvalid && dbus_bready) begin
@@ -325,7 +325,7 @@ module ysyx_25110270_lsu
     end
 
     reg data_rready;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             data_rready <= 1'b1;
         end else if(dbus_rvalid && dbus_rready) begin
@@ -336,7 +336,7 @@ module ysyx_25110270_lsu
     end
 
     reg stallreq_mem;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             stallreq_mem <= 1'b0;
         end else begin
@@ -402,7 +402,7 @@ module ysyx_25110270_lsu
     wire [`RAMDOM_WIDTH-1:0] drandom;
     reg [`RAMDOM_WIDTH-1:0] drandom_r;
     reg req_flag;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             avalid_r <= 1'b0;
             drandom_r <= 0;

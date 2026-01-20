@@ -18,7 +18,7 @@ module ysyx_25110270_pipeline_if_dec
     input   wire                        I_enable,
     input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             O_inst          <= 0;
             O_inst_addr     <= 0;
@@ -101,7 +101,7 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                        I_enable,
     input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             O_inst          <= 0;
             O_inst_addr     <= 0;
@@ -241,7 +241,7 @@ module ysyx_25110270_pipeline_ex_ls
     input   wire                        I_enable,
     input   wire                        I_flush
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             O_inst          <= 0;
             O_inst_addr     <= 0;
@@ -347,7 +347,7 @@ module ysyx_25110270_pipeline_ls_wb
     input   wire                        I_flush
 );
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             O_inst          <= 0;
             O_inst_addr     <= 0;
