@@ -18,7 +18,7 @@ _start:
   j .data_copy_loop
 
 .data_copy_done:
-
+  mv a0, zero
   la sp, _stack_pointer
   call _trm_init
 
