@@ -2,6 +2,7 @@ ENTRY(_start)
 PHDRS { 
   text PT_LOAD; 
   data PT_LOAD;
+  bss  PT_LOAD;
 }
 MEMORY {
   rom(rx)  : ORIGIN = 0x20000000, LENGTH = 0x1000
@@ -23,23 +24,21 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
-	  
-    edata = .;
-    _data = .;
-
-    _bss_start = .;
+  } > ram AT>rom : data
+  _data_loadaddr = LOADADDR(.data);
+  edata = .;
+  _data = .;
+  .bss : {
+	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-    _bss_end = .;
-  } > ram AT>rom : data
-
-  _data_loadaddr = LOADADDR(.data);
-
-  _heap_start = ALIGN(4); 
-  _stack_top = ORIGIN(ram) + LENGTH(ram);
-  . = _stack_top;
+  _bss_end = .;
+  } > ram : bss
+  _stack_top = ORIGIN(ram);
+  . = _stack_top + LENGTH(ram);
   _stack_pointer = .;
   end = .;
   _end = .;
+  _heap_start = ALIGN(0x1000);
 }
