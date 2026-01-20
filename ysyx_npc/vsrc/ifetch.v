@@ -105,6 +105,12 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(!rst_n) begin
             pc <= `RomAddrBase;
+        end else if(ibus_arvalid && (ibus_araddr < `RomAddrBase || ibus_araddr > (`RomAddrBase + `RomSize - 1))) begin
+            pc <= 0;
+            $error("IFETCH: PC address out of range!");
+        end else if(ibus_rresp != 2'b00) begin
+            pc <= 0;
+            $error("IFETCH: IBUS read error!");
         end else if(state == EXE) begin
             pc <= npc;
         end

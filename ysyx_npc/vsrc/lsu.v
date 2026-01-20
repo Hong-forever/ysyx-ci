@@ -351,6 +351,22 @@ module ysyx_25110270_lsu
     wire stallreq_ls_req = data_avalid;
     wire stallreq = stallreq_mem | stallreq_ls_req;
 
+    wire not_in_ram = (I_memory_addr < `RamAddrBase) | (I_memory_addr >= (`RamAddrBase + `RamSize));
+    wire not_in_clint = (I_memory_addr < `CLINT_BASE) | (I_memory_addr >= (`CLINT_BASE + `CLINT_SIZE));
+    wire not_in_serial = (I_memory_addr < `SERIAL_BASE) | (I_memory_addr >= (`SERIAL_BASE + `SERIAL_SIZE));
+
+    always @(posedge clk) begin
+        if((dbus_arvalid || dbus_awvalid) && (not_in_ram & not_in_clint & not_in_serial)) begin
+            $error("LSU: Data read address out of range!");
+        end
+        if(dbus_bvalid && dbus_bresp != 2'b00) begin
+            $error("LSU: DBUS write error!");
+        end
+        if(dbus_rvalid && dbus_rresp != 2'b00) begin
+            $error("LSU: DBUS read error!");
+        end
+    end
+
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
