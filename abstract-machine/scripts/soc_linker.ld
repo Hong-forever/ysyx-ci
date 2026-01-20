@@ -23,17 +23,18 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
-  } > ram AT>rom : data
-  _data_loadaddr = LOADADDR(.data);
-  edata = .;
-  _data = .;
-  .bss : {
-	_bss_start = .;
+
+    edata = .;
+    _data = .;
+
+    _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  _bss_end = .;
-  } > ram : bss
+    _bss_end = .;
+  } > ram AT>rom : data
+  _data_loadaddr = LOADADDR(.data);
+
   _heap_start = ALIGN(4);
   . = ORIGIN(ram) + LENGTH(ram);
   _stack_pointer = .;
