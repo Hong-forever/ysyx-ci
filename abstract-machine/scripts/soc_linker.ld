@@ -24,16 +24,17 @@ SECTIONS {
     _data_start = .;
     *(.data*)
 	  
+    edata = .;
+    _data = .;
+
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
   } > ram AT>rom : data
-  _data_loadaddr = LOADADDR(.data);
 
-  edata = .;
-  _data = .;
+  _data_loadaddr = LOADADDR(.data);
 
   _heap_start = ALIGN(4); 
   . = ORIGIN(ram) + LENGTH(ram);
