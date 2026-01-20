@@ -41,5 +41,6 @@ int main(const char *args) {
             return 1;
         }
     }
+    putstr("mem test pass!\n");
     return 0;
 }
