@@ -357,13 +357,13 @@ module ysyx_25110270_lsu
 
     always @(posedge clk) begin
         if((dbus_arvalid || dbus_awvalid) && (not_in_ram & not_in_clint & not_in_serial)) begin
-            $error("LSU: Data read address out of range!");
+            $error("LSU: Data read address out of range at pc 0x%08x!", I_inst_addr);
         end
         if(dbus_bvalid && dbus_bresp != 2'b00) begin
-            $error("LSU: DBUS write error!");
+            $error("LSU: DBUS write error at pc 0x%08x!", I_inst_addr);
         end
         if(dbus_rvalid && dbus_rresp != 2'b00) begin
-            $error("LSU: DBUS read error!");
+            $error("LSU: DBUS read error at pc 0x%08x!", I_inst_addr);
         end
     end
 
