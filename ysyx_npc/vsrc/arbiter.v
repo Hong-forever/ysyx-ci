@@ -117,7 +117,7 @@ module ysyx_25110270_arbiter
 
     reg [1:0] state, nstate;                                
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
         end else begin

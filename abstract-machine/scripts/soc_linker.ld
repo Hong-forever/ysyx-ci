@@ -10,8 +10,7 @@ MEMORY {
 }
 
 SECTIONS {
-  /* _rom_start and _entry_offset are defined in LDFLAGS */
-  . = _rom_start + _entry_offset;
+  . = ORIGIN(rom);
   .text : {
     *(entry)
     *(.text*)

@@ -29,7 +29,7 @@ module ysyx_25110270_exe_div
 
     assign div_temp = {1'b0, dividend[63:32]} - {1'b0, divisor};
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             state <= `DivFree;
             cnt <= 6'b000000;

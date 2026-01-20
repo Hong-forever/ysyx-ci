@@ -167,7 +167,7 @@ module ysyx_25110270_exec
     wire stallreq_mul = start_mul;
 
     reg start_mul_reg;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             start_mul_reg <= 0;
         end else begin

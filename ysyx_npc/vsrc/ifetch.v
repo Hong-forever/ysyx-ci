@@ -68,7 +68,7 @@ module ysyx_25110270_ifetch
     wire [`InstAddrBus] pc_plus4;
     wire [`InstAddrBus] npc;
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
         end else begin
@@ -102,16 +102,22 @@ module ysyx_25110270_ifetch
         end
     end
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             pc <= `RomAddrBase;
+        end else if(ibus_arvalid && (ibus_araddr < `RomAddrBase || ibus_araddr > (`RomAddrBase + `RomSize - 1))) begin
+            pc <= 0;
+            $error("IFETCH: PC address out of range at pc = 0x%08x", ibus_araddr);
+        end else if(ibus_rresp != 2'b00) begin
+            pc <= 0;
+            $error("IFETCH: IBUS read error at pc = 0x%08x", ibus_araddr);
         end else if(state == EXE) begin
             pc <= npc;
         end
     end
 
     reg [`InstBus] inst;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             inst <= 0;
         end else if(ibus_rvalid && ibus_rready) begin
@@ -120,7 +126,7 @@ module ysyx_25110270_ifetch
     end
 
     reg inst_rready;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             inst_rready <= 1'b1;
         end else if(ibus_rvalid && ibus_rready) begin
@@ -169,7 +175,7 @@ module ysyx_25110270_ifetch
     wire [`RAMDOM_WIDTH-1:0] irandom;
     reg [`RAMDOM_WIDTH-1:0] irandom_r;
     reg req_flag;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             arvalid_r <= 1'b0;
             irandom_r <= 0;
