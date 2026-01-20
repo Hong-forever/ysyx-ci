@@ -52,7 +52,7 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(YSYXSOC_HOME)/scripts/difftest.mk
 
-IMG ?= $(YSYXSOC_HOME)/../my_test/char_test_soc/char-test.bin
+IMG ?= /home/hhh/Desktop/ysyx/ysyx-workbench/am-kernels/tests/cpu-tests/build/string-riscv32-nemu.bin
 
 YSYXSOC_EXEC := $(BIN) $(IMG)
 
