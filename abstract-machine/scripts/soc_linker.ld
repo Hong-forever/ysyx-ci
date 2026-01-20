@@ -34,10 +34,9 @@ SECTIONS {
   edata = .;
   _data = .;
 
-  _stack_top = ORIGIN(ram);
-  . = _stack_top + LENGTH(ram);
+  _heap_start = ORIGIN(ram);
+  . = ORIGIN(ram) + LENGTH(ram);
   _stack_pointer = .;
   end = .;
   _end = .;
-  _heap_start = ALIGN(0x1000);
 }
