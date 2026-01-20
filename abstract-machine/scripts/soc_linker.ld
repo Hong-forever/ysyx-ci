@@ -24,7 +24,6 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
-    *(.sdata*)
   } > ram AT>rom : data
   _data_loadaddr = LOADADDR(.data);
   edata = .;
@@ -37,8 +36,7 @@ SECTIONS {
   _bss_end = .;
   } > ram : bss
   _heap_start = ALIGN(4);
-  _stack_top = ORIGIN(ram);
-  . = _stack_top + LENGTH(ram);
+  . = ORIGIN(ram) + LENGTH(ram);
   _stack_pointer = .;
   end = .;
   _end = .;
