@@ -1,7 +1,8 @@
 ENTRY(_start)
 PHDRS { 
   text PT_LOAD; 
-  data PT_LOAD; 
+  data PT_LOAD;
+  bss  PT_LOAD;
 }
 MEMORY {
   pmem(rx)  : ORIGIN = 0x20000000, LENGTH = 0x1000
@@ -33,7 +34,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   _bss_end = .;
-  } > sram
+  } > sram : bss
   _stack_top = ORIGIN(sram);
   . = _stack_top + LENGTH(sram);
   _stack_pointer = .;
