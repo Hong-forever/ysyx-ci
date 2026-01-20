@@ -8,6 +8,8 @@ static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); /
 
 void putch(char ch)
 {
+    while((inb(SERIAL_PORT + 5) & 0x20) == 0)
+        ;
     outb(SERIAL_PORT, ch);
 }
 
@@ -24,7 +26,7 @@ static void serial_init()
 {
     outb(SERIAL_PORT + 3, 0x80); // Enable DLAB
     outb(SERIAL_PORT + 1, 0x00); // Set baud rate divisor
-    outb(SERIAL_PORT + 0, 1); // Divisor low byte
+    outb(SERIAL_PORT + 0, 100); // Divisor low byte
     outb(SERIAL_PORT + 3, 0x03); // 8 bits, no parity, one stop bit
 }
 
