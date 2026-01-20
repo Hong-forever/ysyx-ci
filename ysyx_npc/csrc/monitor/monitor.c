@@ -73,6 +73,7 @@ static long load_img()
 
     fseek(fp, 0, SEEK_SET);
     int ret = fread(guest_to_host(CONFIG_MBASE), size, 1, fp);
+    printf("%d\n", ret);
     assert(ret == 1);
 
     fclose(fp);
