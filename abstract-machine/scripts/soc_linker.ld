@@ -23,7 +23,6 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
-    *(.sdata*)
 	  
     _bss_start = .;
     *(.bss*)
@@ -36,7 +35,7 @@ SECTIONS {
   edata = .;
   _data = .;
 
-  _heap_start = ORIGIN(ram);
+  _heap_start = ALIGN(4); 
   . = ORIGIN(ram) + LENGTH(ram);
   _stack_pointer = .;
   end = .;
