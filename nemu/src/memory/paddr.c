@@ -55,7 +55,7 @@ void init_mem() {
   assert(pmem);
 #endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_ROM_SIZE + CONFIG_RAM_SIZE));
-  Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "], [" FMT_PADDR ", " FMT_PADDR "]",
+  Log("physical memory area rom [" FMT_PADDR ", " FMT_PADDR "], ram [" FMT_PADDR ", " FMT_PADDR "]",
       PMEM_LEFT_ROM, PMEM_RIGHT_ROM, PMEM_LEFT_RAM, PMEM_RIGHT_RAM);
 }
 
