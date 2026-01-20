@@ -18,11 +18,13 @@ void halt(int code)
         ;
 }
 
+// divisor factor = freq / (16 * baudrate)
+
 static void serial_init()
 {
     outb(SERIAL_PORT + 3, 0x80); // Enable DLAB
     outb(SERIAL_PORT + 1, 0x00); // Set baud rate divisor to 1 (115200 baud)
-    outb(SERIAL_PORT + 0, 50000000 / 16 / 115200); // Divisor low byte
+    outb(SERIAL_PORT + 0, 100); // Divisor low byte
     outb(SERIAL_PORT + 3, 0x03); // 8 bits, no parity, one stop bit
 }
 
