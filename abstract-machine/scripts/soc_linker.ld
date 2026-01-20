@@ -23,7 +23,6 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
-    *(.sdata*)
 	  
     edata = .;
     _data = .;
