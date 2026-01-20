@@ -1,32 +1,32 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
-#define NPC_PERIOD 9 // in us
+#define YSYXSOC_PERIOD 9 // in us
 
 static uint64_t us = 0;
 
 void __am_timer_init()
 {
-    // uint32_t time_hi = inl(RTC_PORT+ 4);
-    // uint32_t time_lo = inl(RTC_PORT);
+    // uint32_t time_hi = inl(CLINT_PORT+ 4);
+    // uint32_t time_lo = inl(CLINT_PORT);
 
-    // us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD;
+    // us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * YSYXSOC_PERIOD;
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime)
 {
-    uint32_t time_hi = inl(RTC_PORT+ 4);
-    uint32_t time_lo = inl(RTC_PORT);
+    uint32_t time_hi = inl(CLINT_PORT+ 4);
+    uint32_t time_lo = inl(CLINT_PORT);
 
-    uptime->us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD;
+    uptime->us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * YSYXSOC_PERIOD;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc)
 {
-    uint32_t time_hi = inl(RTC_PORT+ 4);
-    uint32_t time_lo = inl(RTC_PORT);
+    uint32_t time_hi = inl(CLINT_PORT+ 4);
+    uint32_t time_lo = inl(CLINT_PORT);
 
-    // npc's period is 10us
-    uint64_t up_us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD; 
+    // ysyxsoc's period is 10us
+    uint64_t up_us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * YSYXSOC_PERIOD; 
 
     uint64_t s = (us + up_us) / 1000000ULL;
     uint64_t day = s / 86400ULL;

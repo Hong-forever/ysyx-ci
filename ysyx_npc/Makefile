@@ -1,6 +1,6 @@
 
--include $(NPC_HOME)/include/config/auto.conf
--include $(NPC_HOME)/include/config/auto.conf.cmd
+-include $(YSYXSOC_HOME)/include/config/auto.conf
+-include $(YSYXSOC_HOME)/include/config/auto.conf.cmd
 
 ifneq ($(CONFIG_USE_NVBOARD),)
 NXDC_FILES = constr/top.nxdc
@@ -41,25 +41,25 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
+	@gtkwave ${YSYXSOC_HOME}/build/waveform.vcd
 else
-	@gtkwave ${NPC_HOME}/build/waveform.fst
+	@gtkwave ${YSYXSOC_HOME}/build/waveform.fst
 endif
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
-include $(NPC_HOME)/scripts/difftest.mk
+include $(YSYXSOC_HOME)/scripts/difftest.mk
 
-IMG ?= /home/hhh/Desktop/char-test.bin
+IMG ?= $(YSYXSOC_HOME)/../my_test/char_test_soc/char-test.bin
 
-NPC_EXEC := $(BIN) $(IMG)
+YSYXSOC_EXEC := $(BIN) $(IMG)
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-sim: $(NPC_EXEC)
+sim: $(YSYXSOC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
@@ -126,8 +126,8 @@ endif
 
 
 
-include $(NPC_HOME)/scripts/config.mk
-include $(NPC_HOME)/scripts/sta/yosys_sta.mk
+include $(YSYXSOC_HOME)/scripts/config.mk
+include $(YSYXSOC_HOME)/scripts/sta/yosys_sta.mk
 
 
 clean: 

@@ -1,4 +1,4 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
 bool mpe_init(void (*entry)()) {
   return false;
