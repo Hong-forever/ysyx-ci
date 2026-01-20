@@ -14,17 +14,17 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } > pmem AT> pmem : text
+  } : text
   etext = .;
   _etext = .;
   .rodata : {
     *(.rodata*)
-  } > pmem AT> pmem
+  }
   .data : {
   _data_start = .;
     *(.data*)
-  } > sram AT>pmem : data
-  _data_loadaddr = LOADADDR(.data);
+  } : data
+  
   edata = .;
   _data = .;
   .bss : {
@@ -32,7 +32,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram
+  } 
   _stack_top = ORIGIN(sram);
   . = _stack_top + LENGTH(sram);
   _stack_pointer = .;
