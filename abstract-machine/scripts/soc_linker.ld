@@ -36,7 +36,6 @@ SECTIONS {
   _bss_end = .;
   } > ram : bss
   _heap_start = ALIGN(4);
-  _stack_top = ORIGIN(ram) + LENGTH(ram);
   . = ORIGIN(ram) + LENGTH(ram);
   _stack_pointer = .;
   end = .;
