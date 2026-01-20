@@ -1,42 +1,50 @@
 ENTRY(_start)
 PHDRS { 
   text PT_LOAD; 
-  data PT_LOAD; 
+  data PT_LOAD;
+  bss  PT_LOAD;
 }
 MEMORY {
-  pmem(rx)  : ORIGIN = 0x20000000, LENGTH = 0x1000
-  sram(rwx) : ORIGIN = 0x0f000000, LENGTH = 0x2000
+  rom(rx)  : ORIGIN = 0x20000000, LENGTH = 0x1000
+  ram(rwx) : ORIGIN = 0x0f000000, LENGTH = 0x2000
 }
 
 SECTIONS {
-  /* _pmem_start and _entry_offset are defined in LDFLAGS */
-  . = _pmem_start + _entry_offset;
+  /* _rom_start and _entry_offset are defined in LDFLAGS */
+  . = _rom_start + _entry_offset;
   .text : {
     *(entry)
     *(.text*)
-  } > pmem AT> pmem : text
+  } > rom AT> rom : text
+
   etext = .;
   _etext = .;
+
   .rodata : {
     *(.rodata*)
-  } > pmem AT> pmem
+  } > rom AT> rom
+
   .data : {
     _data_start = .;
     *(.data*)
-  } > sram AT>pmem : data
+  } > ram AT>rom : data
   _data_loadaddr = LOADADDR(.data);
+
   edata = .;
   _data = .;
+
   .bss : {
 	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram
-  _stack_top = ORIGIN(sram);
-  . = _stack_top + LENGTH(sram);
+  _bss_end = .;
+  } > ram : bss
+
+  _heap_start = ALIGN(4);
+  . = ORIGIN(ram) + LENGTH(ram);
   _stack_pointer = .;
+  
   end = .;
   _end = .;
-  _heap_start = ALIGN(0x1000);
 }

@@ -21,11 +21,18 @@
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
-static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+static uint8_t pmem[CONFIG_ROM_SIZE + CONFIG_RAM_SIZE] PG_ALIGN = {};
 #endif
 
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
-paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
+uint8_t* guest_to_host(paddr_t paddr) {
+  if(in_rom(paddr))  return pmem + paddr - CONFIG_ROM_BASE;
+  else if(in_ram(paddr))  return pmem + paddr - CONFIG_RAM_BASE + CONFIG_ROM_SIZE;
+  else return NULL;
+}
+paddr_t host_to_guest(uint8_t *haddr) { 
+  if(haddr-pmem < CONFIG_ROM_SIZE) return haddr - pmem + CONFIG_ROM_BASE;
+  else return haddr - pmem - CONFIG_ROM_SIZE + CONFIG_RAM_BASE;
+}
 
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
@@ -38,17 +45,18 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 static void out_of_bound(paddr_t addr) {
-  panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-      addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
+  panic("address = " FMT_PADDR " is out of bound of rom [" FMT_PADDR ", " FMT_PADDR "] or ram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
+      addr, PMEM_LEFT_ROM, PMEM_RIGHT_ROM, PMEM_LEFT_RAM, PMEM_RIGHT_RAM, cpu.pc);
 }
 
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
-  pmem = malloc(CONFIG_MSIZE);
+  pmem = malloc(CONFIG_ROM_SIZE + CONFIG_RAM_SIZE);
   assert(pmem);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
-  Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_ROM_SIZE + CONFIG_RAM_SIZE));
+  Log("physical memory area rom [" FMT_PADDR ", " FMT_PADDR "], ram [" FMT_PADDR ", " FMT_PADDR "]",
+      PMEM_LEFT_ROM, PMEM_RIGHT_ROM, PMEM_LEFT_RAM, PMEM_RIGHT_RAM);
 }
 
 #ifdef CONFIG_MTRACE
@@ -74,7 +82,10 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { 
+  if (likely(in_pmem(addr))) {
+      if(in_rom(addr)) {
+        panic("can not write to rom address " FMT_PADDR " at pc = " FMT_WORD, addr, cpu.pc);
+      }
       pmem_write(addr, len, data); 
       IFDEF(CONFIG_MTRACE, mtrace(addr, len==1? data&0x000000ff : len==2? data&0x0000ffff : data&0xffffffff, len));
       return; 
