@@ -23,6 +23,7 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
+    *(.sdata*)
 	  
     edata = .;
     _data = .;
@@ -37,7 +38,8 @@ SECTIONS {
   _data_loadaddr = LOADADDR(.data);
 
   _heap_start = ALIGN(4); 
-  . = ORIGIN(ram) + LENGTH(ram);
+  _stack_top = ORIGIN(ram) + LENGTH(ram);
+  . = _stack_top;
   _stack_pointer = .;
   end = .;
   _end = .;
