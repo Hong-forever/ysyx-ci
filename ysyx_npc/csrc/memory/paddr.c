@@ -123,7 +123,7 @@ extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
     }
 }
 
-static word_t flash_mem[CONFIG_MSIZE] = {0xa0, 0xa3, 0xbb, 0xff, 0xdd, 0xcc}; // dummy flash memory
+static word_t flash_mem[CONFIG_MSIZE] = {0x12a0, 0xa0a3, 0xddbb, 0x11ff, 0x33dd, 0x55cc}; // dummy flash memory
 
 extern "C" void flash_read(int32_t addr, int32_t *data) {
     // printf("flash_read addr: 0x%08x\n", addr);
