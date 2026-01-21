@@ -48,6 +48,7 @@ int main(const char *args) {
         putstr("pass!\n");
         return 0;
     } else {
+        printf("Received: 0x%08x\n", received);
         putstr("fail!\n");
         return -1;
     }
