@@ -39,7 +39,7 @@ void spi_transfer_wait() {
 
 uint32_t flash_read(uint32_t addr) {
     spi_flash_init();
-    spi_transfer(0x00000003 | (addr & 0x00ffffff)); //read flash cmd with address
+    spi_transfer(0xffffffff | (addr & 0x00ffffff)); //read flash cmd with address
     spi_transfer_wait();
     return spi_receive();
 }
