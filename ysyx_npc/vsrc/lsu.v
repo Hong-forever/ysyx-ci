@@ -391,7 +391,8 @@ module ysyx_25110270_lsu
     assign O_device_skip = I_ls_valid & 
     (
         (I_memory_addr >= `SERIAL_BASE & I_memory_addr < (`SERIAL_BASE + `SERIAL_SIZE)) |
-        (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE + `CLINT_SIZE)  ) 
+        (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE + `CLINT_SIZE)  ) |
+        (I_memory_addr >= `FLASH_BASE  & I_memory_addr < (`FLASH_BASE + `FLASH_SIZE)  )
     );
 
     // assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
