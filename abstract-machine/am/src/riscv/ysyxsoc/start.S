@@ -18,7 +18,16 @@ _start:
   j .data_copy_loop
 
 .data_copy_done:
+  la a0, _bss_start
+  la a1, _bss_end
 
+.bss_zero_loop:
+  beq a0, a1, .bss_zero_done
+  sw zero, 0(a0)
+  addi a0, a0, 4
+  j .bss_zero_loop
+
+.bss_zero_done:
 
   la sp, _stack_pointer
   call _trm_init
