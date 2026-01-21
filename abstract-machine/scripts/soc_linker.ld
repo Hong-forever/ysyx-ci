@@ -38,7 +38,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   _bss_end = .;
-  } > ram : bss
+  } : bss
 
   _heap_start = ALIGN(4);
   . = ORIGIN(ram) + LENGTH(ram);
