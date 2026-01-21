@@ -29,7 +29,7 @@ uint32_t spi_receive() {
 void spi_flash_init() {
     spi_reg_write(SPI_CTRL_OFFSET, 0x00); //reset
     spi_reg_write(SPI_DIV_OFFSET, 0x04);  //set clk divider
-    spi_reg_write(SPI_SS_OFFSET, 0x07);   //set ss 
+    spi_reg_write(SPI_SS_OFFSET, 1 << 7);   //set ss 
     spi_reg_write(SPI_CTRL_OFFSET, 0x2410); //ass, char_len=16, txneg
 }
 
