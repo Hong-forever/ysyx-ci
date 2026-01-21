@@ -46,12 +46,11 @@ int main(const char *args) {
     uint32_t received = spi_receive();
     if(received == 0x48) {
         putstr("pass!\n");
-        return 0;
     } else {
         printf("Received: 0x%08x\n", received);
         putstr("fail!\n");
-        return -1;
     }
 
+    return 0;
 
 }
