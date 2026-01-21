@@ -2,8 +2,9 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define SPI_MASTER_BASE  0x10001000
+#define SPI_MASTER_BASE 0x10001000
 #define SPI_TRX0_OFFSET 0x00
+#define SPI_TRX1_OFFSET 0x04
 #define SPI_CTRL_OFFSET 0x10
 #define SPI_DIV_OFFSET  0x14
 #define SPI_SS_OFFSET   0x18
@@ -18,7 +19,7 @@ uint32_t spi_reg_read(uint32_t offset) {
 
 void spi_transfer(uint32_t value) {
     spi_reg_write(SPI_CTRL_OFFSET, spi_reg_read(SPI_CTRL_OFFSET) & ~0x100);
-    spi_reg_write(SPI_TRX0_OFFSET, value);
+    spi_reg_write(SPI_TRX1_OFFSET, value);
     spi_reg_write(SPI_CTRL_OFFSET, spi_reg_read(SPI_CTRL_OFFSET) | 0x100);
 }
 
@@ -39,7 +40,7 @@ void spi_transfer_wait() {
 
 uint32_t flash_read(uint32_t addr) {
     spi_flash_init();
-    spi_transfer(0xffffffff | (addr & 0x00ffffff)); //read flash cmd with address
+    spi_transfer((0x03000000 | (addr & 0x00ffffff))); //read flash cmd with address
     spi_transfer_wait();
     return spi_receive();
 }
