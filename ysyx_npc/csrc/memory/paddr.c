@@ -127,7 +127,7 @@ static word_t flash_mem[CONFIG_MSIZE] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; // dumm
 
 extern "C" void flash_read(int32_t addr, int32_t *data) {
     printf("flash_read addr: 0x%08x\n", addr);
-    *data = flash_mem[(addr - 0x30000000) >> 2];
+    *data = flash_mem[addr >> 2];
 }
 extern "C" void mrom_read(int32_t addr, int32_t *data) 
 {
