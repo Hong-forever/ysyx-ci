@@ -19,7 +19,6 @@ _start:
 
 .data_copy_done:
 
-
   la sp, _stack_pointer
   call _trm_init
 
