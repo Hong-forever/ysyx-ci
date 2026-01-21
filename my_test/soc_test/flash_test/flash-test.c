@@ -48,9 +48,9 @@ uint32_t flash_read(uint32_t addr) {
 
 int main(const char *args) {
     uint32_t data;
-    for(int i=0; i<3; i++) {
+    for(int i=0; i<6; i++) {
         data = flash_read(i * 4);
-        printf("Data at address 0x%08x: %d\n", i * 4, data);
+        printf("Data at address 0x%08x: %x\n", i * 4, data);
     }
     return 0;
 }
