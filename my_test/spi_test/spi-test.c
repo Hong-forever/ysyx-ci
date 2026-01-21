@@ -41,10 +41,10 @@ void spi_tranfer_wait() {
 int main(const char *args) {
     spi_flash_init();
 
-    spi_tranfer(0xAA);
+    spi_tranfer(0x12);
     spi_tranfer_wait();
     uint32_t received = spi_receive();
-    if(received == 0x11) {
+    if(received == 0x48) {
         putstr("pass!\n");
         return 0;
     } else {
