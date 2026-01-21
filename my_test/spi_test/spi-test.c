@@ -16,7 +16,7 @@ uint32_t spi_reg_read(uint32_t offset) {
     return *(volatile uint32_t *)(SPI_FLASH_BASE + offset);
 }
 
-void spi_tranfer(uint8_t value) {
+void spi_tranfer(uint32_t value) {
     spi_reg_write(SPI_CTRL_OFFSET, spi_reg_read(SPI_CTRL_OFFSET) & ~0x100);
     spi_reg_write(SPI_TRX0_OFFSET, value);
     spi_reg_write(SPI_CTRL_OFFSET, spi_reg_read(SPI_CTRL_OFFSET) | 0x100);
@@ -41,7 +41,7 @@ void spi_tranfer_wait() {
 int main(const char *args) {
     spi_flash_init();
 
-    spi_tranfer(0x12);
+    spi_tranfer(0x1200);
     spi_tranfer_wait();
     uint32_t received = spi_receive();
     if(received == 0x48) {
