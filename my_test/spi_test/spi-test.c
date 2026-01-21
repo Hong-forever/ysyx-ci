@@ -44,10 +44,10 @@ int main(const char *args) {
     spi_tranfer(0x1200);
     spi_tranfer_wait();
     uint32_t received = spi_receive();
+    printf("Received: 0x%08x\n", received & 0x00ff);
     if((received & 0x00ff) == 0x48) {
         putstr("pass!\n");
     } else {
-        printf("Received: 0x%08x\n", received);
         putstr("fail!\n");
     }
 
