@@ -123,8 +123,14 @@ extern "C" void paddr_write(paddr_t waddr, word_t wdata, uint32_t wmask) {
     }
 }
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+static word_t flash_mem[CONFIG_MSIZE] = {0x552212a0, 0x3563a0a3, 0x9864ddbb, 0x098711ff, 0x654733dd, 0x153755cc}; // dummy flash memory
+
+extern "C" void flash_read(int32_t addr, int32_t *data) {
+    // printf("flash_read addr: 0x%08x\n", addr);
+    *data = flash_mem[addr >> 2];
+}
 extern "C" void mrom_read(int32_t addr, int32_t *data) 
 {
+    // printf("mrom_read addr: 0x%08x\n", addr);
     *data = pmem_read(addr);
 }
