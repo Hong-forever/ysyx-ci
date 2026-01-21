@@ -42,7 +42,9 @@ uint32_t flash_read(uint32_t addr) {
     spi_flash_init();
     spi_transfer((0x03000000 | (addr & 0x00ffffff))); //read flash cmd with address
     spi_transfer_wait();
-    return spi_receive();
+    uint32_t data = spi_receive();
+    printf("Received data: 0x%08x\n", data);
+    return data;
 }
 
 int main(const char *args) {
