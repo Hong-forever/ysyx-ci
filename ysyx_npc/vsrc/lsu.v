@@ -355,9 +355,11 @@ module ysyx_25110270_lsu
     wire not_in_ram = (I_memory_addr < `RamAddrBase) | (I_memory_addr >= (`RamAddrBase + `RamSize));
     wire not_in_clint = (I_memory_addr < `CLINT_BASE) | (I_memory_addr >= (`CLINT_BASE + `CLINT_SIZE));
     wire not_in_serial = (I_memory_addr < `SERIAL_BASE) | (I_memory_addr >= (`SERIAL_BASE + `SERIAL_SIZE));
+    wire not_in_flash = (I_memory_addr < `FLASH_BASE) | (I_memory_addr >= (`FLASH_BASE + `FLASH_SIZE));
+    wire not_in_device = (not_in_rom & !dbus_awvalid) & not_in_ram & not_in_clint & not_in_serial & not_in_flash;
 
     always @(posedge clk) begin
-        if((dbus_arvalid || dbus_awvalid) && (not_in_ram & not_in_clint & not_in_serial & (~dbus_awvalid & not_in_rom))) begin
+        if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
             $error("LSU: Data read address out of range at pc 0x%08x!", I_inst_addr);
         end
         if(dbus_bvalid && dbus_bresp != 2'b00) begin
