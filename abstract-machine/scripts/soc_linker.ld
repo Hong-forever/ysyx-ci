@@ -7,7 +7,7 @@ MEMORY {
   /* 
   rom(rx) : ORIGIN = 0x20000000, LENGTH = 0x1000
   */
-  flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
+  flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x100000
   ram(rwx)   : ORIGIN = 0x0f000000, LENGTH = 0x2000
 }
 
