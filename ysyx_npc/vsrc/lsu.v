@@ -351,15 +351,15 @@ module ysyx_25110270_lsu
     wire stallreq_ls_req = data_avalid;
     wire stallreq = stallreq_mem | stallreq_ls_req;
 
-    wire not_in_rom = (I_memory_addr < `RomAddrBase) | (I_memory_addr >= (`RomAddrBase + `RomSize));
-    wire not_in_ram = (I_memory_addr < `RamAddrBase) | (I_memory_addr >= (`RamAddrBase + `RamSize));
-    wire not_in_clint = (I_memory_addr < `CLINT_BASE) | (I_memory_addr >= (`CLINT_BASE + `CLINT_SIZE));
-    wire not_in_serial = (I_memory_addr < `SERIAL_BASE) | (I_memory_addr >= (`SERIAL_BASE + `SERIAL_SIZE));
-    wire not_in_flash = (I_memory_addr < `FLASH_BASE) | (I_memory_addr >= (`FLASH_BASE + `FLASH_SIZE));
-    wire not_in_spi = (I_memory_addr < `SPI_BASE) | (I_memory_addr >= (`SPI_BASE + `SPI_SIZE));
+    wire not_in_rom    = (I_memory_addr < `RomAddrBase)   | (I_memory_addr >= (`RomAddrBase + `RomSize));
+    wire not_in_ram    = (I_memory_addr < `RamAddrBase)   | (I_memory_addr >= (`RamAddrBase + `RamSize));
+    wire not_in_flash  = (I_memory_addr < `FlashAddrBase) | (I_memory_addr >= (`FlashAddrBase + `FlashSize));
+    wire not_in_clint  = (I_memory_addr < `CLINT_BASE)    | (I_memory_addr >= (`CLINT_BASE + `CLINT_SIZE));
+    wire not_in_serial = (I_memory_addr < `SERIAL_BASE)   | (I_memory_addr >= (`SERIAL_BASE + `SERIAL_SIZE));
+    wire not_in_spi    = (I_memory_addr < `SPI_BASE)      | (I_memory_addr >= (`SPI_BASE + `SPI_SIZE));
 
     wire not_in_device = (not_in_rom & !dbus_awvalid) & not_in_ram & not_in_clint & 
-                          not_in_serial & not_in_flash & not_in_spi;
+                          not_in_serial & (not_in_flash & !dbus_awvalid) & not_in_spi;
 
     always @(posedge clk) begin
         if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
@@ -395,7 +395,6 @@ module ysyx_25110270_lsu
     (
         (I_memory_addr >= `SERIAL_BASE & I_memory_addr < (`SERIAL_BASE + `SERIAL_SIZE)) |
         (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE + `CLINT_SIZE)  ) |
-        (I_memory_addr >= `FLASH_BASE  & I_memory_addr < (`FLASH_BASE + `FLASH_SIZE)  ) |
         (I_memory_addr >= `SPI_BASE    & I_memory_addr < (`SPI_BASE + `SPI_SIZE)      )
     );
 

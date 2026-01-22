@@ -341,8 +341,6 @@
 `define CLINT_SIZE    32'h0001_0000
 `define SERIAL_BASE   32'h1000_0000
 `define SERIAL_SIZE   32'h0000_1000
-`define FLASH_BASE    32'h3000_0000
-`define FLASH_SIZE    32'h1000_0000
 `define SPI_BASE      32'h1000_1000
 `define SPI_SIZE      32'h0000_1000
 
@@ -350,3 +348,5 @@
 `define RamSize       32'h0000_2000
 `define RomAddrBase   32'h2000_0000
 `define RomSize       32'h0001_0000
+`define FlashAddrBase 32'h3000_0000
+`define FlashSize     32'h1000_0000
