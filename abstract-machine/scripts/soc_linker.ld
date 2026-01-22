@@ -2,6 +2,7 @@ ENTRY(_start)
 PHDRS { 
   text PT_LOAD; 
   data PT_LOAD;
+  bss  PT_LOAD;
 }
 MEMORY {
   rom(rx)  : ORIGIN = 0x20000000, LENGTH = 0x1000
@@ -37,7 +38,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   _bss_end = .;
-  } > ram
+  } > ram : bss
 
   _heap_start = ALIGN(4);
   . = ORIGIN(ram) + LENGTH(ram);
