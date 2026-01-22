@@ -10,7 +10,7 @@ MEMORY {
 
 SECTIONS {
   . = ORIGIN(rom);
-  .text : ALING(4) {
+  .text : {
     *(entry)
     *(.text*)
   } > rom AT>rom : text
@@ -22,7 +22,7 @@ SECTIONS {
     *(.rodata*)
   } > rom AT>rom
 
-  .data : ALING(4) {
+  .data : {
     _data_start = .;
     *(.data*)
   } > ram AT>rom : data
@@ -31,14 +31,13 @@ SECTIONS {
   edata = .;
   _data = .;
 
-  .bss (NOLOAD) : ALING(4) {
-	_bss_start = .;
+  .bss (NOLOAD): {
+	_bss_start = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMOM)
-   . = ALING(4);
-  _bss_end = .;
+  _bss_end = ALIGN(4);
   } > ram
 
   _heap_start = ALIGN(4);
