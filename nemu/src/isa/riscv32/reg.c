@@ -24,7 +24,7 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-    printf("[NEMU: PC]  : 0x%08x\n", cpu.pc);
+    printf("[NEMU:  PC]  : 0x%08x\n", cpu.pc);
     for(int i=0; i<MUXDEF(CONFIG_RVE, 16, 32); i++) {
         printf("regs[%02d]-%-4s: 0x%08x\n", i, reg_name(i), gpr(i));
     }

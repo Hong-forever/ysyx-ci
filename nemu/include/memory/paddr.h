@@ -20,10 +20,14 @@
 
 #define PMEM_LEFT_ROM  ((paddr_t)CONFIG_ROM_BASE)
 #define PMEM_RIGHT_ROM ((paddr_t)CONFIG_ROM_BASE + CONFIG_ROM_SIZE - 1)
-#define RESET_VECTOR (PMEM_LEFT_ROM + CONFIG_PC_RESET_OFFSET)
 
 #define PMEM_LEFT_RAM  ((paddr_t)CONFIG_RAM_BASE)
 #define PMEM_RIGHT_RAM ((paddr_t)CONFIG_RAM_BASE + CONFIG_RAM_SIZE - 1)
+
+#define PMEM_LEFT_FLASH  ((paddr_t)CONFIG_FLASH_BASE)
+#define PMEM_RIGHT_FLASH ((paddr_t)CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE - 1)
+
+#define RESET_VECTOR (PMEM_LEFT_FLASH + CONFIG_PC_RESET_OFFSET)
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
@@ -38,8 +42,12 @@ static inline bool in_ram(paddr_t addr) {
   return addr >= PMEM_LEFT_RAM && addr <= PMEM_RIGHT_RAM;
 }
 
+static inline bool in_flash(paddr_t addr) {
+  return addr >= PMEM_LEFT_FLASH && addr <= PMEM_RIGHT_FLASH;
+}
+
 static inline bool in_pmem(paddr_t addr) {
-  return in_ram(addr) || in_rom(addr);
+  return in_ram(addr) || in_flash(addr) || in_rom(addr);
 }
 
 word_t paddr_read(paddr_t addr, int len);

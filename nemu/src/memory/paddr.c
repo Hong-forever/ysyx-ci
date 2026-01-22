@@ -21,17 +21,20 @@
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
-static uint8_t pmem[CONFIG_ROM_SIZE + CONFIG_RAM_SIZE] PG_ALIGN = {};
+static uint8_t pmem[CONFIG_ROM_SIZE + CONFIG_RAM_SIZE + CONFIG_FLASH_SIZE] PG_ALIGN = {};
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) {
   if(in_rom(paddr))  return pmem + paddr - CONFIG_ROM_BASE;
   else if(in_ram(paddr))  return pmem + paddr - CONFIG_RAM_BASE + CONFIG_ROM_SIZE;
+  else if(in_flash(paddr))  return pmem + paddr - CONFIG_FLASH_BASE + CONFIG_ROM_SIZE + CONFIG_RAM_SIZE;
   else return NULL;
 }
 paddr_t host_to_guest(uint8_t *haddr) { 
-  if(haddr-pmem < CONFIG_ROM_SIZE) return haddr - pmem + CONFIG_ROM_BASE;
-  else return haddr - pmem - CONFIG_ROM_SIZE + CONFIG_RAM_BASE;
+  if((haddr-pmem) < CONFIG_ROM_SIZE) return haddr - pmem + CONFIG_ROM_BASE;
+  else if((haddr-pmem) < (CONFIG_ROM_SIZE + CONFIG_RAM_SIZE)) return haddr - pmem - CONFIG_ROM_SIZE + CONFIG_RAM_BASE;
+  else if((haddr-pmem) < (CONFIG_ROM_SIZE + CONFIG_RAM_SIZE + CONFIG_FLASH_SIZE)) return haddr - pmem - CONFIG_ROM_SIZE - CONFIG_RAM_SIZE + CONFIG_FLASH_BASE;
+  else return 0;
 }
 
 static word_t pmem_read(paddr_t addr, int len) {
@@ -45,18 +48,18 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 static void out_of_bound(paddr_t addr) {
-  panic("address = " FMT_PADDR " is out of bound of rom [" FMT_PADDR ", " FMT_PADDR "] or ram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-      addr, PMEM_LEFT_ROM, PMEM_RIGHT_ROM, PMEM_LEFT_RAM, PMEM_RIGHT_RAM, cpu.pc);
+  panic("address = " FMT_PADDR " is out of bound of rom [" FMT_PADDR ", " FMT_PADDR "] or ram [" FMT_PADDR ", " FMT_PADDR "] or flash [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
+      addr, PMEM_LEFT_ROM, PMEM_RIGHT_ROM, PMEM_LEFT_RAM, PMEM_RIGHT_RAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, cpu.pc);
 }
 
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
-  pmem = malloc(CONFIG_ROM_SIZE + CONFIG_RAM_SIZE);
+  pmem = malloc(CONFIG_ROM_SIZE + CONFIG_RAM_SIZE + CONFIG_FLASH_SIZE);
   assert(pmem);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_ROM_SIZE + CONFIG_RAM_SIZE));
-  Log("physical memory area rom [" FMT_PADDR ", " FMT_PADDR "], ram [" FMT_PADDR ", " FMT_PADDR "]",
-      PMEM_LEFT_ROM, PMEM_RIGHT_ROM, PMEM_LEFT_RAM, PMEM_RIGHT_RAM);
+  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_ROM_SIZE + CONFIG_RAM_SIZE + CONFIG_FLASH_SIZE));
+  Log("physical memory area rom [" FMT_PADDR ", " FMT_PADDR "], ram [" FMT_PADDR ", " FMT_PADDR "], flash [" FMT_PADDR ", " FMT_PADDR "]",
+      PMEM_LEFT_ROM, PMEM_RIGHT_ROM, PMEM_LEFT_RAM, PMEM_RIGHT_RAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH);
 }
 
 #ifdef CONFIG_MTRACE
@@ -83,8 +86,8 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) {
-      if(in_rom(addr)) {
-        panic("can not write to rom address " FMT_PADDR " at pc = " FMT_WORD, addr, cpu.pc);
+      if(in_rom(addr) || in_flash(addr)) {
+        panic("can not write to rom or flash address " FMT_PADDR " at pc = " FMT_WORD, addr, cpu.pc);
       }
       pmem_write(addr, len, data); 
       IFDEF(CONFIG_MTRACE, mtrace(addr, len==1? data&0x000000ff : len==2? data&0x0000ffff : data&0xffffffff, len));
