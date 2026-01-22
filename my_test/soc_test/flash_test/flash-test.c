@@ -28,7 +28,6 @@ uint32_t spi_receive() {
 }
 
 void spi_flash_init() {
-    spi_reg_write(SPI_CTRL_OFFSET, 0x00); //reset
     spi_reg_write(SPI_DIV_OFFSET, 0x04);  //set clk divider
     spi_reg_write(SPI_SS_OFFSET, 1 << 0);   //set ss, select flash 
     spi_reg_write(SPI_CTRL_OFFSET, 0x2440); //ass, char_len=64, txneg
@@ -44,6 +43,7 @@ uint32_t flash_read(uint32_t addr) {
     spi_transfer_wait();
     uint32_t data = spi_receive();
     return (((data >> 24) & 0xff) | ((data >> 8) & 0xff00) | ((data << 8) & 0xff0000) | ((data << 24) & 0xff000000));
+    // return data;
 }
 
 int main(const char *args) {

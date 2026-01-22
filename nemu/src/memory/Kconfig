@@ -18,6 +18,15 @@ config RAM_SIZE
   hex "Ram size"
   default 0x2000
 
+config FLASH_BASE
+  hex "Flash base address"
+  default 0x0        if ISA_x86
+  default 0x30000000
+
+config FLASH_SIZE
+  hex "Flash size"
+  default 0x10000000
+
 config PC_RESET_OFFSET
   hex "Offset of reset vector from the base of memory"
   default 0x100000 if ISA_x86

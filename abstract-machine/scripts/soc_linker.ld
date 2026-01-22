@@ -5,39 +5,43 @@ PHDRS {
   bss  PT_LOAD;
 }
 MEMORY {
-  rom(rx)  : ORIGIN = 0x20000000, LENGTH = 0x1000
-  ram(rwx) : ORIGIN = 0x0f000000, LENGTH = 0x2000
+  /* 
+  rom(rx)    : ORIGIN = 0x20000000, LENGTH = 0x1000
+  */
+  flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
+  ram(rwx)   : ORIGIN = 0x0f000000, LENGTH = 0x2000
 }
 
 SECTIONS {
-  . = ORIGIN(rom);
+  . = ORIGIN(flash);
   .text : {
     *(entry)
     *(.text*)
-  } > rom AT> rom : text
+  } > flash AT>flash : text
 
   etext = .;
   _etext = .;
 
   .rodata : {
     *(.rodata*)
-  } > rom AT> rom
+  } > flash AT>flash
 
   .data : {
     _data_start = .;
     *(.data*)
-  } > ram AT>rom : data
+  } > ram AT>flash : data
   _data_loadaddr = LOADADDR(.data);
 
   edata = .;
   _data = .;
 
-  .bss : {
-	_bss_start = .;
+  .bss (NOLOAD): {
+	_bss_start = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  _bss_end = .;
+    *(COMMOM)
+  _bss_end = ALIGN(4);
   } > ram : bss
 
   _heap_start = ALIGN(4);

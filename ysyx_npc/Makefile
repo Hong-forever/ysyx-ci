@@ -29,7 +29,7 @@ VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart1
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE ?= 1
+WAVE_ENABLE ?= 0
 # 1: vcd, 2: fst
 WAVE_FORMAT ?= 1
 
@@ -52,7 +52,7 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(YSYXSOC_HOME)/scripts/difftest.mk
 
-IMG ?= $(YSYXSOC_HOME)/../my_test/char_test_soc/char-test.bin
+IMG ?= $(YSYXSOC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
 YSYXSOC_EXEC := $(BIN) $(IMG)
 
@@ -101,6 +101,7 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
+CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
