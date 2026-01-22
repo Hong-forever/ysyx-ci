@@ -10,6 +10,7 @@ int main(const char *args) {
     for (int i = 0; i < SIZE / 4; i++) {
         printf("Data at address 0x%08x: 0x%08x\n", (uint32_t)(0x30000000 + i * 4), p[i]);
     }
+    p[0] = 0;
 
     return 0;
 }
