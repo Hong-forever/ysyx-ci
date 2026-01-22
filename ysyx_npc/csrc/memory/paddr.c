@@ -3,6 +3,7 @@
 #include "device.h"
 
 static word_t pmem[CONFIG_MSIZE] = {0};
+static uint8_t psram[CONFIG_MSIZE] = {0};
 static uint32_t rtc_value[2] = {0};
 
 static uint32_t tra_mask(uint32_t wmask)
@@ -134,4 +135,25 @@ extern "C" void mrom_read(int32_t addr, int32_t *data)
 {
     // printf("mrom_read addr: 0x%08x\n", addr);
     *data = pmem_read(addr);
+}
+
+extern "C" void psram_read(int32_t addr, int32_t *data) {
+    *data = psram[addr];
+}
+
+extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
+    if(len == 1) {
+        psram[addr] = data;
+    }
+    if(len == 2) {
+        psram[addr] = data;
+        psram[addr+1] = data >> 8;
+    }
+    if(len == 4) {
+        psram[addr] = data;
+        psram[addr+1] = data >> 8;
+        psram[addr+2] = data >> 16;
+        psram[addr+3] = data >> 24;
+    }
+
 }
