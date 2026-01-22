@@ -2,7 +2,6 @@ ENTRY(_start)
 PHDRS { 
   text PT_LOAD; 
   data PT_LOAD;
-  bss  PT_LOAD;
 }
 MEMORY {
   /* 
@@ -42,7 +41,7 @@ SECTIONS {
     *(.scommon)
     *(COMMOM)
   _bss_end = ALIGN(4);
-  } > ram : bss
+  } > ram : data
 
   _heap_start = ALIGN(4);
   . = ORIGIN(ram) + LENGTH(ram);
