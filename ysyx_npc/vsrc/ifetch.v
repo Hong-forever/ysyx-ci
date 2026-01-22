@@ -104,7 +104,7 @@ module ysyx_25110270_ifetch
 
     always @(posedge clk) begin
         if(!rst_n) begin
-            pc <= `RomAddrBase;
+            pc <= `RESET_VECTOR;
         end else if(ibus_arvalid && 
             !(
                 (ibus_araddr >= `RomAddrBase   && ibus_araddr <= (`RomAddrBase + `RomSize - 1)) || 

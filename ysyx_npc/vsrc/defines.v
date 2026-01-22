@@ -350,3 +350,6 @@
 `define RomSize       32'h0001_0000
 `define FlashAddrBase 32'h3000_0000
 `define FlashSize     32'h1000_0000
+
+// `define RESET_VECTOR  `FlashAddrBase
+`define RESET_VECTOR  `RomAddrBase
