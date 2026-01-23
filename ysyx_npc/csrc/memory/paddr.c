@@ -151,12 +151,18 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
     if(len == 2) {
         psram[addr] = data;
         psram[addr+1] = data >> 8;
+        printf("psram[%x] = 0x%02x\n", addr, psram[addr]);
+        printf("psram[%x] = 0x%02x\n", addr+1, psram[addr+1]);
     }
     if(len == 4) {
         psram[addr] = data;
         psram[addr+1] = data >> 8;
         psram[addr+2] = data >> 16;
         psram[addr+3] = data >> 24;
+        printf("psram[%x] = 0x%02x\n", addr, psram[addr]);
+        printf("psram[%x] = 0x%02x\n", addr+1, psram[addr+1]);
+        printf("psram[%x] = 0x%02x\n", addr+2, psram[addr+2]);
+        printf("psram[%x] = 0x%02x\n", addr+3, psram[addr+3]);
     }
 
 }
