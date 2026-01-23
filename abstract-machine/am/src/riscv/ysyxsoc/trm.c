@@ -40,10 +40,10 @@ void _trm_init()
     // // printf("mvendorid: 0x%08x\n", ysyx_logo);
     // uint32_t stu_num = ysyxsoc_csr_read(CSR_MARCHID);
     // printf("========================================\n");
+    // printf("Version: %s\n", VERSION);
     // printf("Welcome to %s!\n", ysyx_logo == YSYX_LOGO ? "YSYX" : "Unknown");
     // printf("Student Number: ysyx_%x\n", stu_num);
     // printf("Name: %s\n", "HUANG HAIHONG");
-    // printf("Version: %s\n", VERSION);
     // printf("========================================\n");
     
     int ret = main(mainargs);
