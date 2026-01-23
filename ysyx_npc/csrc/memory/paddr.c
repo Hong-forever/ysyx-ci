@@ -5,30 +5,16 @@
 static uint8_t pmem[CONFIG_MSIZE] = {0};
 static uint32_t rtc_value[2] = {0};
 
-static uint32_t tra_mask(uint32_t wmask)
-{
-    switch (wmask) {
-        case 0x00000001:    return 0x000000ff;
-        case 0x00000002:    return 0x0000ff00;
-        case 0x00000004:    return 0x00ff0000;
-        case 0x00000008:    return 0xff000000;
-        case 0x00000003:    return 0x0000ffff;
-        case 0x0000000c:    return 0xffff0000;
-        case 0x0000000f:    return 0xffffffff;
-        default:            return 0;
-    }
-}
-
 static inline bool in_pmem(paddr_t addr) {
   return (addr - CONFIG_MBASE) < CONFIG_MSIZE;
 }
 
-paddr_t *guest_to_host(paddr_t paddr) {
-    return (paddr_t *)pmem + (paddr - CONFIG_MBASE);
+uint8_t* guest_to_host(paddr_t paddr) {
+    return pmem + (paddr - CONFIG_MBASE);
 }
 
-paddr_t host_to_guest(paddr_t *haddr) {
-    return (haddr - (paddr_t *)pmem) + CONFIG_MBASE;
+paddr_t host_to_guest(uint8_t *haddr) {
+    return (haddr - pmem) + CONFIG_MBASE;
 }
 
 static void out_of_bound(paddr_t addr, bool is_write) {
@@ -36,16 +22,19 @@ static void out_of_bound(paddr_t addr, bool is_write) {
     // assert(0);
 }
 
-static word_t host_read(paddr_t *addr) {
-    return *addr;
+static word_t host_read(uint8_t *addr) {
+    return *(word_t *)addr;
 }
 
-static void host_write(paddr_t *addr, word_t wdata, uint32_t wmask) {
-    *addr = (wdata & tra_mask(wmask)) | (*addr & ~tra_mask(wmask));
+static void host_write(uint8_t *addr, word_t wdata, uint32_t wmask) {
+    if(wmask & 0x1)      addr[0] = wdata & 0xff;
+    if(wmask & 0x2)      addr[1] = (wdata >> 8) & 0xff;
+    if(wmask & 0x4)      addr[2] = (wdata >> 16) & 0xff;
+    if(wmask & 0x8)      addr[3] = (wdata >> 24) & 0xff;
 }
 
 void init_mem() {
-    IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE * sizeof(word_t)));
+    IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE * sizeof(uint8_t)));
     PRINTF_BLUE("physical memory area [0x%08x, 0x%08x]\n", PMEM_LEFT, PMEM_RIGHT);
 }
 
@@ -60,7 +49,7 @@ void mtrace_read(paddr_t addr, uint32_t data)
 void mtrace_write(paddr_t addr, uint32_t data, uint32_t mask)
 {
     if (addr >= CONFIG_MTRACE_BASE && addr < CONFIG_MTRACE_BASE + CONFIG_MTRACE_SIZE) {
-        PRINTF_BLUE("[Mtrace] Wrtie addr: 0x%08x data: 0x%08x mask: 0x%08x\n", addr, data, tra_mask(mask));
+        PRINTF_BLUE("[Mtrace] Wrtie addr: 0x%08x data: 0x%08x mask: 0x%04x\n", addr, data, mask);
     }
 }
 );
