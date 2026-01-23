@@ -18,14 +18,17 @@
 
 #include <common.h>
 
-#define PMEM_LEFT_ROM  ((paddr_t)CONFIG_ROM_BASE)
-#define PMEM_RIGHT_ROM ((paddr_t)CONFIG_ROM_BASE + CONFIG_ROM_SIZE - 1)
+#define PMEM_LEFT_MROM  ((paddr_t)CONFIG_MROM_BASE)
+#define PMEM_RIGHT_MROM ((paddr_t)CONFIG_MROM_BASE + CONFIG_MROM_SIZE - 1)
 
-#define PMEM_LEFT_RAM  ((paddr_t)CONFIG_RAM_BASE)
-#define PMEM_RIGHT_RAM ((paddr_t)CONFIG_RAM_BASE + CONFIG_RAM_SIZE - 1)
+#define PMEM_LEFT_SRAM  ((paddr_t)CONFIG_SRAM_BASE)
+#define PMEM_RIGHT_SRAM ((paddr_t)CONFIG_SRAM_BASE + CONFIG_SRAM_SIZE - 1)
 
 #define PMEM_LEFT_FLASH  ((paddr_t)CONFIG_FLASH_BASE)
 #define PMEM_RIGHT_FLASH ((paddr_t)CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE - 1)
+
+#define PMEM_LEFT_PSRAM  ((paddr_t)CONFIG_PSRAM_BASE)
+#define PMEM_RIGHT_PSRAM ((paddr_t)CONFIG_PSRAM_BASE + CONFIG_PSRAM_SIZE - 1)
 
 #define RESET_VECTOR (PMEM_LEFT_FLASH + CONFIG_PC_RESET_OFFSET)
 
@@ -34,20 +37,24 @@ uint8_t* guest_to_host(paddr_t paddr);
 /* convert the host virtual address in NEMU to guest physical address in the guest program */
 paddr_t host_to_guest(uint8_t *haddr);
 
-static inline bool in_rom(paddr_t addr) {
-  return addr >= PMEM_LEFT_ROM && addr <= PMEM_RIGHT_ROM;
+static inline bool in_mrom(paddr_t addr) {
+  return addr >= PMEM_LEFT_MROM && addr <= PMEM_RIGHT_MROM;
 }
 
-static inline bool in_ram(paddr_t addr) {
-  return addr >= PMEM_LEFT_RAM && addr <= PMEM_RIGHT_RAM;
+static inline bool in_sram(paddr_t addr) {
+  return addr >= PMEM_LEFT_SRAM && addr <= PMEM_RIGHT_SRAM;
 }
 
 static inline bool in_flash(paddr_t addr) {
   return addr >= PMEM_LEFT_FLASH && addr <= PMEM_RIGHT_FLASH;
 }
 
+static inline bool in_psram(paddr_t addr) {
+  return addr >= PMEM_LEFT_PSRAM && addr <= PMEM_RIGHT_PSRAM;
+}
+
 static inline bool in_pmem(paddr_t addr) {
-  return in_ram(addr) || in_flash(addr) || in_rom(addr);
+  return in_mrom(addr) || in_sram(addr) || in_flash(addr) || in_psram(addr);
 }
 
 word_t paddr_read(paddr_t addr, int len);

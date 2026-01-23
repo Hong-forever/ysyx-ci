@@ -6,10 +6,11 @@ PHDRS {
 }
 MEMORY {
   /* 
-  rom(rx)    : ORIGIN = 0x20000000, LENGTH = 0x1000
+  mrom(rx)   : ORIGIN = 0x20000000, LENGTH = 0x1000
+  sram(rwx)  : ORIGIN = 0x0f000000, LENGTH = 0x2000
   */
   flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
-  ram(rwx)   : ORIGIN = 0x0f000000, LENGTH = 0x2000
+  psram(rwx) : ORIGIN = 0x80000000, LENGTH = 0x20000000
 }
 
 SECTIONS {
@@ -29,7 +30,7 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
-  } > ram AT>flash : data
+  } > psram AT>flash : data
   _data_loadaddr = LOADADDR(.data);
 
   edata = .;
@@ -42,10 +43,10 @@ SECTIONS {
     *(.scommon)
     *(COMMOM)
   _bss_end = ALIGN(4);
-  } > ram : bss
+  } > psram : bss
 
   _heap_start = ALIGN(4);
-  . = ORIGIN(ram) + LENGTH(ram);
+  . = ORIGIN(psram) + LENGTH(psram);
   _stack_pointer = .;
   
   end = .;

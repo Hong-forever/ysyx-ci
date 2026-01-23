@@ -107,9 +107,10 @@ module ysyx_25110270_ifetch
             pc <= `RESET_VECTOR;
         end else if(ibus_arvalid && 
             !(
-                (ibus_araddr >= `RomAddrBase   && ibus_araddr <= (`RomAddrBase + `RomSize - 1)) || 
-                (ibus_araddr >= `RamAddrBase   && ibus_araddr <= (`RamAddrBase + `RamSize - 1)) ||
-                (ibus_araddr >= `FlashAddrBase && ibus_araddr <= (`FlashAddrBase + `FlashSize - 1))
+                (ibus_araddr >= `MromAddrBase  && ibus_araddr <= (`MromAddrBase + `MromSize - 1))   || 
+                (ibus_araddr >= `SramAddrBase  && ibus_araddr <= (`SramAddrBase + `SramSize - 1))   ||
+                (ibus_araddr >= `FlashAddrBase && ibus_araddr <= (`FlashAddrBase + `FlashSize - 1)) ||
+                (ibus_araddr >= `PsramAddrBase && ibus_araddr <= (`PsramAddrBase + `PsramSize - 1))
             )) begin
             pc <= 0;
             $error("IFETCH: PC address out of range at pc = 0x%08x", ibus_araddr);
