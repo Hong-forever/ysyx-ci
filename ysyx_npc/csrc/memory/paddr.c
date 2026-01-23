@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "device.h"
 
-static word_t pmem[CONFIG_MSIZE] = {0};
+static uint8_t pmem[CONFIG_MSIZE] = {0};
 static uint32_t rtc_value[2] = {0};
 
 static uint32_t tra_mask(uint32_t wmask)
@@ -20,15 +20,15 @@ static uint32_t tra_mask(uint32_t wmask)
 }
 
 static inline bool in_pmem(paddr_t addr) {
-  return (addr - CONFIG_MBASE) < (CONFIG_MSIZE << 2);
+  return (addr - CONFIG_MBASE) < CONFIG_MSIZE;
 }
 
 paddr_t *guest_to_host(paddr_t paddr) {
-    return pmem + ((paddr - CONFIG_MBASE) >> 2);
+    return (paddr_t *)pmem + (paddr - CONFIG_MBASE);
 }
 
 paddr_t host_to_guest(paddr_t *haddr) {
-    return ((haddr - pmem) << 2) + CONFIG_MBASE;
+    return (haddr - (paddr_t *)pmem) + CONFIG_MBASE;
 }
 
 static void out_of_bound(paddr_t addr, bool is_write) {
@@ -67,7 +67,7 @@ void mtrace_write(paddr_t addr, uint32_t data, uint32_t mask)
 
 static word_t pmem_read(paddr_t raddr)
 {
-    // printf("data: 0x%x addr: 0x%x\n", pmem[raddr>>2], raddr);
+    // printf("data: 0x%x addr: 0x%x\n", (uint32_t)pmem[raddr], raddr);
     word_t ret = host_read(guest_to_host(raddr));
     IFDEF(MTRACE, mtrace_read(raddr, ret));
     return ret;
