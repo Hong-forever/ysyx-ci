@@ -30,7 +30,7 @@ uint32_t spi_receive() {
 void spi_flash_init() {
     spi_reg_write(SPI_DIV_OFFSET, 0x04);  //set clk divider
     spi_reg_write(SPI_SS_OFFSET, 1 << 0);   //set ss, select flash 
-    spi_reg_write(SPI_CTRL_OFFSET, 0x3440); //ass, char_len=64, txneg
+    spi_reg_write(SPI_CTRL_OFFSET, 0x2240); //ass, char_len=64, rxneg
 }
 
 void spi_transfer_wait() {
