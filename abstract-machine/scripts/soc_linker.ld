@@ -17,6 +17,7 @@ MEMORY {
 
 SECTIONS {
   . = ORIGIN(rom);
+  _rom_start = .;
   .text : {
     *(entry)
     *(.text*)

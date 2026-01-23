@@ -6,9 +6,9 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-extern char _pmem_start;
+extern char _rom_start;
 #define PMEM_SIZE (128 * 1024 * 1024)
-#define PMEM_END ((uintptr_t)&_pmem_start + PMEM_SIZE)
+#define PMEM_END ((uintptr_t)&_rom_start + PMEM_SIZE)
 #define ysyxsoc_trap(code) asm volatile("mv a0, %0; ebreak" : : "r"(code))
 #define ysyxsoc_csr_read(csr_id) ({ \
     uint32_t val; \
