@@ -147,6 +147,7 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
     printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
     if(len == 1) {
         psram[addr] = data;
+        printf("psram[%x] = 0x%02x\n", addr, psram[addr]);
     }
     if(len == 2) {
         psram[addr] = data;
