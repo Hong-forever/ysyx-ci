@@ -139,8 +139,8 @@ extern "C" void mrom_read(int32_t addr, int32_t *data)
 static uint8_t psram[20] = {0};
 
 extern "C" void psram_read(int32_t addr, int32_t *data) {
-    printf("psram_read addr: 0x%08x\n", addr);
     *data = psram[addr];
+    printf("psram_read addr: 0x%08x, data: 0x%02x\n", addr, *data);
 }
 
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
