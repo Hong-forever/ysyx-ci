@@ -4,11 +4,11 @@
 
 int main(const char *args) {
 
-    volatile uint16_t *p = (volatile uint16_t *)0x80000000;
+    volatile uint32_t *p = (volatile uint32_t *)0x80000000;
 
-    p[0] = 0x1234;
+    p[0] = 0x12345678;
 
-    if(p[0] != 0x1234) {
+    if(p[0] != 0x12345678) {
         putstr("psram_test failed at addr 0x80000000\n");
         return -1;
     }
