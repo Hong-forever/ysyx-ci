@@ -8,7 +8,7 @@ int main(const char *args) {
 
     for(int i = 0; i < 100; i++) {
         p[i] = i;
-        printf("Writing: %d\r", i);
+        putstr("Writing: ");
     }
     for(int i = 0; i < 100; i++) {
         uint32_t val = p[i];
