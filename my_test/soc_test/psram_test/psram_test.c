@@ -6,12 +6,18 @@ int main(const char *args) {
 
     volatile uint32_t *p = (volatile uint32_t *)0x80000000;
 
-    p[0] = 0x12345678;
-
-    if(p[0] != 0x12345678) {
-        putstr("psram_test failed at addr 0x80000000\n");
-        return -1;
+    for(int i = 0; i < 100; i++) {
+        p[i] = i * 2 + 1;
     }
+    for(int i = 0; i < 100; i++) {
+        uint32_t val = p[i];
+        if(val != (i * 2 + 1)) {
+            printf("PSRAM TEST FAILED at addr 0x%08x: expected 0x%08x, got 0x%08x\n", 
+                   0x80000000 + i * 4, i * 2 + 1, val);
+            return -1;
+        }
+    }
+
 
     return 0;
 }
