@@ -7,7 +7,7 @@ int main(const char *args) {
     volatile uint32_t *p = (volatile uint32_t *)0x80000000;
 
     for(int i = 0; i < 100; i++) {
-        p[i] = i * 2 + 1;
+        p[i] = i;
         printf("Writing: %d\r", i);
     }
     for(int i = 0; i < 100; i++) {
