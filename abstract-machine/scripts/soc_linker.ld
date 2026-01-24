@@ -36,7 +36,9 @@ SECTIONS {
   _etext = .;
 
   .rodata : {
+    . = ALIGN(4);
     *(.rodata*)
+    *(.srodata*)
     . = ALIGN(4);
     _rom_end = .;
     _text_end = .;
