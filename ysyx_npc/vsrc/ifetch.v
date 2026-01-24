@@ -112,7 +112,7 @@ module ysyx_25110270_ifetch
                 (ibus_araddr >= `FlashAddrBase && ibus_araddr <= (`FlashAddrBase + `FlashSize - 1)) ||
                 (ibus_araddr >= `PsramAddrBase && ibus_araddr <= (`PsramAddrBase + `PsramSize - 1))
             )) begin
-            // pc <= 0;
+            pc <= 0;
             $error("IFETCH: PC address out of range at pc = 0x%08x", ibus_araddr);
         end else if(ibus_rresp != 2'b00) begin
             pc <= 0;
