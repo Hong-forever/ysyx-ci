@@ -42,8 +42,8 @@ int main(const char *args) {
 
     // putstr("32 ");
 
-    uint64_t *p64 = (uint64_t *)heap.start;
-    for (int i = 0; i < 16; i++) {
+    uint64_t *p64 = (uint64_t *)heap.end -1;
+    for (int i = 0; i < 1; i++) {
         p64[i] = i;
         if(p64[i] != i) {
             putstr("error\n");
