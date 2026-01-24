@@ -4,60 +4,55 @@
 
 #define SIZE 1024 * 1024 * 4
 
+extern Area heap;
+
 int main(const char *args) {
-    uint8_t *p = (uint8_t *)malloc(SIZE);
-    for (int i = 0; i < SIZE; i++) {
-        p[i] = i % 256;
-    }
-    for (int i = 0; i < SIZE; i++) {
-        if (p[i] != i % 256) {
+    uint8_t *p8 = (uint8_t *)heap.start;
+
+    for (int i = 0; &p8[i] < (uint8_t *)heap.end; p8++, i++) {
+        p8[i] = i % 256;
+        if(p8[i] != i % 256) {
             putstr("error\n");
             return 1;
         }
-        // putstr("\b\b");
     }
 
     putstr("8 ");
 
-    uint16_t *q = (uint16_t *)malloc(SIZE);
-    for (int i = 0; i < SIZE / 2; i++) {
-        q[i] = i % 65536;
-        // putstr("16 ");
-    }
-    for (int i = 0; i < SIZE / 2; i++) {
-        if (q[i] != i % 65536) {
+    uint16_t *p16 = (uint16_t *)heap.start;
+
+    for (int i = 0; &p16[i] < (uint16_t *)heap.end; p16++, i++) {
+        p16[i] = i % 65536;
+        if(p16[i] != i % 65536) {
             putstr("error\n");
             return 1;
         }
-        // putstr("\b\b\b");
     }
+
     putstr("16 ");
-    uint32_t *r = (uint32_t *)malloc(SIZE);
-    for (int i = 0; i < SIZE / 4; i++) {
-        r[i] = i;
-        // putstr("32 ");
-    }
-    for (int i = 0; i < SIZE / 4; i++) {
-        if (r[i] != i) {
+
+    uint32_t *p32 = (uint32_t *)heap.start;
+    for (int i = 0; &p32[i] < (uint32_t *)heap.end; p32++, i++) {
+        p32[i] = i;
+        if(p32[i] != i) {
             putstr("error\n");
             return 1;
         }
-        // putstr("\b\b\b");
     }
+
     putstr("32 ");
-    uint64_t *s = (uint64_t *)malloc(SIZE);
-    for (int i = 0; i < SIZE / 8; i++) {
-        s[i] = i;
-        // putstr("64 ");
-    }
-    for (int i = 0; i < SIZE / 8; i++) {
-        if (s[i] != i) {
+
+    uint64_t *p64 = (uint64_t *)heap.start;
+    for (int i = 0; &p64[i] < (uint64_t *)heap.end; p64++, i++) {
+        p64[i] = i;
+        if(p64[i] != i) {
             putstr("error\n");
             return 1;
         }
-        // putstr("\b\b\b");
     }
-    putstr("64 \n");
+
+    putstr("64 ");
+
     putstr("mem test pass!\n");
     return 0;
 }
