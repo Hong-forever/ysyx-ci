@@ -2,7 +2,7 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define SIZE 1024
+#define SIZE 64
 
 int main(const char *args) {
     uint8_t *p = (uint8_t *)malloc(SIZE);
