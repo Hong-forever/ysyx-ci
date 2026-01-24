@@ -13,6 +13,7 @@ MEMORY {
   */
   rom(rx)    : ORIGIN = 0x30000000, LENGTH = 0x10000000
   ram(rwx)   : ORIGIN = 0x80000000, LENGTH = 0x400000
+  sram(rwx)  : ORIGIN = 0x0f000000, LENGTH = 0x2000
 }
 
 SECTIONS {
