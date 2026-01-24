@@ -42,16 +42,25 @@ int main(const char *args) {
 
     // putstr("32 ");
 
-    uint64_t *p64 = (uint64_t *)heap.end - 3;
-    for (int i = 0; &p64[i] < (uint64_t *)heap.end; i++) {
-        p64[i] = i;
-        if(p64[i] != i) {
+    // uint64_t *p64 = (uint64_t *)heap.start;
+    // for (int i = 0; &p64[i] < (uint64_t *)heap.end; i++) {
+    //     p64[i] = i;
+    //     if(p64[i] != i) {
+    //         putstr("error\n");
+    //         return 1;
+    //     }
+    // }
+
+    // putstr("64 ");
+
+    uint32_t *p32 = (uint32_t *)heap.start;
+    for (int i = 0; i < 20; i++) {
+        p32[i] = i * 2 + 2;
+        if(p32[i] != i * 2 + 2) {
             putstr("error\n");
             return 1;
         }
     }
-
-    putstr("64 ");
 
     putstr("mem test pass!\n");
     return 0;

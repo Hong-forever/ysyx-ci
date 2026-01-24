@@ -23,7 +23,7 @@ _start:
 
 .size _start, . - _start
 
-.section text, "ax"
+.section text_entry, "ax"
 .globl _start2
 .type _start2, @function
 

@@ -26,9 +26,9 @@ SECTIONS {
   .text : {
     _rom_start = .;
     _text_start = .;
-    *(text_entry*)
+    *(text_entry)
     *(.text*)
-  } > sram AT>rom : text
+  } > ram AT>rom : text
 
   _text_loadaddr = LOADADDR(.text);
 
@@ -40,7 +40,7 @@ SECTIONS {
     . = ALIGN(4);
     _rom_end = .;
     _text_end = .;
-  } > sram AT>rom
+  } > ram AT>rom
 
 
   .data : {
@@ -69,6 +69,8 @@ SECTIONS {
 
   _heap_end = .;
   _ram_end = .;
+
+  . = ORIGIN(sram) + LENGTH(sram);
   _stack_pointer = .;
   
   end = .;
