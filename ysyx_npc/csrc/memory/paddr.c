@@ -84,31 +84,31 @@ void paddr_write(paddr_t addr, word_t data, int len) {
 extern "C" void mrom_read(int32_t addr, int32_t *data) 
 {
     // printf("mrom_read addr: 0x%08x\n", addr);
-    *data = pmem_read(addr);
+    *data = paddr_read(addr);
 }
 
 extern "C" void flash_read(int32_t addr, int32_t *data) {
     // printf("flash_read addr: 0x%08x\n", addr);
     //spi
-    *data = pmem_read(addr + CONFIG_FLASH_BASE);
+    *data = paddr_read(addr + CONFIG_FLASH_BASE);
 }
 
 extern "C" void psram_read(int32_t addr, int32_t *data) {
     //spi
-    *data = pmem_read(addr + CONFIG_PSRAM_BASE);
+    *data = paddr_read(addr + CONFIG_PSRAM_BASE);
     // printf("psram_read addr: 0x%08x, data: 0x%02x\n", addr, *data);
 }
 
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
-    // printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
+    printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
     if(len == 1) {
-        pmem_write(addr + CONFIG_PSRAM_BASE, data, 0x1);
+        paddr_write(addr + CONFIG_PSRAM_BASE, data, 0x1);
     }
     if(len == 2) {
-        pmem_write(addr + CONFIG_PSRAM_BASE, data, 0x3);
+        paddr_write(addr + CONFIG_PSRAM_BASE, data, 0x3);
     }
     if(len == 4) {
-        pmem_write(addr + CONFIG_PSRAM_BASE, data, 0xf);
+        paddr_write(addr + CONFIG_PSRAM_BASE, data, 0xf);
     }
 
 }
