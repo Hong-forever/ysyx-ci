@@ -11,6 +11,7 @@ int main(const char *args) {
 
     for (int i = 0; &p8[i] < (uint8_t *)heap.end; p8++, i++) {
         p8[i] = i % 256;
+        putstr("8 ");
         if(p8[i] != i % 256) {
             putstr("error\n");
             return 1;
