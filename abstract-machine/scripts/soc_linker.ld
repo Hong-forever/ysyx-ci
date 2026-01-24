@@ -72,6 +72,7 @@ SECTIONS {
   _heap_end = .;
   _ram_end = .;
 
+  . = ORIGIN(sram) + LENGTH(sram);
   _stack_pointer = .;
   
   end = .;
