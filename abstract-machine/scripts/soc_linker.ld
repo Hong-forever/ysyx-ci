@@ -3,6 +3,7 @@ PHDRS {
   boot PT_LOAD;
   text PT_LOAD;
   data PT_LOAD;
+  bss PT_LOAD;
 }
 MEMORY {
   /* 
@@ -63,7 +64,7 @@ SECTIONS {
     *(.scommon)
     *(COMMON)
 	  _bss_end = ALIGN(4);
-  } > ram
+  } > ram : bss
 
   _heap_start = ALIGN(4);
 
