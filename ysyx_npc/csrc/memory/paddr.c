@@ -38,25 +38,25 @@ void mtrace_read(paddr_t addr, uint32_t data)
     }
 }
 
-void mtrace_write(paddr_t addr, uint32_t data, uint32_t mask)
+void mtrace_write(paddr_t addr, uint32_t data, uint32_t len)
 {
     if (addr >= CONFIG_MTRACE_BASE && addr < CONFIG_MTRACE_BASE + CONFIG_MTRACE_SIZE) {
-        PRINTF_BLUE("[Mtrace] Wrtie addr: 0x%08x data: 0x%08x mask: 0x%04x\n", addr, data, mask);
+        PRINTF_BLUE("[Mtrace] Wrtie addr: 0x%08x data: 0x%08x len: %x\n", addr, data, len);
     }
 }
 );
 
 static word_t pmem_read(paddr_t raddr)
 {
-    // printf("data: 0x%x addr: 0x%x\n", (uint32_t)pmem[raddr], raddr);
     word_t ret = host_read(guest_to_host(raddr));
+    if(raddr > 0x30000360 && raddr <= 0x30000370) printf("got 0x%08x\n", ret);
     IFDEF(MTRACE, mtrace_read(raddr, ret));
     return ret;
 }
 
 static void pmem_write(paddr_t waddr, word_t wdata, uint32_t len)
 {
-    printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
+    // printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
     host_write(guest_to_host(waddr), wdata, len);
     IFDEF(MTRACE, mtrace_write(waddr, wdata, len));
 }
@@ -100,7 +100,7 @@ extern "C" void psram_read(int32_t addr, int32_t *data) {
 }
 
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
-    printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
+    // printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
     if(len == 1) {
         paddr_write(addr + CONFIG_PSRAM_BASE, data, 1);
     }
