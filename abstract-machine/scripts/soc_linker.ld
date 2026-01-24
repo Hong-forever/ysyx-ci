@@ -26,7 +26,7 @@ SECTIONS {
 
   .rodata : {
     *(.rodata*)
-    _rom_end = .;
+    _rom_end = ALIGN(4);
   } > rom AT>rom
 
 
@@ -47,8 +47,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-    . = ALIGN(4);
-    _bss_end = .;
+	  _bss_end = ALIGN(4);
   } > ram
 
   _heap_start = ALIGN(4);
