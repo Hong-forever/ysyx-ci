@@ -101,7 +101,7 @@ extern "C" void psram_read(int32_t addr, int32_t *data) {
 }
 
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
-    // printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
+    printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
     if(len == 1) {
         paddr_write(addr + CONFIG_PSRAM_BASE, data, 1);
     }
