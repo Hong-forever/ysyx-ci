@@ -12,6 +12,7 @@ int main(const char *args) {
     }
     for (int i = 0; i < SIZE; i++) {
         if (p[i] != i) {
+            putstr("error\n");
             return 1;
         }
         putstr("\b\b");
@@ -23,9 +24,10 @@ int main(const char *args) {
     }
     for (int i = 0; i < SIZE / 2; i++) {
         if (q[i] != i * 2) {
+            putstr("error\n");
             return 1;
         }
-        putstr("\b\b");
+        putstr("\b\b\b");
     }
     uint32_t *r = (uint32_t *)malloc(SIZE);
     for (int i = 0; i < SIZE / 4; i++) {
@@ -34,9 +36,10 @@ int main(const char *args) {
     }
     for (int i = 0; i < SIZE / 4; i++) {
         if (r[i] != i * 3) {
+            putstr("error\n");
             return 1;
         }
-        putstr("\b\b");
+        putstr("\b\b\b");
     }
     uint64_t *s = (uint64_t *)malloc(SIZE);
     for (int i = 0; i < SIZE / 8; i++) {
@@ -45,9 +48,10 @@ int main(const char *args) {
     }
     for (int i = 0; i < SIZE / 8; i++) {
         if (s[i] != i * 4) {
+            putstr("error\n");
             return 1;
         }
-        putstr("\b\b");
+        putstr("\b\b\b");
     }
     putstr("mem test pass!\n");
     return 0;
