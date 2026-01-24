@@ -29,7 +29,7 @@ VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart1
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE ?= 1
+WAVE_ENABLE ?= 0
 # 1: vcd, 2: fst
 WAVE_FORMAT ?= 1
 
@@ -41,7 +41,7 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave ${YSYXSOC_HOME}/build/waveform.vcd
+	@gtkwave -o ${YSYXSOC_HOME}/build/waveform.vcd
 else
 	@gtkwave ${YSYXSOC_HOME}/build/waveform.fst
 endif

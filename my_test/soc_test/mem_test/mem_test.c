@@ -7,11 +7,11 @@
 int main(const char *args) {
     uint8_t *p = (uint8_t *)malloc(SIZE);
     for (int i = 0; i < SIZE; i++) {
-        p[i] = i;
+        p[i] = i % 256;
         putstr("8 ");
     }
     for (int i = 0; i < SIZE; i++) {
-        if (p[i] != i) {
+        if (p[i] != i % 256) {
             putstr("error\n");
             return 1;
         }
