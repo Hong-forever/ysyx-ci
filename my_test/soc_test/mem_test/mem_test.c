@@ -8,7 +8,6 @@ int main(const char *args) {
     uint8_t *p = (uint8_t *)malloc(SIZE);
     for (int i = 0; i < SIZE; i++) {
         p[i] = i % 256;
-        // putstr("8 ");
     }
     for (int i = 0; i < SIZE; i++) {
         if (p[i] != i % 256) {
@@ -17,6 +16,9 @@ int main(const char *args) {
         }
         // putstr("\b\b");
     }
+
+    putstr("8 ");
+
     uint16_t *q = (uint16_t *)malloc(SIZE);
     for (int i = 0; i < SIZE / 2; i++) {
         q[i] = i % 65536;
@@ -29,6 +31,7 @@ int main(const char *args) {
         }
         // putstr("\b\b\b");
     }
+    putstr("16 ");
     uint32_t *r = (uint32_t *)malloc(SIZE);
     for (int i = 0; i < SIZE / 4; i++) {
         r[i] = i;
@@ -41,6 +44,7 @@ int main(const char *args) {
         }
         // putstr("\b\b\b");
     }
+    putstr("32 ");
     uint64_t *s = (uint64_t *)malloc(SIZE);
     for (int i = 0; i < SIZE / 8; i++) {
         s[i] = i;
@@ -53,6 +57,7 @@ int main(const char *args) {
         }
         // putstr("\b\b\b");
     }
+    putstr("64 \n");
     putstr("mem test pass!\n");
     return 0;
 }
