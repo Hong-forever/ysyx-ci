@@ -49,7 +49,7 @@ void mtrace_write(paddr_t addr, uint32_t data, uint32_t len)
 static word_t pmem_read(paddr_t raddr)
 {
     word_t ret = host_read(guest_to_host(raddr));
-    if(raddr > 0x30000360 && raddr <= 0x30000370) printf("got 0x%08x\n", ret);
+    if(raddr > 0x30000560 && raddr <= 0x30000570) printf("got 0x%08x\n", ret);
     IFDEF(MTRACE, mtrace_read(raddr, ret));
     return ret;
 }
