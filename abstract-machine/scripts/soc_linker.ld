@@ -46,7 +46,8 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-    _bss_end = ALIGN(4);
+    . = ALIGN(4);
+    _bss_end = .;
   } > ram
 
   _heap_start = ALIGN(4);
