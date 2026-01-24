@@ -34,6 +34,7 @@ SECTIONS {
     _ram_start = .;
     _data_start = .;
     *(.data*)
+    *(.sdata*)
   } > ram AT>rom : data
   _data_loadaddr = LOADADDR(.data);
 
