@@ -43,7 +43,7 @@ int main(const char *args) {
     // putstr("32 ");
 
     uint64_t *p64 = (uint64_t *)heap.end -1;
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; &p64[i] < (uint64_t *)heap.end; i++) {
         p64[i] = i;
         if(p64[i] != i) {
             putstr("error\n");
