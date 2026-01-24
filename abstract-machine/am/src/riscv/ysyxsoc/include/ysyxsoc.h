@@ -1,14 +1,11 @@
-#ifndef __NPC_H__
-#define __NPC_H__
+#ifndef __YSYX_SOC_H__
+#define __YSYX_SOC_H__
 
 #include <am.h>
 #include <riscv/riscv.h>
 #include <klib.h>
 #include <klib-macros.h>
 
-extern char _pmem_start;
-#define PMEM_SIZE (128 * 1024 * 1024)
-#define PMEM_END ((uintptr_t)&_pmem_start + PMEM_SIZE)
 #define ysyxsoc_trap(code) asm volatile("mv a0, %0; ebreak" : : "r"(code))
 #define ysyxsoc_csr_read(csr_id) ({ \
     uint32_t val; \
@@ -19,11 +16,11 @@ extern char _pmem_start;
 #define SERIAL_PORT     0x10000000
 #define CLINT_PORT      0x02000000
 
-#define CSR_MVENDORID 0xF11
-#define CSR_MARCHID   0xF12
+#define CSR_MVENDORID   0xF11
+#define CSR_MARCHID     0xF12
 
-#define YSYX_LOGO      0x79737978 //ysyx的logo
-#define YSYX_STU_NUM   0x25110270 //我的学号-25110270
-#define VERSION        "ysyx_soc"
+#define YSYX_LOGO       0x79737978 //ysyx的logo
+#define YSYX_STU_NUM    0x25110270 //我的学号-25110270
+#define VERSION         "YSYX SoC"
 
 #endif

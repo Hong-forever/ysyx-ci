@@ -16,8 +16,8 @@ MEMORY {
 }
 
 SECTIONS {
-  . = ORIGIN(rom);
   .text : {
+    _rom_start = .;
     *(entry)
     *(.text*)
   } > rom AT>rom : text
@@ -27,10 +27,12 @@ SECTIONS {
 
   .rodata : {
     *(.rodata*)
+    _rom_end = .;
   } > rom AT>rom
 
+
   .data : {
-    _pmem_start = .;
+    _ram_start = .;
     _data_start = .;
     *(.data*)
   } > ram AT>rom : data
@@ -40,16 +42,20 @@ SECTIONS {
   _data = .;
 
   .bss (NOLOAD): {
-	_bss_start = ALIGN(4);
+	  _bss_start = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMOM)
-  _bss_end = ALIGN(4);
+    _bss_end = ALIGN(4);
   } > ram : bss
 
   _heap_start = ALIGN(4);
+  
   . = ORIGIN(ram) + LENGTH(ram);
+
+  _heap_end = .;
+  _ram_end = .;
   _stack_pointer = .;
   
   end = .;
