@@ -56,7 +56,7 @@ static word_t pmem_read(paddr_t raddr)
 
 static void pmem_write(paddr_t waddr, word_t wdata, uint32_t len)
 {
-    // printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
+    printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
     host_write(guest_to_host(waddr), wdata, len);
     IFDEF(MTRACE, mtrace_write(waddr, wdata, len));
 }
@@ -102,13 +102,13 @@ extern "C" void psram_read(int32_t addr, int32_t *data) {
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
     printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
     if(len == 1) {
-        paddr_write(addr + CONFIG_PSRAM_BASE, data, 0x1);
+        paddr_write(addr + CONFIG_PSRAM_BASE, data, 1);
     }
     if(len == 2) {
-        paddr_write(addr + CONFIG_PSRAM_BASE, data, 0x3);
+        paddr_write(addr + CONFIG_PSRAM_BASE, data, 2);
     }
     if(len == 4) {
-        paddr_write(addr + CONFIG_PSRAM_BASE, data, 0xf);
+        paddr_write(addr + CONFIG_PSRAM_BASE, data, 4);
     }
 
 }
