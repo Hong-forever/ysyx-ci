@@ -40,12 +40,12 @@ SECTIONS {
   edata = .;
   _data = .;
 
-  .bss : {
+  .bss (NOLOAD) : {
 	  _bss_start = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-    *(COMMOM)
+    *(COMMON)
     _bss_end = ALIGN(4);
   } > ram : data
 
