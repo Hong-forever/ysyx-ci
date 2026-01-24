@@ -97,7 +97,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 extern "C" void psram_read(int32_t addr, int32_t *data) {
     //spi
     *data = paddr_read(addr + CONFIG_PSRAM_BASE);
-    // printf("psram_read addr: 0x%08x, data: 0x%02x\n", addr, *data);
+    printf("psram_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
 }
 
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
