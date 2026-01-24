@@ -47,7 +47,7 @@ SECTIONS {
     *(.scommon)
     *(COMMOM)
     _bss_end = ALIGN(4);
-  } > ram
+  } > ram : data
 
   _heap_start = ALIGN(4);
 
