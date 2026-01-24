@@ -42,7 +42,7 @@ paddr_t host_to_guest(uint8_t *haddr) {
 
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
-  if(addr > 0x30000560 && addr <= 0x30000570) printf("nemu 0x%08x\n", ret);
+  if(addr > 0x30000560 && addr <= 0x30000570) printf("nemu 0x%08x, addr 0x%08x, data 0x%08x\n", ret, addr, host_read(guest_to_host(addr), 4));
   return ret;
 }
 
