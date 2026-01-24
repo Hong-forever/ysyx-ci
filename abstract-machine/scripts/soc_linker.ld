@@ -17,7 +17,6 @@ MEMORY {
 
 SECTIONS {
   . = ORIGIN(rom);
-  _pmem_start = .;
   .text : {
     *(entry)
     *(.text*)
@@ -31,6 +30,7 @@ SECTIONS {
   } > rom AT>rom
 
   .data : {
+    _pmem_start = .;
     _data_start = .;
     *(.data*)
   } > ram AT>rom : data
