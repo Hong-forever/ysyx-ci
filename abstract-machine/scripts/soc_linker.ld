@@ -1,6 +1,7 @@
 ENTRY(_start)
 PHDRS { 
-  text PT_LOAD; 
+  boot PT_LOAD;
+  text PT_LOAD;
   data PT_LOAD;
 }
 MEMORY {
@@ -10,24 +11,36 @@ MEMORY {
   flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
   psram(rwx) : ORIGIN = 0x80000000, LENGTH = 0x400000
   */
+  sram(rwx)  : ORIGIN = 0x0f000000, LENGTH = 0x20000
   rom(rx)    : ORIGIN = 0x30000000, LENGTH = 0x10000000
   ram(rwx)   : ORIGIN = 0x80000000, LENGTH = 0x400000
 }
 
 SECTIONS {
+  .boot : {
+    _boot_start = .;
+    *(entry)
+    *(.boot*)
+  } > rom AT>rom : boot
+  
   .text : {
     _rom_start = .;
-    *(entry)
+    _text_start = .;
+    *(text_entry*)
     *(.text*)
-  } > rom AT>rom : text
+  } > sram AT>rom : text
+
+  _text_loadaddr = LOADADDR(.text);
 
   etext = .;
   _etext = .;
 
   .rodata : {
     *(.rodata*)
-    _rom_end = ALIGN(4);
-  } > rom AT>rom
+    . = ALIGN(4);
+    _rom_end = .;
+    _text_end = .;
+  } > sram AT>rom
 
 
   .data : {
