@@ -40,7 +40,7 @@ SECTIONS {
   edata = .;
   _data = .;
 
-  .bss : {
+  .bss (NOLOAD) : {
 	  _bss_start = ALIGN(4);
     *(.bss*)
     *(.sbss*)
