@@ -110,6 +110,7 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
     }
     if(len == 4) {
         paddr_write(addr + CONFIG_PSRAM_BASE, data, 4);
+        if(addr == 0x003fffec) printf("psram_write addr: 0x%08x data: 0x%08x len: %d\n", addr, data, len);
     }
 
 }
