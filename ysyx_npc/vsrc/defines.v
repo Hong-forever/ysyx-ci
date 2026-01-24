@@ -347,7 +347,7 @@
 `define MromAddrBase  32'h2000_0000
 `define MromSize      32'h0001_0000
 `define SramAddrBase  32'h0f00_0000
-`define SramSize      32'h0000_2000
+`define SramSize      32'h0100_0000
 `define FlashAddrBase 32'h3000_0000
 `define FlashSize     32'h1000_0000
 `define PsramAddrBase 32'h8000_0000
