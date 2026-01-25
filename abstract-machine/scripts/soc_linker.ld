@@ -2,6 +2,7 @@ ENTRY(_start)
 PHDRS { 
   boot PT_LOAD;
   text PT_LOAD;
+  data_extra PT_LOAD;
   data PT_LOAD;
 }
 MEMORY {
@@ -39,7 +40,6 @@ SECTIONS {
     _sdata = ALIGN(4);
     *(.data*)
     *(.sdata*)
-    *(.data.extra*)
     _edata = ALIGN(4);
   } > psram AT>flash : data
 
@@ -51,7 +51,6 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-    *(.bss.extra*)
 	  _ebss = ALIGN(4);
   } > psram
 
