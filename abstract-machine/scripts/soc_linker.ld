@@ -73,7 +73,7 @@ SECTIONS {
     *(__am_apps.sdata*)
     __am_apps_data_end = .;
     . = ALIGN(8);
-  } > psram AT> flash
+  } > psram AT> flash : data.extra
 
   .data : {
     _sdata = ALIGN(4);
