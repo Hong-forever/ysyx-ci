@@ -3,9 +3,7 @@
 extern char _heap_start, _heap_end;
 int main(const char *args);
 
-extern char  __fsymtab_start;
-
-Area heap = RANGE(&_heap_start, &__fsymtab_start);
+Area heap = RANGE(&_heap_start, &_heap_end);
 static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
 
 // divisor factor = freq / (16 * baudrate)
