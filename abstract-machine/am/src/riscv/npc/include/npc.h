@@ -25,6 +25,6 @@ extern char _pmem_start;
 #define YSYX_LOGO      0x79737978 //ysyx的logo
 #define YSYX_STU_NUM   0x25110270 //我的学号-25110270
 
-#define VERSION        "npc"
+#define VERSION        "NPC"
 
 #endif

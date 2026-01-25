@@ -1,57 +1,80 @@
 ENTRY(_start)
 PHDRS { 
-  text PT_LOAD; 
+  fsbl PT_LOAD;
+  ssbl PT_LOAD;
+  text PT_LOAD;
   data PT_LOAD;
-  bss  PT_LOAD;
 }
+
 MEMORY {
   /* 
   mrom(rx)   : ORIGIN = 0x20000000, LENGTH = 0x1000
   sram(rwx)  : ORIGIN = 0x0f000000, LENGTH = 0x2000
   flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
-  psram(rwx) : ORIGIN = 0x80000000, LENGTH = 0x20000000
+  psram(rwx) : ORIGIN = 0x80000000, LENGTH = 0x400000
   */
-  rom(rx)    : ORIGIN = 0x30000000, LENGTH = 0x10000000
-  ram(rwx)   : ORIGIN = 0x0f000000, LENGTH = 0x2000
+  flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
+  psram(rwx) : ORIGIN = 0x80000000, LENGTH = 0x400000
+  sram(rwx)  : ORIGIN = 0x0f000000, LENGTH = 0x2000
 }
 
 SECTIONS {
-  . = ORIGIN(rom);
-  _rom_start = .;
+  .fsbl : {
+    _sfsbl = .;
+    *(fsbl_entry)
+    _efsbl = .;
+  } > flash AT>flash : fsbl
+
+  .ssbl : {
+    _sssbl = .;
+    *(ssbl_entry)
+    _essbl = .;
+  } > sram AT>flash : ssbl
+
+  _ssbl_loadaddr = LOADADDR(.ssbl);
+  
   .text : {
-    *(entry)
+    _stext = ALIGN(4);
+    *(text_entry)
     *(.text*)
-  } > rom AT>rom : text
-
-  etext = .;
-  _etext = .;
-
-  .rodata : {
     *(.rodata*)
-  } > rom AT>rom
+    *(.srodata*)
+    _etext = ALIGN(4);
+  } > psram AT>flash : text
+
+  _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    _data_start = .;
+    _sdata = ALIGN(4);
     *(.data*)
-  } > ram AT>rom : data
-  _data_loadaddr = LOADADDR(.data);
+    *(.sdata*)
+    _edata = ALIGN(4);
+  } > psram AT>flash : data
 
-  edata = .;
-  _data = .;
-
-  .bss (NOLOAD): {
-	_bss_start = ALIGN(4);
+  _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
+  
+  .bss (NOLOAD) : {
+	  _sbss = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-    *(COMMOM)
-  _bss_end = ALIGN(4);
-  } > ram : bss
+    *(COMMON)
+	  _ebss = ALIGN(4);
+  } > psram
 
-  _heap_start = ALIGN(4);
-  . = ORIGIN(ram) + LENGTH(ram);
-  _stack_pointer = .;
-  
-  end = .;
-  _end = .;
+  .heap (NOLOAD) : {
+    _heap_start = ALIGN(4);
+    . = ORIGIN(psram) + LENGTH(psram);
+    _heap_end = ALIGN(4);
+  } > psram
+
+  .stack (NOLOAD) : {
+    . = _essbl;
+    . = ALIGN(4);
+    _stack_end = .;
+    _stack_top = .;
+    . = ORIGIN(sram) + LENGTH(sram);
+    _stack_start = .;
+    _stack_pointer = .;
+  } > sram
 }
