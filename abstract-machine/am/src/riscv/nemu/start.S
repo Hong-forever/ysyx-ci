@@ -3,8 +3,6 @@
 .type _start, @function
 
 _start:
-  mv s0, zero
-
   la a0, _ssbl_loadaddr
   la a1, _sssbl
   la a2, _essbl
@@ -30,7 +28,6 @@ _start:
 .type _start_ssbl, @function
 
 _start_ssbl:
-
   la a0, _text_loadaddr
   la a1, _stext
   la a2, _etext
@@ -44,19 +41,6 @@ _start_ssbl:
   j .text_copy_loop
 
 .text_copy_done:
-  la t0, _start_text
-  jr t0
-
-.size _start_ssbl, . - _start_ssbl
-
-
-
-.section text_entry, "ax"
-.globl _start_text
-.type _start_text, @function
-
-_start_text:
-
   la a0, _data_loadaddr
   la a1, _etext
   la a2, _edata
@@ -80,7 +64,19 @@ _start_text:
   j .bss_zero_loop
 
 .bss_zero_done:
+  la t0, _start_text
+  jr t0
 
+.size _start_ssbl, . - _start_ssbl
+
+
+
+.section text_entry, "ax"
+.globl _start_text
+.type _start_text, @function
+
+_start_text:
+  mv s0, zero
   la sp, _stack_pointer
   call _trm_init
 
