@@ -42,7 +42,7 @@ SECTIONS {
     _edata = ALIGN(4);
   } > psram AT>flash : data
 
-  _data_loadaddr = LOADADDR(.data);
+  _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
   
   .bss (NOLOAD) : {
 	  _sbss = ALIGN(4);
