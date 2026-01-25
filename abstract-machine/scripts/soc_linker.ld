@@ -44,7 +44,7 @@ SECTIONS {
 
   _data_loadaddr = LOADADDR(.data);
   
-  .bss : {
+  .bss (NOLOAD) : {
 	  _sbss = ALIGN(4);
     *(.bss*)
     *(.sbss*)
@@ -53,14 +53,14 @@ SECTIONS {
 	  _ebss = ALIGN(4);
   } > psram
 
-  .heap : {
+  .heap (NOLOAD) : {
     _heap_start = ALIGN(4);
     . = ORIGIN(psram) + LENGTH(psram);
     _heap_end = ALIGN(4);
   } > psram
 
 
-  .stack : {
+  .stack (NOLOAD) : {
     . = ORIGIN(sram);
     _stack_start = ALIGN(4);
     . = ORIGIN(sram) + LENGTH(sram);
