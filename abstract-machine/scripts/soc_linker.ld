@@ -54,18 +54,18 @@ SECTIONS {
   } > psram
 
   .heap : {
-    _sheap = ALIGN(4);
+    _heap_start = ALIGN(4);
     . = ORIGIN(psram) + LENGTH(psram);
-    _eheap = ALIGN(4);
+    _heap_end = ALIGN(4);
   } > psram
 
 
   .stack : {
     . = ORIGIN(sram);
-    _sstack = ALIGN(4);
+    _stack_start = ALIGN(4);
     . = ORIGIN(sram) + LENGTH(sram);
     . = ALIGN(4);
-    _estack = .;
+    _stack_end = .;
     _stack_pointer = .;
   } > sram
   
