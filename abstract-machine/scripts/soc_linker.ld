@@ -1,9 +1,5 @@
 ENTRY(_start)
-PHDRS { 
-  boot PT_LOAD;
-  text PT_LOAD;
-  data PT_LOAD;
-}
+
 MEMORY {
   /* 
   mrom(rx)   : ORIGIN = 0x20000000, LENGTH = 0x1000
@@ -21,14 +17,14 @@ SECTIONS {
     _boot_start = .;
     *(entry)
     *(.boot*)
-  } > flash AT>flash : boot
+  } > flash AT>flash
   
   .text : {
     _rom_start = .;
     _text_start = .;
     *(text_entry)
     *(.text*)
-  } > psram AT>flash : text
+  } > psram AT>flash
 
   _text_loadaddr = LOADADDR(.text);
 
@@ -49,7 +45,7 @@ SECTIONS {
     _data_start = .;
     *(.data*)
     *(.sdata*)
-  } > psram AT>flash : data
+  } > psram AT>flash
   _data_loadaddr = LOADADDR(.data);
 
   edata = .;
