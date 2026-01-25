@@ -4,6 +4,7 @@ PHDRS {
   text PT_LOAD;
   data PT_LOAD;
 }
+
 MEMORY {
   /* 
   mrom(rx)   : ORIGIN = 0x20000000, LENGTH = 0x1000
