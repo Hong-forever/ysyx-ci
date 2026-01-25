@@ -21,13 +21,13 @@ MEMORY {
 SECTIONS {
   .fsbl : {
     _sfsbl = .;
-    *(.fsbl_entry)
+    *(fsbl_entry)
     _efsbl = .;
   } > flash AT>flash : fsbl
 
   .ssbl : {
     _sssbl = .;
-    *(.ssbl_entry)
+    *(ssbl_entry)
     _essbl = .;
   } > sram AT>flash : ssbl
 
@@ -70,7 +70,7 @@ SECTIONS {
 
 
   .stack (NOLOAD) : {
-    . = ORIGIN(sram);
+    . = _essbl;
     _stack_start = ALIGN(4);
     . = ORIGIN(sram) + LENGTH(sram);
     . = ALIGN(4);
