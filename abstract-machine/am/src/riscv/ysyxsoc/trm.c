@@ -1,9 +1,9 @@
 #include <ysyxsoc.h>
 
-extern char _heap_start, _heap_end;
+extern char _sheap, _eheap;
 int main(const char *args);
 
-Area heap = RANGE(&_heap_start, &_heap_end);
+Area heap = RANGE(&_sheap, &_eheap);
 static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
 
 // divisor factor = freq / (16 * baudrate)

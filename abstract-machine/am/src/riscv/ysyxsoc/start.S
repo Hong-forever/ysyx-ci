@@ -6,8 +6,8 @@ _start:
   mv s0, zero
 
   la a0, _text_loadaddr
-  la a1, _text_start
-  la a2, _text_end
+  la a1, _stext
+  la a2, _etext
 
 .text_copy_loop:
   beq a1, a2, .text_copy_done
@@ -30,8 +30,8 @@ _start:
 _start2:
 
   la a0, _data_loadaddr
-  la a1, _data_start
-  la a2, _bss_start
+  la a1, _sdata
+  la a2, _edata
 
 .data_copy_loop:
   beq a1, a2, .data_copy_done
@@ -42,8 +42,8 @@ _start2:
   j .data_copy_loop
 
 .data_copy_done:
-  la a0, _bss_start
-  la a1, _bss_end
+  la a0, _sbss
+  la a1, _ebss
 
 .bss_zero_loop:
   beq a0, a1, .bss_zero_done

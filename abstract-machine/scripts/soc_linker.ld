@@ -1,5 +1,9 @@
 ENTRY(_start)
-
+PHDRS { 
+  boot PT_LOAD;
+  text PT_LOAD;
+  data PT_LOAD;
+}
 MEMORY {
   /* 
   mrom(rx)   : ORIGIN = 0x20000000, LENGTH = 0x1000
@@ -14,62 +18,55 @@ MEMORY {
 
 SECTIONS {
   .boot : {
-    _boot_start = .;
+    _sboot = .;
     *(entry)
     *(.boot*)
-  } > flash AT>flash
+    _eboot = .;
+  } > flash AT>flash : boot
   
   .text : {
-    _rom_start = .;
-    _text_start = .;
+    _stext = ALIGN(4);
     *(text_entry)
     *(.text*)
-  } > psram AT>flash
+    *(.rodata*)
+    *(.srodata*)
+    _etext = ALIGN(4);
+  } > psram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
 
-  etext = .;
-  _etext = .;
-
-  .rodata : {
-    . = ALIGN(4);
-    *(.rodata*)
-    *(.srodata*)
-    . = ALIGN(4);
-    _rom_end = .;
-    _text_end = .;
-  } > psram AT>flash
-
   .data : {
-    _ram_start = .;
-    _data_start = .;
+    _sdata = ALIGN(4);
     *(.data*)
     *(.sdata*)
-  } > psram AT>flash
+    _edata = ALIGN(4);
+  } > psram AT>flash : data
+
   _data_loadaddr = LOADADDR(.data);
-
-  edata = .;
-  _data = .;
-
-  .bss (NOLOAD) : {
-	  _bss_start = ALIGN(4);
+  
+  .bss : {
+	  _sbss = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-	  _bss_end = ALIGN(4);
+	  _ebss = ALIGN(4);
   } > psram
 
-  _heap_start = ALIGN(4);
+  .heap : {
+    _sheap = ALIGN(4);
+    . = ORIGIN(psram) + LENGTH(psram);
+    _eheap = ALIGN(4);
+  } > psram
 
-  . = ORIGIN(psram) + LENGTH(psram);
 
-  _heap_end = .;
-  _ram_end = .;
-
-  . = ORIGIN(sram) + LENGTH(sram);
-  _stack_pointer = .;
+  .stack : {
+    . = ORIGIN(sram);
+    _sstack = ALIGN(4);
+    . = ORIGIN(sram) + LENGTH(sram);
+    . = ALIGN(4);
+    _estack = .;
+    _stack_pointer = .;
+  } > sram
   
-  end = .;
-  _end = .;
 }
