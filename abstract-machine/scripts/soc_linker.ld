@@ -1,6 +1,7 @@
 ENTRY(_start)
 PHDRS { 
-  boot PT_LOAD;
+  fsbl PT_LOAD;
+  ssbl PT_LOAD;
   text PT_LOAD;
   data PT_LOAD;
 }
@@ -18,12 +19,19 @@ MEMORY {
 }
 
 SECTIONS {
-  .boot : {
-    _sboot = .;
-    *(entry)
-    *(.boot*)
-    _eboot = .;
-  } > flash AT>flash : boot
+  .fsbl : {
+    _sfsbl = .;
+    *(.fsbl_entry)
+    _efsbl = .;
+  } > flash AT>flash : fsbl
+
+  .ssbl : {
+    _sssbl = .;
+    *(.ssbl_entry)
+    _essbl = .;
+  } > sram AT>flash : ssbl
+
+  _ssbl_loadaddr = LOADADDR(.ssbl);
   
   .text : {
     _stext = ALIGN(4);
@@ -37,9 +45,7 @@ SECTIONS {
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    /*
     _sdata = ALIGN(4);
-    */
     *(.data*)
     *(.sdata*)
     _edata = ALIGN(4);
@@ -48,9 +54,7 @@ SECTIONS {
   _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
   
   .bss (NOLOAD) : {
-    /*
 	  _sbss = ALIGN(4);
-    */
     *(.bss*)
     *(.sbss*)
     *(.scommon)
