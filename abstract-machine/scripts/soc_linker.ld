@@ -36,16 +36,20 @@ SECTIONS {
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
+    /*
     _sdata = ALIGN(4);
+    */
     *(.data*)
     *(.sdata*)
     _edata = ALIGN(4);
   } > psram AT>flash : data
 
-  _data_loadaddr = LOADADDR(.data);
+  _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
   
   .bss (NOLOAD) : {
+    /*
 	  _sbss = ALIGN(4);
+    */
     *(.bss*)
     *(.sbss*)
     *(.scommon)
