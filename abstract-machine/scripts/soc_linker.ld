@@ -42,7 +42,7 @@ SECTIONS {
     . = ALIGN(4);
     _rom_end = .;
     _text_end = .;
-  } > psram AT>flash
+  } > psram AT>flash : text
 
 
   .data : {
