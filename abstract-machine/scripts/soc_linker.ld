@@ -37,7 +37,7 @@ SECTIONS {
 
   .data : {
     _sdata = ALIGN(4);
-    *(.data.*)
+    *(.data.extra*)
     *(.data*)
     *(.sdata*)
     _edata = ALIGN(4);
@@ -47,7 +47,7 @@ SECTIONS {
   
   .bss (NOLOAD) : {
 	  _sbss = ALIGN(4);
-    *(.bss.*)
+    *(.bss.extra*)
     *(.bss*)
     *(.sbss*)
     *(.scommon)
