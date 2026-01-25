@@ -3,8 +3,8 @@ PHDRS {
   fsbl PT_LOAD;
   ssbl PT_LOAD;
   text PT_LOAD;
-  data PT_LOAD;
   data.extra PT_LOAD;
+  data PT_LOAD;
 }
 
 MEMORY {
