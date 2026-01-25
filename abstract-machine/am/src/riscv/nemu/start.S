@@ -5,9 +5,33 @@
 _start:
   mv s0, zero
 
+  la a0, _text_loadaddr
+  la a1, _stext
+  la a2, _etext
+
+.text_copy_loop:
+  beq a1, a2, .text_copy_done
+  lw t0, 0(a0)
+  sw t0, 0(a1)
+  addi a0, a0, 4
+  addi a1, a1, 4
+  j .text_copy_loop
+
+.text_copy_done:
+  la t0, _start2 
+  jr t0
+
+.size _start, . - _start
+
+.section text_entry, "ax"
+.globl _start2
+.type _start2, @function
+
+_start2:
+
   la a0, _data_loadaddr
-  la a1, _data_start
-  la a2, _bss_start
+  la a1, _etext
+  la a2, _edata
 
 .data_copy_loop:
   beq a1, a2, .data_copy_done
@@ -18,8 +42,8 @@ _start:
   j .data_copy_loop
 
 .data_copy_done:
-  la a0, _bss_start
-  la a1, _bss_end
+  la a0, _edata
+  la a1, _ebss
 
 .bss_zero_loop:
   beq a0, a1, .bss_zero_done
@@ -32,4 +56,4 @@ _start:
   la sp, _stack_pointer
   call _trm_init
 
-.size _start, . - _start
+.size _start2, . - _start2
