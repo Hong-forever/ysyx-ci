@@ -37,9 +37,9 @@ SECTIONS {
 
   .data : {
     _sdata = ALIGN(4);
-    *(.data.extra*)
     *(.data*)
     *(.sdata*)
+    *(.data.extra*)
     _edata = ALIGN(4);
   } > psram AT>flash : data
 
@@ -47,11 +47,11 @@ SECTIONS {
   
   .bss (NOLOAD) : {
 	  _sbss = ALIGN(4);
-    *(.bss.extra*)
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
+    *(.bss.extra*)
 	  _ebss = ALIGN(4);
   } > psram
 
