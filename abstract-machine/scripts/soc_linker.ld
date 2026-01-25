@@ -37,18 +37,18 @@ SECTIONS {
 
   .data : {
     _sdata = ALIGN(4);
-    *(.data*)
     *(.data.*)
+    *(.data*)
     *(.sdata*)
     _edata = ALIGN(4);
   } > psram AT>flash : data
 
-  _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
+  _data_loadaddr = LOADADDR(.data);
   
   .bss (NOLOAD) : {
 	  _sbss = ALIGN(4);
-    *(.bss*)
     *(.bss.*)
+    *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
@@ -70,5 +70,4 @@ SECTIONS {
     _stack_end = .;
     _stack_pointer = .;
   } > sram
-  
 }
