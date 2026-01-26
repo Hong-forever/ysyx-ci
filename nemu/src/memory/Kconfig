@@ -36,6 +36,15 @@ config PSRAM_SIZE
   hex "Psram size"
   default 0x400000
 
+config SDRAM_BASE
+  hex "Sdram base address"
+  default 0x0        if ISA_x86
+  default 0xa0000000
+
+config SDRAM_SIZE
+  hex "Sdram size"
+  default 0x2000000
+
 config PC_RESET_OFFSET
   hex "Offset of reset vector from the base of memory"
   default 0x100000 if ISA_x86
