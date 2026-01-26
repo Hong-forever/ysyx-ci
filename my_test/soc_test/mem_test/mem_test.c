@@ -55,8 +55,8 @@ int main(const char *args) {
 
     volatile uint8_t *p8 = (volatile uint8_t *)0xa0000000;
     for (int i = 0; i < 20; i++) {
-        p8[i] = 114;
-        if(p8[i] != 114) {
+        p8[i] = 0xab;
+        if(p8[i] != 0xab) {
             putstr("error\n");
             return 1;
         }
