@@ -123,11 +123,11 @@ extern "C" void sdram_read(int32_t addr, int32_t *data) {
     *data = addr&0x02 ? read_data >> 16 : 
                         read_data & 0xffff;
 
-    printf("sdram_read addr: 0x%08x, data: 0x%02x\n", addr, read_data);
+    // printf("sdram_read addr: 0x%08x, data: 0x%02x\n", addr, read_data);
 }
 
 extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask) {
-    printf("sdram_write addr: 0x%08x data: 0x%02x mask: %02x\n", addr, data, ~mask);
+    // printf("sdram_write addr: 0x%08x data: 0x%02x mask: %02x\n", addr, data, ~mask);
     switch ((~mask) & 0x3)
     {
         case 0:
