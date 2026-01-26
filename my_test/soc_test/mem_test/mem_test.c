@@ -7,6 +7,8 @@
 
 int main(const char *args) {
 
+    putstr("mem test start!\n");
+
     volatile uint8_t *p8 = (volatile uint8_t *)BASE;
     for (int i = 0; &p8[i] < (volatile uint8_t *)(BASE + SIZE); i++) {
         p8[i] = i % 256;
