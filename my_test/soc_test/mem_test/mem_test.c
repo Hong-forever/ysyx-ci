@@ -53,13 +53,14 @@ int main(const char *args) {
 
     // putstr("64 ");
 
-    uint32_t *p32 = (uint32_t *)heap.start;
+    volatile uint8_t *p8 = (volatile uint8_t *)0xa0000000;
     for (int i = 0; i < 20; i++) {
-        p32[i] = i * 2 + 2;
-        if(p32[i] != i * 2 + 2) {
+        p8[i] = i * 2 + 2;
+        if(p8[i] != i * 2 + 2) {
             putstr("error\n");
             return 1;
         }
+        putstr("8 ");
     }
 
     putstr("mem test pass!\n");
