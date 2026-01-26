@@ -125,7 +125,7 @@ extern "C" void sdram_read(int32_t addr, int32_t *data) {
 
 extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask) {
     // printf("sdram_write addr: 0x%08x data: 0x%08x mask: %d\n", addr, data, mask);
-    switch (mask)
+    switch ((~mask) & 0x3)
     {
         case 0:
             break;
