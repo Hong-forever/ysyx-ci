@@ -35,11 +35,11 @@
 #define FB_ADDR         (MMIO_BASE   + 0x1000000)
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
-extern char _rom_start, _rom_end;
+extern char _rom_aaastart, _rom_end;
 extern char _ram_start, _ram_end;
 
 #define NEMU_PADDR_SPACE \
-  RANGE(&_rom_start, &_rom_end), \
+  RANGE(&_rom_aaastart, &_rom_end), \
   RANGE(&_ram_start, &_ram_end), \
   RANGE(FB_ADDR, FB_ADDR + 0x200000), \
   RANGE(MMIO_BASE, MMIO_BASE + 0x1000) /* serial, rtc, screen, keyboard */
