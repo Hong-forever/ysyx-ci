@@ -53,10 +53,10 @@ int main(const char *args) {
 
     // putstr("64 ");
 
-    volatile uint32_t *p8 = (volatile uint32_t *)0xa0000000;
+    volatile uint32_t *p32 = (volatile uint32_t *)0xa0000000;
     for (int i = 0; i < 20; i++) {
-        p8[i] = 0xabcdef01;
-        if(p8[i] != 0xabcdef01) {
+        p32[i] = 0x12345678 + i;
+        if(p32[i] != 0x12345678 + i) {
             putstr("error\n");
             return 1;
         }
