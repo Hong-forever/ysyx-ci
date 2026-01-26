@@ -352,6 +352,8 @@
 `define FlashSize     32'h1000_0000
 `define PsramAddrBase 32'h8000_0000
 `define PsramSize     32'h2000_0000
+`define SdramAddrBase 32'ha000_0000
+`define SdramSize     32'h2000_0000
 
 `define RESET_VECTOR  `FlashAddrBase
 // `define RESET_VECTOR  `MromAddrBase

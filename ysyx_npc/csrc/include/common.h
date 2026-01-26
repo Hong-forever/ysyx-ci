@@ -31,6 +31,9 @@ typedef uint32_t word_t;
 #define PMEM_LEFT_PSRAM  ((paddr_t)CONFIG_PSRAM_BASE)
 #define PMEM_RIGHT_PSRAM ((paddr_t)CONFIG_PSRAM_BASE + CONFIG_PSRAM_SIZE - 1)
 
+#define PMEM_LEFT_SDRAM  ((paddr_t)CONFIG_SDRAM_BASE)
+#define PMEM_RIGHT_SDRAM ((paddr_t)CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1)
+
 #define RESET_VECTOR (PMEM_LEFT_FLASH + CONFIG_PC_RESET_OFFSET)
 
 static inline bool in_mrom(paddr_t addr) {
@@ -49,8 +52,12 @@ static inline bool in_psram(paddr_t addr) {
     return addr >= PMEM_LEFT_PSRAM && addr <= PMEM_RIGHT_PSRAM;
 }
 
+static inline bool in_sdram(paddr_t addr) {
+    return addr >= PMEM_LEFT_SDRAM && addr <= PMEM_RIGHT_SDRAM;
+}
+
 static inline bool in_pmem(paddr_t addr) {
-    return in_mrom(addr) || in_sram(addr) || in_flash(addr) || in_psram(addr);
+    return in_mrom(addr) || in_sram(addr) || in_flash(addr) || in_psram(addr) || in_sdram(addr);
 }
 
 static inline word_t host_read(uint8_t *addr) {
