@@ -54,7 +54,7 @@ int main(const char *args) {
     // putstr("64 ");
 
     volatile uint32_t *p32 = (volatile uint32_t *)0xa0000000;
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 0x100000; i++) {
         p32[i] = 0x12345678 + i;
         if(p32[i] != 0x12345678 + i) {
             putstr("error\n");
