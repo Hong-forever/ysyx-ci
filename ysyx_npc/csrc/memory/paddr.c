@@ -118,9 +118,9 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
 
 extern "C" void sdram_read(int32_t addr, int32_t *data) {
     
-    *data = addr&0x02 ? paddr_read(addr + CONFIG_SDRAM_BASE) >> 16 : 
+    *data = addr&0x01 ? paddr_read(addr + CONFIG_SDRAM_BASE) >> 8 : 
                         paddr_read(addr + CONFIG_SDRAM_BASE) & 0xffff;
-    // printf("sdram_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
+    printf("sdram_read addr: 0x%08x, data: 0x%02x\n", addr, *data);
 }
 
 extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask) {
