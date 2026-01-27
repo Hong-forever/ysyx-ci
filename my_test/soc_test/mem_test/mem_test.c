@@ -2,8 +2,8 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define BASE 0xa0000000
-#define SIZE 0x02000000
+#define BASE 0xa4201100
+#define SIZE 0x20
 
 int main(const char *args) {
 
