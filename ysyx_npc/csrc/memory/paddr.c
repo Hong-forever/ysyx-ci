@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "device.h"
 
-static uint8_t* pmem = NULL;
+static uint8_t *pmem = NULL;
 static uint32_t rtc_value[2] = {0};
 
 uint8_t* guest_to_host(paddr_t paddr) {
@@ -116,9 +116,9 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
     }
 }
 
-extern "C" void sdram_read(int32_t addr, int32_t *data) {
+extern "C" void sdram_read(int32_t addr, int32_t *data, int32_t num) {
 
-    uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE);
+    uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE * (num + 1));
     
     *data = addr&0x02 ? read_data >> 16 : 
                         read_data & 0xffff;
@@ -126,20 +126,20 @@ extern "C" void sdram_read(int32_t addr, int32_t *data) {
     // printf("sdram_read addr: 0x%08x, data: 0x%02x\n", addr, read_data);
 }
 
-extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask) {
+extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask, int32_t num) {
     // printf("sdram_write addr: 0x%08x data: 0x%02x mask: %02x\n", addr, data, ~mask);
     switch ((~mask) & 0x3)
     {
         case 0:
             break;
         case 1:
-            paddr_write(addr + CONFIG_SDRAM_BASE, data & 0xff, 1);
+            paddr_write(addr + CONFIG_SDRAM_BASE * (num + 1), data & 0xff, 1);
             break;
         case 2:
-            paddr_write(addr + CONFIG_SDRAM_BASE + 1, (data & 0xff00) >> 8, 1);
+            paddr_write(addr + CONFIG_SDRAM_BASE * (num + 1) + 1, (data & 0xff00) >> 8, 1);
             break;
         case 3:
-            paddr_write(addr + CONFIG_SDRAM_BASE, data & 0xffff, 2);
+            paddr_write(addr + CONFIG_SDRAM_BASE * (num + 1), data & 0xffff, 2);
             break;
         default:
             break;
