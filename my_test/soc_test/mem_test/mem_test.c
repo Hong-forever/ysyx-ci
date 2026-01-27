@@ -3,7 +3,7 @@
 #include <klib-macros.h>
 
 #define BASE 0xa520110
-#define SIZE 0x20
+#define SIZE 0x10
 
 int main(const char *args) {
 
