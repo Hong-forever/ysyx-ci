@@ -118,18 +118,16 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
 
 extern "C" void sdram_read(int32_t addr, int32_t *data, int32_t num) {
 
-    printf("num: %d\n", num);
     uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * num);
     
     *data = addr&0x02 ? read_data >> 16 : 
                         read_data & 0xffff;
 
-    // printf("sdram_read addr: 0x%08x, data: 0x%02x\n", addr, read_data);
+    printf("sdram_read addr: 0x%08x, data: 0x%02x, num: %d\n", addr, read_data, num);
 }
 
 extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask, int32_t num) {
-    // printf("sdram_write addr: 0x%08x data: 0x%02x mask: %02x\n", addr, data, ~mask);
-    printf("num: %d\n", num);
+    printf("sdram_write addr: 0x%08x data: 0x%02x mask: %02x, num: %d\n", addr, data, ~mask, num);
     switch ((~mask) & 0x3)
     {
         case 0:
