@@ -24,11 +24,9 @@
 # define DEVICE_BASE 0xa0000000
 #endif
 
-#define SERIAL_PORT     0x10000000
-
 #define MMIO_BASE 0xa0000000
 
-// #define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
+#define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
 #define KBD_ADDR        (DEVICE_BASE + 0x0000060)
 #define RTC_ADDR        (DEVICE_BASE + 0x0000048)
 #define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)
@@ -44,8 +42,7 @@ extern char _ram_start, _ram_end;
   RANGE(&_rom_start, &_rom_end), \
   RANGE(&_ram_start, &_ram_end), \
   RANGE(FB_ADDR, FB_ADDR + 0x200000), \
-  RANGE(MMIO_BASE, MMIO_BASE + 0x1000) // serial, rtc, screen, keyboard 
-
+  RANGE(MMIO_BASE, MMIO_BASE + 0x1000) /* serial, rtc, screen, keyboard */
 
 typedef uintptr_t PTE;
 

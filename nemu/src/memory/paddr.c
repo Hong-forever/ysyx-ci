@@ -30,7 +30,6 @@ uint8_t* guest_to_host(paddr_t paddr) {
   else if(in_sram(paddr))  return pmem + paddr - CONFIG_SRAM_BASE + CONFIG_MROM_SIZE;
   else if(in_flash(paddr))  return pmem + paddr - CONFIG_FLASH_BASE + CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE;
   else if(in_psram(paddr))  return pmem + paddr - CONFIG_PSRAM_BASE + CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE;
-  else if(in_sdram(paddr))  return pmem + paddr - CONFIG_SDRAM_BASE + CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE;
   else return NULL;
 }
 paddr_t host_to_guest(uint8_t *haddr) { 
@@ -38,7 +37,6 @@ paddr_t host_to_guest(uint8_t *haddr) {
   else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE)) return haddr - pmem - CONFIG_MROM_SIZE + CONFIG_SRAM_BASE;
   else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE)) return haddr - pmem - CONFIG_MROM_SIZE - CONFIG_SRAM_SIZE + CONFIG_FLASH_BASE;
   else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE)) return haddr - pmem - CONFIG_MROM_SIZE - CONFIG_SRAM_SIZE - CONFIG_FLASH_SIZE + CONFIG_PSRAM_BASE;
-  else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE)) return haddr - pmem - CONFIG_MROM_SIZE - CONFIG_SRAM_SIZE - CONFIG_FLASH_SIZE - CONFIG_PSRAM_SIZE + CONFIG_SDRAM_BASE;
   else return 0;
 }
 
@@ -53,18 +51,18 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 static void out_of_bound(paddr_t addr) {
-  panic("address = " FMT_PADDR " is out of bound of mrom [" FMT_PADDR ", " FMT_PADDR "] or sram [" FMT_PADDR ", " FMT_PADDR "] or flash [" FMT_PADDR ", " FMT_PADDR "] or psram [" FMT_PADDR ", " FMT_PADDR "] or sdram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-      addr, PMEM_LEFT_MROM, PMEM_RIGHT_MROM, PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM, PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM, cpu.pc);
+  panic("address = " FMT_PADDR " is out of bound of mrom [" FMT_PADDR ", " FMT_PADDR "] or sram [" FMT_PADDR ", " FMT_PADDR "] or flash [" FMT_PADDR ", " FMT_PADDR "] or psram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
+      addr, PMEM_LEFT_MROM, PMEM_RIGHT_MROM, PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM, cpu.pc);
 }
 
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
-  pmem = malloc(CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE);
+  pmem = malloc(CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE);
   assert(pmem);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE));
-  Log("physical memory area mrom [" FMT_PADDR ", " FMT_PADDR "], sram [" FMT_PADDR ", " FMT_PADDR "], flash [" FMT_PADDR ", " FMT_PADDR "], psram [" FMT_PADDR ", " FMT_PADDR "], sdram [" FMT_PADDR ", " FMT_PADDR "]",
-      PMEM_LEFT_MROM, PMEM_RIGHT_MROM, PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM, PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM);
+  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE));
+  Log("physical memory area mrom [" FMT_PADDR ", " FMT_PADDR "], sram [" FMT_PADDR ", " FMT_PADDR "], flash [" FMT_PADDR ", " FMT_PADDR "], psram [" FMT_PADDR ", " FMT_PADDR "]",
+      PMEM_LEFT_MROM, PMEM_RIGHT_MROM, PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM);
 }
 
 #ifdef CONFIG_MTRACE

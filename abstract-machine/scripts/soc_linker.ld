@@ -7,17 +7,21 @@ PHDRS {
 }
 
 MEMORY {
+  /* 
   mrom(rx)   : ORIGIN = 0x20000000, LENGTH = 0x1000
-  flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
   sram(rwx)  : ORIGIN = 0x0f000000, LENGTH = 0x2000
+  flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
   psram(rwx) : ORIGIN = 0x80000000, LENGTH = 0x400000
-  sdram(rwx) : ORIGIN = 0xa0000000, LENGTH = 0x8000000
+  */
+  flash(rx)  : ORIGIN = 0x30000000, LENGTH = 0x10000000
+  psram(rwx) : ORIGIN = 0x80000000, LENGTH = 0x400000
+  sram(rwx)  : ORIGIN = 0x0f000000, LENGTH = 0x2000
 }
 
 SECTIONS {
   .fsbl : {
     _sfsbl = .;
-   *(fsbl_entry)
+    *(fsbl_entry)
     _efsbl = .;
   } > flash AT>flash : fsbl
 

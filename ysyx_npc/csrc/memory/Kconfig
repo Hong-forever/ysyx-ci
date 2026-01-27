@@ -2,6 +2,7 @@ menu "Memory Configuration"
 
 config MROM_BASE
   hex "Mrom base address"
+  default 0x0        if ISA_x86
   default 0x20000000
 
 config MROM_SIZE
@@ -10,6 +11,7 @@ config MROM_SIZE
 
 config SRAM_BASE
   hex "Sram base address"
+  default 0x0        if ISA_x86
   default 0x0f000000
 
 config SRAM_SIZE
@@ -18,6 +20,7 @@ config SRAM_SIZE
 
 config FLASH_BASE
   hex "Flash base address"
+  default 0x0        if ISA_x86
   default 0x30000000
 
 config FLASH_SIZE
@@ -26,19 +29,12 @@ config FLASH_SIZE
 
 config PSRAM_BASE
   hex "Psram base address"
+  default 0x0        if ISA_x86
   default 0x80000000
 
 config PSRAM_SIZE
   hex "Psram size"
   default 0x400000
-
-config SDRAM_BASE
-  hex "Sdram base address"
-  default 0xa0000000
-
-config SDRAM_SIZE
-  hex "Sdram size"
-  default 0x2000000
 
 
 config PC_RESET_OFFSET
