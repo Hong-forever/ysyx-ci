@@ -118,7 +118,7 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
 
 extern "C" void sdram_read(int32_t addr, int32_t *data, int32_t num) {
 
-    uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE * (num + 1));
+    uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * num);
     
     *data = addr&0x02 ? read_data >> 16 : 
                         read_data & 0xffff;
