@@ -7,6 +7,7 @@ void engine_start();
 void cleanup_ftrace();
 int is_exit_status_bad();
 
+IFDEF(CONFIG_USE_NVBOARD, void nvboard_bind_all_pins(TOP_NAME *top));
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
 VerilatedContext *contextp = new VerilatedContext;

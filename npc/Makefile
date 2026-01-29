@@ -87,7 +87,7 @@ VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
 
 ifneq ($(CONFIG_USE_NVBOARD),)
-CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
+CSRCS-y += $(SRC_AUTO_BIND)
 endif
 
 VSRCS-BLACKLIST-y += $(VSRCS-BLACKLIST)
@@ -100,6 +100,9 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
+ifneq ($(CONFIG_USE_NVBOARD),)
+CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
+endif
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 

@@ -13,15 +13,18 @@ void reg_display();
 uint64_t get_time();
 uint64_t g_timer = 0;
 
+extern TOP_NAME *top ;
+extern VerilatedContext *contextp;
+
 void difftest_skip_ref();
 
-#ifdef CONFIG_USE_NVBOARD
 #include <nvboard.h>
+#ifdef CONFIG_USE_NVBOARD
 void nvboard_bind_all_pins(TOP_NAME *top);
 
 void nvboard()
 {
-    nvboard_bind_all_pins(&dut);
+    nvboard_bind_all_pins(top);
     nvboard_init();
 }
 #endif
@@ -130,8 +133,6 @@ extern "C" void trap(int reg_data, int halt_pc)
     // printf("Total cycles: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
 }
 
-extern TOP_NAME *top ;
-extern VerilatedContext *contextp;
 #if WAVE_ENABLE == 1
     #if WAVE_FORMAT == 1
         extern VerilatedVcdC *tfp;
