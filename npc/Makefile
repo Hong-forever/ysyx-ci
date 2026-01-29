@@ -29,7 +29,7 @@ VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart1
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE ?= 0
+WAVE_ENABLE ?= 1
 # 1: vcd, 2: fst
 WAVE_FORMAT ?= 1
 
