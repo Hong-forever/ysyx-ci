@@ -22,8 +22,8 @@ int main(const char *args) {
         *led = 1 << i;
         i++;
         if(i >= 16) i = 0;
-        putstr("a");
-        for (volatile int j = 0; j < 1000; j++); 
+        printf("LED: %x\n", i);
+        for (volatile int j = 0; j < 100; j++); 
         // while((*sw) != (1 << i));
     }
     
