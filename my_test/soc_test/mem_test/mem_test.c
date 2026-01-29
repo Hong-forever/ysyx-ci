@@ -12,13 +12,13 @@ int main(const char *args) {
     volatile uint8_t *p8 = (volatile uint8_t *)BASE;
     for (int i = 0; &p8[i] < (volatile uint8_t *)(BASE + SIZE); i++) {
         p8[i] = i % 256;
+        if(i % 1000 == 0) printf("%d(%d bit) ", i, 8);
         if(p8[i] != i % 256) {
             putstr("error\n");
             return 1;
         }
     }
 
-    putstr("8 ");
 
     volatile uint16_t *p16 = (volatile uint16_t *)BASE;
 
