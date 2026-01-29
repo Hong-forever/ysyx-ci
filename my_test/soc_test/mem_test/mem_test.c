@@ -24,6 +24,7 @@ int main(const char *args) {
 
     for (int i = 0; &p16[i] < (volatile uint16_t *)(BASE + SIZE); i++) {
         p16[i] = i % 65536;
+        if(i % 1000 == 0) printf("%x(%d) ", i/1000, 16);
         if(p16[i] != i % 65536) {
             putstr("error\n");
             return 1;
@@ -35,6 +36,7 @@ int main(const char *args) {
     volatile uint32_t *p32 = (volatile uint32_t *)BASE;
     for (int i = 0; &p32[i] < (volatile uint32_t *)(BASE + SIZE); i++) {
         p32[i] = i;
+        if(i % 1000 == 0) printf("%x(%d) ", i/1000, 32);
         if(p32[i] != i) {
             putstr("error\n");
             return 1;
@@ -46,6 +48,7 @@ int main(const char *args) {
     volatile uint64_t *p64 = (volatile uint64_t *)BASE;
     for (int i = 0; &p64[i] < (volatile uint64_t *)(BASE + SIZE); i++) {
         p64[i] = i;
+        if(i % 1000 == 0) printf("%x(%d) ", i/1000, 64);
         if(p64[i] != i) {
             putstr("error\n");
             return 1;
