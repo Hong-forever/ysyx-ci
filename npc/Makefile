@@ -54,12 +54,12 @@ include $(NPC_HOME)/scripts/difftest.mk
 
 IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
-YSYXSOC_EXEC := $(BIN) $(IMG)
+NPC_EXEC := $(BIN) $(IMG)
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-sim: $(YSYXSOC_EXEC)
+sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
