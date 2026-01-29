@@ -8,7 +8,7 @@
 int main(const char *args) {
 
     volatile uint16_t *led = (volatile uint16_t *)LED_ADDR;
-    volatile uint16_t *sw = (volatile uint16_t *)LED_ADDR;
+    volatile uint16_t *sw = (volatile uint16_t *)SW_ADDR;
 
     int i = 0;
     while(1) {
