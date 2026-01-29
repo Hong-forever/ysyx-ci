@@ -2,7 +2,19 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
-ifneq ($(CONFIG_USE_NVBOARD),)
+
+USE_NVBOARD ?= 1
+
+ifeq ($(USE_NVBOARD),1)
+WAVE_ENABLE = 0
+else
+WAVE_ENABLE ?= 0
+endif
+# 1: vcd, 2: fst
+WAVE_FORMAT ?= 1
+
+
+ifeq ($(USE_NVBOARD),1)
 NXDC_FILES = constr/top.nxdc
 
 # rules for NVBoard
@@ -11,8 +23,6 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 endif
 
 TOPNAME = ysyxSoCFull
-
-GUEST_ISA ?= riscv32
 
 remove_quote = $(patsubst "%",%,$(1))
 
@@ -29,15 +39,6 @@ VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart1
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-USE_NVBOARD ?= 0
-
-ifneq ($(CONFIG_USE_NVBOARD),)
-WAVE_ENABLE = 0
-else
-WAVE_ENABLE ?= 0
-endif
-# 1: vcd, 2: fst
-WAVE_FORMAT ?= 1
 
 ifeq ($(WAVE_FORMAT),1)
 VERILATOR_CFLAGS += --trace-vcd
@@ -75,7 +76,7 @@ endif
 
 $(shell mkdir -p $(BUILD_DIR))
 
-ifneq ($(CONFIG_USE_NVBOARD),)
+ifeq ($(USE_NVBOARD),1)
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -92,7 +93,7 @@ CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
 
-ifneq ($(CONFIG_USE_NVBOARD),)
+ifeq ($(USE_NVBOARD),1)
 CSRCS-y += $(SRC_AUTO_BIND)
 endif
 
@@ -106,12 +107,13 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
-ifneq ($(CONFIG_USE_NVBOARD),)
+ifeq ($(USE_NVBOARD),1)
 CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
 endif
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -mcmodel=medium
-CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
+CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
+CXXFLAGS += -DCONFIG_USE_NVBOARD=$(USE_NVBOARD)
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 

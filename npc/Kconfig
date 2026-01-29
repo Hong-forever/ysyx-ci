@@ -1,9 +1,5 @@
 mainmenu "NPC Configuration NPC"
 
-config USE_NVBOARD
-  bool "Enable nvboard use"
-  default n
-
 choice
   prompt "Running mode"
   default MODE_SYSTEM
