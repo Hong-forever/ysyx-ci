@@ -23,7 +23,7 @@ int main(const char *args) {
         i++;
         if(i >= 16) i = 0;
         putstr("LED changed\n");
-        for (volatile int j = 0; j < 100; j++); 
+        for (volatile int j = 0; j < 1000; j++); 
         // while((*sw) != (1 << i));
     }
     
