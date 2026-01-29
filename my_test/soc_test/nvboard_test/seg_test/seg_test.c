@@ -22,7 +22,7 @@ int main(const char *args) {
         *led = 1 << i;
         i++;
         if(i >= 16) i = 0;
-        printf("LED: %x\n", i);
+        putstr("LED changed\n");
         for (volatile int j = 0; j < 100; j++); 
         // while((*sw) != (1 << i));
     }
