@@ -343,6 +343,8 @@
 `define SERIAL_SIZE   32'h0000_1000
 `define SPI_BASE      32'h1000_1000
 `define SPI_SIZE      32'h0000_1000
+`define GPIO_BASE     32'h1000_2000
+`define GPIO_SIZE     32'h0000_0010
 
 `define MromAddrBase  32'h2000_0000
 `define MromSize      32'h0001_0000

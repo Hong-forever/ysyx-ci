@@ -359,6 +359,7 @@ module ysyx_25110270_lsu
     wire not_in_clint  = (I_memory_addr < `CLINT_BASE)    | (I_memory_addr >= (`CLINT_BASE + `CLINT_SIZE));
     wire not_in_serial = (I_memory_addr < `SERIAL_BASE)   | (I_memory_addr >= (`SERIAL_BASE + `SERIAL_SIZE));
     wire not_in_spi    = (I_memory_addr < `SPI_BASE)      | (I_memory_addr >= (`SPI_BASE + `SPI_SIZE));
+    wire not_in_gpio   = (I_memory_addr < `GPIO_BASE)     | (I_memory_addr >= (`GPIO_BASE + `GPIO_SIZE));
 
     wire not_in_device = (not_in_mrom & !dbus_awvalid) & not_in_sram & not_in_clint & 
                           not_in_serial & (not_in_flash & !dbus_awvalid) & not_in_spi & 
@@ -398,7 +399,8 @@ module ysyx_25110270_lsu
     (
         (I_memory_addr >= `SERIAL_BASE & I_memory_addr < (`SERIAL_BASE + `SERIAL_SIZE)) |
         (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE + `CLINT_SIZE)  ) |
-        (I_memory_addr >= `SPI_BASE    & I_memory_addr < (`SPI_BASE + `SPI_SIZE)      )
+        (I_memory_addr >= `SPI_BASE    & I_memory_addr < (`SPI_BASE + `SPI_SIZE)      ) |
+        (I_memory_addr >= `GPIO_BASE   & I_memory_addr < (`GPIO_BASE + `GPIO_SIZE)    )
     );
 
     // assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
