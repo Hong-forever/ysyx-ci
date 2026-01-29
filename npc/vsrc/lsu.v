@@ -363,7 +363,7 @@ module ysyx_25110270_lsu
 
     wire not_in_device =  not_in_mrom & not_in_sram & not_in_flash & 
                           not_in_psram & not_in_sdram  & not_in_clint & 
-                          not_in_serial & not_in_spi;
+                          not_in_serial & not_in_spi & not_in_gpio;
 
     always @(posedge clk) begin
         if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
