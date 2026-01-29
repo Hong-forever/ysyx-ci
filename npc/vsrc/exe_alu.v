@@ -4,7 +4,7 @@
 // 执行ALU模块
 //------------------------------------------------------------------------
 
-module exe_alu
+module ysyx_25110270_exe_alu
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -83,7 +83,7 @@ module exe_alu
             `ALUCTL_DIVU:   res = rv32m_divu_res;
             `ALUCTL_REM:    res = rv32m_rem_res;
             `ALUCTL_REMU:   res = rv32m_remu_res;
-            default:        res = `Zero;
+            default:        res = 0;
         endcase
     end
 
@@ -97,7 +97,7 @@ module exe_alu
     assign rv32m_mulh_res   = mulh_res[`HRegDataBus];
     assign rv32m_mulhsu_res = (I_alu_srca[`RegDataWidth-1])? mulhsu_res_inverted[`HRegDataBus] : mulhsu_res[`HRegDataBus];
 
-    Booth_mul 
+    ysyx_25110270_Booth_mul 
     #(
         .LENGTH                 (`RegDataWidth              ),
         .UNSINGED_BOOTH         (1'b1                       )
@@ -111,7 +111,7 @@ module exe_alu
         .done                   (mul_ready                  )
     );
 
-    Booth_mul 
+    ysyx_25110270_Booth_mul 
     #(
         .LENGTH                 (`RegDataWidth              ),
         .UNSINGED_BOOTH         (1'b0                       )
@@ -125,7 +125,7 @@ module exe_alu
         .done                   (                           )
     );
 
-    Booth_mul 
+    ysyx_25110270_Booth_mul 
     #(
         .LENGTH                 (`RegDataWidth              ),
         .UNSINGED_BOOTH         (1'b1                       )
@@ -139,7 +139,7 @@ module exe_alu
         .done                   (                           )
     );
 
-    exe_div div_inst    // 除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
+    ysyx_25110270_exe_div div_inst    // 除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),

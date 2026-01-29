@@ -2,7 +2,7 @@
 
 //***********************// Booth-Top //*******************************//
 
-module  Booth_mul
+module ysyx_25110270_Booth_mul
 #(
     parameter   LENGTH          =   32  ,
     parameter   UNSINGED_BOOTH  =   1'b1
@@ -60,7 +60,7 @@ module  Booth_mul
     //实例化 Booth_Ctrl 模块，实现转码
     generate
         for(i=0; i<LENGTH/4+1; i=i+1) begin:  Booth_Ctrl_i
-            Booth_Ctrl
+            ysyx_25110270_Booth_Ctrl
             #(
                 .LENGTH(LENGTH),
                 .UNSINGED_BOOTH(UNSINGED_BOOTH)
@@ -77,7 +77,7 @@ module  Booth_mul
     endgenerate
 
     //-----------------------// first-pipeline //-----------------------//
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             pp_stg1_8th_reg <= 0;
             for(j=0; j<LENGTH/4; j=j+1) begin
@@ -97,7 +97,7 @@ module  Booth_mul
     //实例化 4-2 压缩器，实现部分积求和
     generate
         for(i=0; i<LENGTH/4/4; i=i+1) begin: compressor4_2_level1_inst
-            compressor4_2
+            ysyx_25110270_compressor4_2
             #(
                 .LENGTH(LENGTH)
             ) compressor4_2_level1_inst (
@@ -114,7 +114,7 @@ module  Booth_mul
     endgenerate
 
     //-----------------------// second-pipeline //-----------------------//
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             for(j=0; j<LENGTH/4/4; j=j+1) begin
                 pp_stg2_m_reg[j] <= 0;
@@ -132,7 +132,7 @@ module  Booth_mul
 
     //-----------------------// third-logic-output //-----------------------//
     //实例化 4-2 压缩器，实现部分积求和
-    compressor4_2
+    ysyx_25110270_compressor4_2
     #(
         .LENGTH(LENGTH)
     ) compressor4_2_level2_inst (                                               //第二级压缩器
@@ -147,7 +147,7 @@ module  Booth_mul
     );
 
     //-----------------------// third-pipeline //-----------------------//
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             pp_stg_end_m_reg <= 0;
             pp_stg_end_l_reg <= 0;
@@ -161,7 +161,7 @@ module  Booth_mul
 
     //-----------------------// forth-logic-output //-----------------------//
 
-    full_adder                                                              //最后得到两个数，再与第 9 个部分积相加
+    ysyx_25110270_full_adder                                                              //最后得到两个数，再与第 9 个部分积相加
     #(
         .LENGTH(LENGTH)
     ) full_adder_inst (
@@ -176,7 +176,7 @@ module  Booth_mul
     //-----------------------// forth-pipeline //-----------------------//
     reg [LENGTH*2-1:0] P_reg;
     reg done_reg;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             P_reg <= 0;
             done_reg <= 0;

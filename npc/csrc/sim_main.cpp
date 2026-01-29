@@ -1,7 +1,7 @@
 #include "common.h"
 
 
-void reset(int n);
+void cpu_reset(int n);
 void init_monitor(int argc, char *argv[]);
 void engine_start();
 void cleanup_ftrace();
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
     init_monitor(argc, argv);
 
-    reset(10);
+    cpu_reset(10);
 
     engine_start();
     
