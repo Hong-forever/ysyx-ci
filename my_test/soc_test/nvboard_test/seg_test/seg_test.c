@@ -11,11 +11,11 @@ int main(const char *args) {
 
     volatile uint16_t *led = (volatile uint16_t *)LED_ADDR;
     // volatile uint16_t *sw = (volatile uint16_t *)SW_ADDR;
-    volatile uint32_t *seg = (volatile uint32_t *)SEG_ADDR;
+    // volatile uint32_t *seg = (volatile uint32_t *)SEG_ADDR;
 
     // while(*sw != 0x1234);
 
-    *seg = 0x25110270;
+    // *seg = 0x25110270;
 
     int i = 0;
     while(1) {
