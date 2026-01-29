@@ -10,8 +10,8 @@ static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); /
 static void serial_init()
 {
     outb(SERIAL_PORT + 3, 0x80); // Enable DLAB
-    outb(SERIAL_PORT + 1, 0x00); // Set baud rate divisor
-    outb(SERIAL_PORT + 0, 16); // Divisor low byte
+    outb(SERIAL_PORT + 1, 0x02); // Set baud rate divisor
+    outb(SERIAL_PORT + 0, 0x1e); // Divisor low byte
     outb(SERIAL_PORT + 3, 0x03); // 8 bits, no parity, one stop bit
 }
 
