@@ -8,9 +8,11 @@ int main(const char *args) {
 
     volatile uint16_t *p = (volatile uint16_t *)LED_ADDR;
 
-    for(int i = 0; i < 10000; i++) {
+    int i = 0;
+    while(1) {
         *p = 1 << i;
-        for (volatile int j = 0; j < 1000000; j++);
+        if(i >= 16) i = 0;
+        for (volatile int j = 0; j < 1000; j++);
     }
     
 
