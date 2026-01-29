@@ -1,4 +1,3 @@
-
 .section fsbl_entry, "ax"
 .globl _start
 .type _start, @function
@@ -80,5 +79,3 @@ _start_text:
   mv s0, zero
   la sp, _stack_pointer
   call _trm_init
-
-.size _start_text, . - _start_text

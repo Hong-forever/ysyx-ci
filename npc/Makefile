@@ -1,8 +1,20 @@
 
--include $(YSYXSOC_HOME)/include/config/auto.conf
--include $(YSYXSOC_HOME)/include/config/auto.conf.cmd
+-include $(NPC_HOME)/include/config/auto.conf
+-include $(NPC_HOME)/include/config/auto.conf.cmd
 
-ifneq ($(CONFIG_USE_NVBOARD),)
+
+USE_NVBOARD = 1
+
+ifeq ($(USE_NVBOARD),1)
+WAVE_ENABLE = 0
+else
+WAVE_ENABLE = 1
+endif
+# 1: vcd, 2: fst
+WAVE_FORMAT = 1
+
+
+ifeq ($(USE_NVBOARD),1)
 NXDC_FILES = constr/top.nxdc
 
 # rules for NVBoard
@@ -11,8 +23,6 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 endif
 
 TOPNAME = ysyxSoCFull
-
-GUEST_ISA ?= riscv32
 
 remove_quote = $(patsubst "%",%,$(1))
 
@@ -29,9 +39,6 @@ VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart1
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
-WAVE_ENABLE ?= 1
-# 1: vcd, 2: fst
-WAVE_FORMAT ?= 1
 
 ifeq ($(WAVE_FORMAT),1)
 VERILATOR_CFLAGS += --trace-vcd
@@ -41,25 +48,25 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave -o ${YSYXSOC_HOME}/build/waveform.vcd
+	@gtkwave -o ${NPC_HOME}/build/waveform.vcd
 else
-	@gtkwave ${YSYXSOC_HOME}/build/waveform.fst
+	@gtkwave ${NPC_HOME}/build/waveform.fst
 endif
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
-include $(YSYXSOC_HOME)/scripts/difftest.mk
+include $(NPC_HOME)/scripts/difftest.mk
 
-IMG ?= $(YSYXSOC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
-YSYXSOC_EXEC := $(BIN) $(IMG)
+NPC_EXEC := $(BIN) $(IMG)
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-sim: $(YSYXSOC_EXEC)
+sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
@@ -69,7 +76,7 @@ endif
 
 $(shell mkdir -p $(BUILD_DIR))
 
-ifneq ($(CONFIG_USE_NVBOARD),)
+ifeq ($(USE_NVBOARD),1)
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -86,8 +93,8 @@ CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
 
-ifneq ($(CONFIG_USE_NVBOARD),)
-CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
+ifeq ($(USE_NVBOARD),1)
+CSRCS-y += $(SRC_AUTO_BIND)
 endif
 
 VSRCS-BLACKLIST-y += $(VSRCS-BLACKLIST)
@@ -100,9 +107,15 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
+ifeq ($(USE_NVBOARD),1)
+CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
+endif
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -mcmodel=medium
-CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
+CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
+ifeq ($(USE_NVBOARD),1)
+CXXFLAGS += -DCONFIG_USE_NVBOARD=1
+endif
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 
@@ -127,8 +140,8 @@ endif
 
 
 
-include $(YSYXSOC_HOME)/scripts/config.mk
-include $(YSYXSOC_HOME)/scripts/sta/yosys_sta.mk
+include $(NPC_HOME)/scripts/config.mk
+include $(NPC_HOME)/scripts/sta/yosys_sta.mk
 
 
 clean: 

@@ -42,7 +42,6 @@ _default:
 	@echo "Please run 'make' under subprojects."
 
 # SUBDIRS := $(shell find . -mindepth 1 -type d -exec test -e '{}/Makefile' \; -print)
-# EXCLUDE_DIRS:= $(shell find ./nemu/tools -mindepth 1 -type d -exec test -e '{}/Makefile' \; -print)
 # SUBDIRS-y := $(filter-out $(EXCLUDE_DIRS), $(SUBDIRS))
 # allclean:
 # 	@echo "clean up all subprojects"

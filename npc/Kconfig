@@ -1,9 +1,5 @@
 mainmenu "NPC Configuration NPC"
 
-config USE_NVBOARD
-  bool "Enable nvboard use"
-  default n
-
 choice
   prompt "Running mode"
   default MODE_SYSTEM
@@ -57,12 +53,12 @@ config CC_OPT
 
 config CC_DEBUG
   bool "Enable debug information"
-  default n
+  default y
 
 config CC_ASAN
   depends on MODE_SYSTEM
   bool "Enable address sanitizer"
-  default n
+  default y
 
 endmenu
 
@@ -90,7 +86,7 @@ config ITRACE
 config LOOP_DETECT
   depends on ITRACE
   bool "Enable detect die loop"
-  default y
+  default n
   
 config WATCHPOINT
   depends on ITRACE
