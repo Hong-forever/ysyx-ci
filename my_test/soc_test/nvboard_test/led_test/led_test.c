@@ -11,6 +11,7 @@ int main(const char *args) {
     int i = 0;
     while(1) {
         *p = 1 << i;
+        i++;
         if(i >= 16) i = 0;
         for (volatile int j = 0; j < 1000; j++);
     }
