@@ -3,15 +3,15 @@
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
 
-USE_NVBOARD ?= 1
+USE_NVBOARD = 0
 
 ifeq ($(USE_NVBOARD),1)
 WAVE_ENABLE = 0
 else
-WAVE_ENABLE ?= 0
+WAVE_ENABLE = 1
 endif
 # 1: vcd, 2: fst
-WAVE_FORMAT ?= 1
+WAVE_FORMAT = 1
 
 
 ifeq ($(USE_NVBOARD),1)
@@ -113,7 +113,9 @@ endif
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
-CXXFLAGS += -DCONFIG_USE_NVBOARD=$(USE_NVBOARD)
+ifeq ($(USE_NVBOARD),1)
+CXXFLAGS += -DCONFIG_USE_NVBOARD=1
+endif
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 
