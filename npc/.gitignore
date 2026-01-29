@@ -13,4 +13,4 @@
 !Kconfig
 include/config
 include/generated
-build/    
+build/

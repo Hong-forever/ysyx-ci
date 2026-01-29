@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module exe_div
+module ysyx_25110270_exe_div
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -29,21 +29,21 @@ module exe_div
 
     assign div_temp = {1'b0, dividend[63:32]} - {1'b0, divisor};
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             state <= `DivFree;
             cnt <= 6'b000000;
-            temp_op1 <= `Zero;
-            temp_op2 <= `Zero;
-            dividend <= `Zero;
-            divisor <= `Zero;
+            temp_op1 <= 0;
+            temp_op2 <= 0;
+            dividend <= 0;
+            divisor <= 0;
             ready <= `DivResultNotReady;
-            result <= `Zero;
+            result <= 0;
         end else begin
             case(state)
                 `DivFree: begin
                     if(I_start == `DivStart && I_annul == 1'b0) begin
-                        if(I_opdata2 == `Zero) begin
+                        if(I_opdata2 == 0) begin
                             state <= `DivByZero;
                         end else begin
                             state <= `DivOn;
@@ -59,12 +59,12 @@ module exe_div
                                 temp_op2 = I_opdata2;
                             end
                         end
-                        dividend <= `Zero;
+                        dividend <= 0;
                         dividend[32:1] <= temp_op1;
                         divisor <= temp_op2;
                     end else begin
                         ready <= `DivResultNotReady;
-                        result <= `Zero;
+                        result <= 0;
                     end
                 end
                 `DivByZero: begin
@@ -94,7 +94,7 @@ module exe_div
                                 dividend[64:33] <= (~dividend[64:33] + 1);
                             end
                             state <= `DivEnd;
-                            cnt <= 6'b000000;
+                            cnt <= 0;
                         end
                     end else begin
                         state <= `DivFree;
@@ -106,7 +106,7 @@ module exe_div
                     if(I_start == `DivStop) begin
                         state <= `DivFree;
                         ready <= `DivResultNotReady;
-                        result <= `Zero;
+                        result <= 0;
                     end
                 end
             endcase

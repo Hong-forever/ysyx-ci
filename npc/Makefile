@@ -10,7 +10,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 endif
 
-TOPNAME = top
+TOPNAME = ysyxSoCFull
 
 GUEST_ISA ?= riscv32
 
@@ -20,10 +20,13 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc  \
+VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 4
+VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
 VERILATOR_CFLAGS += -I./vsrc
+VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
+VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 WAVE_ENABLE ?= 0
@@ -38,7 +41,7 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
+	@gtkwave -o ${NPC_HOME}/build/waveform.vcd
 else
 	@gtkwave ${NPC_HOME}/build/waveform.fst
 endif
@@ -49,12 +52,14 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(NPC_HOME)/scripts/difftest.mk
 
-NPC_EXEC := $(BIN) $(IMG)
+IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+
+YSYXSOC_EXEC := $(BIN) $(IMG)
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-sim: $(NPC_EXEC)
+sim: $(YSYXSOC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
@@ -78,6 +83,9 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
+VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
+VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
+
 ifneq ($(CONFIG_USE_NVBOARD),)
 CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
 endif
@@ -93,6 +101,7 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
+CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)

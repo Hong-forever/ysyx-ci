@@ -4,7 +4,7 @@
 // 访存单元
 //------------------------------------------------------------------------
 
-module lsu
+module ysyx_25110270_lsu
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -45,35 +45,43 @@ module lsu
     //to bus
     output  wire                        dbus_awvalid,
     input   wire                        dbus_awready,
-    output  wire    [`MemAddrBus    ]   dbus_awaddr,
-
+    output  wire    [31:0]              dbus_awaddr,
+    output  wire    [3:0]               dbus_awid,
+    output  wire    [7:0]               dbus_awlen,
+    output  wire    [2:0]               dbus_awsize,
+    output  wire    [1:0]               dbus_awburst,
     output  wire                        dbus_wvalid,
     input   wire                        dbus_wready,
-    output  wire    [`MemDataBus    ]   dbus_wdata,
-    output  wire    [`DBUS_MASK-1:0 ]   dbus_wstrb,
-
+    output  wire    [31:0]              dbus_wdata,
+    output  wire    [3:0]               dbus_wstrb,
+    output  wire                        dbus_wlast,
     input   wire                        dbus_bvalid,
     output  wire                        dbus_bready,
-    input   wire    [`AXI_RESP_BUS  ]   dbus_bresp,
-
+    input   wire    [1:0]               dbus_bresp,
+    input   wire    [3:0]               dbus_bid,
     output  wire                        dbus_arvalid,
     input   wire                        dbus_arready,
-    output  wire    [`MemAddrBus    ]   dbus_araddr,
-
+    output  wire    [31:0]              dbus_araddr,
+    output  wire    [3:0]               dbus_arid,
+    output  wire    [7:0]               dbus_arlen,
+    output  wire    [2:0]               dbus_arsize,
+    output  wire    [1:0]               dbus_arburst,
     input   wire                        dbus_rvalid,
     output  wire                        dbus_rready,
-    input   wire    [`MemDataBus    ]   dbus_rdata,
-    input   wire    [`AXI_RESP_BUS  ]   dbus_rresp
+    input   wire    [31:0]              dbus_rdata,
+    input   wire    [1:0]               dbus_rresp,
+    input   wire                        dbus_rlast,
+    input   wire    [3:0]               dbus_rid
 );
 
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
     reg [`MemDataBus] rdata;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             rdata <= 0;
-        end else if(dbus_rvalid) begin
+        end else if(dbus_rvalid && dbus_rready) begin
             rdata <= dbus_rdata;
         end
     end
@@ -109,14 +117,23 @@ module lsu
     // 地址明辨
     wire [1:0] memory_byte_addr = I_memory_addr[1:0];
 
+    wire is_sb  = (I_ls_type == `ls_sb);
+    wire is_sh  = (I_ls_type == `ls_sh);
+    wire is_sw  = (I_ls_type == `ls_sw);
+    wire is_lb  = (I_ls_type == `ls_lb);
+    wire is_lbu = (I_ls_type == `ls_lbu);
+    wire is_lhu = (I_ls_type == `ls_lhu);
+    wire is_lh  = (I_ls_type == `ls_lh);
+    wire is_lw  = (I_ls_type == `ls_lw);
+
     //------------------------------------------------------------------------
     // 访存逻辑
     //------------------------------------------------------------------------
     reg [`RegDataBus] rd_data;
     always @(*) begin
         rd_data = I_rd_wdata;
-        case(I_ls_type)
-            `ls_lb: begin
+        case(1'b1)
+            is_lb: begin
                 case(memory_byte_addr)
                     2'b00: rd_data = lb_00_res;
                     2'b01: rd_data = lb_01_res;
@@ -125,17 +142,17 @@ module lsu
                     default: begin end
                 endcase
             end
-            `ls_lh: begin
+            is_lh: begin
                 case(memory_byte_addr[1])
                     1'b0: rd_data = lh_00_res;
                     1'b1: rd_data = lh_10_res;
                     default: begin end
                 endcase
             end
-            `ls_lw: begin
+            is_lw: begin
                 rd_data = lw_res;
             end
-            `ls_lbu: begin
+            is_lbu: begin
                 case(memory_byte_addr)
                     2'b00: rd_data = lbu_00_res;
                     2'b01: rd_data = lbu_01_res;
@@ -144,7 +161,7 @@ module lsu
                     default: begin end
                 endcase
             end
-            `ls_lhu: begin
+            is_lhu: begin
                 case(memory_byte_addr[1])
                     1'b0: rd_data = lhu_00_res;
                     1'b1: rd_data = lhu_10_res;
@@ -160,9 +177,9 @@ module lsu
     //------------------------------------------------------------------------
     reg [`MemDataBus] wdata;
     always @(*) begin
-        wdata = `Zero;
-        case(I_ls_type)
-            `ls_sb: begin
+        wdata = 0;
+        case(1'b1)
+            is_sb: begin
                 case(memory_byte_addr)
                     2'b00: wdata = sb_00_res;
                     2'b01: wdata = sb_01_res;
@@ -171,14 +188,14 @@ module lsu
                     default: begin end
                 endcase
             end
-            `ls_sh: begin
+            is_sh: begin
                 case(memory_byte_addr[1])
                     1'b0: wdata = sh_00_res;
                     1'b1: wdata = sh_10_res;
                     default: begin end
                 endcase
             end
-            `ls_sw: begin
+            is_sw: begin
                 wdata = sw_res;
             end
             default: begin end
@@ -192,8 +209,8 @@ module lsu
     reg [`DBUS_MASK-1:0] data_mask;
     always @(*) begin
         data_mask = 'b0000;
-        case(I_ls_type)
-            `ls_lb, `ls_lbu, `ls_sb: begin
+        case(1'b1)
+            is_sb: begin
                 case(memory_byte_addr)
                     2'b00: data_mask = 4'b0001;
                     2'b01: data_mask = 4'b0010;
@@ -202,22 +219,50 @@ module lsu
                     default: begin end
                 endcase
             end
-            `ls_lh, `ls_lhu, `ls_sh: begin
+            is_sh: begin
                 case(memory_byte_addr[1])
                     1'b0: data_mask = 4'b0011;
                     1'b1: data_mask = 4'b1100;
                     default: begin end
                 endcase
             end
-            `ls_lw, `ls_sw: begin
+            is_sw: begin
                 data_mask = 4'b1111;
+            end
+            default: begin end
+        endcase
+    end
+    
+    reg [2:0] data_awsize;
+    reg [2:0] data_arsize;
+    always @(*) begin
+        data_awsize = 3'b000;
+        data_arsize = 3'b000;
+        case(1'b1)
+            is_sb: begin
+                data_awsize = 3'b000;
+            end
+            is_sh: begin
+                data_awsize = 3'b001;
+            end
+            is_sw: begin
+                data_awsize = 3'b010;
+            end
+            is_lb, is_lbu: begin
+                data_arsize = 3'b000;
+            end
+            is_lh, is_lhu: begin
+                data_arsize = 3'b001;
+            end
+            is_lw: begin
+                data_arsize = 3'b010;
             end
             default: begin end
         endcase
     end
 
     reg valid;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             valid <= 1'b0;
         end else if(I_valid) begin
@@ -233,7 +278,7 @@ module lsu
 
     reg data_avalid;
     reg [1:0] state, nstate;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
         end else begin
@@ -269,10 +314,10 @@ module lsu
 
 
     reg data_bready;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             data_bready <= 1'b1;
-        end else if(dbus_bvalid) begin
+        end else if(dbus_bvalid && dbus_bready) begin
             data_bready <= 1'b0;
         end else begin
             data_bready <= 1'b1;
@@ -280,10 +325,10 @@ module lsu
     end
 
     reg data_rready;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             data_rready <= 1'b1;
-        end else if(dbus_rvalid) begin
+        end else if(dbus_rvalid && dbus_rready) begin
             data_rready <= 1'b0;
         end else begin
             data_rready <= 1'b1;
@@ -291,11 +336,11 @@ module lsu
     end
 
     reg stallreq_mem;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             stallreq_mem <= 1'b0;
         end else begin
-            if(dbus_bvalid || dbus_rvalid || state == WB) begin
+            if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
                 stallreq_mem <= 1'b0;
             end else if(data_avalid || state == MEM) begin
                 stallreq_mem <= 1'b1;
@@ -305,6 +350,31 @@ module lsu
 
     wire stallreq_ls_req = data_avalid;
     wire stallreq = stallreq_mem | stallreq_ls_req;
+
+    wire not_in_mrom   = (I_memory_addr < `MromAddrBase)  | (I_memory_addr >= (`MromAddrBase + `MromSize));
+    wire not_in_sram   = (I_memory_addr < `SramAddrBase)  | (I_memory_addr >= (`SramAddrBase + `SramSize));
+    wire not_in_flash  = (I_memory_addr < `FlashAddrBase) | (I_memory_addr >= (`FlashAddrBase + `FlashSize));
+    wire not_in_psram  = (I_memory_addr < `PsramAddrBase) | (I_memory_addr >= (`PsramAddrBase + `PsramSize));
+    wire not_in_sdram  = (I_memory_addr < `SdramAddrBase) | (I_memory_addr >= (`SdramAddrBase + `SdramSize));
+    wire not_in_clint  = (I_memory_addr < `CLINT_BASE)    | (I_memory_addr >= (`CLINT_BASE + `CLINT_SIZE));
+    wire not_in_serial = (I_memory_addr < `SERIAL_BASE)   | (I_memory_addr >= (`SERIAL_BASE + `SERIAL_SIZE));
+    wire not_in_spi    = (I_memory_addr < `SPI_BASE)      | (I_memory_addr >= (`SPI_BASE + `SPI_SIZE));
+
+    wire not_in_device = (not_in_mrom & !dbus_awvalid) & not_in_sram & not_in_clint & 
+                          not_in_serial & (not_in_flash & !dbus_awvalid) & not_in_spi & 
+                          not_in_psram & not_in_sdram;
+
+    always @(posedge clk) begin
+        if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
+            $error("LSU: Data read address out of range at pc 0x%08x!", I_inst_addr);
+        end
+        if(dbus_bvalid && dbus_bresp != 2'b00) begin
+            $error("LSU: DBUS write error at pc 0x%08x!", I_inst_addr);
+        end
+        if(dbus_rvalid && dbus_rresp != 2'b00) begin
+            $error("LSU: DBUS read error at pc 0x%08x!", I_inst_addr);
+        end
+    end
 
     //------------------------------------------------------------------------
     // 输出
@@ -324,19 +394,33 @@ module lsu
     assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
 
-    assign O_device_skip = I_ls_valid & (((I_memory_addr & ~32'h3) == `SERIAL_MMIO) | ((I_memory_addr & ~32'h7) == `RTC_MMIO));
+    assign O_device_skip = I_ls_valid & 
+    (
+        (I_memory_addr >= `SERIAL_BASE & I_memory_addr < (`SERIAL_BASE + `SERIAL_SIZE)) |
+        (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE + `CLINT_SIZE)  ) |
+        (I_memory_addr >= `SPI_BASE    & I_memory_addr < (`SPI_BASE + `SPI_SIZE)      )
+    );
 
     // assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_awaddr = I_memory_addr;
+    assign dbus_awid = 4'b0000;
+    assign dbus_awlen = 8'b0000_0000;
+    assign dbus_awsize = data_awsize;
+    assign dbus_awburst = 2'b01;
 
     // assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_wdata = wdata;
     assign dbus_wstrb = data_mask;
+    assign dbus_wlast = dbus_wvalid;
 
     assign dbus_bready = data_bready;
 
     // assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
     assign dbus_araddr = I_memory_addr;
+    assign dbus_arid = 4'b0000;
+    assign dbus_arlen = 8'b0000_0000;
+    assign dbus_arsize = data_arsize;
+    assign dbus_arburst = 2'b01;
 
     assign dbus_rready = data_rready;
 
@@ -344,7 +428,7 @@ module lsu
     wire [`RAMDOM_WIDTH-1:0] drandom;
     reg [`RAMDOM_WIDTH-1:0] drandom_r;
     reg req_flag;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
             avalid_r <= 1'b0;
             drandom_r <= 0;
@@ -359,7 +443,7 @@ module lsu
             avalid_r <= 1'b0;
             drandom_r <= drandom;
             req_flag <= 1'b1;
-        end else if((dbus_awvalid & dbus_awready) | (dbus_arvalid & dbus_arready)) begin
+        end else if((dbus_awvalid && dbus_awready) || (dbus_arvalid && dbus_arready)) begin
             avalid_r <= 1'b0;
         end
     end

@@ -4,7 +4,7 @@
 // 取指译码流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_if_dec
+module ysyx_25110270_pipeline_if_dec
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -18,13 +18,13 @@ module pipeline_if_dec
     input   wire                        I_enable,
     input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
         end else if (I_flush) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
@@ -39,7 +39,7 @@ endmodule
 // 译码执行流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_dec_ex
+module ysyx_25110270_pipeline_dec_ex
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -101,65 +101,65 @@ module pipeline_dec_ex
     input   wire                        I_enable,
     input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
-            O_rs1_rdata     <= 'b0;
-            O_rs2_rdata     <= 'b0;
-            O_rd_we         <= 'b0;
-            O_imm           <= 'b0;
-            O_rd_waddr      <= 'b0;
-            O_csr_we        <= 'b0;
-            O_csr_waddr     <= 'b0;
-            O_csr_rdata     <= 'b0;
-            O_CSRCtrl       <= 'b0;
-            O_ALUCtrl       <= 'b0;
-            O_BRUCtrl       <= 'b0;
-            O_FWDCtrl_rs1   <= 'b0;
-            O_FWDCtrl_rs2   <= 'b0;
-            O_FWDCtrl_csr   <= 'b0;
-            O_fwd_rd_we     <= 'b0;
-            O_fwd_rd_waddr  <= 'b0;
-            O_fwd_csr_we    <= 'b0;
-            O_fwd_csr_waddr <= 'b0;
-            O_ALUSrcA_sel   <= 'b0;
-            O_ALUSrcB_sel   <= 'b0;
-            O_AGUSrc_sel    <= 'b0;
-            O_CSRSrc_sel    <= 'b0;
-            O_ls_valid      <= 'b0;
-            O_ls_type       <= 'b0;
-            O_csr_re        <= 'b0;
-            O_except        <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
+            O_rs1_rdata     <= 0;
+            O_rs2_rdata     <= 0;
+            O_rd_we         <= 0;
+            O_imm           <= 0;
+            O_rd_waddr      <= 0;
+            O_csr_we        <= 0;
+            O_csr_waddr     <= 0;
+            O_csr_rdata     <= 0;
+            O_CSRCtrl       <= 0;
+            O_ALUCtrl       <= 0;
+            O_BRUCtrl       <= 0;
+            O_FWDCtrl_rs1   <= 0;
+            O_FWDCtrl_rs2   <= 0;
+            O_FWDCtrl_csr   <= 0;
+            O_fwd_rd_we     <= 0;
+            O_fwd_rd_waddr  <= 0;
+            O_fwd_csr_we    <= 0;
+            O_fwd_csr_waddr <= 0;
+            O_ALUSrcA_sel   <= 0;
+            O_ALUSrcB_sel   <= 0;
+            O_AGUSrc_sel    <= 0;
+            O_CSRSrc_sel    <= 0;
+            O_ls_valid      <= 0;
+            O_ls_type       <= 0;
+            O_csr_re        <= 0;
+            O_except        <= 0;
         end else if (I_flush) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
-            O_rs1_rdata     <= 'b0;
-            O_rs2_rdata     <= 'b0;
-            O_rd_we         <= 'b0;
-            O_imm           <= 'b0;
-            O_rd_waddr      <= 'b0;
-            O_csr_we        <= 'b0;
-            O_csr_waddr     <= 'b0;
-            O_csr_rdata     <= 'b0;
-            O_CSRCtrl       <= 'b0;
-            O_ALUCtrl       <= 'b0;
-            O_BRUCtrl       <= 'b0;
-            O_FWDCtrl_rs1   <= 'b0;
-            O_FWDCtrl_rs2   <= 'b0;
-            O_FWDCtrl_csr   <= 'b0;
-            O_fwd_rd_we     <= 'b0;
-            O_fwd_rd_waddr  <= 'b0;
-            O_fwd_csr_we    <= 'b0;
-            O_fwd_csr_waddr <= 'b0;
-            O_ALUSrcA_sel   <= 'b0;
-            O_ALUSrcB_sel   <= 'b0;
-            O_AGUSrc_sel    <= 'b0;
-            O_CSRSrc_sel    <= 'b0;
-            O_ls_valid      <= 'b0;
-            O_ls_type       <= 'b0;
-            O_csr_re        <= 'b0;
-            O_except        <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
+            O_rs1_rdata     <= 0;
+            O_rs2_rdata     <= 0;
+            O_rd_we         <= 0;
+            O_imm           <= 0;
+            O_rd_waddr      <= 0;
+            O_csr_we        <= 0;
+            O_csr_waddr     <= 0;
+            O_csr_rdata     <= 0;
+            O_CSRCtrl       <= 0;
+            O_ALUCtrl       <= 0;
+            O_BRUCtrl       <= 0;
+            O_FWDCtrl_rs1   <= 0;
+            O_FWDCtrl_rs2   <= 0;
+            O_FWDCtrl_csr   <= 0;
+            O_fwd_rd_we     <= 0;
+            O_fwd_rd_waddr  <= 0;
+            O_fwd_csr_we    <= 0;
+            O_fwd_csr_waddr <= 0;
+            O_ALUSrcA_sel   <= 0;
+            O_ALUSrcB_sel   <= 0;
+            O_AGUSrc_sel    <= 0;
+            O_CSRSrc_sel    <= 0;
+            O_ls_valid      <= 0;
+            O_ls_type       <= 0;
+            O_csr_re        <= 0;
+            O_except        <= 0;
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
@@ -199,7 +199,7 @@ endmodule
 // 执行访存流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_ex_ls
+module ysyx_25110270_pipeline_ex_ls
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -241,47 +241,47 @@ module pipeline_ex_ls
     input   wire                        I_enable,
     input   wire                        I_flush
 );
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
-            O_rd_we         <= 'b0;
-            O_rd_waddr      <= 'b0;
-            O_rd_wdata      <= 'b0;
-            O_memory_addr   <= 'b0;
-            O_store_data    <= 'b0;
-            O_fwd_rd_we     <= 'b0;
-            O_fwd_rd_waddr  <= 'b0;
-            O_fwd_rd_wdata  <= 'b0;
-            O_fwd_csr_we    <= 'b0;
-            O_fwd_csr_waddr <= 'b0;
-            O_fwd_csr_wdata <= 'b0;
-            O_ls_valid      <= 'b0;
-            O_ls_type       <= 'b0;
-            O_csr_we        <= 'b0;
-            O_csr_waddr     <= 'b0;
-            O_csr_wdata     <= 'b0;
-            O_except        <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
+            O_rd_we         <= 0;
+            O_rd_waddr      <= 0;
+            O_rd_wdata      <= 0;
+            O_memory_addr   <= 0;
+            O_store_data    <= 0;
+            O_fwd_rd_we     <= 0;
+            O_fwd_rd_waddr  <= 0;
+            O_fwd_rd_wdata  <= 0;
+            O_fwd_csr_we    <= 0;
+            O_fwd_csr_waddr <= 0;
+            O_fwd_csr_wdata <= 0;
+            O_ls_valid      <= 0;
+            O_ls_type       <= 0;
+            O_csr_we        <= 0;
+            O_csr_waddr     <= 0;
+            O_csr_wdata     <= 0;
+            O_except        <= 0;
         end else if (I_flush) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
-            O_rd_we         <= 'b0;
-            O_rd_waddr      <= 'b0;
-            O_rd_wdata      <= 'b0;
-            O_memory_addr   <= 'b0;
-            O_store_data    <= 'b0;
-            O_fwd_rd_we     <= 'b0;
-            O_fwd_rd_waddr  <= 'b0;
-            O_fwd_rd_wdata  <= 'b0;
-            O_fwd_csr_we    <= 'b0;
-            O_fwd_csr_waddr <= 'b0;
-            O_fwd_csr_wdata <= 'b0;
-            O_ls_valid      <= 'b0;
-            O_ls_type       <= 'b0;
-            O_csr_we        <= 'b0;
-            O_csr_waddr     <= 'b0;
-            O_csr_wdata     <= 'b0;
-            O_except        <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
+            O_rd_we         <= 0;
+            O_rd_waddr      <= 0;
+            O_rd_wdata      <= 0;
+            O_memory_addr   <= 0;
+            O_store_data    <= 0;
+            O_fwd_rd_we     <= 0;
+            O_fwd_rd_waddr  <= 0;
+            O_fwd_rd_wdata  <= 0;
+            O_fwd_csr_we    <= 0;
+            O_fwd_csr_waddr <= 0;
+            O_fwd_csr_wdata <= 0;
+            O_ls_valid      <= 0;
+            O_ls_type       <= 0;
+            O_csr_we        <= 0;
+            O_csr_waddr     <= 0;
+            O_csr_wdata     <= 0;
+            O_except        <= 0;
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
@@ -312,7 +312,7 @@ endmodule
 // 访存写回流水线单元
 //------------------------------------------------------------------------
 
-module pipeline_ls_wb
+module ysyx_25110270_pipeline_ls_wb
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -347,35 +347,35 @@ module pipeline_ls_wb
     input   wire                        I_flush
 );
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
-            O_rd_we         <= 'b0;
-            O_rd_waddr      <= 'b0;
-            O_rd_wdata      <= 'b0;
-            O_fwd_rd_wdata  <= 'b0;
-            O_fwd_csr_wdata <= 'b0;
-            O_csr_we        <= 'b0;
-            O_csr_waddr     <= 'b0;
-            O_csr_wdata     <= 'b0;
-            O_except        <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
+            O_rd_we         <= 0;
+            O_rd_waddr      <= 0;
+            O_rd_wdata      <= 0;
+            O_fwd_rd_wdata  <= 0;
+            O_fwd_csr_wdata <= 0;
+            O_csr_we        <= 0;
+            O_csr_waddr     <= 0;
+            O_csr_wdata     <= 0;
+            O_except        <= 0;
 
-            O_device_skip   <= 'b0;
+            O_device_skip   <= 0;
         end else if (I_flush) begin
-            O_inst          <= 'b0;
-            O_inst_addr     <= 'b0;
-            O_rd_we         <= 'b0;
-            O_rd_waddr      <= 'b0;
-            O_rd_wdata      <= 'b0;
-            O_fwd_rd_wdata  <= 'b0;
-            O_fwd_csr_wdata <= 'b0;
-            O_csr_we        <= 'b0;
-            O_csr_waddr     <= 'b0;
-            O_csr_wdata     <= 'b0;
-            O_except        <= 'b0;
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
+            O_rd_we         <= 0;
+            O_rd_waddr      <= 0;
+            O_rd_wdata      <= 0;
+            O_fwd_rd_wdata  <= 0;
+            O_fwd_csr_wdata <= 0;
+            O_csr_we        <= 0;
+            O_csr_waddr     <= 0;
+            O_csr_wdata     <= 0;
+            O_except        <= 0;
 
-            O_device_skip   <= 'b0;
+            O_device_skip   <= 0;
         end else if (I_enable) begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
