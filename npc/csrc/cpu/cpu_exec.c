@@ -224,6 +224,8 @@ static void execute(uint64_t n)
     while (n-- > 0) {
         exec_once();
 
+        IFDEF(CONFIG_USE_NVBOARD, nvboard_update());
+
         if(!cpu_inst_valid) {
             n++;
             continue;
@@ -234,8 +236,6 @@ static void execute(uint64_t n)
         g_nr_guest_inst++;
 
         if (npc_state.state != NPC_RUNNING) break;
-
-        IFDEF(CONFIG_USE_NVBOARD, nvboard_update());
     }
 
 }

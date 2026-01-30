@@ -8,11 +8,12 @@ USE_NVBOARD = 1
 ifeq ($(USE_NVBOARD),1)
 WAVE_ENABLE = 0
 else
-WAVE_ENABLE = 1
+WAVE_ENABLE = 0
 endif
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
 
+GUEST_ISA = riscv32
 
 ifeq ($(USE_NVBOARD),1)
 NXDC_FILES = constr/top.nxdc
