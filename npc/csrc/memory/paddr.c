@@ -118,12 +118,12 @@ extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
 
 extern "C" void sdram_read(int32_t addr, int32_t *data, int32_t num) {
 
-    uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1));
+    uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1));
     
     *data = num & 0x1 ? read_data >> 16 : 
                         read_data & 0xffff;
 
-    if(addr >= 0x9dbc0 && addr < 0x9dbd0) printf("sdram_read addr: 0x%08x, data: 0x%02x, num: %d\n", addr, read_data, num);
+    if(addr >= 0x9dbc0 && addr < 0x9dbd0) printf("sdram_read addr: 0x%08x, data: 0x%02x, num: %d\n", addr, *data, num);
 }
 
 extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask, int32_t num) {
@@ -133,13 +133,13 @@ extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask, int32_t nu
         case 0:
             break;
         case 1:
-            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1), num&0x1 ? data >> 16 : data, 1);
+            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1) + ((num&0x1) ? 2 : 0), data, 1);
             break;
         case 2:
-            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1) + 1, num&0x1 ? data >> 16 : data, 1);
+            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1) + 1 + ((num&0x1) ? 2 : 0), data, 1);
             break;
         case 3:
-            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1), num&0x1 ? data >> 16 : data, 2);
+            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1) + ((num&0x1) ? 2 : 0), data, 2);
             break;
         default:
             break;
