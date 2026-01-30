@@ -5360,55 +5360,55 @@ module ysyxSoCFull(	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scal
   // );	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
 
   wire read = ~_asic_sdram_cs & _asic_sdram_ras & ~_asic_sdram_cas & _asic_sdram_we;
-  wire refresh = ~_asic_sdram_cs & ~_asic_sdram_ras & ~_asic_sdram_cas & _asic_sdram_we;
+  wire write = ~_asic_sdram_cs & _asic_sdram_ras & ~_asic_sdram_cas & ~_asic_sdram_we;
 
   sdram #(.NUM(0)) l0sdram 
     (	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
     .clk (_asic_sdram_clk),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .cke (_asic_sdram_cke),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cs  (_asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ras (_asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cas (_asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .we  ((~_asic_sdram_a[14]&read) | refresh ? _asic_sdram_we : 1'b0),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cs  (_asic_sdram_a[14]&(read | write) ? 1'b0 : _asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_we),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .a   (_asic_sdram_a[12:0]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .ba  (_asic_sdram_ba),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .dqm (~_asic_sdram_a[14] ? _asic_sdram_dqm[1:0] : 2'b11),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dqm (_asic_sdram_dqm[1:0]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .dq  (_dq_wire[15:0])
   );	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
   sdram #(.NUM(1)) h0sdram (	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
     .clk (_asic_sdram_clk),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .cke (_asic_sdram_cke),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cs  (_asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ras (_asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cas (_asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .we  ((~_asic_sdram_a[14]&read) | refresh ? _asic_sdram_we : 1'b0),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cs  (_asic_sdram_a[14]&(read | write) ? 1'b0 : _asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_we),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .a   (_asic_sdram_a[12:0]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .ba  (_asic_sdram_ba),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .dqm (~_asic_sdram_a[14] ? _asic_sdram_dqm[3:2] : 2'b11),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dqm (_asic_sdram_dqm[3:2]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .dq  (_dq_wire[31:16])
   );	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
   sdram #(.NUM(2)) l1sdram (	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
     .clk (_asic_sdram_clk),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .cke (_asic_sdram_cke),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cs  (_asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ras (_asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cas (_asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .we  ((_asic_sdram_a[14]&read) | refresh ? _asic_sdram_we : 1'b0),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cs  (~_asic_sdram_a[14]&(read | write) ? 1'b0 : _asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (~_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (~_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (~_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_we),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .a   (_asic_sdram_a[12:0]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .ba  (_asic_sdram_ba),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .dqm (_asic_sdram_a[14] ? _asic_sdram_dqm[1:0] : 2'b11),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dqm (_asic_sdram_dqm[1:0]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .dq  (_dq_wire[15:0])
   );	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
   sdram #(.NUM(3)) h1sdram (	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
     .clk (_asic_sdram_clk),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .cke (_asic_sdram_cke),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cs  (_asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ras (_asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cas (_asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .we  ((_asic_sdram_a[14]&read) | refresh ? _asic_sdram_we : 1'b0),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cs  (~_asic_sdram_a[14]&(read | write) ? 1'b0 : _asic_sdram_cs),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (~_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_ras),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (~_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_cas),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (~_asic_sdram_a[14]&(read | write) ? 1'b1 : _asic_sdram_we),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .a   (_asic_sdram_a[12:0]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .ba  (_asic_sdram_ba),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .dqm (_asic_sdram_a[14] ? _asic_sdram_dqm[3:2] : 2'b11),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dqm (_asic_sdram_dqm[3:2]),	// home/hhh/Desktop/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .dq  (_dq_wire[31:16])
   );
 endmodule
