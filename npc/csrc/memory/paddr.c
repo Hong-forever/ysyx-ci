@@ -136,7 +136,7 @@ extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask, int32_t nu
             paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1) + ((num&0x1) ? 2 : 0), data, 1);
             break;
         case 2:
-            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1) + 1 + ((num&0x1) ? 2 : 0), data, 1);
+            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1) + 1 + ((num&0x1) ? 2 : 0), data >> 8, 1);
             break;
         case 3:
             paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 2 * (num >> 1) + ((num&0x1) ? 2 : 0), data, 2);
