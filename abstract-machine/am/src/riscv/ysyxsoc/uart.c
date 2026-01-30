@@ -1,4 +1,4 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
 
 void __am_uart_tx(AM_UART_TX_T *uart) {
