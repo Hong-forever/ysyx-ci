@@ -127,7 +127,7 @@ extern "C" void sdram_read(int32_t addr, int32_t *data, int32_t num) {
 }
 
 extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask, int32_t num) {
-    if(addr >= 0x9dbd0 && addr < 0x9dbe0) printf("sdram_write addr: 0x%08x data: 0x%02x mask: %02x, num: %d\n", addr, data, ~mask, num);
+    if(addr >= 0x9dbd0 && addr < 0x9dbe0) printf("sdram_write addr: 0x%08x data: 0x%02x mask: %02x, num: %d\n", addr, data, ~mask&0x3, num);
     switch ((~mask) & 0x3)
     {
         case 0:
