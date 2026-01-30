@@ -120,7 +120,7 @@ extern "C" void sdram_read(int32_t addr, int32_t *data, int32_t num) {
 
     uint32_t read_data = paddr_read(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1));
     
-    *data = addr&0x02 ? read_data >> 16 : 
+    *data = num & 0x1 ? read_data >> 16 : 
                         read_data & 0xffff;
 
     // printf("sdram_read addr: 0x%08x, data: 0x%02x, num: %d\n", addr, read_data, num);
@@ -133,13 +133,13 @@ extern "C" void sdram_write(int32_t addr, int32_t data, int32_t mask, int32_t nu
         case 0:
             break;
         case 1:
-            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1), data & 0xff, 1);
+            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1), num&0x1 ? data >> 16 : data & 0xff, 1);
             break;
         case 2:
-            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1) + 1, (data & 0xff00) >> 8, 1);
+            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1) + 1, num&0x1 ? data >> 16 : data & 0xff, 1);
             break;
         case 3:
-            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1), data & 0xffff, 2);
+            paddr_write(addr + CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE / 4 * (num >> 1), num&0x1 ? data >> 16 : data & 0xffff, 2);
             break;
         default:
             break;
