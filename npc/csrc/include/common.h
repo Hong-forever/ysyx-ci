@@ -34,7 +34,7 @@ typedef uint32_t word_t;
 #define PMEM_LEFT_SDRAM  ((paddr_t)CONFIG_SDRAM_BASE)
 #define PMEM_RIGHT_SDRAM ((paddr_t)CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1)
 
-#define RESET_VECTOR (PMEM_LEFT_FLASH + CONFIG_PC_RESET_OFFSET)
+#define RESET_VECTOR (PMEM_LEFT_SDRAM + CONFIG_PC_RESET_OFFSET)
 
 static inline bool in_mrom(paddr_t addr) {
     return addr >= PMEM_LEFT_MROM && addr <= PMEM_RIGHT_MROM;
