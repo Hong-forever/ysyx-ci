@@ -348,7 +348,7 @@ module ysyx_25110270_lsu
         end else begin
             if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
                 stallreq_mem <= 1'b0;
-            end else if(ls_req || data_avalid || state == MEM) begin
+            end else if(ls_req || state == MEM) begin
                 stallreq_mem <= 1'b1;
             end
         end
