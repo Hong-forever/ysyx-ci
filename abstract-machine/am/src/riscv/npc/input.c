@@ -6,7 +6,7 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
     if(key_data == 0xF0) { // break code
         kbd->keydown = 0;
         key_data = inb(KBD_PORT);
-        printf("break code detected\n");
+        // printf("break code detected\n");
     } else {
         kbd->keydown = 1;
     }
