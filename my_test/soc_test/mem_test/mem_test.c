@@ -17,12 +17,12 @@
         printf("Testing %d-bit memory...\n", bit); \
         volatile type *p = (volatile type *)BASE; \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            p[i] = i % val_max; \
+            p[i] = i + val_max; \
             PUT(i, p_period, "write", bit); \
         } \
         printf("\n"); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            if(p[i] != i % val_max) { \
+            if(p[i] != i + val_max) { \
                 putstr("error\n"); \
                 return 1; \
             } \
@@ -36,10 +36,10 @@ int main(const char *args) {
     putstr("\nmem test start!\n");
     printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
-    TEST(64, 987656789, uint64_t);
-    TEST(32, 1234321, uint32_t);
-    TEST(16, 65536, uint16_t);
-    TEST(8,  256,  uint8_t );
+    TEST(64, 9876789, uint64_t);
+    TEST(32, 124321,  uint32_t);
+    TEST(16, 656,     uint16_t);
+    TEST(8,  26,      uint8_t );
 
     putstr("mem test pass!\n\n");
     return 0;

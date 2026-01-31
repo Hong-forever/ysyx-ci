@@ -286,14 +286,15 @@ module ysyx_25110270_lsu
         end
     end
 
-    wire data_avalid_next = (state == IDLE && I_ls_valid & valid && (dbus_awready | dbus_arready));
+    wire ls_req = I_ls_valid & valid;
+    wire data_avalid_next = (state == IDLE && ls_req && !(dbus_awready | dbus_arready));
 
     always @(posedge clk) begin
         if(!rst_n) begin
             data_avalid <= 1'b0;
         end else begin
-            data_avalid <= 
-        
+            data_avalid <= data_avalid_next;
+        end
     end
 
     always @(*) begin
@@ -302,19 +303,15 @@ module ysyx_25110270_lsu
         end else begin
             case(state)
                 IDLE: begin
-                    data_avalid = I_ls_valid & valid;
                     nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
                 end
                 MEM: begin
-                    data_avalid = 1'b0;
                     nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
                 end
                 WB: begin
-                    data_avalid = 1'b0;
                     nstate = IDLE;
                 end
                 default: begin
-                    data_avalid = 1'b0;
                     nstate = IDLE;
                 end
             endcase
@@ -351,13 +348,13 @@ module ysyx_25110270_lsu
         end else begin
             if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
                 stallreq_mem <= 1'b0;
-            end else if(data_avalid || state == MEM) begin
+            end else if(ls_req || data_avalid || state == MEM) begin
                 stallreq_mem <= 1'b1;
             end
         end
     end
 
-    wire stallreq_ls_req = data_avalid;
+    wire stallreq_ls_req = ls_req;
     wire stallreq = stallreq_mem | stallreq_ls_req;
 
     wire not_in_mrom   = (I_memory_addr < `MromAddrBase ) | (I_memory_addr >= (`MromAddrBase  + `MromSize   ));
@@ -440,11 +437,11 @@ module ysyx_25110270_lsu
 
     assign dbus_rready = data_rready;
 
-// `ifndef LFSR
-//     assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
-//     assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
-//     assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
-// `else
+`ifndef LFSR
+    assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
+    assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
+    assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
+`else
     reg avalid_r;
     wire [`RAMDOM_WIDTH-1:0] drandom;
     reg [`RAMDOM_WIDTH-1:0] drandom_r;
@@ -482,6 +479,6 @@ module ysyx_25110270_lsu
         .I_seed                 (`SEED2                     ),
         .O_random               (drandom                    )
     );
-// `endif
+`endif
 
 endmodule
