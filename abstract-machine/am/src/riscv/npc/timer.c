@@ -1,6 +1,6 @@
 #include <npc.h>
 
-#define NPC_PERIOD 9 // in us
+#define NPC_PERIOD 10 // in us
 
 static uint64_t us = 0;
 
