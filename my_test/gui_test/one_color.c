@@ -1,4 +1,5 @@
 #include <am.h>
+#include <klib.h>
 #include <klib-macros.h>
 
 void draw(uint32_t color) {
@@ -6,6 +7,7 @@ void draw(uint32_t color) {
 
   int w = io_read(AM_GPU_CONFIG).width;
   int h = io_read(AM_GPU_CONFIG).height;
+  printf("Draw full screen with color 0x%x, w=%d h=%d\n", color, w, h);
 
   for(int y=0; y<h; y++) {
       for(int x=0; x<w; x++) {
