@@ -10,7 +10,7 @@ void draw(uint32_t color) {
   for (int i = 0; i < w; i++)
     blank_line[i] = color;
 
-  printf("Draw full screen with color 0x%x, w=%d h=%d\n", color, w, h);
+  // printf("Draw full screen with color 0x%x, w=%d h=%d\n", color, w, h);
 
   for(int y=0; y<h; y++) {
       io_write(AM_GPU_FBDRAW, 0, y, blank_line, w, 1, false);
