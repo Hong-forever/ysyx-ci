@@ -2,7 +2,7 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define BASE 0xa3ffff00
+#define BASE 0xa7000000
 #define SIZE 0x800
 
 #define p_period 0x100
@@ -33,13 +33,13 @@
 
 int main(const char *args) {
 
-    putstr("mem test start!\n");
+    putstr("mem test start!\n\n");
 
     TEST(64, 987656789, uint64_t);
     TEST(32, 1234321, uint32_t);
     TEST(16, 65536, uint16_t);
     TEST(8,  256,  uint8_t );
 
-    putstr("mem test pass!\n");
+    putstr("mem test pass!\n\n");
     return 0;
 }
