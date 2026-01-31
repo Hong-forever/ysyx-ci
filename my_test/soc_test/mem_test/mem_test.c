@@ -18,7 +18,7 @@
         volatile type *p = (volatile type *)BASE; \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             p[i] = i + val_max; \
-            PUT(i, p_period, "write", bit); \
+            PUT(i, p_period, "(w)", bit); \
         } \
         printf("\n"); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
@@ -26,7 +26,7 @@
                 putstr("error\n"); \
                 return 1; \
             } \
-            PUT(i, p_period, "read", bit); \
+            PUT(i, p_period, "(r)", bit); \
         } \
         printf("\n\n"); \
     } while (0)
