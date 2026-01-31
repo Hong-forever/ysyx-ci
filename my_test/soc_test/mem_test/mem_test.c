@@ -15,12 +15,12 @@
 #define TEST(bit, val_max, type) \
     do { \
         volatile type *p = (volatile type *)BASE; \
-        for (type i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
+        for (uint64_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             p[i] = i % val_max; \
             PUT(i, p_period, bit, "write"); \
         } \
         printf("\n"); \
-        for(type i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
+        for(uint64_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             if(p[i] != i % val_max) { \
                 putstr("error\n"); \
                 return 1; \
