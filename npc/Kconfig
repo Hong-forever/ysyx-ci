@@ -96,17 +96,17 @@ config WATCHPOINT
 config MTRACE
   depends on TRACE 
   bool "Enable memory trace"
-  default n 
+  default n
 
 config MTRACE_BASE
   depends on MTRACE
-  bool "memory tracer base address"
-  default n
+  hex "memory tracer base address"
+  default 0x80000000 
 
 config MTRACE_SIZE
   depends on MTRACE
-  bool "memory tracer size"
-  default n
+  hex "memory tracer size"
+  default 0x1000
 
 config FTRACE
   depends on TRACE 
