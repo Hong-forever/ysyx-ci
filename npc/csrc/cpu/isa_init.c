@@ -8,7 +8,7 @@ static const uint32_t img[] = {
     0xdeadbeef, // some data
 };
 
-paddr_t *guest_to_host(paddr_t paddr);
+uint8_t *guest_to_host(paddr_t paddr);
 
 void init_isa()
 {

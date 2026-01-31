@@ -1,4 +1,4 @@
-#include <npc.h>
+#include <ysyxsoc.h>
 
 uint8_t key_code_get(uint8_t key_data, uint8_t e0_flag)
 {

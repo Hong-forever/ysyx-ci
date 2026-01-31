@@ -3,61 +3,44 @@
 #include <klib-macros.h>
 
 #define BASE 0xa0000000
-#define SIZE 0x8000000
+#define SIZE 0x10
+
+#define p_period 0x1
+
+#define PUT(i, period, op, bit) \
+    do { \
+        if(i % period == 0) printf("%s: 0x%x-0x%x ", op, i * (bit / 8), (i + period) * (bit / 8) - 1); \
+    } while (0)
+
+#define TEST(bit, val_max, type) \
+    do { \
+        printf("Testing %d-bit memory...\n", bit); \
+        volatile type *p = (volatile type *)BASE; \
+        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
+            p[i] = i % val_max; \
+            PUT(i, p_period, "write", bit); \
+        } \
+        printf("\n"); \
+        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
+            if(p[i] != i % val_max) { \
+                putstr("error\n"); \
+                return 1; \
+            } \
+            PUT(i, p_period, "read", bit); \
+        } \
+        printf("\n\n"); \
+    } while (0)
 
 int main(const char *args) {
 
-    putstr("mem test start!\n");
+    putstr("\nmem test start!\n");
+    printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
-    volatile uint8_t *p8 = (volatile uint8_t *)BASE;
-    for (int i = 0; &p8[i] < (volatile uint8_t *)(BASE + SIZE); i++) {
-        p8[i] = i % 256;
-        if(i % 1000 == 0) printf("%x(%d) ", i/1000, 8);
-        if(p8[i] != i % 256) {
-            putstr("error\n");
-            return 1;
-        }
-    }
+    TEST(64, 987656789, uint64_t);
+    TEST(32, 1234321, uint32_t);
+    TEST(16, 65536, uint16_t);
+    TEST(8,  256,  uint8_t );
 
-
-    volatile uint16_t *p16 = (volatile uint16_t *)BASE;
-
-    for (int i = 0; &p16[i] < (volatile uint16_t *)(BASE + SIZE); i++) {
-        p16[i] = i % 65536;
-        if(i % 1000 == 0) printf("%x(%d) ", i/1000, 16);
-        if(p16[i] != i % 65536) {
-            putstr("error\n");
-            return 1;
-        }
-    }
-
-    putstr("16 ");
-
-    volatile uint32_t *p32 = (volatile uint32_t *)BASE;
-    for (int i = 0; &p32[i] < (volatile uint32_t *)(BASE + SIZE); i++) {
-        p32[i] = i;
-        if(i % 1000 == 0) printf("%x(%d) ", i/1000, 32);
-        if(p32[i] != i) {
-            putstr("error\n");
-            return 1;
-        }
-    }
-
-    putstr("32 ");
-
-    volatile uint64_t *p64 = (volatile uint64_t *)BASE;
-    for (int i = 0; &p64[i] < (volatile uint64_t *)(BASE + SIZE); i++) {
-        p64[i] = i;
-        if(i % 1000 == 0) printf("%x(%d) ", i/1000, 64);
-        if(p64[i] != i) {
-            putstr("error\n");
-            return 1;
-        }
-    }
-
-    putstr("64 ");
-
-
-    putstr("mem test pass!\n");
+    putstr("mem test pass!\n\n");
     return 0;
 }
