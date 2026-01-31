@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     init_monitor(argc, argv);
 
-    cpu_reset(10);
+    cpu_reset(20);
 
     engine_start();
     
