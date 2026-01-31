@@ -2,8 +2,8 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define BASE 0xa7000000
-#define SIZE 0x800
+#define BASE 0xc0000000
+#define SIZE 0x1000
 
 #define p_period 0x100
 
@@ -33,7 +33,7 @@
 
 int main(const char *args) {
 
-    putstr("mem test start!\n");
+    putstr("\nmem test start!\n");
     printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
     TEST(64, 987656789, uint64_t);
