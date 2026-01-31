@@ -123,6 +123,12 @@ module ysyx_25110270_ifetch
         end
     end
 
+    always @(posedge clk) begin
+        if(O_valid && O_inst == 0) begin
+            $error("IFETCH: Fetch instruction 0 at pc = 0x%08x", O_inst_addr);
+        end
+    end
+
     reg [`InstBus] inst;
     always @(posedge clk) begin
         if(!rst_n) begin
