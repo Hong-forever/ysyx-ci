@@ -6,10 +6,10 @@ static uint64_t us = 0;
 
 void __am_timer_init()
 {
-    // uint32_t time_hi = inl(RTC_PORT+ 4);
-    // uint32_t time_lo = inl(RTC_PORT);
+    uint32_t time_hi = inl(RTC_PORT+ 4);
+    uint32_t time_lo = inl(RTC_PORT);
 
-    // us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD;
+    us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD;
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime)

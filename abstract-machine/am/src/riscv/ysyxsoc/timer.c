@@ -8,7 +8,7 @@ void __am_timer_init()
 {
     uint32_t time_hi = inl(CLINT_PORT+ 4);
     uint32_t time_lo = inl(CLINT_PORT);
-    printf("Timer init: time_hi=0x%x time_lo=0x%x\n", time_hi, time_lo);
+    // printf("Timer init: time_hi=0x%x time_lo=0x%x\n", time_hi, time_lo);
 
     us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * YSYXSOC_PERIOD;
 }
