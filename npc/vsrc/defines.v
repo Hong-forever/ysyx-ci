@@ -347,6 +347,8 @@
 `define GPIO_SIZE     32'h0000_0010
 `define PS2_BASE      32'h1001_1000
 `define PS2_SIZE      32'h0000_0008
+`define VGA_BASE      32'h2100_0000
+`define VGA_SIZE      32'h0020_0000
 
 `define MromAddrBase  32'h2000_0000
 `define MromSize      32'h0001_0000

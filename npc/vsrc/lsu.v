@@ -361,10 +361,12 @@ module ysyx_25110270_lsu
     wire not_in_spi    = (I_memory_addr < `SPI_BASE     ) | (I_memory_addr >= (`SPI_BASE      + `SPI_SIZE   ));
     wire not_in_gpio   = (I_memory_addr < `GPIO_BASE    ) | (I_memory_addr >= (`GPIO_BASE     + `GPIO_SIZE  ));
     wire not_in_ps2    = (I_memory_addr < `PS2_BASE     ) | (I_memory_addr >= (`PS2_BASE      + `PS2_SIZE   ));
+    wire not_in_vga    = (I_memory_addr < `VGA_BASE     ) | (I_memory_addr >= (`VGA_BASE      + `VGA_SIZE   ));
 
     wire not_in_device =  not_in_mrom & not_in_sram & not_in_flash & 
                           not_in_psram & not_in_sdram  & not_in_clint & 
-                          not_in_serial & not_in_spi & not_in_gpio & not_in_ps2;
+                          not_in_serial & not_in_spi & not_in_gpio & 
+                          not_in_ps2 & not_in_vga;
 
     always @(posedge clk) begin
         if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
@@ -402,7 +404,8 @@ module ysyx_25110270_lsu
         (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE  + `CLINT_SIZE )) |
         (I_memory_addr >= `SPI_BASE    & I_memory_addr < (`SPI_BASE    + `SPI_SIZE   )) |
         (I_memory_addr >= `GPIO_BASE   & I_memory_addr < (`GPIO_BASE   + `GPIO_SIZE  )) |
-        (I_memory_addr >= `PS2_BASE    & I_memory_addr < (`PS2_BASE    + `PS2_SIZE   ))
+        (I_memory_addr >= `PS2_BASE    & I_memory_addr < (`PS2_BASE    + `PS2_SIZE   )) |
+        (I_memory_addr >= `VGA_BASE    & I_memory_addr < (`VGA_BASE    + `VGA_SIZE   ))
     );
 
 

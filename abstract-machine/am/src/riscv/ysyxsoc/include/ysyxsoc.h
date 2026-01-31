@@ -16,6 +16,7 @@
 #define SERIAL_PORT     0x10000000
 #define CLINT_PORT      0x02000000
 #define KBD_PORT        0x10011000
+#define VGA_PORT        0x21000000
 
 #define CSR_MVENDORID   0xF11
 #define CSR_MARCHID     0xF12
