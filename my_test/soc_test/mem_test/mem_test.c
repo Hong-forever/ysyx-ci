@@ -9,7 +9,7 @@
 
 #define PUT(i, period, bit, op) \
     do { \
-        if(i % period == 0) printf("%s: %x(%d bit) ", op, i, bit); \
+        if(i % period == 0) printf("%s: %d(%d bit) ", op, i, bit); \
     } while (0)
 
 #define TEST(bit, val_max, type) \
