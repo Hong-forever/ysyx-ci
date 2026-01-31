@@ -9,9 +9,6 @@ module ysyx_25110270_regfile
     input   wire                        clk,
     input   wire                        rst_n,
 
-    input   wire    [`InstBus       ]   I_inst,               //指令内容
-    input   wire    [`InstAddrBus   ]   I_inst_addr,
-
     input   wire    [`RegAddrBus    ]   I_rs1_raddr,      //读寄存器1地址
     input   wire    [`RegAddrBus    ]   I_rs2_raddr,      //读寄存器2地址
 
@@ -55,6 +52,7 @@ module ysyx_25110270_regfile
     output  wire    [`RegDataBus    ]   O_gpr30,
     output  wire    [`RegDataBus    ]   O_gpr31
 );
+
 
     reg [`RegDataBus] regs[1:`RegNum-1];   //寄存器组
 

@@ -65,9 +65,6 @@ module ysyx_25110270_wbu
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
 
-        .I_inst                 (I_inst                     ),
-        .I_inst_addr            (I_inst_addr                ),
-
         .I_rs1_raddr            (I_rs1_raddr                ),
         .I_rs2_raddr            (I_rs2_raddr                ),
 
@@ -143,6 +140,12 @@ module ysyx_25110270_wbu
     );
 
     assign O_ready = 1'b1;
+
+    always @(posedge clk) begin
+        if(I_inst == 0 && I_inst_addr != 0) begin
+            $error("Error: inst is 0 at addr %h!", I_inst_addr);
+        end
+    end
 
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
