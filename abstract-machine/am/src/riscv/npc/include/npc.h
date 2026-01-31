@@ -17,7 +17,7 @@ extern char _pmem_start;
 })
 
 #define SERIAL_PORT     0x10000000
-#define RTC_PORT        0x20000000
+#define RTC_PORT        0x02000000
 #define KBD_PORT        0x10011000
 #define VGA_PORT        0x21000000
 
