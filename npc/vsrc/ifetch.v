@@ -80,7 +80,7 @@ module ysyx_25110270_ifetch
 
     always @(posedge clk) begin
         if(!rst_n) begin
-            inst_arvalid <= 1'b1;
+            inst_arvalid <= 1'b0;
         end else begin
             inst_arvalid <= inst_arvalid_next;
         end
