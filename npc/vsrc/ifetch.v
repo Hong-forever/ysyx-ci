@@ -76,17 +76,13 @@ module ysyx_25110270_ifetch
         end
     end
 
+    wire inst_arvalid_next = (state == EXE & I_ready) || (state == IDLE && !(ibus_arvalid && ibus_arready));
+
     always @(posedge clk) begin
         if(!rst_n) begin
-            inst_arvalid <= 1'b0;
+            inst_arvalid <= 1'b1;
         end else begin
-            if(state == IDLE) begin
-                inst_arvalid <= 1'b1;
-            end else if(ibus_arvalid && ibus_arready) begin
-                inst_arvalid <= 1'b0;
-            end else begin
-                inst_arvalid <= 1'b0;
-            end
+            inst_arvalid <= inst_arvalid_next;
         end
     end
 
