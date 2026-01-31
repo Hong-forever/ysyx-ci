@@ -4,7 +4,7 @@
 // 写回单元
 //------------------------------------------------------------------------
 
-module wbu
+module ysyx_25110270_wbu
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -60,13 +60,10 @@ module wbu
     wire [`CSRDataBus] csr_mvendorid;
     wire [`CSRDataBus] csr_marchid;
 
-    regfile u_regfile
+    ysyx_25110270_regfile u_regfile
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-
-        .I_inst                 (I_inst                     ),
-        .I_inst_addr            (I_inst_addr                ),
 
         .I_rs1_raddr            (I_rs1_raddr                ),
         .I_rs2_raddr            (I_rs2_raddr                ),
@@ -112,7 +109,7 @@ module wbu
         .O_gpr31                (gpr31                      )
     );
 
-    csr_reg u_csr_reg
+    ysyx_25110270_csr_reg u_csr_reg
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -144,6 +141,12 @@ module wbu
 
     assign O_ready = 1'b1;
 
+    always @(posedge clk) begin
+        if(I_inst == 0 && I_inst_addr != 0) begin
+            $error("Error: inst is 0 at addr %h!", I_inst_addr);
+        end
+    end
+
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
 
@@ -168,13 +171,13 @@ module wbu
     reg [`InstAddrBus] inst_addr_r1, inst_addr_r2;
     reg [`InstAddrBus] pc;
     reg skip_r;
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
-            inst_r1         <= `Zero;
-            inst_addr_r1    <= `Zero;
-            inst_r2         <= `Zero;
-            inst_addr_r2    <= `Zero;
-            pc              <= `Zero;
+            inst_r1         <= 0;
+            inst_addr_r1    <= 0;
+            inst_r2         <= 0;
+            inst_addr_r2    <= 0;
+            pc              <= 0;
             skip_r          <= 1'b0;
         end else begin
             inst_r1         <= I_inst;
@@ -182,9 +185,9 @@ module wbu
             inst_r2         <= inst_r1;
             inst_addr_r2    <= inst_addr_r1;
             pc              <= O_flush ? O_flush_addr :
-                               (I_ls_addr == `Zero ? 
-                               (I_ex_addr == `Zero ? 
-                               (I_dec_addr == `Zero ? I_if_addr : I_dec_addr) 
+                               (I_ls_addr == 0 ? 
+                               (I_ex_addr == 0 ? 
+                               (I_dec_addr == 0 ? I_if_addr : I_dec_addr) 
                                : I_ex_addr) 
                                : I_ls_addr);
             skip_r          <= I_device_skip;
@@ -193,7 +196,7 @@ module wbu
 
     always @(*) begin
 
-        if((inst_r1 != `Zero && inst_addr_r1 != `Zero) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
+        if((inst_r1 != 0 && inst_addr_r1 != 0) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
             cpu_value
             (
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 

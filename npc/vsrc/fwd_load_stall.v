@@ -4,7 +4,7 @@
 // fwd load stall
 //------------------------------------------------------------------------
 
-module fwd_load_stall
+module ysyx_25110270_fwd_load_stall
 (
     input   wire                        I_ex_ls_valid,
     input   wire                        I_ex_ls_load,

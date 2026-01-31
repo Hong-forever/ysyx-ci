@@ -2,7 +2,7 @@
 
 //radix-16
             
-module  Booth_Ctrl 
+module ysyx_25110270_Booth_Ctrl 
 #(
     parameter   LENGTH          =   32,
     parameter   UNSINGED_BOOTH  =   1'b1

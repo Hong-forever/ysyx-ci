@@ -10,8 +10,7 @@ Context *__am_irq_handle(Context *c)
         case 11:
             ev.event = EVENT_YIELD;
             // printf("ecall from M-mode\n");
-            // has relized in trap.S
-            // c->mepc += 4; // skip ecall instruction
+            c->mepc += 4; // skip ecall instruction
             break;
         default:
             ev.event = EVENT_ERROR;
@@ -72,8 +71,7 @@ void yield()
 #ifdef __riscv_e
     asm volatile("li a5, -1; ecall");
 #else
-    // asm volatile("li a7, -1; ecall");
-    asm volatile("ecall");
+    asm volatile("li a7, -1; ecall");
 #endif
 }
 
