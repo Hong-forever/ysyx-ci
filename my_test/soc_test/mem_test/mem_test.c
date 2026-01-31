@@ -2,7 +2,7 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define BASE 0xa0000000
+#define BASE 0xc0000000
 #define SIZE 0x10
 
 #define p_period 0x1
