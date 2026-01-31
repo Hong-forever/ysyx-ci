@@ -1,6 +1,6 @@
 #include <npc.h>
 
-#define NPC_PERIOD 5// in us
+#define NPC_PERIOD 2 / 1000 // in ns
 
 static uint64_t us = 0;
 
@@ -9,7 +9,7 @@ void __am_timer_init()
     uint32_t time_hi = inl(RTC_PORT+ 4);
     uint32_t time_lo = inl(RTC_PORT);
 
-    printf("Timer init: time_hi=0x%x time_lo=0x%x\n", time_hi, time_lo);
+    // printf("Timer init: time_hi=0x%x time_lo=0x%x\n", time_hi, time_lo);
 
     us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD;
 }
@@ -27,7 +27,7 @@ void __am_timer_rtc(AM_TIMER_RTC_T *rtc)
     uint32_t time_hi = inl(RTC_PORT+ 4);
     uint32_t time_lo = inl(RTC_PORT);
 
-    // npc's period is 10us
+    // npc's period is 2us
     uint64_t up_us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * NPC_PERIOD; 
 
     uint64_t s = (us + up_us) / 1000000ULL;
