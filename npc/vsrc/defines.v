@@ -364,4 +364,3 @@
 `define SdramSize     32'h2000_0000
 
 `define RESET_VECTOR  `FlashAddrBase
-// `define RESET_VECTOR  `MromAddrBase
