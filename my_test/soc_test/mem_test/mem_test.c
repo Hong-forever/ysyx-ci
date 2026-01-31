@@ -2,22 +2,23 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define BASE 0xa0000000
+#define BASE 0xa3ffff00
 #define SIZE 0x800
 
-#define p_period 100
+#define p_period 0x100
 
-#define PUT(i, period, bit, op) \
+#define PUT(i, period, op) \
     do { \
-        if(i % period == 0) printf("%s: %u(%d bit) ", op, i, bit); \
+        if(i % period == 0) printf("%s: %x ", op, i); \
     } while (0)
 
 #define TEST(bit, val_max, type) \
     do { \
+        printf("Testing %d-bit memory...\n", bit); \
         volatile type *p = (volatile type *)BASE; \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             p[i] = i % val_max; \
-            PUT(i, p_period, bit, "write"); \
+            PUT(i, p_period, "write"); \
         } \
         printf("\n"); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
@@ -25,19 +26,19 @@
                 putstr("error\n"); \
                 return 1; \
             } \
-            PUT(i, p_period, bit, "read"); \
+            PUT(i, p_period, "read"); \
         } \
-        printf("\n"); \
+        printf("\n\n"); \
     } while (0)
 
 int main(const char *args) {
 
     putstr("mem test start!\n");
 
-    TEST(8,  256,  uint8_t );
-    TEST(16, 65536, uint16_t);
-    TEST(32, 1234321, uint32_t);
     TEST(64, 987656789, uint64_t);
+    TEST(32, 1234321, uint32_t);
+    TEST(16, 65536, uint16_t);
+    TEST(8,  256,  uint8_t );
 
     putstr("mem test pass!\n");
     return 0;
