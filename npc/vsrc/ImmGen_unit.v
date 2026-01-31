@@ -4,7 +4,7 @@
 // 立即数生成单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_ImmGen_unit
+module ImmGen_unit
 (
     input   wire    [`InstBus       ]   I_inst,
     output  wire    [`RegDataBus    ]   O_imm
@@ -29,7 +29,7 @@ module ysyx_25110270_ImmGen_unit
             `RV32I_OP_JALR   :  imm = rv32i_i_type_imm;
             `RV32I_OP_JAL    :  imm = rv32i_j_type_imm;
             `RV_OP_CSR       :  imm = rv_csr_type_imm;
-            default:            imm = 0;
+            default:            imm = `Zero;
         endcase
     end
 

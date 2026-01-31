@@ -4,7 +4,7 @@
 // 执行模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_exec
+module exec
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -82,7 +82,7 @@ module ysyx_25110270_exec
             `FWDSrc_sel_nfw     :   final_rs1_rdata = I_rs1_rdata;
             `FWDSrc_sel_ls      :   final_rs1_rdata = I_ls_rd_wdata;
             `FWDSrc_sel_wb      :   final_rs1_rdata = I_wb_rd_wdata;
-            default             :   final_rs1_rdata = 0;
+            default             :   final_rs1_rdata = `Zero;
         endcase
     end
 
@@ -91,7 +91,7 @@ module ysyx_25110270_exec
             `FWDSrc_sel_nfw     :   final_rs2_rdata = I_rs2_rdata;
             `FWDSrc_sel_ls      :   final_rs2_rdata = I_ls_rd_wdata;
             `FWDSrc_sel_wb      :   final_rs2_rdata = I_wb_rd_wdata;
-            default             :   final_rs2_rdata = 0;
+            default             :   final_rs2_rdata = `Zero;
         endcase
     end
 
@@ -100,7 +100,7 @@ module ysyx_25110270_exec
             `FWDSrc_sel_nfw     :   final_csr_rdata = I_csr_rdata;
             `FWDSrc_sel_ls      :   final_csr_rdata = I_ls_csr_wdata;
             `FWDSrc_sel_wb      :   final_csr_rdata = I_wb_csr_wdata;
-            default             :   final_csr_rdata = 0;
+            default             :   final_csr_rdata = `Zero;
         endcase
     end
 
@@ -109,7 +109,7 @@ module ysyx_25110270_exec
             `FWDSrc_sel_nfw     :   final_agu_src = I_rs1_rdata;
             `FWDSrc_sel_ls      :   final_agu_src = I_ls_rd_wdata;
             `FWDSrc_sel_wb      :   final_agu_src = I_wb_rd_wdata;
-            default             :   final_agu_src = 0;
+            default             :   final_agu_src = `Zero;
         endcase
     end
 
@@ -125,7 +125,7 @@ module ysyx_25110270_exec
         case(I_ALUSrcA_sel)
             `ALUSrcA_sel_rs1: alu_srca = final_rs1_rdata;
             `ALUSrcA_sel_pc:  alu_srca = I_inst_addr;
-            default:          alu_srca = 0;
+            default:          alu_srca = `Zero;
         endcase
     end
 
@@ -134,7 +134,7 @@ module ysyx_25110270_exec
             `ALUSrcB_sel_rs2: alu_srcb = final_rs2_rdata;
             `ALUSrcB_sel_imm: alu_srcb = I_imm;
             `ALUSrcB_sel_4:   alu_srcb = 4;
-            default:          alu_srcb = 0;
+            default:          alu_srcb = `Zero;
         endcase
     end
 
@@ -142,7 +142,7 @@ module ysyx_25110270_exec
         case(I_AGUSrc_sel)
             `AGUSrc_sel_rs1: agu_src = final_agu_src;
             `AGUSrc_sel_pc:  agu_src = I_inst_addr;
-            default:         agu_src = 0;
+            default:         agu_src = `Zero;
         endcase
     end
 
@@ -150,8 +150,8 @@ module ysyx_25110270_exec
         case(I_CSRSrc_sel)
             `CSRSrc_sel_rs1: csr_src = final_rs1_rdata;
             `CSRSrc_sel_imm: csr_src = I_imm;
-            `CSRSrc_sel_nop: csr_src = 0;
-            default        : csr_src = 0;
+            `CSRSrc_sel_nop: csr_src = `Zero;
+            default        : csr_src = `Zero;
         endcase
     end
 
@@ -167,7 +167,7 @@ module ysyx_25110270_exec
     wire stallreq_mul = start_mul;
 
     reg start_mul_reg;
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             start_mul_reg <= 0;
         end else begin
@@ -185,7 +185,7 @@ module ysyx_25110270_exec
 
     assign stallreq = stallreq_div | stallreq_mul;
 
-    ysyx_25110270_exe_alu alu
+    exe_alu alu
     (
         .clk                        (clk                    ),
         .rst_n                      (rst_n                  ),
@@ -213,7 +213,7 @@ module ysyx_25110270_exec
     // bru运算
     //------------------------------------------------------------------------
     wire bru_taken;
-    ysyx_25110270_exe_bru bru
+    exe_bru bru
     (
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
@@ -225,7 +225,7 @@ module ysyx_25110270_exec
     // csr运算
     //------------------------------------------------------------------------
     wire [`CSRDataBus] csr_wdata;
-    ysyx_25110270_exe_csr csr
+    exe_csr csr
     (
         .I_csr_src                  (csr_src                ),
         .I_csr_rdata                (final_csr_rdata        ),

@@ -1,6 +1,6 @@
 //***********************// 三数全加器 //*******************************//
 
-module ysyx_25110270_full_adder
+module full_adder
 #(
     parameter   LENGTH  =   32       //位宽参数
 )(

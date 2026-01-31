@@ -4,7 +4,7 @@
 // CSR寄存器
 //------------------------------------------------------------------------
 
-module ysyx_25110270_csr_reg
+module csr_reg
 (
     input   wire                        clk,
     input   wire                        rst_n,
@@ -56,7 +56,7 @@ module ysyx_25110270_csr_reg
     wire except_mret = is_mret;
 
     reg e_sync_r, e_mret_r;
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             e_sync_r <= 1'b0;
             e_mret_r <= 1'b0;
@@ -73,9 +73,9 @@ module ysyx_25110270_csr_reg
 
     //cycle counter
     //复位撤销后就一直计数
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            cycle <= 0;
+            cycle <= `Zero;
         end else begin
             cycle <= cycle + 1'b1;
         end
@@ -83,14 +83,14 @@ module ysyx_25110270_csr_reg
 
     //write reg
     //写寄存器操作
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            mtvec <= 0;
-            mcause <= 0;
-            mepc <= 0;
-            mie <= 0;
-            mstatus <= 0;
-            mscratch <= 0;
+            mtvec <= `Zero;
+            mcause <= `Zero;
+            mepc <= `Zero;
+            mie <= `Zero;
+            mstatus <= `Zero;
+            mscratch <= `Zero;
             mvendorid <= `YSYX_LOGO;
             marchid <= `YSYX_STU_NUM;
         end else begin
@@ -135,7 +135,7 @@ module ysyx_25110270_csr_reg
                 `CSR_Addr_CYCLEH:   rdata1 = cycle[63:32];
                 `CSR_Addr_MVENDORID:rdata1 = mvendorid;
                 `CSR_Addr_MARCHID:  rdata1 = marchid;
-                default:            rdata1 = 0;
+                default:            rdata1 = `Zero;
             endcase
         end
     end
@@ -148,7 +148,7 @@ module ysyx_25110270_csr_reg
 
     assign O_flush = except_call | except_mret;
     assign O_flush_addr =   except_call ? mtvec :
-                            except_mret ? mepc  : 0;
+                            except_mret ? mepc  : `Zero;
 
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;

@@ -52,6 +52,16 @@ __am_asm_trap:
 
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
+
+  li a5, 11
+  beq t0, a5, adj_epc
+  j then
+
+adj_epc:
+  addi t2, t2, 4
+
+then:
+
   STORE t2, OFFSET_EPC(sp)
 
   # set mstatus.MPRV to pass difftest

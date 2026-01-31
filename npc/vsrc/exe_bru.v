@@ -4,7 +4,7 @@
 // 执行分支跳转模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_exe_bru
+module exe_bru
 (
     input   wire    [`RegDataBus    ]   I_alu_srca,
     input   wire    [`RegDataBus    ]   I_alu_srcb,

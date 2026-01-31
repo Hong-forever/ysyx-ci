@@ -4,7 +4,7 @@
 // clint模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_clint
+module clint
 #(
     parameter ADDR_WIDTH = 32,                  //地址总线宽度
     parameter DATA_WIDTH = 32                   //数据总线宽度
@@ -33,7 +33,7 @@ module ysyx_25110270_clint
 );
 
     reg [2*DATA_WIDTH-1:0] mtime;
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             mtime <= 0;
         end else begin
@@ -44,7 +44,7 @@ module ysyx_25110270_clint
     reg                    arready;
     reg                    awready;
     reg                    wready;
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             arready <= 1'b1;
             awready <= 1'b1;
@@ -71,13 +71,13 @@ module ysyx_25110270_clint
 
     reg [`MemDataBus] rdata;
     reg               rdata_valid;
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            rdata <= 0;
+            rdata <= `Zero;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= 0;
+                rdata <= `Zero;
                 rdata_valid <= 1'b0;
             end else if(arvalid_i && arready_o) begin
                 rdata <= araddr_i[2] ? mtime[63:32] : mtime[31:0];
@@ -87,7 +87,7 @@ module ysyx_25110270_clint
     end
 
     reg wdata_valid;
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             wdata_valid <= 1'b0;
         end else begin

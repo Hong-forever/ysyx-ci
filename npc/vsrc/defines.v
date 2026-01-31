@@ -4,7 +4,7 @@
 // VERILOG MACRO
 //------------------------------------------------------------------------
 `define DPIC
-// `define LFSR
+`define LFSR
 
 `define RAMDOM_WIDTH 8
 
@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------
 // CONSTANT DEFINITIONS
 //------------------------------------------------------------------------
+`define Zero 0
 `define True 1'b1
 `define False 1'b0
 `define Enable 1'b1
@@ -337,31 +338,9 @@
 `define InstAddrBus `InstAddrWidth-1:0
 
 `define DBUS_MASK 4
+`define AXI_RESP_BUS 1:0
 
-`define CLINT_BASE    32'h0200_0000
-`define CLINT_SIZE    32'h0001_0000
-`define SERIAL_BASE   32'h1000_0000
-`define SERIAL_SIZE   32'h0000_1000
-`define SPI_BASE      32'h1000_1000
-`define SPI_SIZE      32'h0000_1000
-`define GPIO_BASE     32'h1000_2000
-`define GPIO_SIZE     32'h0000_0010
-`define PS2_BASE      32'h1001_1000
-`define PS2_SIZE      32'h0000_0008
-`define VGA_BASE      32'h2100_0000
-`define VGA_SIZE      32'h0020_0000
-`define CHIPL_BASE    32'hc000_0000
-`define CHIPL_SIZE    32'h4000_0000
+`define SERIAL_MMIO 32'h1000_0000
+`define RTC_MMIO    32'h2000_0000
 
-`define MromAddrBase  32'h2000_0000
-`define MromSize      32'h0001_0000
-`define SramAddrBase  32'h0f00_0000
-`define SramSize      32'h0100_0000
-`define FlashAddrBase 32'h3000_0000
-`define FlashSize     32'h1000_0000
-`define PsramAddrBase 32'h8000_0000
-`define PsramSize     32'h2000_0000
-`define SdramAddrBase 32'ha000_0000
-`define SdramSize     32'h2000_0000
-
-`define RESET_VECTOR  `SdramAddrBase
+`define RomAddrBase 32'h8000_0000

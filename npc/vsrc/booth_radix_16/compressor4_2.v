@@ -1,6 +1,6 @@
 //***********************// 4-2压缩器 //*******************************//
 
-module ysyx_25110270_compressor4_2
+module  compressor4_2
 #(
     parameter   LENGTH  =   32      //位宽参数
 )(

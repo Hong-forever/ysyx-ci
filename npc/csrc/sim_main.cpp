@@ -1,13 +1,12 @@
 #include "common.h"
 
 
-void cpu_reset(int n);
+void reset(int n);
 void init_monitor(int argc, char *argv[]);
 void engine_start();
 void cleanup_ftrace();
 int is_exit_status_bad();
 
-IFDEF(CONFIG_USE_NVBOARD, void nvboard_bind_all_pins(TOP_NAME *top));
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
 VerilatedContext *contextp = new VerilatedContext;
@@ -37,7 +36,7 @@ int main(int argc, char *argv[])
 
     init_monitor(argc, argv);
 
-    cpu_reset(20);
+    reset(10);
 
     engine_start();
     
