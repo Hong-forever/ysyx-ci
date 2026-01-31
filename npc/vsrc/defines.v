@@ -349,6 +349,8 @@
 `define PS2_SIZE      32'h0000_0008
 `define VGA_BASE      32'h2100_0000
 `define VGA_SIZE      32'h0020_0000
+`define CHIPL_BASE    32'hc000_0000
+`define CHIPL_SIZE    32'h4000_0000
 
 `define MromAddrBase  32'h2000_0000
 `define MromSize      32'h0001_0000
