@@ -286,15 +286,6 @@ module ysyx_25110270_lsu
         end
     end
 
-    // wire data_avalid_next = (state == WB) || (state == IDLE && I_ls_valid & valid && !(dbus_awready | dbus_arready));
-    // always @(posedge clk) begin
-    //     if(!rst_n) begin
-    //         data_avalid <= 1'b0;
-    //     end else begin
-    //         data_avalid <= data_avalid_next;
-    //     end
-    // end
-
     always @(*) begin
         if(!rst_n) begin
             nstate = IDLE;
@@ -419,21 +410,18 @@ module ysyx_25110270_lsu
     );
 
 
-    assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_awaddr = I_memory_addr;
     assign dbus_awid = 4'b0000;
     assign dbus_awlen = 8'b0000_0000;
     assign dbus_awsize = data_awsize;
     assign dbus_awburst = 2'b01;
 
-    assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_wdata = wdata;
     assign dbus_wstrb = data_mask;
     assign dbus_wlast = dbus_wvalid;
 
     assign dbus_bready = data_bready;
 
-    assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
     assign dbus_araddr = I_memory_addr;
     assign dbus_arid = 4'b0000;
     assign dbus_arlen = 8'b0000_0000;
@@ -442,43 +430,48 @@ module ysyx_25110270_lsu
 
     assign dbus_rready = data_rready;
 
-    // reg avalid_r;
-    // wire [`RAMDOM_WIDTH-1:0] drandom;
-    // reg [`RAMDOM_WIDTH-1:0] drandom_r;
-    // reg req_flag;
-    // always @(posedge clk) begin
-    //     if(!rst_n) begin
-    //         avalid_r <= 1'b0;
-    //         drandom_r <= 0;
-    //         req_flag <= 1'b0;
-    //     end else if(req_flag) begin
-    //         drandom_r <= drandom_r - 1;
-    //         if(drandom_r == 0) begin
-    //             avalid_r <= 1'b1;
-    //             req_flag <= 1'b0;
-    //         end
-    //     end else if(state == IDLE && data_avalid && !avalid_r) begin
-    //         avalid_r <= 1'b0;
-    //         drandom_r <= drandom;
-    //         req_flag <= 1'b1;
-    //     end else if((dbus_awvalid && dbus_awready) || (dbus_arvalid && dbus_arready)) begin
-    //         avalid_r <= 1'b0;
-    //     end
-    // end
+`ifndef LFSR
+    assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
+    assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
+    assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
+`else
+    reg avalid_r;
+    wire [`RAMDOM_WIDTH-1:0] drandom;
+    reg [`RAMDOM_WIDTH-1:0] drandom_r;
+    reg req_flag;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            avalid_r <= 1'b0;
+            drandom_r <= 0;
+            req_flag <= 1'b0;
+        end else if(req_flag) begin
+            drandom_r <= drandom_r - 1;
+            if(drandom_r == 0) begin
+                avalid_r <= 1'b1;
+                req_flag <= 1'b0;
+            end
+        end else if(state == IDLE && data_avalid && !avalid_r) begin
+            avalid_r <= 1'b0;
+            drandom_r <= drandom;
+            req_flag <= 1'b1;
+        end else if((dbus_awvalid && dbus_awready) || (dbus_arvalid && dbus_arready)) begin
+            avalid_r <= 1'b0;
+        end
+    end
 
-    // assign dbus_awvalid = avalid_r & I_ls_type[`ls_diff_width-1];
-    // assign dbus_wvalid = avalid_r & I_ls_type[`ls_diff_width-1];
-    // assign dbus_arvalid = avalid_r & ~I_ls_type[`ls_diff_width-1];
+    assign dbus_awvalid = avalid_r & I_ls_type[`ls_diff_width-1];
+    assign dbus_wvalid = avalid_r & I_ls_type[`ls_diff_width-1];
+    assign dbus_arvalid = avalid_r & ~I_ls_type[`ls_diff_width-1];
 
-    // lfsr #(
-    //     .WIDTH                  (`RAMDOM_WIDTH              )      
-    // ) ilfsr_inst
-    // (
-    //     .clk                    (clk                        ),
-    //     .rst_n                  (rst_n                      ),
-    //     .I_seed                 (`SEED2                     ),
-    //     .O_random               (drandom                    )
-    // );
-
+    lfsr #(
+        .WIDTH                  (`RAMDOM_WIDTH              )      
+    ) ilfsr_inst
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_seed                 (`SEED2                     ),
+        .O_random               (drandom                    )
+    );
+`endif
 
 endmodule
