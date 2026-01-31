@@ -6,10 +6,10 @@ static uint64_t us = 0;
 
 void __am_timer_init()
 {
-    // uint32_t time_hi = inl(CLINT_PORT+ 4);
-    // uint32_t time_lo = inl(CLINT_PORT);
+    uint32_t time_hi = inl(CLINT_PORT+ 4);
+    uint32_t time_lo = inl(CLINT_PORT);
 
-    // us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * YSYXSOC_PERIOD;
+    us = (((uint64_t)time_hi << 32) | (uint64_t)time_lo) * YSYXSOC_PERIOD;
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime)
