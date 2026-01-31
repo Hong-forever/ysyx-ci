@@ -79,14 +79,14 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
         case 0x49: key_code = AM_KEY_PERIOD; break;
         case 0x4A: key_code = AM_KEY_SLASH; break;
         case 0x59: key_code = AM_KEY_RSHIFT; break;
-        case 0x14: key_code = AM_KEY_LCTRL; break;
+        case 0x14: key_code = AM_KEY_LCTRL; printf("ll\n"); break;
         // case : key_code = AM_KEY_APPLICATION; break;
         case 0x11: key_code = AM_KEY_LALT; break;
         case 0x29: key_code = AM_KEY_SPACE; break;
         case 0xE0: 
             switch(inb(KBD_PORT)) {
                 case 0x11: key_code = AM_KEY_RALT; break;
-                case 0x14: key_code = AM_KEY_RCTRL; break;
+                case 0x14: key_code = AM_KEY_RCTRL; printf("rr\n"); break;
                 case 0x75: key_code = AM_KEY_UP; break;
                 case 0x72: key_code = AM_KEY_DOWN; break;
                 case 0x6B: key_code = AM_KEY_LEFT; break;
