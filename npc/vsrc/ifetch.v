@@ -182,44 +182,41 @@ module ysyx_25110270_ifetch
 
     assign ibus_rready = inst_rready;
 
-`ifndef LFSR
     assign ibus_arvalid = inst_arvalid;
-`else
-    reg arvalid_r;
-    wire [`RAMDOM_WIDTH-1:0] irandom;
-    reg [`RAMDOM_WIDTH-1:0] irandom_r;
-    reg req_flag;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            arvalid_r <= 1'b0;
-            irandom_r <= 0;
-            req_flag <= 1'b0;
-        end else if(req_flag) begin
-            irandom_r <= irandom_r - 1;
-            if(irandom_r == 0) begin
-                arvalid_r <= 1'b1;
-                req_flag <= 1'b0;
-            end
-        end else if(state == IDLE && inst_arvalid && !arvalid_r) begin
-            arvalid_r <= 1'b0;
-            irandom_r <= irandom;
-            req_flag <= 1'b1;
-        end else if(ibus_arvalid && ibus_arready) begin
-            arvalid_r <= 1'b0;
-        end
-    end
+    // reg arvalid_r;
+    // wire [`RAMDOM_WIDTH-1:0] irandom;
+    // reg [`RAMDOM_WIDTH-1:0] irandom_r;
+    // reg req_flag;
+    // always @(posedge clk) begin
+    //     if(!rst_n) begin
+    //         arvalid_r <= 1'b0;
+    //         irandom_r <= 0;
+    //         req_flag <= 1'b0;
+    //     end else if(req_flag) begin
+    //         irandom_r <= irandom_r - 1;
+    //         if(irandom_r == 0) begin
+    //             arvalid_r <= 1'b1;
+    //             req_flag <= 1'b0;
+    //         end
+    //     end else if(state == IDLE && inst_arvalid && !arvalid_r) begin
+    //         arvalid_r <= 1'b0;
+    //         irandom_r <= irandom;
+    //         req_flag <= 1'b1;
+    //     end else if(ibus_arvalid && ibus_arready) begin
+    //         arvalid_r <= 1'b0;
+    //     end
+    // end
 
-    assign ibus_arvalid = arvalid_r;
+    // assign ibus_arvalid = arvalid_r;
 
-    lfsr #(
-        .WIDTH                  (`RAMDOM_WIDTH              )      
-    ) ilfsr_inst
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_seed                 (`SEED1                     ),
-        .O_random               (irandom                    )
-    );
-`endif
+    // lfsr #(
+    //     .WIDTH                  (`RAMDOM_WIDTH              )      
+    // ) ilfsr_inst
+    // (
+    //     .clk                    (clk                        ),
+    //     .rst_n                  (rst_n                      ),
+    //     .I_seed                 (`SEED1                     ),
+    //     .O_random               (irandom                    )
+    // );
 
 endmodule
