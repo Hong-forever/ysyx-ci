@@ -76,6 +76,7 @@ module ysyx_25110270_ifetch
         end
     end
 
+
     always @(*) begin
         if(!rst_n) begin
             inst_arvalid = 1'b0;
@@ -84,7 +85,7 @@ module ysyx_25110270_ifetch
             case(state)
                 IDLE: begin
                     inst_arvalid = 1'b1;
-                    nstate = ibus_arvalid & ibus_arready ? MEM : IDLE;
+                    nstate = ibus_arready ? MEM : IDLE;
                 end
                 MEM: begin
                     inst_arvalid = 1'b0;
@@ -173,11 +174,13 @@ module ysyx_25110270_ifetch
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
-    // assign ibus_arvalid = inst_arvalid;
     assign ibus_araddr = pc;
 
     assign ibus_rready = inst_rready;
 
+`ifndef LFSR
+    assign ibus_arvalid = inst_arvalid;
+`else
     reg arvalid_r;
     wire [`RAMDOM_WIDTH-1:0] irandom;
     reg [`RAMDOM_WIDTH-1:0] irandom_r;
@@ -213,5 +216,6 @@ module ysyx_25110270_ifetch
         .I_seed                 (`SEED1                     ),
         .O_random               (irandom                    )
     );
+`endif
 
 endmodule
