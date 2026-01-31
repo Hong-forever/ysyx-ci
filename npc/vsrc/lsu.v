@@ -286,6 +286,16 @@ module ysyx_25110270_lsu
         end
     end
 
+    wire data_avalid_next = (state == IDLE && I_ls_valid & valid && (dbus_awready | dbus_arready));
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            data_avalid <= 1'b0;
+        end else begin
+            data_avalid <= 
+        
+    end
+
     always @(*) begin
         if(!rst_n) begin
             nstate = IDLE;
@@ -430,11 +440,11 @@ module ysyx_25110270_lsu
 
     assign dbus_rready = data_rready;
 
-`ifndef LFSR
-    assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
-    assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
-    assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
-`else
+// `ifndef LFSR
+//     assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
+//     assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
+//     assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
+// `else
     reg avalid_r;
     wire [`RAMDOM_WIDTH-1:0] drandom;
     reg [`RAMDOM_WIDTH-1:0] drandom_r;
@@ -472,6 +482,6 @@ module ysyx_25110270_lsu
         .I_seed                 (`SEED2                     ),
         .O_random               (drandom                    )
     );
-`endif
+// `endif
 
 endmodule
