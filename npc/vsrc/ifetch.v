@@ -178,11 +178,13 @@ module ysyx_25110270_ifetch
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
-    // assign ibus_arvalid = inst_arvalid;
     assign ibus_araddr = pc;
 
     assign ibus_rready = inst_rready;
 
+`ifndef LFSR
+    assign ibus_arvalid = inst_arvalid;
+`else
     reg arvalid_r;
     wire [`RAMDOM_WIDTH-1:0] irandom;
     reg [`RAMDOM_WIDTH-1:0] irandom_r;
@@ -218,5 +220,6 @@ module ysyx_25110270_ifetch
         .I_seed                 (`SEED1                     ),
         .O_random               (irandom                    )
     );
+`endif
 
 endmodule

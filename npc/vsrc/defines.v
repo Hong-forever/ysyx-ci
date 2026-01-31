@@ -4,6 +4,7 @@
 // VERILOG MACRO
 //------------------------------------------------------------------------
 `define DPIC
+// `define LFSR
 
 `define RAMDOM_WIDTH 8
 
