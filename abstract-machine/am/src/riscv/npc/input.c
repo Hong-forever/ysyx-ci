@@ -1,9 +1,9 @@
 #include <npc.h>
 
-uint8_t key_code_get(uint8_t key_data, uint8_t e0_bk_flag)
+uint8_t key_code_get(uint8_t key_data, uint8_t e0_flag)
 {
     uint8_t key_code = 0;
-    if(!e0_bk_flag) {
+    if(!e0_flag) {
         switch(key_data) {
             case 0x76: key_code = AM_KEY_ESCAPE; break;
             case 0x05: key_code = AM_KEY_F1; break;
@@ -118,22 +118,27 @@ uint8_t key_code_get(uint8_t key_data, uint8_t e0_bk_flag)
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
     uint8_t key_data = inb(KBD_PORT);
 
-    uint8_t e0_bk_flag = 0;
+    uint8_t e0_flag = 0;
 
     if(key_data == 0xF0) { // break code
         kbd->keydown = 0;
         key_data = inb(KBD_PORT);
         // printf("break code detected\n");
-    } else if(key_data == 0xE0 && inb(KBD_PORT) == 0xF0) {
-        printf("e0 break code detected\n");
-        kbd->keydown = 0;
-        key_data = inb(KBD_PORT);
-        e0_bk_flag = 1;
+    } else if(key_data == 0xE0) {
+        if((key_data = inb(KBD_PORT)) == 0xF0) {
+            printf("e0 break code detected\n");
+            kbd->keydown = 0;
+            key_data = inb(KBD_PORT);
+            e0_flag = 1;
+        } else {
+            kbd->keydown = 1;
+            e0_flag = 1;
+        }
     } else {
         kbd->keydown = 1;
     }
 
-    uint8_t key_code = key_code_get(key_data, e0_bk_flag);
+    uint8_t key_code = key_code_get(key_data, e0_flag);
 
 
 
