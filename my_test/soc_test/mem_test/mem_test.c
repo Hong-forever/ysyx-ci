@@ -3,24 +3,24 @@
 #include <klib-macros.h>
 
 #define BASE 0xa0000000
-#define SIZE 0x8000
+#define SIZE 0x800
 
 #define p_period 100
 
 #define PUT(i, period, bit, op) \
     do { \
-        if(i % period == 0) printf("%s: %d(%d bit) ", op, i, bit); \
+        if(i % period == 0) printf("%s: %u(%d bit) ", op, i, bit); \
     } while (0)
 
 #define TEST(bit, val_max, type) \
     do { \
         volatile type *p = (volatile type *)BASE; \
-        for (uint64_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
+        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             p[i] = i % val_max; \
             PUT(i, p_period, bit, "write"); \
         } \
         printf("\n"); \
-        for(uint64_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
+        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             if(p[i] != i % val_max) { \
                 putstr("error\n"); \
                 return 1; \
