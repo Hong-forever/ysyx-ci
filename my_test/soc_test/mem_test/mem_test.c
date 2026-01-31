@@ -33,7 +33,8 @@
 
 int main(const char *args) {
 
-    putstr("mem test start!\n\n");
+    putstr("mem test start!\n");
+    printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
     TEST(64, 987656789, uint64_t);
     TEST(32, 1234321, uint32_t);
