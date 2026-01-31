@@ -365,7 +365,7 @@ module ysyx_25110270_lsu
     wire not_in_chipl  = (I_memory_addr < `CHIPL_BASE   )/* | (I_memory_addr >= (`CHIPL_BASE    + `CHIPL_SIZE ))*/;
 
     wire not_in_device =  not_in_mrom & not_in_sram & not_in_flash & 
-                          not_in_psram & not_in_sdram  & not_in_clint & 
+                          not_in_psram & not_in_sdram & not_in_clint & 
                           not_in_serial & not_in_spi & not_in_gpio & 
                           not_in_ps2 & not_in_vga & not_in_chipl;
 
