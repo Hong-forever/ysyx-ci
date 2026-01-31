@@ -286,25 +286,32 @@ module ysyx_25110270_lsu
         end
     end
 
+    wire ls_req = I_ls_valid & valid;
+    wire data_avalid_next = (state == IDLE && ls_req && !(dbus_awready | dbus_arready));
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            data_avalid <= 1'b0;
+        end else begin
+            data_avalid <= data_avalid_next;
+        end
+    end
+
     always @(*) begin
         if(!rst_n) begin
             nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    data_avalid = I_ls_valid & valid;
                     nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
                 end
                 MEM: begin
-                    data_avalid = 1'b0;
                     nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
                 end
                 WB: begin
-                    data_avalid = 1'b0;
                     nstate = IDLE;
                 end
                 default: begin
-                    data_avalid = 1'b0;
                     nstate = IDLE;
                 end
             endcase
@@ -341,13 +348,13 @@ module ysyx_25110270_lsu
         end else begin
             if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
                 stallreq_mem <= 1'b0;
-            end else if(data_avalid || state == MEM) begin
+            end else if(ls_req || state == MEM) begin
                 stallreq_mem <= 1'b1;
             end
         end
     end
 
-    wire stallreq_ls_req = data_avalid;
+    wire stallreq_ls_req = ls_req;
     wire stallreq = stallreq_mem | stallreq_ls_req;
 
     wire not_in_mrom   = (I_memory_addr < `MromAddrBase ) | (I_memory_addr >= (`MromAddrBase  + `MromSize   ));

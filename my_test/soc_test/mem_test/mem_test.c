@@ -9,7 +9,7 @@
 
 #define PUT(i, period, op, bit) \
     do { \
-        if(i % period == 0) printf("%s: 0x%x-0x%x ", op, i * (bit / 8), (i + period) * (bit / 8) - 1); \
+        if(i % period == 0) printf("(%s): 0x%x-0x%x ", op, i * (bit / 8), (i + period) * (bit / 8) - 1); \
     } while (0)
 
 #define TEST(bit, val_max, type) \
@@ -17,16 +17,16 @@
         printf("Testing %d-bit memory...\n", bit); \
         volatile type *p = (volatile type *)BASE; \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            p[i] = i % val_max; \
-            PUT(i, p_period, "write", bit); \
+            p[i] = i + val_max; \
+            PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            if(p[i] != i % val_max) { \
+            if(p[i] != i + val_max) { \
                 putstr("error\n"); \
                 return 1; \
             } \
-            PUT(i, p_period, "read", bit); \
+            PUT(i, p_period, "r", bit); \
         } \
         printf("\n\n"); \
     } while (0)
@@ -36,10 +36,10 @@ int main(const char *args) {
     putstr("\nmem test start!\n");
     printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
-    TEST(64, 987656789, uint64_t);
-    TEST(32, 1234321, uint32_t);
-    TEST(16, 65536, uint16_t);
-    TEST(8,  256,  uint8_t );
+    TEST(64, 9876789, uint64_t);
+    TEST(32, 124321,  uint32_t);
+    TEST(16, 656,     uint16_t);
+    TEST(8,  26,      uint8_t );
 
     putstr("mem test pass!\n\n");
     return 0;
