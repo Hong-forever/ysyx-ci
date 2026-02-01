@@ -448,11 +448,20 @@ module ysyx_25110270_lsu
     
     import "DPI-C" function void ls_delay_cal(input int begin_flag, input int end_flag);
 
+    reg begin_flag_r;
     wire begin_flag = dbus_arvalid | dbus_awvalid;
     wire end_flag   = (dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready);
 
     always @(posedge clk) begin
-        if(begin_flag) begin
+        if(!rst_n) begin
+            begin_flag_r <= 1'b0;
+        end else begin
+            begin_flag_r <= begin_flag;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(begin_flag & ~begin_flag_r) begin
             ls_delay_cal(1, 0);
         end else if(end_flag) begin
             ls_delay_cal(0, 1);
