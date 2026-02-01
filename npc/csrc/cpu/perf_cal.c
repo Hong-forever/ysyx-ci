@@ -33,7 +33,7 @@ extern "C" void decoder_inst_type_cal(int inst_type) {
         default: break;
     }
     dec_inst++;
-    printf("Decoder Cal: inst_type=0x%x, total %lu\n", inst_type, dec_inst);
+    // printf("Decoder Cal: inst_type=0x%x, total %lu\n", inst_type, dec_inst);
 }
 
 extern "C" void exec_inst_cal(int valid) {
@@ -55,7 +55,7 @@ void perf_cal() {
     printf("\nIFU Inst: %lu\n", ifu_inst);
     printf("Decoder Inst: %lu\n", dec_inst);
     printf("Exec   Inst: %lu\n", exec_inst);
-    
+
     printf("\nInstruction Type Breakdown:\n");
 
     printf("ALU Inst(one):   %u\n", alu_inst_one);

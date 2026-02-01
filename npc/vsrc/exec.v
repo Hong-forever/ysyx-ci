@@ -163,20 +163,30 @@ module ysyx_25110270_exec
 
     wire [`RegDataBus] alu_result;
 
+    reg valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
     wire mul_ready;
-    wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & ~mul_ready;
-    wire stallreq_mul = start_mul;
+    wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
 
     reg start_mul_reg;
     always @(posedge clk) begin
         if(!rst_n) begin
             start_mul_reg <= 0;
-        end else begin
+        end else if(valid) begin
             start_mul_reg <= start_mul;
+        end else if(mul_ready) begin
+            start_mul_reg <= 0;
         end
     end
 
-    wire mul_start_one_cycle = start_mul & ~start_mul_reg;
+    wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
 
     wire div_ready;
     wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
@@ -194,7 +204,7 @@ module ysyx_25110270_exec
         .I_alu_srcb                 (alu_srcb               ),
         .I_alu_ctrl                 (I_ALUCtrl              ),
         .O_alu_result               (alu_result             ),
-        .I_mul_start                (mul_start_one_cycle    ),
+        .I_mul_start                (start_mul   ),
         .O_mul_ready                (mul_ready              ),
 
         .I_signed_div               (signed_div             ),
@@ -264,17 +274,10 @@ module ysyx_25110270_exec
 `ifdef PERF
     import "DPI-C" function void exec_inst_cal(input int valid);
 
-    reg valid;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 1'b0;
-        end else begin
-            valid <= I_valid;
-        end
-    end
+
 
     always @(posedge clk) begin
-        exec_inst_cal(valid);
+        exec_inst_cal(valid & (|I_inst) & (|I_inst_addr));
     end
 
 `endif
