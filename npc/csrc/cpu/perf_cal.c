@@ -84,17 +84,17 @@ void perf_cal() {
     uint64_t total_inst_valid = TOTAL_INST_VALID;
 
     printf("===== Performance Calulation =====\n");
-    printf("Total Cycle: %lu\n", total_cycle);
+    printf("Total Cycle:      %lu\n", total_cycle);
     printf("Total Valid Inst: %lu\n", total_inst_valid);
     if (total_cycle != 0) {
-        printf("IPC: %.2f\n", (double)total_inst_valid / (double)total_cycle);
+        printf("IPC: %.2f\n\n", (double)total_inst_valid / (double)total_cycle);
     } else {
-        printf("IPC: INF\n");
+        printf("IPC: INF\n\n");
     }
-    printf("\nIFU Inst: %lu\n", ifu_inst);
-    printf("Decoder Inst: %lu\n", dec_inst);
-    printf("Exec   Inst: %lu\n", exec_inst);
-    printf("Load/Store Data: %lu\n", ls_data_nr);
+    printf("IFU  Inst: %lu\n", ifu_inst);
+    printf("Dec  Inst: %lu\n", dec_inst);
+    printf("Exec Inst: %lu\n", exec_inst);
+    printf("L/S  Data: %lu\n", ls_data_nr);
 
     printf("\nInstruction Type Breakdown:\n");
     printf("ALU Inst(one):   %u(%.2f%%)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)total_inst_valid * 100);
