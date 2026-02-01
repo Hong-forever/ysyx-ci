@@ -76,7 +76,7 @@ extern "C" void wb_inst_cycle_cal(int pc) {
                 case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; break;
                 default:                                                              break;
             }
-            printf("WB Cal: pc=0x%x, type=0x%x, cycle=%lu\n", pc, inst_buffer[i].type, cycle);
+            // printf("WB Cal: pc=0x%x, type=0x%x, cycle=%lu\n", pc, inst_buffer[i].type, cycle);
             break;
         }
     }
@@ -87,31 +87,34 @@ void perf_cal() {
 
     printf("===== Performance Calulation =====\n");
     printf("Total Cycle: %lu\n", total_cycle);
-    printf("Total Inst:  %lu\n", g_nr_guest_inst);
+    printf("Total Inst : %lu\n", g_nr_guest_inst);
     if (total_cycle != 0) {
-        printf("IPC:       %.2f\n\n", (double)g_nr_guest_inst / (double)total_cycle);
+        printf("IPC      : %.2f\n\n", (double)g_nr_guest_inst / (double)total_cycle);
     } else {
-        printf("IPC:       INF\n\n");
+        printf("IPC      : INF\n\n");
     }
     printf("IFU  Inst: %lu\n", ifu_inst);
     printf("Dec  Inst: %lu\n", dec_inst);
     printf("Exec Inst: %lu\n", exec_inst);
     printf("L/S  Data: %lu\n", ls_data_nr);
 
-    printf("\nInstruction Type Breakdown:\n");
-    printf("ALU Inst(one):   %u(%.2f%%) ac(%.2f)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)one_inst_log.cycle / (double)one_inst_log.inst_nr);
-    printf("ALU Inst(mul):   %u(%.2f%%) ac(%.2f)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr);
-    printf("ALU Inst(div):   %u(%.2f%%) ac(%.2f)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)div_inst_log.cycle / (double)div_inst_log.inst_nr);
-    printf("Load/Store Inst: %u(%.2f%%) ac(%.2f)\n", ls_inst_log.inst_nr, (double)ls_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)ls_inst_log.cycle / (double)ls_inst_log.inst_nr);
-    printf("Branch Inst:     %u(%.2f%%) ac(%.2f)\n", br_inst_log.inst_nr, (double)br_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)br_inst_log.cycle / (double)br_inst_log.inst_nr);
-    printf("CSR Inst:        %u(%.2f%%) ac(%.2f)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr);
+    printf("===== Proportion =====\n");
+    printf("ALU Inst(one): %u(%.2f%%)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
+    printf("ALU Inst(mul): %u(%.2f%%)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
+    printf("ALU Inst(div): %u(%.2f%%)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
+    printf("L/S Inst     : %u(%.2f%%)\n", ls_inst_log.inst_nr,  (double)ls_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
+    printf("Branch Inst  : %u(%.2f%%)\n", br_inst_log.inst_nr,  (double)br_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
+    printf("CSR Inst     : %u(%.2f%%)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
+
+    printf("===== Average Cycle =====\n");
+    printf("ALU Inst(one): %.2f)\n", one_inst_log.inst_nr ? (double)one_inst_log.cycle / (double)one_inst_log.inst_nr : 0);
+    printf("ALU Inst(mul): %.2f)\n", mul_inst_log.inst_nr ? (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr : 0);
+    printf("ALU Inst(div): %.2f)\n", div_inst_log.inst_nr ? (double)div_inst_log.cycle / (double)div_inst_log.inst_nr : 0);
+    printf("L/S Inst     : %.2f)\n", ls_inst_log.inst_nr  ? (double)ls_inst_log.cycle  / (double)ls_inst_log.inst_nr  : 0);
+    printf("Branch Inst  : %.2f)\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
+    printf("CSR Inst     : %.2f)\n", br_inst_log.inst_nr  ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
+
     printf("==================================\n");
 
 
-    printf("one inst total cycle: %lu\n", one_inst_log.cycle);
-    printf("mul inst total cycle: %lu\n", mul_inst_log.cycle);
-    printf("div inst total cycle: %lu\n", div_inst_log.cycle);
-    printf("ls  inst total cycle: %lu\n", ls_inst_log.cycle);
-    printf("br  inst total cycle: %lu\n", br_inst_log.cycle);
-    printf("csr inst total cycle: %lu\n", csr_inst_log.cycle);
 }
