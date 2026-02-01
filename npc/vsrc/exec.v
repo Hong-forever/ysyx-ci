@@ -159,6 +159,8 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // alu运算
     //------------------------------------------------------------------------
+    reg start_mul_reg, start_div_reg;
+
     wire stallreq;
 
     wire [`RegDataBus] alu_result;
@@ -175,25 +177,26 @@ module ysyx_25110270_exec
     wire mul_ready;
     wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
 
-    reg start_mul_reg;
+    wire div_ready;
+    wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
+    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
+    wire annul_div = 0;
+
     always @(posedge clk) begin
         if(!rst_n) begin
             start_mul_reg <= 0;
+            start_div_reg <= 0;
         end else if(valid) begin
             start_mul_reg <= start_mul;
-        end else if(mul_ready) begin
-            start_mul_reg <= 0;
+            start_div_reg <= start_div;
+        end else begin
+            start_mul_reg <= mul_ready ? 0 : start_mul_reg;
+            start_div_reg <= div_ready ? 0 : start_div_reg;
         end
     end
 
     wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
-
-    wire div_ready;
-    wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
-    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & ~div_ready;
-    wire stallreq_div = start_div;
-    wire annul_div = 0;
-
+    wire stallreq_div = start_div | (start_div_reg & ~div_ready);
     assign stallreq = stallreq_div | stallreq_mul;
 
     ysyx_25110270_exe_alu alu
