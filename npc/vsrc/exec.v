@@ -174,12 +174,11 @@ module ysyx_25110270_exec
         end
     end
 
-    wire mul_ready;
+    wire mul_ready, div_ready;
     wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
+    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3];
 
-    wire div_ready;
     wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
-    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
     wire annul_div = 0;
 
     always @(posedge clk) begin
@@ -207,7 +206,7 @@ module ysyx_25110270_exec
         .I_alu_srcb                 (alu_srcb               ),
         .I_alu_ctrl                 (I_ALUCtrl              ),
         .O_alu_result               (alu_result             ),
-        .I_mul_start                (start_mul   ),
+        .I_mul_start                (start_mul              ),
         .O_mul_ready                (mul_ready              ),
 
         .I_signed_div               (signed_div             ),
