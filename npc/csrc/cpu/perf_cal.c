@@ -75,6 +75,7 @@ extern "C" void wb_inst_cycle_cal(int pc) {
                 default:                                                              break;
             }
             break;
+            printf("WB Cal: pc=0x%x, type=0x%x, cycle=%lu\n", pc, inst_buffer[i].type, cycle);
         }
     }
 }
