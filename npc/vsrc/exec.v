@@ -207,7 +207,7 @@ module ysyx_25110270_exec
         .I_alu_srcb                 (alu_srcb               ),
         .I_alu_ctrl                 (I_ALUCtrl              ),
         .O_alu_result               (alu_result             ),
-        
+
         .I_mul_start                (start_mul              ),
         .O_mul_ready                (mul_ready              ),
 
@@ -277,8 +277,6 @@ module ysyx_25110270_exec
 
 `ifdef PERF
     import "DPI-C" function void exec_inst_cal(input int valid);
-
-
 
     always @(posedge clk) begin
         exec_inst_cal(valid & (|I_inst) & (|I_inst_addr));

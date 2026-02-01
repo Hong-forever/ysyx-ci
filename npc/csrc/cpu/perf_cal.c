@@ -10,6 +10,7 @@ extern uint64_t g_nr_guest_inst;
 uint64_t ifu_inst = 0;
 uint64_t dec_inst = 0;
 uint64_t exec_inst = 0;
+uint64_t ls_data_nr = 0;
 
 uint32_t alu_inst_one = 0;
 uint32_t alu_inst_mul = 0;
@@ -40,6 +41,10 @@ extern "C" void exec_inst_cal(int valid) {
     exec_inst += valid & 0x1;
 }
 
+extern "C" void ls_data_cal(int valid) {
+    ls_data_nr += valid & 0x1;
+}
+
 void perf_cal() {
     uint64_t total_cycle = TOTAL_CYCLE;
     uint64_t total_inst_valid = TOTAL_INST_VALID;
@@ -55,9 +60,9 @@ void perf_cal() {
     printf("\nIFU Inst: %lu\n", ifu_inst);
     printf("Decoder Inst: %lu\n", dec_inst);
     printf("Exec   Inst: %lu\n", exec_inst);
+    printf("Load/Store Data: %lu\n", ls_data_nr);
 
     printf("\nInstruction Type Breakdown:\n");
-
     printf("ALU Inst(one):   %u\n", alu_inst_one);
     printf("ALU Inst(mul):   %u\n", alu_inst_mul);
     printf("ALU Inst(div):   %u\n", alu_inst_div);

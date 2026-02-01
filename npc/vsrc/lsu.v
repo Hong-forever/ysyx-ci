@@ -437,6 +437,14 @@ module ysyx_25110270_lsu
 
     assign dbus_rready = data_rready;
 
+`ifdef PERF
+    import "DPI-C" function void ls_data_cal(input int valid);
+
+    always @(posedge clk) begin
+        ls_data_cal(dbus_bvalid & dbus_bready | dbus_rvalid & dbus_rready);
+    end
+`endif
+
 `ifndef LFSR
     assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
     assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
