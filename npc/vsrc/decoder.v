@@ -317,10 +317,11 @@ module ysyx_25110270_decoder
     wire inst_is_alu_one = inst_is_type_i | inst_is_auipc | inst_is_lui | (inst_is_type_r_m & ~inst_is_mul & ~inst_is_div);
 
     wire [5:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_div, inst_is_mul, inst_is_alu_one};
+    wire inst_is_valid = |inst_type;
     
     always @(posedge clk) begin
         if(I_ready) begin
-            decoder_inst_type_cal(inst_type);
+            decoder_inst_type_cal(inst_type, inst_is_valid);
         end
     end
 `endif
