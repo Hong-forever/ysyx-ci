@@ -21,7 +21,7 @@ extern "C" void ifetch_inst_get_nr_cal(int valid) {
     ifu_inst += valid & 0x1;
 }
 
-extern "C" void decoder_inst_type_cal(int inst_type, int inst_valid) {
+extern "C" void decoder_inst_type_cal(int inst_type) {
     switch (inst_type) {
         case 0x01: alu_inst_one++; break;
         case 0x02: alu_inst_mul++; break;
@@ -31,8 +31,8 @@ extern "C" void decoder_inst_type_cal(int inst_type, int inst_valid) {
         case 0x20: csr_inst_num++; break;
         default: break;
     }
-    dec_inst += inst_valid & 0x1;
-    printf("Decoder Cal: inst_type=0x%x, inst_valid=%d, total %lu\n", inst_type, inst_valid, dec_inst);
+    dec_inst++;
+    printf("Decoder Cal: inst_type=0x%x, total %lu\n", inst_type, dec_inst);
 }
 
 void perf_cal() {
