@@ -445,6 +445,17 @@ module ysyx_25110270_lsu
             ls_data_cal();
         end
     end
+    
+    import "DPI-C" function void ls_delay_cal(input int begin_flag, input int end_flag);
+
+    always @(posedge clk) begin
+        if(dbus_arvalid | dbus_awvalid) begin
+            ls_delay_cal(1, 0);
+        end else if(dbus_bvalid && dbus_bready || dbus_rvalid && dbus_rready) begin
+            ls_delay_cal(0, 1);
+        end
+    end
+
 `endif
 
 `ifndef LFSR

@@ -28,6 +28,8 @@ Inst_buf inst_buffer[5];
 Inst_log one_inst_log, mul_inst_log, div_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
+uint64_t ls_delay_total, delay_begin, delay_end;
+
 uint64_t total_cycle;
 extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
     total_cycle = ((uint64_t)mcycleh << 32) | (uint64_t)mcyclel;
@@ -62,6 +64,16 @@ extern "C" void ls_data_cal() {
     ls_data_nr++;
 }
 
+extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
+    if(begin_flag) {
+        delay_begin = rdtime();
+    }
+    if(end_flag) {
+        delay_end = rdtime();
+        ls_delay_total += (delay_end - delay_begin + 1);
+    }
+}
+
 extern "C" void wb_inst_cycle_cal(int pc) {
     uint64_t end = rdtime();
     for(int i = 0; i < 5; i++) {
@@ -91,7 +103,7 @@ extern "C" void wb_inst_cycle_cal(int pc) {
 void perf_cal() {
 
 
-    printf("===== Performance Calulation =====\n");
+    printf("\n===== Performance Calulation =====\n");
     printf("Total Cycle: %lu\n", total_cycle);
     printf("Total Inst : %lu\n", g_nr_guest_inst);
     if (total_cycle != 0) {
@@ -114,7 +126,7 @@ void perf_cal() {
     printf("Branch Inst  : %u(%.2f%%)\n", br_inst_log.inst_nr,  (double)br_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %u(%.2f%%)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
 
-    printf("\n===== Average Cycle =====\n");
+    printf("\n===== Inst Exe Average Cycle =====\n");
     printf("ALU Inst(one): %.2f\n", one_inst_log.inst_nr ? (double)one_inst_log.cycle / (double)one_inst_log.inst_nr : 0);
     printf("ALU Inst(mul): %.2f\n", mul_inst_log.inst_nr ? (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr : 0);
     printf("ALU Inst(div): %.2f\n", div_inst_log.inst_nr ? (double)div_inst_log.cycle / (double)div_inst_log.inst_nr : 0);
@@ -122,7 +134,10 @@ void perf_cal() {
     printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
 
-    printf("==================================\n");
+    printf("\n===== Load / Store Average Delay =====\n");
+    printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
+
+    printf("\n==================================\n");
 
 
 }
