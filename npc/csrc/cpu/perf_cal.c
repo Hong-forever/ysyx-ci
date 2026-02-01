@@ -52,12 +52,12 @@ void perf_cal() {
     } else {
         printf("IPC: INF\n");
     }
-    printf("\nIFU Inst: %lu, Decoded Inst: %lu\n", ifu_inst, dec_inst);
-    if (dec_inst != 0) {
-        printf("Decode Efficiency: %.2f%%\n", (double)dec_inst / (double)ifu_inst * 100.0);
-    } else {
-        printf("Decode Efficiency: 0.00%%\n");
-    }
+    printf("\nIFU Inst: %lu\n", ifu_inst);
+    printf("Decoder Inst: %lu\n", dec_inst);
+    printf("Exec   Inst: %lu\n", exec_inst);
+    
+    printf("\nInstruction Type Breakdown:\n");
+
     printf("ALU Inst(one):   %u\n", alu_inst_one);
     printf("ALU Inst(mul):   %u\n", alu_inst_mul);
     printf("ALU Inst(div):   %u\n", alu_inst_div);
