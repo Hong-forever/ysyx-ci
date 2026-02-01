@@ -176,7 +176,7 @@ module ysyx_25110270_exec
 
     wire mul_ready, div_ready;
     wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
-    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3];
+    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & ~div_ready;
 
     wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
     wire annul_div = 0;
@@ -195,7 +195,7 @@ module ysyx_25110270_exec
     end
 
     wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
-    wire stallreq_div = start_div | (start_div_reg & ~div_ready);
+    wire stallreq_div = (start_div & ~start_div_reg) | (start_div_reg & ~div_ready);
     assign stallreq = stallreq_div | stallreq_mul;
 
     ysyx_25110270_exe_alu alu
