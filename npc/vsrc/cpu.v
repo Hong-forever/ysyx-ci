@@ -569,6 +569,7 @@ module ysyx_25110270_cpu_core
         .I_inst                 (I_wb_inst                  ),
         .I_inst_addr            (I_wb_inst_addr             ),
 
+        .I_valid                (ls_enable                  ),
         .O_ready                (O_wb_ready                 ),
 
         .I_rs1_raddr            (O_rs1_raddr                ),

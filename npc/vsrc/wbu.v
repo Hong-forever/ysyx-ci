@@ -12,6 +12,7 @@ module ysyx_25110270_wbu
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
     
+    input   wire                        I_valid,
     output  wire                        O_ready,
 
     // regfile
@@ -146,6 +147,25 @@ module ysyx_25110270_wbu
             $error("Error: inst is 0 at addr %h!", I_inst_addr);
         end
     end
+
+`ifdef PERF
+    import "DPI-C" function void wb_inst_cycle_cal(input int pc);
+
+    reg valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end 
+    end
+
+    always @(posedge clk) begin
+        if(valid && I_inst_addr != 0) begin
+            wb_inst_cycle_cal(I_inst_addr);
+        end
+    end
+`endif
 
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
