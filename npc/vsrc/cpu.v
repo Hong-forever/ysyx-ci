@@ -353,6 +353,7 @@ module ysyx_25110270_cpu_core
         .I_inst                 (I_dec_inst                 ),
         .I_inst_addr            (I_dec_inst_addr            ),
 
+        .I_valid                (if_enable                  ),
         .I_ready                (O_ex_ready & ~stallreq_dec ),
         .O_ready                (O_dec_ready                ),
 

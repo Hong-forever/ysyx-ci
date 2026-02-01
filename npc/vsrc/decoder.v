@@ -12,6 +12,7 @@ module ysyx_25110270_decoder
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
     
+    input   wire                        I_valid,
     input   wire                        I_ready,
     output  wire                        O_ready,
 
@@ -310,18 +311,26 @@ module ysyx_25110270_decoder
 `ifdef PERF
     import "DPI-C" function void decoder_inst_type_cal(input int inst_type, int inst_valid);
 
+    reg valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 0; 
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
     wire inst_is_mul = (alu_ctrl == `ALUCTL_MUL) | (alu_ctrl == `ALUCTL_MULH) | (alu_ctrl == `ALUCTL_MULHSU) | (alu_ctrl == `ALUCTL_MULHU);
     wire inst_is_div = (alu_ctrl == `ALUCTL_DIV) | (alu_ctrl == `ALUCTL_DIVU) | (alu_ctrl == `ALUCTL_REM) | (alu_ctrl == `ALUCTL_REMU);
     wire inst_is_ls = inst_is_type_l | inst_is_type_s;
     wire inst_is_br = inst_is_type_b | inst_is_jal | inst_is_jalr;
     wire inst_is_alu_one = inst_is_type_i | inst_is_auipc | inst_is_lui | (inst_is_type_r_m & ~inst_is_mul & ~inst_is_div);
 
-    wire [5:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_div, inst_is_mul, inst_is_alu_one};
-    wire inst_is_valid = |inst_type;
+    wire [5:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_div, inst_is_mul, inst_is_alu_one} & {6{valid}};
     
     always @(posedge clk) begin
         if(I_ready) begin
-            decoder_inst_type_cal(inst_type, inst_is_valid);
+            decoder_inst_type_cal(inst_type, valid);
         end
     end
 `endif
