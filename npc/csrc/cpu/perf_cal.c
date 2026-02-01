@@ -9,6 +9,7 @@ extern uint64_t g_nr_guest_inst;
 
 uint64_t ifu_inst = 0;
 uint64_t dec_inst = 0;
+uint64_t exec_inst = 0;
 
 uint32_t alu_inst_one = 0;
 uint32_t alu_inst_mul = 0;
@@ -33,6 +34,10 @@ extern "C" void decoder_inst_type_cal(int inst_type) {
     }
     dec_inst++;
     printf("Decoder Cal: inst_type=0x%x, total %lu\n", inst_type, dec_inst);
+}
+
+extern "C" void exec_inst_cal(int valid) {
+    exec_inst += valid & 0x1;
 }
 
 void perf_cal() {

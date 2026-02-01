@@ -12,6 +12,7 @@ module ysyx_25110270_exec
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
 
+    input   wire                        I_valid,
     input   wire                        I_ready,
     output  wire                        O_ready,
 
@@ -259,6 +260,25 @@ module ysyx_25110270_exec
 
     assign O_ready = ~stallreq & I_ready;
     assign O_valid = O_ready;
+
+`ifdef PERF
+    import "DPI-C" function void exec_inst_cal(input int valid);
+
+    reg valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
+    always @(posedge clk) begin
+        exec_inst_cal(valid);
+    end
+
+`endif
+
 
 `ifdef DPIC
     import "DPI-C" function void ftrace_exec(input int pc, input int dnpc, input int rs1, input int rd, input int imm, input int op); //op=1 jal, op=2 jalr
