@@ -217,7 +217,7 @@ module ysyx_25110270_exec
         .O_mul_ready                (mul_ready              ),
 
         .I_signed_div               (signed_div             ),
-        .I_div_start                (start_div|start_div_reg),
+        .I_div_start                (stallreq_div           ),
         .I_annul                    (annul_div              ),
         .O_div_ready                (div_ready              )
     );
