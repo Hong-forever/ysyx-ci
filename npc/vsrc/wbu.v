@@ -161,7 +161,7 @@ module ysyx_25110270_wbu
     end
 
     always @(posedge clk) begin
-        if(valid && I_inst_addr != 0) begin
+        if(valid && (|I_inst) && (|I_inst_addr)) begin
             wb_inst_cycle_cal(I_inst_addr);
         end
     end

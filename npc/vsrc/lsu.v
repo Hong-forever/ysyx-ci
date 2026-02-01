@@ -438,10 +438,12 @@ module ysyx_25110270_lsu
     assign dbus_rready = data_rready;
 
 `ifdef PERF
-    import "DPI-C" function void ls_data_cal(input int valid);
+    import "DPI-C" function void ls_data_cal();
 
     always @(posedge clk) begin
-        ls_data_cal(dbus_bvalid & dbus_bready | dbus_rvalid & dbus_rready);
+        if(dbus_bvalid & dbus_bready | dbus_rvalid & dbus_rready) begin
+            ls_data_cal();
+        end
     end
 `endif
 

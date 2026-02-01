@@ -276,10 +276,12 @@ module ysyx_25110270_exec
     assign O_valid = O_ready;
 
 `ifdef PERF
-    import "DPI-C" function void exec_inst_cal(input int valid);
+    import "DPI-C" function void exec_inst_cal();
 
     always @(posedge clk) begin
-        exec_inst_cal(valid & (|I_inst) & (|I_inst_addr));
+        if(valid && (|I_inst) && (|I_inst_addr)) begin
+            exec_inst_cal();
+        end
     end
 
 `endif

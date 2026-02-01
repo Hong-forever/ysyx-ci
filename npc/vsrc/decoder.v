@@ -309,7 +309,7 @@ module ysyx_25110270_decoder
     assign O_CSRSrc_sel  = CSRSrc_sel;
 
 `ifdef PERF
-    import "DPI-C" function void decoder_inst_type_cal(input int inst_type);
+    import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
 
     reg valid;
     always @(posedge clk) begin
@@ -330,7 +330,7 @@ module ysyx_25110270_decoder
     
     always @(posedge clk) begin
         if(valid && (|inst_type)) begin
-            decoder_inst_type_cal(inst_type);
+            decoder_inst_type_cal(inst_type, I_inst_addr);
         end
     end
 `endif

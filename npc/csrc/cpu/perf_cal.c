@@ -35,10 +35,10 @@ static inline uint64_t rdtime() {
     return TOTAL_CYCLE;
 }
 
-extern "C" void ifetch_inst_get_nr_cal(int inst, int pc, int valid) {
+extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
     inst_buffer[ifu_inst%5].pc = pc;
     inst_buffer[ifu_inst%5].begin = rdtime();
-    ifu_inst += valid & 0x1;
+    ifu_inst++;
 }
 
 extern "C" void decoder_inst_type_cal(int inst_type, int pc) {
@@ -52,12 +52,12 @@ extern "C" void decoder_inst_type_cal(int inst_type, int pc) {
     // printf("Decoder Cal: inst_type=0x%x, total %lu\n", inst_type, dec_inst);
 }
 
-extern "C" void exec_inst_cal(int valid) {
-    exec_inst += valid & 0x1;
+extern "C" void exec_inst_cal() {
+    exec_inst++;
 }
 
-extern "C" void ls_data_cal(int valid) {
-    ls_data_nr += valid & 0x1;
+extern "C" void ls_data_cal() {
+    ls_data_nr++;
 }
 
 extern "C" void wb_inst_cycle_cal(int pc) {
