@@ -104,4 +104,12 @@ void perf_cal() {
     printf("Branch Inst:     %u(%.2f%%) ac(%.2f)\n", br_inst_log.inst_nr, (double)br_inst_log.inst_nr / (double)total_inst_valid * 100, (double)br_inst_log.cycle / (double)br_inst_log.inst_nr);
     printf("CSR Inst:        %u(%.2f%%) ac(%.2f)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)total_inst_valid * 100, (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr);
     printf("==================================\n");
+
+
+    printf("one inst total cycle: %lu\n", one_inst_log.cycle);
+    printf("mul inst total cycle: %lu\n", mul_inst_log.cycle);
+    printf("div inst total cycle: %lu\n", div_inst_log.cycle);
+    printf("ls  inst total cycle: %lu\n", ls_inst_log.cycle);
+    printf("br  inst total cycle: %lu\n", br_inst_log.cycle);
+    printf("csr inst total cycle: %lu\n", csr_inst_log.cycle);
 }
