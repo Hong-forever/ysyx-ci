@@ -64,7 +64,6 @@ module ysyx_25110270_exe_div
                         divisor <= temp_op2;
                     end else begin
                         ready <= `DivResultNotReady;
-                        result <= 0;
                     end
                 end
                 `DivByZero: begin
@@ -103,11 +102,7 @@ module ysyx_25110270_exe_div
                 `DivEnd: begin
                     result <= {dividend[64:33], dividend[31:0]};
                     ready <= `DivResultReady;
-                    if(I_start == `DivStop) begin
-                        state <= `DivFree;
-                        ready <= `DivResultNotReady;
-                        result <= 0;
-                    end
+                    state <= `DivFree;
                 end
             endcase
         end

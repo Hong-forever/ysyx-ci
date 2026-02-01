@@ -184,22 +184,16 @@ module ysyx_25110270_exec
     always @(posedge clk) begin
         if(!rst_n) begin
             start_mul_reg <= 0;
+            start_div_reg <= 0;
         end else if(valid) begin
             start_mul_reg <= start_mul;
+            start_div_reg <= start_div;
         end else begin
             start_mul_reg <= mul_ready ? 0 : start_mul_reg;
+            start_div_reg <= div_ready ? 0 : start_div_reg;
         end
     end
 
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            start_div_reg <= 0;
-        end else if(start_div) begin
-            start_div_reg <= 1'b1;
-        end else begin
-            start_div_reg <= div_ready ? 1'b0 : start_div_reg;
-        end
-    end
 
     wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
     wire stallreq_div = start_div | (start_div_reg & ~div_ready);
@@ -213,11 +207,12 @@ module ysyx_25110270_exec
         .I_alu_srcb                 (alu_srcb               ),
         .I_alu_ctrl                 (I_ALUCtrl              ),
         .O_alu_result               (alu_result             ),
+        
         .I_mul_start                (start_mul              ),
         .O_mul_ready                (mul_ready              ),
 
         .I_signed_div               (signed_div             ),
-        .I_div_start                (stallreq_div           ),
+        .I_div_start                (start_div              ),
         .I_annul                    (annul_div              ),
         .O_div_ready                (div_ready              )
     );
