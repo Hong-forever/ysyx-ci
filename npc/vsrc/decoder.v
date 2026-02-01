@@ -12,6 +12,7 @@ module ysyx_25110270_decoder
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
     
+    input   wire                        I_valid,
     input   wire                        I_ready,
     output  wire                        O_ready,
 
@@ -156,95 +157,95 @@ module ysyx_25110270_decoder
         alu_ctrl = `ALUCTL_NOP;
         csr_ctrl = `CSRCTL_NOP;
         bru_ctrl = `BRUCTL_NOP;
-        case(opcode)
-            `RV32I_OP_TYPE_IL: begin
+        case(1'b1)
+            inst_is_type_l: begin
                 case(funct3)
-                    `RV32I_F3_LB: ls_type = `ls_lb;
-                    `RV32I_F3_LH: ls_type = `ls_lh;
-                    `RV32I_F3_LW: ls_type = `ls_lw;
+                    `RV32I_F3_LB:  ls_type = `ls_lb;
+                    `RV32I_F3_LH:  ls_type = `ls_lh;
+                    `RV32I_F3_LW:  ls_type = `ls_lw;
                     `RV32I_F3_LBU: ls_type = `ls_lbu;
                     `RV32I_F3_LHU: ls_type = `ls_lhu;
-                    default: begin end
+                    default:       ls_type = `ls_nop;
                 endcase
             end
-            `RV32I_OP_TYPE_I: begin
+            inst_is_type_i: begin
                 case(funct3)
-                    `RV32I_F3_ADDI: alu_ctrl = `ALUCTL_ADD;
-                    `RV32I_F3_SLLI: alu_ctrl = `ALUCTL_SLL;
-                    `RV32I_F3_SLTI: alu_ctrl = `ALUCTL_SLT;
+                    `RV32I_F3_ADDI:  alu_ctrl = `ALUCTL_ADD;
+                    `RV32I_F3_SLLI:  alu_ctrl = `ALUCTL_SLL;
+                    `RV32I_F3_SLTI:  alu_ctrl = `ALUCTL_SLT;
                     `RV32I_F3_SLTIU: alu_ctrl = `ALUCTL_SLTU;
-                    `RV32I_F3_XORI: alu_ctrl = `ALUCTL_XOR;
-                    `RV32I_F3_SRI: alu_ctrl = I_inst[30]? `ALUCTL_SRA : `ALUCTL_SRL;
-                    `RV32I_F3_ORI: alu_ctrl = `ALUCTL_OR;
-                    `RV32I_F3_ANDI: alu_ctrl = `ALUCTL_AND;
-                    default: begin end
+                    `RV32I_F3_XORI:  alu_ctrl = `ALUCTL_XOR;
+                    `RV32I_F3_SRI:   alu_ctrl = I_inst[30]? `ALUCTL_SRA : `ALUCTL_SRL;
+                    `RV32I_F3_ORI:   alu_ctrl = `ALUCTL_OR;
+                    `RV32I_F3_ANDI:  alu_ctrl = `ALUCTL_AND;
+                    default:         alu_ctrl = `ALUCTL_NOP;
                 endcase
             end
-            `RV32I_OP_AUIPC: begin
+            inst_is_auipc: begin
                 alu_ctrl = `ALUCTL_AUIPC;
             end
-            `RV32I_OP_LUI: begin
+            inst_is_lui: begin
                 alu_ctrl = `ALUCTL_LUI;
             end
-            `RV32I_OP_TYPE_S: begin
+            inst_is_type_s: begin
                 case(funct3)
                     `RV32I_F3_SB: ls_type = `ls_sb;
                     `RV32I_F3_SH: ls_type = `ls_sh;
                     `RV32I_F3_SW: ls_type = `ls_sw;
-                    default: begin end
+                    default:      ls_type = `ls_nop;
                 endcase
             end
-            `RV32IM_OP_TYPE_R_M: begin
+            inst_is_type_r_m: begin
                 case(funct7)
                     `RV32I_F7_R1, `RV32I_F7_R2: begin
                         case(funct3)
                             `RV32I_F3_ADD_SUB: alu_ctrl = I_inst[30]? `ALUCTL_SUB : `ALUCTL_ADD;
-                            `RV32I_F3_SLL: alu_ctrl = `ALUCTL_SLL;
-                            `RV32I_F3_SLT: alu_ctrl = `ALUCTL_SLT;
-                            `RV32I_F3_SLTU: alu_ctrl = `ALUCTL_SLTU;
-                            `RV32I_F3_XOR: alu_ctrl = `ALUCTL_XOR;
-                            `RV32I_F3_SR: alu_ctrl = I_inst[30]? `ALUCTL_SRA : `ALUCTL_SRL;
-                            `RV32I_F3_OR: alu_ctrl = `ALUCTL_OR;
-                            `RV32I_F3_AND: alu_ctrl = `ALUCTL_AND;
-                            default: begin end
+                            `RV32I_F3_SLL:     alu_ctrl = `ALUCTL_SLL;
+                            `RV32I_F3_SLT:     alu_ctrl = `ALUCTL_SLT;
+                            `RV32I_F3_SLTU:    alu_ctrl = `ALUCTL_SLTU;
+                            `RV32I_F3_XOR:     alu_ctrl = `ALUCTL_XOR;
+                            `RV32I_F3_SR:      alu_ctrl = I_inst[30]? `ALUCTL_SRA : `ALUCTL_SRL;
+                            `RV32I_F3_OR:      alu_ctrl = `ALUCTL_OR;
+                            `RV32I_F3_AND:     alu_ctrl = `ALUCTL_AND;
+                            default:           alu_ctrl = `ALUCTL_NOP;
                         endcase
                     end
                     `RV32M_F7_MUL: begin
                         case(funct3)
-                            `RV32M_F3_MUL: alu_ctrl = `ALUCTL_MUL;
-                            `RV32M_F3_MULH: alu_ctrl = `ALUCTL_MULH;
+                            `RV32M_F3_MUL:    alu_ctrl = `ALUCTL_MUL;
+                            `RV32M_F3_MULH:   alu_ctrl = `ALUCTL_MULH;
                             `RV32M_F3_MULHSU: alu_ctrl = `ALUCTL_MULHSU;
-                            `RV32M_F3_MULHU: alu_ctrl = `ALUCTL_MULHU;
-                            `RV32M_F3_DIV: alu_ctrl = `ALUCTL_DIV;
-                            `RV32M_F3_DIVU: alu_ctrl = `ALUCTL_DIVU;
-                            `RV32M_F3_REM: alu_ctrl = `ALUCTL_REM;
-                            `RV32M_F3_REMU: alu_ctrl = `ALUCTL_REMU;
-                            default: begin end
+                            `RV32M_F3_MULHU:  alu_ctrl = `ALUCTL_MULHU;
+                            `RV32M_F3_DIV:    alu_ctrl = `ALUCTL_DIV;
+                            `RV32M_F3_DIVU:   alu_ctrl = `ALUCTL_DIVU;
+                            `RV32M_F3_REM:    alu_ctrl = `ALUCTL_REM;
+                            `RV32M_F3_REMU:   alu_ctrl = `ALUCTL_REMU;
+                            default:          alu_ctrl = `ALUCTL_NOP;
                         endcase
                     end
                     default: begin end
                 endcase
             end
-            `RV32I_OP_TYPE_B: begin
+            inst_is_type_b: begin
                 case(funct3)
-                    `RV32I_F3_BEQ: bru_ctrl = `BRUCTL_BEQ;
-                    `RV32I_F3_BNE: bru_ctrl = `BRUCTL_BNE;
-                    `RV32I_F3_BLT: bru_ctrl = `BRUCTL_BLT;
-                    `RV32I_F3_BGE: bru_ctrl = `BRUCTL_BGE;
+                    `RV32I_F3_BEQ:  bru_ctrl = `BRUCTL_BEQ;
+                    `RV32I_F3_BNE:  bru_ctrl = `BRUCTL_BNE;
+                    `RV32I_F3_BLT:  bru_ctrl = `BRUCTL_BLT;
+                    `RV32I_F3_BGE:  bru_ctrl = `BRUCTL_BGE;
                     `RV32I_F3_BLTU: bru_ctrl = `BRUCTL_BLTU;
                     `RV32I_F3_BGEU: bru_ctrl = `BRUCTL_BGEU;
-                    default: begin end
+                    default:        bru_ctrl = `BRUCTL_NOP;
                 endcase
             end
-            `RV32I_OP_JALR: begin
+            inst_is_jalr: begin
                 bru_ctrl = `BRUCTL_JALR;
                 alu_ctrl = `ALUCTL_JALR;
             end
-            `RV32I_OP_JAL: begin
+            inst_is_jal: begin
                 bru_ctrl = `BRUCTL_JAL;
                 alu_ctrl = `ALUCTL_JAL;
             end
-            `RV_OP_CSR: begin
+            inst_is_csr: begin
                 case(funct3)
                     `RV_F3_CSRRW:  csr_ctrl = `CSRCTL_WRI;
                     `RV_F3_CSRRS:  csr_ctrl = `CSRCTL_SET;
@@ -252,7 +253,7 @@ module ysyx_25110270_decoder
                     `RV_F3_CSRRWI: csr_ctrl = `CSRCTL_WRI;
                     `RV_F3_CSRRSI: csr_ctrl = `CSRCTL_SET;
                     `RV_F3_CSRRCI: csr_ctrl = `CSRCTL_CLR;
-                    default: begin end
+                    default:       csr_ctrl = `CSRCTL_NOP;
                 endcase
             end
             default: begin end
@@ -306,5 +307,32 @@ module ysyx_25110270_decoder
     assign O_ALUSrcB_sel = ALUSrcB_sel;
     assign O_AGUSrc_sel  = AGUSrc_sel;
     assign O_CSRSrc_sel  = CSRSrc_sel;
+
+`ifdef PERF
+    import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
+
+    reg valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 0; 
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
+    wire inst_is_mul = (alu_ctrl == `ALUCTL_MUL) | (alu_ctrl == `ALUCTL_MULH) | (alu_ctrl == `ALUCTL_MULHSU) | (alu_ctrl == `ALUCTL_MULHU);
+    wire inst_is_div = (alu_ctrl == `ALUCTL_DIV) | (alu_ctrl == `ALUCTL_DIVU) | (alu_ctrl == `ALUCTL_REM) | (alu_ctrl == `ALUCTL_REMU);
+    wire inst_is_ls = inst_is_type_l | inst_is_type_s;
+    wire inst_is_br = inst_is_type_b | inst_is_jal | inst_is_jalr;
+    wire inst_is_alu_one = inst_is_type_i | inst_is_auipc | inst_is_lui | (inst_is_type_r_m & ~inst_is_mul & ~inst_is_div);
+
+    wire [5:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_div, inst_is_mul, inst_is_alu_one};
+    
+    always @(posedge clk) begin
+        if(valid && (|inst_type)) begin
+            decoder_inst_type_cal(inst_type, I_inst_addr);
+        end
+    end
+`endif
 
 endmodule

@@ -12,6 +12,7 @@ module ysyx_25110270_exec
     input   wire    [`InstBus       ]   I_inst,
     input   wire    [`InstAddrBus   ]   I_inst_addr,
 
+    input   wire                        I_valid,
     input   wire                        I_ready,
     output  wire                        O_ready,
 
@@ -158,31 +159,44 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // alu运算
     //------------------------------------------------------------------------
+    reg start_mul_reg, start_div_reg;
+
     wire stallreq;
 
     wire [`RegDataBus] alu_result;
 
-    wire mul_ready;
-    wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & ~mul_ready;
-    wire stallreq_mul = start_mul;
-
-    reg start_mul_reg;
+    reg valid;
     always @(posedge clk) begin
         if(!rst_n) begin
-            start_mul_reg <= 0;
+            valid <= 1'b0;
         end else begin
-            start_mul_reg <= start_mul;
+            valid <= I_valid;
         end
     end
 
-    wire mul_start_one_cycle = start_mul & ~start_mul_reg;
+    wire mul_ready, div_ready;
+    wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
+    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
 
-    wire div_ready;
     wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
-    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & ~div_ready;
-    wire stallreq_div = start_div;
     wire annul_div = 0;
 
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            start_mul_reg <= 0;
+            start_div_reg <= 0;
+        end else if(valid) begin
+            start_mul_reg <= start_mul;
+            start_div_reg <= start_div;
+        end else begin
+            start_mul_reg <= mul_ready ? 0 : start_mul_reg;
+            start_div_reg <= div_ready ? 0 : start_div_reg;
+        end
+    end
+
+
+    wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
+    wire stallreq_div = start_div | (start_div_reg & ~div_ready);
     assign stallreq = stallreq_div | stallreq_mul;
 
     ysyx_25110270_exe_alu alu
@@ -193,7 +207,8 @@ module ysyx_25110270_exec
         .I_alu_srcb                 (alu_srcb               ),
         .I_alu_ctrl                 (I_ALUCtrl              ),
         .O_alu_result               (alu_result             ),
-        .I_mul_start                (mul_start_one_cycle    ),
+
+        .I_mul_start                (start_mul              ),
         .O_mul_ready                (mul_ready              ),
 
         .I_signed_div               (signed_div             ),
@@ -259,6 +274,18 @@ module ysyx_25110270_exec
 
     assign O_ready = ~stallreq & I_ready;
     assign O_valid = O_ready;
+
+`ifdef PERF
+    import "DPI-C" function void exec_inst_cal();
+
+    always @(posedge clk) begin
+        if(valid && (|I_inst) && (|I_inst_addr)) begin
+            exec_inst_cal();
+        end
+    end
+
+`endif
+
 
 `ifdef DPIC
     import "DPI-C" function void ftrace_exec(input int pc, input int dnpc, input int rs1, input int rd, input int imm, input int op); //op=1 jal, op=2 jalr

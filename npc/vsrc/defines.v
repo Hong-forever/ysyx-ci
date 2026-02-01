@@ -4,6 +4,7 @@
 // VERILOG MACRO
 //------------------------------------------------------------------------
 `define DPIC
+`define PERF
 // `define LFSR
 
 `define RAMDOM_WIDTH 8
@@ -310,8 +311,6 @@
 `define ls_sb           4'b1000
 `define ls_sh           4'b1001
 `define ls_sw           4'b1011
-`define ls_flw          4'b1100
-`define ls_fsw          4'b1101
 
 //------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS

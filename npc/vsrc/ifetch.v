@@ -182,6 +182,16 @@ module ysyx_25110270_ifetch
 
     assign ibus_rready = inst_rready;
 
+`ifdef PERF
+    import "DPI-C" function void ifetch_inst_get_nr_cal(input int inst, input int pc);
+
+    always @(posedge clk) begin
+        if(O_valid && (|O_inst) && (|O_inst_addr)) begin
+            ifetch_inst_get_nr_cal(O_inst, O_inst_addr);
+        end
+    end
+`endif
+
 `ifndef LFSR
     assign ibus_arvalid = inst_arvalid;
 `else

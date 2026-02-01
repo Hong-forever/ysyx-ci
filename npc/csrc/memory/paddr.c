@@ -1,4 +1,4 @@
-#include "common.h"
+#include "memory.h"
 #include "utils.h"
 #include "device.h"
 
@@ -6,18 +6,27 @@ static uint8_t *pmem = NULL;
 static uint32_t rtc_value[2] = {0};
 
 uint8_t* guest_to_host(paddr_t paddr) {
-  if(in_mrom(paddr))  return pmem + paddr - CONFIG_MROM_BASE;
-  else if(in_flash(paddr))  return pmem + paddr - CONFIG_FLASH_BASE + CONFIG_MROM_SIZE;
-  else if(in_psram(paddr))  return pmem + paddr - CONFIG_PSRAM_BASE + CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE;
-  else if(in_sdram(paddr))  return pmem + paddr - CONFIG_SDRAM_BASE + CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE;
-  else return NULL;
+    if(in_mrom(paddr))  
+        return pmem + paddr - CONFIG_MROM_BASE;
+    else if(in_flash(paddr))  
+        return pmem + paddr - CONFIG_FLASH_BASE + CONFIG_MROM_SIZE;
+    else if(in_psram(paddr))  
+        return pmem + paddr - CONFIG_PSRAM_BASE + CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE;
+    else if(in_sdram(paddr))  
+        return pmem + paddr - CONFIG_SDRAM_BASE + CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE;
+    else return NULL;
 }
 paddr_t host_to_guest(uint8_t *haddr) { 
-  if((haddr-pmem) < CONFIG_MROM_SIZE) return haddr - pmem + CONFIG_MROM_BASE;
-  else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE)) return haddr - pmem - CONFIG_MROM_SIZE + CONFIG_FLASH_BASE;
-  else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE)) return haddr - pmem - CONFIG_MROM_SIZE - CONFIG_FLASH_SIZE + CONFIG_PSRAM_BASE;
-  else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE)) return haddr - pmem - CONFIG_MROM_SIZE - CONFIG_FLASH_SIZE - CONFIG_PSRAM_SIZE + CONFIG_SDRAM_BASE;
-  else return 0;
+    if((haddr-pmem) < CONFIG_MROM_SIZE) 
+        return haddr - pmem + CONFIG_MROM_BASE;
+    else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE)) 
+        return haddr - pmem - CONFIG_MROM_SIZE + CONFIG_FLASH_BASE;
+    else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE)) 
+        return haddr - pmem - CONFIG_MROM_SIZE - CONFIG_FLASH_SIZE + CONFIG_PSRAM_BASE;
+    else if((haddr-pmem) < (CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE)) 
+        return haddr - pmem - CONFIG_MROM_SIZE - CONFIG_FLASH_SIZE - CONFIG_PSRAM_SIZE + CONFIG_SDRAM_BASE;
+    else 
+        return 0;
 }
 
 static void out_of_bound(paddr_t addr, bool is_write) {
@@ -30,7 +39,7 @@ void init_mem() {
     assert(pmem);
     IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), (CONFIG_MROM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE) * sizeof(uint8_t)));
     PRINTF_BLUE("physical memory area mrom [0x%08x, 0x%08x], sram(No trace) [0x%08x, 0x%08x], flash [0x%08x, 0x%08x], psram [0x%08x, 0x%08x], sdram [0x%08x, 0x%08x]\n", 
-                 PMEM_LEFT_MROM, PMEM_RIGHT_MROM, PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM, PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM);
+                    PMEM_LEFT_MROM, PMEM_RIGHT_MROM, PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM, PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM);
 }
 
 IFDEF(MTRACE,

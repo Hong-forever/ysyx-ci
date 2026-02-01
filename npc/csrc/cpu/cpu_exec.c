@@ -10,6 +10,8 @@ int cpu_inst_valid = 0;
 IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc, paddr_t npc));
 void reg_display();
 
+IFDEF(CONFIG_PERF_CAL, void perf_cal());
+
 uint64_t get_time();
 uint64_t g_timer = 0;
 
@@ -234,8 +236,8 @@ static void execute(uint64_t n)
         trace_and_difftest(s, cpu.pc);
         cpu_inst_valid = 0;
         g_nr_guest_inst++;
-
         if (npc_state.state != NPC_RUNNING) break;
+
     }
 
 }
@@ -268,6 +270,7 @@ void cpu_exec(uint64_t n)
         case NPC_END:
             if (npc_state.halt_ret == 1) {
                 PRINTF_GREEN("[=>>> HIT GOOD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
+                IFDEF(CONFIG_PERF_CAL, perf_cal());
             } else if (npc_state.halt_ret == 2) {
                 PRINTF_RED("[=>>> HIT BAD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
             }
