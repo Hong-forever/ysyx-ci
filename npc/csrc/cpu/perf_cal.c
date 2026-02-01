@@ -89,16 +89,18 @@ void perf_cal() {
     printf("Total Cycle: %lu\n", total_cycle);
     printf("Total Inst : %lu\n", g_nr_guest_inst);
     if (total_cycle != 0) {
-        printf("IPC      : %.2f\n\n", (double)g_nr_guest_inst / (double)total_cycle);
+        printf("IPC        : %.2f\n", (double)g_nr_guest_inst / (double)total_cycle);
     } else {
-        printf("IPC      : INF\n\n");
+        printf("IPC        : INF\n");
     }
+    printf("\n===== Instruction Count =====\n");
     printf("IFU  Inst: %lu\n", ifu_inst);
     printf("Dec  Inst: %lu\n", dec_inst);
     printf("Exec Inst: %lu\n", exec_inst);
     printf("L/S  Data: %lu\n", ls_data_nr);
 
-    printf("===== Proportion =====\n");
+
+    printf("\n===== Proportion =====\n");
     printf("ALU Inst(one): %u(%.2f%%)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
     printf("ALU Inst(mul): %u(%.2f%%)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
     printf("ALU Inst(div): %u(%.2f%%)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
@@ -106,13 +108,13 @@ void perf_cal() {
     printf("Branch Inst  : %u(%.2f%%)\n", br_inst_log.inst_nr,  (double)br_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %u(%.2f%%)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
 
-    printf("===== Average Cycle =====\n");
-    printf("ALU Inst(one): %.2f)\n", one_inst_log.inst_nr ? (double)one_inst_log.cycle / (double)one_inst_log.inst_nr : 0);
-    printf("ALU Inst(mul): %.2f)\n", mul_inst_log.inst_nr ? (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr : 0);
-    printf("ALU Inst(div): %.2f)\n", div_inst_log.inst_nr ? (double)div_inst_log.cycle / (double)div_inst_log.inst_nr : 0);
-    printf("L/S Inst     : %.2f)\n", ls_inst_log.inst_nr  ? (double)ls_inst_log.cycle  / (double)ls_inst_log.inst_nr  : 0);
-    printf("Branch Inst  : %.2f)\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
-    printf("CSR Inst     : %.2f)\n", br_inst_log.inst_nr  ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
+    printf("\n===== Average Cycle =====\n");
+    printf("ALU Inst(one): %.2f\n", one_inst_log.inst_nr ? (double)one_inst_log.cycle / (double)one_inst_log.inst_nr : 0);
+    printf("ALU Inst(mul): %.2f\n", mul_inst_log.inst_nr ? (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr : 0);
+    printf("ALU Inst(div): %.2f\n", div_inst_log.inst_nr ? (double)div_inst_log.cycle / (double)div_inst_log.inst_nr : 0);
+    printf("L/S Inst     : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_inst_log.cycle  / (double)ls_inst_log.inst_nr  : 0);
+    printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
+    printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
 
     printf("==================================\n");
 
