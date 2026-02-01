@@ -77,32 +77,23 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
-    reg [`MemDataBus] rdata;
-    always @(posedge clk) begin
-        if (!rst_n) begin
-            rdata <= 0;
-        end else if(dbus_rvalid && dbus_rready) begin
-            rdata <= dbus_rdata;
-        end
-    end
+    wire [`MemDataBus] lb_00_res = {{24{dbus_rdata[7]}},  dbus_rdata[7:0]};
+    wire [`MemDataBus] lb_01_res = {{24{dbus_rdata[15]}}, dbus_rdata[15:8]};
+    wire [`MemDataBus] lb_10_res = {{24{dbus_rdata[23]}}, dbus_rdata[23:16]};
+    wire [`MemDataBus] lb_11_res = {{24{dbus_rdata[31]}}, dbus_rdata[31:24]};
 
-    wire [`MemDataBus] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
-    wire [`MemDataBus] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
-    wire [`MemDataBus] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
-    wire [`MemDataBus] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
+    wire [`MemDataBus] lh_00_res = {{16{dbus_rdata[15]}}, dbus_rdata[15:0]};
+    wire [`MemDataBus] lh_10_res = {{16{dbus_rdata[31]}}, dbus_rdata[31:16]};
 
-    wire [`MemDataBus] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
-    wire [`MemDataBus] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
+    wire [`MemDataBus] lw_res = dbus_rdata;
 
-    wire [`MemDataBus] lw_res = rdata;
+    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, dbus_rdata[7:0]};
+    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, dbus_rdata[15:8]};
+    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, dbus_rdata[23:16]};
+    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, dbus_rdata[31:24]};
 
-    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
-    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
-    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
-    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
-
-    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
-    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
+    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, dbus_rdata[15:0]};
+    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, dbus_rdata[31:16]};
 
     wire [`MemDataBus] sb_00_res = {24'b0, I_store_data[7:0]};
     wire [`MemDataBus] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
@@ -277,7 +268,7 @@ module ysyx_25110270_lsu
     parameter WB   = 2;
 
     reg data_avalid;
-    reg [1:0] state, nstate;
+    reg state, nstate;
     always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
@@ -306,10 +297,7 @@ module ysyx_25110270_lsu
                     nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
                 end
                 MEM: begin
-                    nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
-                end
-                WB: begin
-                    nstate = IDLE;
+                    nstate = (dbus_bvalid | dbus_rvalid) ? IDLE : MEM;
                 end
                 default: begin
                     nstate = IDLE;
@@ -317,7 +305,6 @@ module ysyx_25110270_lsu
             endcase
         end
     end
-
 
     reg data_bready;
     always @(posedge clk) begin
@@ -355,7 +342,7 @@ module ysyx_25110270_lsu
     end
 
     wire stallreq_ls_req = ls_req;
-    wire stallreq = stallreq_mem | stallreq_ls_req;
+    wire stallreq = (stallreq_mem | stallreq_ls_req) & !(dbus_rvalid | dbus_bvalid);
 
     wire not_in_mrom   = (I_memory_addr < `MromAddrBase ) | (I_memory_addr >= (`MromAddrBase  + `MromSize   ));
     wire not_in_sram   = (I_memory_addr < `SramAddrBase ) | (I_memory_addr >= (`SramAddrBase  + `SramSize   ));
