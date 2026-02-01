@@ -97,11 +97,11 @@ void perf_cal() {
     printf("L/S  Data: %lu\n", ls_data_nr);
 
     printf("\nInstruction Type Breakdown:\n");
-    printf("ALU Inst(one):   %u(%.2f%%) ac(%.2f)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)total_inst_valid * 100, (double)one_inst_log.cycle / (double)total_cycle);
-    printf("ALU Inst(mul):   %u(%.2f%%) ac(%.2f)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)total_inst_valid * 100, (double)mul_inst_log.cycle / (double)total_cycle);
-    printf("ALU Inst(div):   %u(%.2f%%) ac(%.2f)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)total_inst_valid * 100, (double)div_inst_log.cycle / (double)total_cycle);
-    printf("Load/Store Inst: %u(%.2f%%) ac(%.2f)\n", ls_inst_log.inst_nr, (double)ls_inst_log.inst_nr / (double)total_inst_valid * 100, (double)ls_inst_log.cycle / (double)total_cycle);
-    printf("Branch Inst:     %u(%.2f%%) ac(%.2f)\n", br_inst_log.inst_nr, (double)br_inst_log.inst_nr / (double)total_inst_valid * 100, (double)br_inst_log.cycle / (double)total_cycle);
-    printf("CSR Inst:        %u(%.2f%%) ac(%.2f)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)total_inst_valid * 100, (double)csr_inst_log.cycle / (double)total_cycle);
+    printf("ALU Inst(one):   %u(%.2f%%) ac(%.2f)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)total_inst_valid * 100, (double)one_inst_log.cycle / (double)one_inst_log.inst_nr);
+    printf("ALU Inst(mul):   %u(%.2f%%) ac(%.2f)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)total_inst_valid * 100, (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr);
+    printf("ALU Inst(div):   %u(%.2f%%) ac(%.2f)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)total_inst_valid * 100, (double)div_inst_log.cycle / (double)div_inst_log.inst_nr);
+    printf("Load/Store Inst: %u(%.2f%%) ac(%.2f)\n", ls_inst_log.inst_nr, (double)ls_inst_log.inst_nr / (double)total_inst_valid * 100, (double)ls_inst_log.cycle / (double)ls_inst_log.inst_nr);
+    printf("Branch Inst:     %u(%.2f%%) ac(%.2f)\n", br_inst_log.inst_nr, (double)br_inst_log.inst_nr / (double)total_inst_valid * 100, (double)br_inst_log.cycle / (double)br_inst_log.inst_nr);
+    printf("CSR Inst:        %u(%.2f%%) ac(%.2f)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)total_inst_valid * 100, (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr);
     printf("==================================\n");
 }
