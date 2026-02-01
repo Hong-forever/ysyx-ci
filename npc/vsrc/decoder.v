@@ -308,7 +308,7 @@ module ysyx_25110270_decoder
     assign O_CSRSrc_sel  = CSRSrc_sel;
 
 `ifdef PERF
-    import "DPI-C" function void decoder_inst_type_cal(input int inst_type);
+    import "DPI-C" function void decoder_inst_type_cal(input int inst_type, int inst_valid);
 
     wire inst_is_mul = (alu_ctrl == `ALUCTL_MUL) | (alu_ctrl == `ALUCTL_MULH) | (alu_ctrl == `ALUCTL_MULHSU) | (alu_ctrl == `ALUCTL_MULHU);
     wire inst_is_div = (alu_ctrl == `ALUCTL_DIV) | (alu_ctrl == `ALUCTL_DIVU) | (alu_ctrl == `ALUCTL_REM) | (alu_ctrl == `ALUCTL_REMU);

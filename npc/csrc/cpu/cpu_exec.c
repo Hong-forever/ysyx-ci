@@ -10,6 +10,8 @@ int cpu_inst_valid = 0;
 IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc, paddr_t npc));
 void reg_display();
 
+IFDEF(CONFIG_PERF_CAL, void perf_cal());
+
 uint64_t get_time();
 uint64_t g_timer = 0;
 
