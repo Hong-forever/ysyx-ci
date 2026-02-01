@@ -88,13 +88,13 @@ extern "C" void wb_inst_cycle_cal(int pc) {
                 case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; break;
                 default:                                                              break;
             }
-            printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ONE ? "ALU_ONE" : 
-                                                                inst_buffer[i].type == IT_ALU_MUL ? "ALU_MUL" :
-                                                                inst_buffer[i].type == IT_ALU_DIV ? "ALU_DIV" :
-                                                                inst_buffer[i].type == IT_LS      ? "LS"      :
-                                                                inst_buffer[i].type == IT_BR      ? "BR"      :
-                                                                inst_buffer[i].type == IT_CSR     ? "CSR"     : "UNKNOWN",
-                                                            cycle);
+            // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ONE ? "ALU_ONE" : 
+            //                                                     inst_buffer[i].type == IT_ALU_MUL ? "ALU_MUL" :
+            //                                                     inst_buffer[i].type == IT_ALU_DIV ? "ALU_DIV" :
+            //                                                     inst_buffer[i].type == IT_LS      ? "LS"      :
+            //                                                     inst_buffer[i].type == IT_BR      ? "BR"      :
+            //                                                     inst_buffer[i].type == IT_CSR     ? "CSR"     : "UNKNOWN",
+            //                                                 cycle);
             break;
         }
     }
