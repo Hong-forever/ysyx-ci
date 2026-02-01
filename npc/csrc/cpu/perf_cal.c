@@ -76,7 +76,7 @@ extern "C" void wb_inst_cycle_cal(int pc) {
                 case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; break;
                 default:                                                              break;
             }
-            // printf("WB Cal: pc=0x%x, type=0x%x, cycle=%lu\n", pc, inst_buffer[i].type, cycle);
+            printf("WB Cal: pc=0x%x, type=0x%x, cycle=%lu\n", pc, inst_buffer[i].type, cycle);
             break;
         }
     }
