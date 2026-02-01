@@ -32,6 +32,7 @@ extern "C" void decoder_inst_type_cal(int inst_type, int inst_valid) {
         default: break;
     }
     dec_inst += inst_valid & 0x1;
+    printf("Decoder Cal: inst_type=0x%x, inst_valid=%d, total %lu\n", inst_type, inst_valid, dec_inst);
 }
 
 void perf_cal() {
