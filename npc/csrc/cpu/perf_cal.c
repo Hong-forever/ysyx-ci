@@ -4,9 +4,6 @@
 
 extern uint64_t g_nr_guest_inst;
 
-#define TOTAL_CYCLE       ((uint64_t)(extra_cpu.mcycleh) << 32 | (uint64_t)extra_cpu.mcyclel)
-#define TOTAL_INST_VALID  (g_nr_guest_inst)
-
 enum Inst_Type {
     IT_ALU_ONE = 0x01,
     IT_ALU_MUL = 0x02,
@@ -31,8 +28,13 @@ Inst_buf inst_buffer[5];
 Inst_log one_inst_log, mul_inst_log, div_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
+uint64_t total_cycle;
+extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
+    total_cycle = ((uint64_t)mcycleh << 32) | (uint64_t)mcyclel;
+}
+
 static inline uint64_t rdtime() {
-    return TOTAL_CYCLE;
+    return total_cycle;
 }
 
 extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
@@ -81,16 +83,15 @@ extern "C" void wb_inst_cycle_cal(int pc) {
 }
 
 void perf_cal() {
-    uint64_t total_cycle = TOTAL_CYCLE;
-    uint64_t total_inst_valid = TOTAL_INST_VALID;
+
 
     printf("===== Performance Calulation =====\n");
-    printf("Total Cycle:      %lu\n", total_cycle);
-    printf("Total Valid Inst: %lu\n", total_inst_valid);
+    printf("Total Cycle: %lu\n", total_cycle);
+    printf("Total Inst:  %lu\n", g_nr_guest_inst);
     if (total_cycle != 0) {
-        printf("IPC:              %.2f\n\n", (double)total_inst_valid / (double)total_cycle);
+        printf("IPC:       %.2f\n\n", (double)g_nr_guest_inst / (double)total_cycle);
     } else {
-        printf("IPC:              INF\n\n");
+        printf("IPC:       INF\n\n");
     }
     printf("IFU  Inst: %lu\n", ifu_inst);
     printf("Dec  Inst: %lu\n", dec_inst);
@@ -98,12 +99,12 @@ void perf_cal() {
     printf("L/S  Data: %lu\n", ls_data_nr);
 
     printf("\nInstruction Type Breakdown:\n");
-    printf("ALU Inst(one):   %u(%.2f%%) ac(%.2f)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)total_inst_valid * 100, (double)one_inst_log.cycle / (double)one_inst_log.inst_nr);
-    printf("ALU Inst(mul):   %u(%.2f%%) ac(%.2f)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)total_inst_valid * 100, (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr);
-    printf("ALU Inst(div):   %u(%.2f%%) ac(%.2f)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)total_inst_valid * 100, (double)div_inst_log.cycle / (double)div_inst_log.inst_nr);
-    printf("Load/Store Inst: %u(%.2f%%) ac(%.2f)\n", ls_inst_log.inst_nr, (double)ls_inst_log.inst_nr / (double)total_inst_valid * 100, (double)ls_inst_log.cycle / (double)ls_inst_log.inst_nr);
-    printf("Branch Inst:     %u(%.2f%%) ac(%.2f)\n", br_inst_log.inst_nr, (double)br_inst_log.inst_nr / (double)total_inst_valid * 100, (double)br_inst_log.cycle / (double)br_inst_log.inst_nr);
-    printf("CSR Inst:        %u(%.2f%%) ac(%.2f)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)total_inst_valid * 100, (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr);
+    printf("ALU Inst(one):   %u(%.2f%%) ac(%.2f)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)one_inst_log.cycle / (double)one_inst_log.inst_nr);
+    printf("ALU Inst(mul):   %u(%.2f%%) ac(%.2f)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr);
+    printf("ALU Inst(div):   %u(%.2f%%) ac(%.2f)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)div_inst_log.cycle / (double)div_inst_log.inst_nr);
+    printf("Load/Store Inst: %u(%.2f%%) ac(%.2f)\n", ls_inst_log.inst_nr, (double)ls_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)ls_inst_log.cycle / (double)ls_inst_log.inst_nr);
+    printf("Branch Inst:     %u(%.2f%%) ac(%.2f)\n", br_inst_log.inst_nr, (double)br_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)br_inst_log.cycle / (double)br_inst_log.inst_nr);
+    printf("CSR Inst:        %u(%.2f%%) ac(%.2f)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100, (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr);
     printf("==================================\n");
 
 

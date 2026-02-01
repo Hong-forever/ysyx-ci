@@ -150,6 +150,7 @@ module ysyx_25110270_wbu
 
 `ifdef PERF
     import "DPI-C" function void wb_inst_cycle_cal(input int pc);
+    import "DPI-C" function void per_cyc_get(input int mcycleh, input int mcyclel);
 
     reg valid;
     always @(posedge clk) begin
@@ -165,6 +166,11 @@ module ysyx_25110270_wbu
             wb_inst_cycle_cal(I_inst_addr);
         end
     end
+
+    always @(posedge clk) begin
+        per_cyc_get(csr_mcycleh, csr_mcyclel);
+    end
+
 `endif
 
 `ifdef DPIC
