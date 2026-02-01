@@ -60,7 +60,6 @@ extern "C" void ls_data_cal() {
     ls_data_nr++;
 }
 
-uint64_t tem;
 extern "C" void wb_inst_cycle_cal(int pc) {
     uint64_t end = rdtime();
     for(int i = 0; i < 5; i++) {
@@ -78,7 +77,6 @@ extern "C" void wb_inst_cycle_cal(int pc) {
             break;
         }
     }
-    tem ++;
 }
 
 void perf_cal() {
@@ -93,7 +91,6 @@ void perf_cal() {
     } else {
         printf("IPC:              INF\n\n");
     }
-    printf("%lu\n", tem);
     printf("IFU  Inst: %lu\n", ifu_inst);
     printf("Dec  Inst: %lu\n", dec_inst);
     printf("Exec Inst: %lu\n", exec_inst);

@@ -235,9 +235,9 @@ static void execute(uint64_t n)
 
         trace_and_difftest(s, cpu.pc);
         cpu_inst_valid = 0;
+        g_nr_guest_inst++;
         if (npc_state.state != NPC_RUNNING) break;
 
-        g_nr_guest_inst++;
     }
 
 }
