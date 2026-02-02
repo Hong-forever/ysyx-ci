@@ -133,7 +133,7 @@ module ysyx_25110270
     wire        clint_rlast;
     wire [3:0 ] clint_rid;
 
-    ysyx_25110270_cpu_core cpu_core_inst
+    ysyx_25110270_cpu_core cpu_core
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -172,7 +172,7 @@ module ysyx_25110270
 
     );
 
-    ysyx_25110270_xbar xbar_inst 
+    ysyx_25110270_xbar xbar 
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -268,7 +268,7 @@ module ysyx_25110270
         .M1_rid                 (io_master_rid              )
     );
 
-    ysyx_25110270_clint clint_inst
+    ysyx_25110270_clint clint
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),

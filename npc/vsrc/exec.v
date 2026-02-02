@@ -80,37 +80,37 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_FWDCtrl_rs1)
-            `FWDSrc_sel_nfw     :   final_rs1_rdata = I_rs1_rdata;
-            `FWDSrc_sel_ls      :   final_rs1_rdata = I_ls_rd_wdata;
-            `FWDSrc_sel_wb      :   final_rs1_rdata = I_wb_rd_wdata;
-            default             :   final_rs1_rdata = 0;
+            `FWDSrc_nfw     :   final_rs1_rdata = I_rs1_rdata;
+            `FWDSrc_ls      :   final_rs1_rdata = I_ls_rd_wdata;
+            `FWDSrc_wb      :   final_rs1_rdata = I_wb_rd_wdata;
+            default         :   final_rs1_rdata = 0;
         endcase
     end
 
     always @(*) begin
         case(I_FWDCtrl_rs2)
-            `FWDSrc_sel_nfw     :   final_rs2_rdata = I_rs2_rdata;
-            `FWDSrc_sel_ls      :   final_rs2_rdata = I_ls_rd_wdata;
-            `FWDSrc_sel_wb      :   final_rs2_rdata = I_wb_rd_wdata;
-            default             :   final_rs2_rdata = 0;
+            `FWDSrc_nfw     :   final_rs2_rdata = I_rs2_rdata;
+            `FWDSrc_ls      :   final_rs2_rdata = I_ls_rd_wdata;
+            `FWDSrc_wb      :   final_rs2_rdata = I_wb_rd_wdata;
+            default         :   final_rs2_rdata = 0;
         endcase
     end
 
     always @(*) begin
         case(I_FWDCtrl_csr)
-            `FWDSrc_sel_nfw     :   final_csr_rdata = I_csr_rdata;
-            `FWDSrc_sel_ls      :   final_csr_rdata = I_ls_csr_wdata;
-            `FWDSrc_sel_wb      :   final_csr_rdata = I_wb_csr_wdata;
-            default             :   final_csr_rdata = 0;
+            `FWDSrc_nfw     :   final_csr_rdata = I_csr_rdata;
+            `FWDSrc_ls      :   final_csr_rdata = I_ls_csr_wdata;
+            `FWDSrc_wb      :   final_csr_rdata = I_wb_csr_wdata;
+            default         :   final_csr_rdata = 0;
         endcase
     end
 
     always @(*) begin
         case(I_FWDCtrl_rs1)
-            `FWDSrc_sel_nfw     :   final_agu_src = I_rs1_rdata;
-            `FWDSrc_sel_ls      :   final_agu_src = I_ls_rd_wdata;
-            `FWDSrc_sel_wb      :   final_agu_src = I_wb_rd_wdata;
-            default             :   final_agu_src = 0;
+            `FWDSrc_nfw     :   final_agu_src = I_rs1_rdata;
+            `FWDSrc_ls      :   final_agu_src = I_ls_rd_wdata;
+            `FWDSrc_wb      :   final_agu_src = I_wb_rd_wdata;
+            default         :   final_agu_src = 0;
         endcase
     end
 
@@ -124,48 +124,40 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_ALUSrcA_sel)
-            `ALUSrcA_sel_rs1: alu_srca = final_rs1_rdata;
-            `ALUSrcA_sel_pc:  alu_srca = I_inst_addr;
-            default:          alu_srca = 0;
+            `ALUSrcA_rs1: alu_srca = final_rs1_rdata;
+            `ALUSrcA_pc:  alu_srca = I_inst_addr;
+            default:      alu_srca = 0;
         endcase
     end
 
     always @(*) begin
         case(I_ALUSrcB_sel)
-            `ALUSrcB_sel_rs2: alu_srcb = final_rs2_rdata;
-            `ALUSrcB_sel_imm: alu_srcb = I_imm;
-            `ALUSrcB_sel_4:   alu_srcb = 4;
-            default:          alu_srcb = 0;
+            `ALUSrcB_rs2: alu_srcb = final_rs2_rdata;
+            `ALUSrcB_imm: alu_srcb = I_imm;
+            `ALUSrcB_4:   alu_srcb = 4;
+            default:      alu_srcb = 0;
         endcase
     end
 
     always @(*) begin
         case(I_AGUSrc_sel)
-            `AGUSrc_sel_rs1: agu_src = final_agu_src;
-            `AGUSrc_sel_pc:  agu_src = I_inst_addr;
-            default:         agu_src = 0;
+            `AGUSrc_rs1:  agu_src = final_agu_src;
+            `AGUSrc_pc:   agu_src = I_inst_addr;
+            default:      agu_src = 0;
         endcase
     end
 
     always @(*) begin
         case(I_CSRSrc_sel)
-            `CSRSrc_sel_rs1: csr_src = final_rs1_rdata;
-            `CSRSrc_sel_imm: csr_src = I_imm;
-            `CSRSrc_sel_nop: csr_src = 0;
-            default        : csr_src = 0;
+            `CSRSrc_rs1:  csr_src = final_rs1_rdata;
+            `CSRSrc_imm:  csr_src = I_imm;
+            default:      csr_src = 0;
         endcase
     end
 
     //------------------------------------------------------------------------
     // alu运算
     //------------------------------------------------------------------------
-    reg start_mul_reg, start_div_reg;
-
-    wire src_eq, src_lt;
-
-    wire stallreq;
-
-    wire [`RegDataBus] alu_result;
 
     reg valid;
     always @(posedge clk) begin
@@ -176,6 +168,7 @@ module ysyx_25110270_exec
         end
     end
 
+    reg start_mul_reg, start_div_reg;
     wire mul_ready, div_ready;
     wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
     wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
@@ -199,9 +192,12 @@ module ysyx_25110270_exec
 
     wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
     wire stallreq_div = start_div | (start_div_reg & ~div_ready);
-    assign stallreq = stallreq_div | stallreq_mul;
+    wire stallreq = stallreq_div | stallreq_mul;
 
-    ysyx_25110270_exe_alu alu
+    wire src_eq, src_lt;
+    wire [`RegDataBus] alu_result;
+
+    ysyx_25110270_alu alu
     (
         .clk                        (clk                    ),
         .rst_n                      (rst_n                  ),
@@ -231,7 +227,7 @@ module ysyx_25110270_exec
     // bru运算
     //------------------------------------------------------------------------
     wire bru_taken;
-    ysyx_25110270_exe_bru bru
+    ysyx_25110270_bru bru
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
@@ -243,7 +239,7 @@ module ysyx_25110270_exec
     // csr运算
     //------------------------------------------------------------------------
     wire [`CSRDataBus] csr_wdata;
-    ysyx_25110270_exe_csr csr
+    ysyx_25110270_csr csr
     (
         .I_csr_src                  (csr_src                ),
         .I_csr_rdata                (final_csr_rdata        ),

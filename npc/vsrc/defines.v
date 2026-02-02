@@ -118,18 +118,6 @@
 `define RV32M_F7_MUL    7'b0000001
 
 //------------------------------------------------------------------------
-// rv32m div control
-//------------------------------------------------------------------------
-`define DivFree 2'b00
-`define DivByZero 2'b01
-`define DivOn 2'b10
-`define DivEnd 2'b11
-`define DivResultReady 1'b1
-`define DivResultNotReady 1'b0
-`define DivStart 1'b1
-`define DivStop 1'b0
-
-//------------------------------------------------------------------------
 // rv32i B type inst
 //------------------------------------------------------------------------
 `define RV32I_OP_TYPE_B 7'b1100011
@@ -206,7 +194,6 @@
 // ALU CONTROL DEFINITIONS
 //------------------------------------------------------------------------
 `define ALUCTL_WIDTH    5
-`define ALUCTL_NOP      5'b00000
 `define ALUCTL_ADD      5'b00001       // Add (signed)
 `define ALUCTL_SUB      5'b00010       // Subtract (signed)
 `define ALUCTL_SLL      5'b00011       // Shift Left Logical
@@ -230,7 +217,6 @@
 // BRANCH AND JUMP CONTROL DEFINITIONS
 //------------------------------------------------------------------------
 `define BRUCTL_WIDTH    3
-`define BRUCTL_NOP      3'b000
 `define BRUCTL_JAL      3'b001
 `define BRUCTL_BEQ      3'b010
 `define BRUCTL_BNE      3'b011
@@ -243,7 +229,6 @@
 // CSR CONTROL DEFINITIONS
 //------------------------------------------------------------------------
 `define CSRCTL_WIDTH    2
-`define CSRCTL_NOP      2'b00
 `define CSRCTL_WRI      2'b01
 `define CSRCTL_SET      2'b10
 `define CSRCTL_CLR      2'b11
@@ -252,52 +237,46 @@
 // ALU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define ALUSrcA_sel_width   2
-`define ALUSrcA_sel_nop     2'b00
-`define ALUSrcA_sel_rs1     2'b01
-`define ALUSrcA_sel_pc      2'b10
-`define ALUSrcA_sel_0       2'b11
+`define ALUSrcA_rs1     2'b01
+`define ALUSrcA_pc      2'b10
+`define ALUSrcA_0       2'b11
 
 //------------------------------------------------------------------------
 // ALU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define ALUSrcB_sel_width   2
-`define ALUSrcB_sel_nop     2'b00
-`define ALUSrcB_sel_rs2     2'b01
-`define ALUSrcB_sel_imm     2'b10
-`define ALUSrcB_sel_4       2'b11
+`define ALUSrcB_rs2     2'b01
+`define ALUSrcB_imm     2'b10
+`define ALUSrcB_4       2'b11
 
 //------------------------------------------------------------------------
 // AGU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define AGUSrc_sel_width    2
-`define AGUSrc_sel_nop      2'b00
-`define AGUSrc_sel_rs1      2'b01
-`define AGUSrc_sel_pc       2'b10
-`define AGUSrc_sel_0        2'b11
+`define AGUSrc_rs1      2'b01
+`define AGUSrc_pc       2'b10
+`define AGUSrc_0        2'b11
 
 //------------------------------------------------------------------------
 // CSR SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define CSRSrc_sel_width    2
-`define CSRSrc_sel_nop      2'b00
-`define CSRSrc_sel_rs1      2'b01
-`define CSRSrc_sel_imm      2'b10
+`define CSRSrc_rs1      2'b01
+`define CSRSrc_imm      2'b10
 
 //------------------------------------------------------------------------
 // FWD SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
 `define FWDSrc_sel_width    2
-`define FWDSrc_sel_nop      2'b00
-`define FWDSrc_sel_nfw      2'b01
-`define FWDSrc_sel_ls       2'b10
-`define FWDSrc_sel_wb       2'b11
+`define FWDSrc_nfw      2'b01
+`define FWDSrc_ls       2'b10
+`define FWDSrc_wb       2'b11
 
 //------------------------------------------------------------------------
 // STORE/LOAD TYPE DEFINITIONS
 //------------------------------------------------------------------------
 `define ls_diff_width   4
 `define ls_diff_bus     `ls_diff_width-1:0
-`define ls_nop          4'b0000
 `define ls_lb           4'b0001
 `define ls_lh           4'b0011
 `define ls_lw           4'b0010
