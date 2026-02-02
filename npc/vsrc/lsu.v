@@ -306,8 +306,22 @@ module ysyx_25110270_lsu
         end
     end
 
+    reg stallreq_mem;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            stallreq_mem <= 1'b0;
+        end else begin
+            if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
+                stallreq_mem <= 1'b0;
+            end else if(ls_req || state == MEM) begin
+                stallreq_mem <= 1'b1;
+            end
+        end
+    end
 
-    wire stallreq = ls_req | (state == MEM);
+    wire stallreq_ls_req = ls_req;
+    wire stallreq = stallreq_mem | stallreq_ls_req;
+
 
     //------------------------------------------------------------------------
     // 输出
