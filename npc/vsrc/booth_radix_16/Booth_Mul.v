@@ -2,14 +2,14 @@
 
 //***********************// Booth-Top //*******************************//
 
-module ysyx_25110270_Booth_mul
+module ysyx_25110270_Booth_Mul
 #(
-    parameter   LENGTH          =   32  ,
-    parameter   UNSINGED_BOOTH  =   1'b1
+    parameter   LENGTH          =   32
 )(
     input   wire                        clk   ,
     input   wire                        rst_n ,
     input   wire                        start ,
+    input   wire                        U     ,    //无符号乘法标志
     input   wire    [LENGTH-1:0     ]   A     ,    //乘数 A
     input   wire    [LENGTH-1:0     ]   B     ,    //被乘数 B
     output  wire    [LENGTH*2-1:0   ]   P     ,    //结果 P
@@ -55,18 +55,18 @@ module ysyx_25110270_Booth_mul
     //-----------------------// first-logic-output //-----------------------//
 
     //扩展最低位置B[-1],为0
-    assign B_tr = UNSINGED_BOOTH ? {4'b0, B, 1'b0} : {{4{B[LENGTH-1]}}, B, 1'b0};
+    assign B_tr = U ? {4'b0, B, 1'b0} : {{4{B[LENGTH-1]}}, B, 1'b0};
 
     //实例化 Booth_Ctrl 模块，实现转码
     generate
         for(i=0; i<LENGTH/4+1; i=i+1) begin:  Booth_Ctrl_i
             ysyx_25110270_Booth_Ctrl
             #(
-                .LENGTH(LENGTH),
-                .UNSINGED_BOOTH(UNSINGED_BOOTH)
+                .LENGTH   (LENGTH          )
             ) Booth_Ctrl (
                 .a_i      (A               ) ,
                 .b_i      ({B_tr[i*4+:5]}  ) ,
+                .u_i      (U               ) ,
                 .bo_o     (boo_o[i]        )
             );
             if(i != 8)

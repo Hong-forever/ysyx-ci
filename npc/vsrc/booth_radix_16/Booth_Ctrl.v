@@ -4,11 +4,11 @@
             
 module ysyx_25110270_Booth_Ctrl 
 #(
-    parameter   LENGTH          =   32,
-    parameter   UNSINGED_BOOTH  =   1'b1
+    parameter   LENGTH          =   32
 )(
     input   wire    [LENGTH-1:0     ]   a_i     ,  //乘数 A
     input   wire    [4:0            ]   b_i     ,  //被乘数 B 五位选择
+    input   wire                        u_i     ,
     output  wire    [LENGTH+3:0     ]   bo_o     
 );
 
@@ -17,7 +17,7 @@ module ysyx_25110270_Booth_Ctrl
 
     wire [LENGTH:0  ] a_tr   ;   //无符号乘法，扩展一位最高位0
 
-    assign  a_tr = UNSINGED_BOOTH ? {1'b0, a_i} : {a_i[LENGTH-1], a_i};
+    assign  a_tr = u_i ? {1'b0, a_i} : {a_i[LENGTH-1], a_i};
 
     always @(*) begin
         case(b_i[2:0])

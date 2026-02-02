@@ -96,56 +96,32 @@ module ysyx_25110270_alu
     wire div_ready;
     wire mul_ready;
 
-    wire [`DoubleRegDataBus] mulhsu_res_inverted = ~mulhsu_res + 1;
+    wire [`DoubleRegDataBus] mulhsu_res_inverted = ~mul_res + 1;
 
-    wire [`RegDataBus] mulhsu_op1 = (I_alu_srca[`RegDataWidth-1])? ~I_alu_srca + 1 : I_alu_srca;
-    wire [`RegDataBus] mulhsu_op2 = I_alu_srcb;
+    wire mul_unsigned = (I_alu_ctrl != `ALUCTL_MULH);
+
+    wire [`RegDataBus] mul_op1 = (I_alu_ctrl == `ALUCTL_MULHSU && I_alu_srca[`RegDataWidth-1]) ? 
+                                    ~I_alu_srca + 1 : I_alu_srca;
+    wire [`RegDataBus] mul_op2 = I_alu_srcb;
 
     assign rv32m_mul_res    = mul_res[`LRegDataBus];
     assign rv32m_mulhu_res  = mul_res[`HRegDataBus];
-    assign rv32m_mulh_res   = mulh_res[`HRegDataBus];
-    assign rv32m_mulhsu_res = (I_alu_srca[`RegDataWidth-1])? mulhsu_res_inverted[`HRegDataBus] : mulhsu_res[`HRegDataBus];
+    assign rv32m_mulh_res   = mul_res[`HRegDataBus];
+    assign rv32m_mulhsu_res = (I_alu_srca[`RegDataWidth-1]) ? mulhsu_res_inverted[`HRegDataBus] : mul_res[`HRegDataBus];
 
-    ysyx_25110270_Booth_mul 
+    ysyx_25110270_Booth_Mul 
     #(
-        .LENGTH                 (`RegDataWidth              ),
-        .UNSINGED_BOOTH         (1'b1                       )
-    ) mul (
+        .LENGTH                 (`RegDataWidth              )
+    ) mul 
+    (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-        .A                      (I_alu_srca                 ),
-        .B                      (I_alu_srcb                 ),
+        .A                      (mul_op1                    ),
+        .B                      (mul_op2                    ),
+        .U                      (mul_unsigned               ),
         .P                      (mul_res                    ),
         .start                  (I_mul_start                ),
         .done                   (mul_ready                  )
-    );
-
-    ysyx_25110270_Booth_mul 
-    #(
-        .LENGTH                 (`RegDataWidth              ),
-        .UNSINGED_BOOTH         (1'b0                       )
-    ) mulh (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .A                      (I_alu_srca                 ),
-        .B                      (I_alu_srcb                 ),
-        .P                      (mulh_res                   ),
-        .start                  (I_mul_start                ),
-        .done                   (                           )
-    );
-
-    ysyx_25110270_Booth_mul 
-    #(
-        .LENGTH                 (`RegDataWidth              ),
-        .UNSINGED_BOOTH         (1'b1                       )
-    ) mulhsu (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .A                      (mulhsu_op1                 ),
-        .B                      (mulhsu_op2                 ),
-        .P                      (mulhsu_res                 ),
-        .start                  (I_mul_start                ),
-        .done                   (                           )
     );
 
     ysyx_25110270_div div    // 除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
