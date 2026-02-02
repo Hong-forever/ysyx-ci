@@ -33,13 +33,6 @@ module ysyx_25110270_clint
 );
 
     reg [2*DATA_WIDTH-1:0] mtime;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            mtime <= 0;
-        end else begin
-            mtime <= mtime + 1;
-        end
-    end
 
     reg                    arready;
     reg                    awready;
@@ -90,7 +83,9 @@ module ysyx_25110270_clint
     always @(posedge clk) begin
         if(!rst_n) begin
             wdata_valid <= 1'b0;
+            mtime <= 64'b0;
         end else begin
+            mtime <= mtime + 1'b1;
             if(bvalid_o && bready_i) begin
                 wdata_valid <= 1'b0;
             end else if(wvalid_i && wready_o) begin

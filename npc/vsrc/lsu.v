@@ -117,23 +117,14 @@ module ysyx_25110270_lsu
     // 地址明辨
     wire [1:0] memory_byte_addr = I_memory_addr[1:0];
 
-    wire is_sb  = (I_ls_type == `ls_sb);
-    wire is_sh  = (I_ls_type == `ls_sh);
-    wire is_sw  = (I_ls_type == `ls_sw);
-    wire is_lb  = (I_ls_type == `ls_lb);
-    wire is_lbu = (I_ls_type == `ls_lbu);
-    wire is_lhu = (I_ls_type == `ls_lhu);
-    wire is_lh  = (I_ls_type == `ls_lh);
-    wire is_lw  = (I_ls_type == `ls_lw);
-
     //------------------------------------------------------------------------
     // 访存逻辑
     //------------------------------------------------------------------------
     reg [`RegDataBus] rd_data;
     always @(*) begin
         rd_data = I_rd_wdata;
-        case(1'b1)
-            is_lb: begin
+        case(I_ls_type)
+            `ls_lb: begin
                 case(memory_byte_addr)
                     2'b00: rd_data = lb_00_res;
                     2'b01: rd_data = lb_01_res;
@@ -142,17 +133,17 @@ module ysyx_25110270_lsu
                     default: begin end
                 endcase
             end
-            is_lh: begin
+            `ls_lh: begin
                 case(memory_byte_addr[1])
                     1'b0: rd_data = lh_00_res;
                     1'b1: rd_data = lh_10_res;
                     default: begin end
                 endcase
             end
-            is_lw: begin
+            `ls_lw: begin
                 rd_data = lw_res;
             end
-            is_lbu: begin
+            `ls_lbu: begin
                 case(memory_byte_addr)
                     2'b00: rd_data = lbu_00_res;
                     2'b01: rd_data = lbu_01_res;
@@ -161,7 +152,7 @@ module ysyx_25110270_lsu
                     default: begin end
                 endcase
             end
-            is_lhu: begin
+            `ls_lhu: begin
                 case(memory_byte_addr[1])
                     1'b0: rd_data = lhu_00_res;
                     1'b1: rd_data = lhu_10_res;
@@ -175,90 +166,68 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     // 存储逻辑
     //------------------------------------------------------------------------
+
     reg [`MemDataBus] wdata;
-    always @(*) begin
-        wdata = 0;
-        case(1'b1)
-            is_sb: begin
-                case(memory_byte_addr)
-                    2'b00: wdata = sb_00_res;
-                    2'b01: wdata = sb_01_res;
-                    2'b10: wdata = sb_10_res;
-                    2'b11: wdata = sb_11_res;
-                    default: begin end
-                endcase
-            end
-            is_sh: begin
-                case(memory_byte_addr[1])
-                    1'b0: wdata = sh_00_res;
-                    1'b1: wdata = sh_10_res;
-                    default: begin end
-                endcase
-            end
-            is_sw: begin
-                wdata = sw_res;
-            end
-            default: begin end
-        endcase
-    end
-
-    //------------------------------------------------------------------------
-    // 字节选通
-    //------------------------------------------------------------------------
-
-    reg [`DBUS_MASK-1:0] data_mask;
-    always @(*) begin
-        data_mask = 'b0000;
-        case(1'b1)
-            is_sb: begin
-                case(memory_byte_addr)
-                    2'b00: data_mask = 4'b0001;
-                    2'b01: data_mask = 4'b0010;
-                    2'b10: data_mask = 4'b0100;
-                    2'b11: data_mask = 4'b1000;
-                    default: begin end
-                endcase
-            end
-            is_sh: begin
-                case(memory_byte_addr[1])
-                    1'b0: data_mask = 4'b0011;
-                    1'b1: data_mask = 4'b1100;
-                    default: begin end
-                endcase
-            end
-            is_sw: begin
-                data_mask = 4'b1111;
-            end
-            default: begin end
-        endcase
+    reg [3:0] data_mask;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            wdata     <= 0;
+            data_mask <= 0;
+        end else begin
+            case({I_ls_type, memory_byte_addr})
+                {`ls_sb, 2'b00}: begin
+                    wdata     <= sb_00_res;
+                    data_mask <= 4'b0001;
+                end
+                {`ls_sb, 2'b01}: begin
+                    wdata     <= sb_01_res;
+                    data_mask <= 4'b0010;
+                end
+                {`ls_sb, 2'b10}: begin
+                    wdata     <= sb_10_res;
+                    data_mask <= 4'b0100;
+                end
+                {`ls_sb, 2'b11}: begin
+                    wdata     <= sb_11_res;
+                    data_mask <= 4'b1000;
+                end
+                {`ls_sh, 2'b00}: begin
+                    wdata     <= sh_00_res;
+                    data_mask <= 4'b0011;
+                end
+                {`ls_sh, 2'b10}: begin
+                    wdata     <= sh_10_res;
+                    data_mask <= 4'b1100;
+                end
+                {`ls_sw, 2'b00}: begin
+                    wdata     <= sw_res;
+                    data_mask <= 4'b1111;
+                end
+                default: begin
+                    wdata     <= 0;
+                    data_mask <= 0;
+                end
+            endcase
+        end
     end
     
     reg [2:0] data_awsize;
     reg [2:0] data_arsize;
-    always @(*) begin
-        data_awsize = 3'b000;
-        data_arsize = 3'b000;
-        case(1'b1)
-            is_sb: begin
-                data_awsize = 3'b000;
-            end
-            is_sh: begin
-                data_awsize = 3'b001;
-            end
-            is_sw: begin
-                data_awsize = 3'b010;
-            end
-            is_lb, is_lbu: begin
-                data_arsize = 3'b000;
-            end
-            is_lh, is_lhu: begin
-                data_arsize = 3'b001;
-            end
-            is_lw: begin
-                data_arsize = 3'b010;
-            end
-            default: begin end
-        endcase
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            data_awsize <= 3'b000;
+            data_arsize <= 3'b000;
+        end else begin
+            case(I_ls_type)
+                `ls_sb:             data_awsize <= 3'b000;
+                `ls_sh:             data_awsize <= 3'b001;
+                `ls_sw:             data_awsize <= 3'b010;
+                `ls_lb, `ls_lbu:    data_arsize <= 3'b000;
+                `ls_lh, `ls_lhu:    data_arsize <= 3'b001;
+                `ls_lw:             data_arsize <= 3'b010;
+                default:            data_awsize <= 3'b000;
+            endcase
+        end
     end
 
     reg valid;
@@ -272,12 +241,12 @@ module ysyx_25110270_lsu
         end
     end
 
-    parameter IDLE = 0;
-    parameter MEM  = 1;
-    parameter WB   = 2;
+    parameter IDLE = 3'b001;
+    parameter MEM  = 3'b010;
+    parameter WB   = 3'b100;
 
     reg data_avalid;
-    reg [1:0] state, nstate;
+    reg [2:0] state, nstate;
     always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
@@ -291,7 +260,7 @@ module ysyx_25110270_lsu
 
     always @(posedge clk) begin
         if(!rst_n) begin
-            data_avalid <= 1'b0;
+            data_avalid <= 0;
         end else begin
             data_avalid <= data_avalid_next;
         end
@@ -302,18 +271,10 @@ module ysyx_25110270_lsu
             nstate = IDLE;
         end else begin
             case(state)
-                IDLE: begin
-                    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
-                end
-                MEM: begin
-                    nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
-                end
-                WB: begin
-                    nstate = IDLE;
-                end
-                default: begin
-                    nstate = IDLE;
-                end
+                IDLE:    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
+                MEM:     nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
+                WB:      nstate = IDLE;
+                default: nstate = IDLE;
             endcase
         end
     end
@@ -341,51 +302,8 @@ module ysyx_25110270_lsu
         end
     end
 
-    reg stallreq_mem;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            stallreq_mem <= 1'b0;
-        end else begin
-            if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
-                stallreq_mem <= 1'b0;
-            end else if(ls_req || state == MEM) begin
-                stallreq_mem <= 1'b1;
-            end
-        end
-    end
 
-    wire stallreq_ls_req = ls_req;
-    wire stallreq = stallreq_mem | stallreq_ls_req;
-
-    wire not_in_mrom   = (I_memory_addr < `MromAddrBase ) | (I_memory_addr >= (`MromAddrBase  + `MromSize   ));
-    wire not_in_sram   = (I_memory_addr < `SramAddrBase ) | (I_memory_addr >= (`SramAddrBase  + `SramSize   ));
-    wire not_in_flash  = (I_memory_addr < `FlashAddrBase) | (I_memory_addr >= (`FlashAddrBase + `FlashSize  ));
-    wire not_in_psram  = (I_memory_addr < `PsramAddrBase) | (I_memory_addr >= (`PsramAddrBase + `PsramSize  ));
-    wire not_in_sdram  = (I_memory_addr < `SdramAddrBase) | (I_memory_addr >= (`SdramAddrBase + `SdramSize  ));
-    wire not_in_clint  = (I_memory_addr < `CLINT_BASE   ) | (I_memory_addr >= (`CLINT_BASE    + `CLINT_SIZE ));
-    wire not_in_serial = (I_memory_addr < `SERIAL_BASE  ) | (I_memory_addr >= (`SERIAL_BASE   + `SERIAL_SIZE));
-    wire not_in_spi    = (I_memory_addr < `SPI_BASE     ) | (I_memory_addr >= (`SPI_BASE      + `SPI_SIZE   ));
-    wire not_in_gpio   = (I_memory_addr < `GPIO_BASE    ) | (I_memory_addr >= (`GPIO_BASE     + `GPIO_SIZE  ));
-    wire not_in_ps2    = (I_memory_addr < `PS2_BASE     ) | (I_memory_addr >= (`PS2_BASE      + `PS2_SIZE   ));
-    wire not_in_vga    = (I_memory_addr < `VGA_BASE     ) | (I_memory_addr >= (`VGA_BASE      + `VGA_SIZE   ));
-    wire not_in_chipl  = (I_memory_addr < `CHIPL_BASE   )/* | (I_memory_addr >= (`CHIPL_BASE    + `CHIPL_SIZE ))*/;
-
-    wire not_in_device =  not_in_mrom & not_in_sram & not_in_flash & 
-                          not_in_psram & not_in_sdram & not_in_clint & 
-                          not_in_serial & not_in_spi & not_in_gpio & 
-                          not_in_ps2 & not_in_vga & not_in_chipl;
-
-    always @(posedge clk) begin
-        if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
-            $error("LSU: Data read address out of range at pc 0x%08x!", I_inst_addr);
-        end
-        if(dbus_bvalid && dbus_bresp != 2'b00) begin
-            $error("LSU: DBUS write error at pc 0x%08x!", I_inst_addr);
-        end
-        if(dbus_rvalid && dbus_rresp != 2'b00) begin
-            $error("LSU: DBUS read error at pc 0x%08x!", I_inst_addr);
-        end
-    end
+    wire stallreq = ls_req | (state == MEM);
 
     //------------------------------------------------------------------------
     // 输出
@@ -425,7 +343,7 @@ module ysyx_25110270_lsu
 
     assign dbus_wdata = wdata;
     assign dbus_wstrb = data_mask;
-    assign dbus_wlast = dbus_wvalid;
+    assign dbus_wlast = 1'b1;
 
     assign dbus_bready = data_bready;
 
@@ -436,6 +354,38 @@ module ysyx_25110270_lsu
     assign dbus_arburst = 2'b01;
 
     assign dbus_rready = data_rready;
+
+`ifdef DEBUG
+    wire not_in_mrom   = (I_memory_addr < `MromAddrBase ) | (I_memory_addr >= (`MromAddrBase  + `MromSize   ));
+    wire not_in_sram   = (I_memory_addr < `SramAddrBase ) | (I_memory_addr >= (`SramAddrBase  + `SramSize   ));
+    wire not_in_flash  = (I_memory_addr < `FlashAddrBase) | (I_memory_addr >= (`FlashAddrBase + `FlashSize  ));
+    wire not_in_psram  = (I_memory_addr < `PsramAddrBase) | (I_memory_addr >= (`PsramAddrBase + `PsramSize  ));
+    wire not_in_sdram  = (I_memory_addr < `SdramAddrBase) | (I_memory_addr >= (`SdramAddrBase + `SdramSize  ));
+    wire not_in_clint  = (I_memory_addr < `CLINT_BASE   ) | (I_memory_addr >= (`CLINT_BASE    + `CLINT_SIZE ));
+    wire not_in_serial = (I_memory_addr < `SERIAL_BASE  ) | (I_memory_addr >= (`SERIAL_BASE   + `SERIAL_SIZE));
+    wire not_in_spi    = (I_memory_addr < `SPI_BASE     ) | (I_memory_addr >= (`SPI_BASE      + `SPI_SIZE   ));
+    wire not_in_gpio   = (I_memory_addr < `GPIO_BASE    ) | (I_memory_addr >= (`GPIO_BASE     + `GPIO_SIZE  ));
+    wire not_in_ps2    = (I_memory_addr < `PS2_BASE     ) | (I_memory_addr >= (`PS2_BASE      + `PS2_SIZE   ));
+    wire not_in_vga    = (I_memory_addr < `VGA_BASE     ) | (I_memory_addr >= (`VGA_BASE      + `VGA_SIZE   ));
+    wire not_in_chipl  = (I_memory_addr < `CHIPL_BASE   )/* | (I_memory_addr >= (`CHIPL_BASE    + `CHIPL_SIZE ))*/;
+
+    wire not_in_device =  not_in_mrom & not_in_sram & not_in_flash & 
+                          not_in_psram & not_in_sdram & not_in_clint & 
+                          not_in_serial & not_in_spi & not_in_gpio & 
+                          not_in_ps2 & not_in_vga & not_in_chipl;
+
+    always @(posedge clk) begin
+        if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
+            $error("LSU: Data read address out of range at pc 0x%08x!", I_inst_addr);
+        end
+        if(dbus_bvalid && dbus_bresp != 2'b00) begin
+            $error("LSU: DBUS write error at pc 0x%08x!", I_inst_addr);
+        end
+        if(dbus_rvalid && dbus_rresp != 2'b00) begin
+            $error("LSU: DBUS read error at pc 0x%08x!", I_inst_addr);
+        end
+    end
+`endif
 
 `ifdef PERF
     import "DPI-C" function void ls_data_cal();

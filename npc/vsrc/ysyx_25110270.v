@@ -133,7 +133,7 @@ module ysyx_25110270
     wire        clint_rlast;
     wire [3:0 ] clint_rid;
 
-    ysyx_25110270_cpu_core cpu_core_inst
+    ysyx_25110270_cpu_core cpu_core
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -172,7 +172,7 @@ module ysyx_25110270
 
     );
 
-    ysyx_25110270_xbar xbar_inst 
+    ysyx_25110270_xbar xbar 
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -265,40 +265,10 @@ module ysyx_25110270
         .M1_rdata               (io_master_rdata            ),
         .M1_rresp               (io_master_rresp            ),
         .M1_rlast               (io_master_rlast            ),
-        .M1_rid                 (io_master_rid              ),
-
-        .M2_awvalid             (                           ),
-        .M2_awready             (                           ),
-        .M2_awaddr              (                           ),
-        .M2_awid                (                           ),
-        .M2_awlen               (                           ),
-        .M2_awsize              (                           ),
-        .M2_awburst             (                           ),
-        .M2_wvalid              (                           ),
-        .M2_wready              (                           ),
-        .M2_wdata               (                           ),
-        .M2_wstrb               (                           ),
-        .M2_wlast               (                           ),
-        .M2_bvalid              (                           ),
-        .M2_bready              (                           ),
-        .M2_bresp               (                           ),
-        .M2_bid                 (                           ),
-        .M2_arvalid             (                           ),
-        .M2_arready             (                           ),
-        .M2_araddr              (                           ),
-        .M2_arid                (                           ),
-        .M2_arlen               (                           ),
-        .M2_arsize              (                           ),
-        .M2_arburst             (                           ),
-        .M2_rvalid              (                           ),
-        .M2_rready              (                           ),
-        .M2_rdata               (                           ),
-        .M2_rresp               (                           ),
-        .M2_rlast               (                           ),
-        .M2_rid                 (                           )
+        .M1_rid                 (io_master_rid              )
     );
 
-    ysyx_25110270_clint clint_inst
+    ysyx_25110270_clint clint
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
@@ -321,6 +291,18 @@ module ysyx_25110270
         .rdata_o                (clint_rdata                ),
         .rresp_o                (clint_rresp                )
     );
+
+    assign io_slave_awready = 1'b0;
+    assign io_slave_wready  = 1'b0;
+    assign io_slave_bvalid  = 1'b0;
+    assign io_slave_bresp   = 2'b00;
+    assign io_slave_bid     = 4'b0;
+    assign io_slave_arready = 1'b0;
+    assign io_slave_rvalid  = 1'b0;
+    assign io_slave_rdata   = 32'b0;
+    assign io_slave_rresp   = 2'b00;
+    assign io_slave_rlast   = 1'b0;
+    assign io_slave_rid     = 4'b0;
 
 
 endmodule //ysyx_25110270

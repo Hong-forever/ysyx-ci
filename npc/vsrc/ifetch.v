@@ -107,6 +107,7 @@ module ysyx_25110270_ifetch
         end
     end
 
+`ifdef DEBUG
     always @(posedge clk) begin
         if(!rst_n) begin
             pc <= `RESET_VECTOR;
@@ -127,6 +128,15 @@ module ysyx_25110270_ifetch
             pc <= npc;
         end
     end
+`else
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            pc <= `RESET_VECTOR;
+        end else if(state == EXE) begin
+            pc <= npc;
+        end
+    end
+`endif
 
     reg [`InstBus] inst;
     always @(posedge clk) begin

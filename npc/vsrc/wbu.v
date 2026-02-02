@@ -142,11 +142,13 @@ module ysyx_25110270_wbu
 
     assign O_ready = 1'b1;
 
+`ifdef DEBUG
     always @(posedge clk) begin
         if(I_inst == 0 && I_inst_addr != 0) begin
             $error("Error: inst is 0 at addr %h!", I_inst_addr);
         end
     end
+`endif
 
 `ifdef PERF
     import "DPI-C" function void wb_inst_cycle_cal(input int pc);

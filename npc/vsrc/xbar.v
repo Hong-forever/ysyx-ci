@@ -99,211 +99,110 @@ module ysyx_25110270_xbar
     input   wire    [31:0]              M1_rdata,
     input   wire    [1:0]               M1_rresp,
     input   wire                        M1_rlast,
-    input   wire    [3:0]               M1_rid,
-
-    // slave2
-    output  reg                         M2_awvalid,
-    input   wire                        M2_awready,
-    output  reg     [31:0]              M2_awaddr,
-    output  reg     [3:0]               M2_awid,
-    output  reg     [7:0]               M2_awlen,
-    output  reg     [2:0]               M2_awsize,
-    output  reg     [1:0]               M2_awburst,
-    output  reg                         M2_wvalid,
-    input   wire                        M2_wready,
-    output  reg     [31:0]              M2_wdata,
-    output  reg     [3:0]               M2_wstrb,
-    output  reg                         M2_wlast,
-    input   wire                        M2_bvalid,
-    output  reg                         M2_bready,
-    input   wire    [1:0]               M2_bresp,
-    input   wire    [3:0]               M2_bid,
-    output  reg                         M2_arvalid,
-    input   wire                        M2_arready,
-    output  reg     [31:0]              M2_araddr,
-    output  reg     [3:0]               M2_arid,
-    output  reg     [7:0]               M2_arlen,
-    output  reg     [2:0]               M2_arsize,
-    output  reg     [1:0]               M2_arburst,
-    input   wire                        M2_rvalid,
-    output  reg                         M2_rready,
-    input   wire    [31:0]              M2_rdata,
-    input   wire    [1:0]               M2_rresp,
-    input   wire                        M2_rlast,
-    input   wire    [3:0]               M2_rid
+    input   wire    [3:0]               M1_rid
 );
     wire sel_slave0   = (`CLINT_BASE <= S_araddr && S_araddr < `CLINT_BASE + `CLINT_SIZE) ||
                         (`CLINT_BASE <= S_awaddr && S_awaddr < `CLINT_BASE + `CLINT_SIZE) ;
-    wire sel_slave1   = ~sel_slave0;
-    wire sel_slave2   = 0;
     
 
     always @(*) begin
-        case(1'b1)
-            sel_slave0: begin
-                M0_awvalid = S_awvalid;
-                M0_awaddr  = S_awaddr;
-                M0_awid    = S_awid;
-                M0_awlen   = S_awlen;
-                M0_awsize  = S_awsize;
-                M0_awburst = S_awburst;
-                M0_wvalid  = S_wvalid;
-                M0_wdata   = S_wdata;
-                M0_wstrb   = S_wstrb;
-                M0_wlast   = S_wlast;
-                M0_bready  = S_bready;
-                M0_arvalid = S_arvalid;
-                M0_araddr  = S_araddr;
-                M0_arid    = S_arid;
-                M0_arlen   = S_arlen;
-                M0_arsize  = S_arsize;
-                M0_arburst = S_arburst;
-                M0_rready  = S_rready;
-                S_awready  = M0_awready;
-                S_wready   = M0_wready;
-                S_bvalid   = M0_bvalid;
-                S_bresp    = M0_bresp;
-                S_bid      = M0_bid;
-                S_arready  = M0_arready;
-                S_rvalid   = M0_rvalid;
-                S_rdata    = M0_rdata;
-                S_rresp    = M0_rresp;
-                S_rlast    = M0_rlast;
-                S_rid      = M0_rid;
-            end
-            sel_slave1: begin
-                M1_awvalid = S_awvalid;
-                M1_awaddr  = S_awaddr;
-                M1_awid    = S_awid;
-                M1_awlen   = S_awlen;
-                M1_awsize  = S_awsize;
-                M1_awburst = S_awburst;
-                M1_wvalid  = S_wvalid;
-                M1_wdata   = S_wdata;
-                M1_wstrb   = S_wstrb;
-                M1_wlast   = S_wlast;
-                M1_bready  = S_bready;
-                M1_arvalid = S_arvalid;
-                M1_araddr  = S_araddr;
-                M1_arid    = S_arid;
-                M1_arlen   = S_arlen;
-                M1_arsize  = S_arsize;
-                M1_arburst = S_arburst;
-                M1_rready  = S_rready;
-                S_awready  = M1_awready;
-                S_wready   = M1_wready;
-                S_bvalid   = M1_bvalid;
-                S_bresp    = M1_bresp;
-                S_bid      = M1_bid;
-                S_arready  = M1_arready;
-                S_rvalid   = M1_rvalid;
-                S_rdata    = M1_rdata;
-                S_rresp    = M1_rresp;
-                S_rlast    = M1_rlast;
-                S_rid      = M1_rid;
-            end
-            sel_slave2: begin
-                M2_awvalid = S_awvalid;
-                M2_awaddr  = S_awaddr;
-                M2_awid    = S_awid;
-                M2_awlen   = S_awlen;
-                M2_awsize  = S_awsize;
-                M2_awburst = S_awburst;
-                M2_wvalid  = S_wvalid;
-                M2_wdata   = S_wdata;
-                M2_wstrb   = S_wstrb;
-                M2_wlast   = S_wlast;
-                M2_bready  = S_bready;
-                M2_arvalid = S_arvalid;
-                M2_araddr  = S_araddr;
-                M2_arid    = S_arid;
-                M2_arlen   = S_arlen;
-                M2_arsize  = S_arsize;
-                M2_arburst = S_arburst;
-                M2_rready  = S_rready;
-                S_awready  = M2_awready;
-                S_wready   = M2_wready;
-                S_bvalid   = M2_bvalid;
-                S_bresp    = M2_bresp;
-                S_bid      = M2_bid;
-                S_arready  = M2_arready;
-                S_rvalid   = M2_rvalid;
-                S_rdata    = M2_rdata;
-                S_rresp    = M2_rresp;
-                S_rlast    = M2_rlast;
-                S_rid      = M2_rid;
-            end
-            default: begin
-                M0_awvalid = 0;
-                M0_awaddr  = 0;
-                M0_awid    = 0;
-                M0_awlen   = 0;
-                M0_awsize  = 0;
-                M0_awburst = 0;
-                M0_wvalid  = 0;
-                M0_wdata   = 0;
-                M0_wstrb   = 0;
-                M0_wlast   = 0;
-                M0_bready  = 0;
-                M0_arvalid = 0;
-                M0_araddr  = 0;
-                M0_arid    = 0;
-                M0_arlen   = 0;
-                M0_arsize  = 0;
-                M0_arburst = 0;
-                M0_rready  = 0;
-
-                M1_awvalid = 0;
-                M1_awaddr  = 0;
-                M1_awid    = 0;
-                M1_awlen   = 0;
-                M1_awsize  = 0;
-                M1_awburst = 0;
-                M1_wvalid  = 0;
-                M1_wdata   = 0;
-                M1_wstrb   = 0;
-                M1_wlast   = 0;
-                M1_bready  = 0;
-                M1_arvalid = 0;
-                M1_araddr  = 0;
-                M1_arid    = 0;
-                M1_arlen   = 0;
-                M1_arsize  = 0;
-                M1_arburst = 0;
-                M1_rready  = 0;
-
-                M2_awvalid = 0;
-                M2_awaddr  = 0;
-                M2_awid    = 0;
-                M2_awlen   = 0;
-                M2_awsize  = 0;
-                M2_awburst = 0;
-                M2_wvalid  = 0;
-                M2_wdata   = 0;
-                M2_wstrb   = 0;
-                M2_wlast   = 0;
-                M2_bready  = 0;
-                M2_arvalid = 0;
-                M2_araddr  = 0;
-                M2_arid    = 0;
-                M2_arlen   = 0;
-                M2_arsize  = 0;
-                M2_arburst = 0;
-                M2_rready  = 0;
-
-                S_awready  = M0_awready | M1_awready | M2_awready;
-                S_wready   = M0_wready  | M1_wready  | M2_wready;
-                S_bvalid   = 0;
-                S_bresp    = 0;
-                S_bid      = 0;
-                S_arready  = M0_arready | M1_arready | M2_arready;
-                S_rvalid   = 0;
-                S_rdata    = 0;
-                S_rresp    = 0;
-                S_rlast    = 0;
-                S_rid      = 0;
-            end
-        endcase
+        if(sel_slave0) begin
+            M0_awvalid = S_awvalid;
+            M0_awaddr  = S_awaddr;
+            M0_awid    = S_awid;
+            M0_awlen   = S_awlen;
+            M0_awsize  = S_awsize;
+            M0_awburst = S_awburst;
+            M0_wvalid  = S_wvalid;
+            M0_wdata   = S_wdata;
+            M0_wstrb   = S_wstrb;
+            M0_wlast   = S_wlast;
+            M0_bready  = S_bready;
+            M0_arvalid = S_arvalid;
+            M0_araddr  = S_araddr;
+            M0_arid    = S_arid;
+            M0_arlen   = S_arlen;
+            M0_arsize  = S_arsize;
+            M0_arburst = S_arburst;
+            M0_rready  = S_rready;
+            S_awready  = M0_awready;
+            S_wready   = M0_wready;
+            S_bvalid   = M0_bvalid;
+            S_bresp    = M0_bresp;
+            S_bid      = M0_bid;
+            S_arready  = M0_arready;
+            S_rvalid   = M0_rvalid;
+            S_rdata    = M0_rdata;
+            S_rresp    = M0_rresp;
+            S_rlast    = M0_rlast;
+            S_rid      = M0_rid;
+            M1_awvalid = 0;
+            M1_awaddr  = 0;
+            M1_awid    = 0;
+            M1_awlen   = 0;
+            M1_awsize  = 0;
+            M1_awburst = 0;
+            M1_wvalid  = 0;
+            M1_wdata   = 0;
+            M1_wstrb   = 0;
+            M1_wlast   = 0;
+            M1_bready  = 0;
+            M1_arvalid = 0;
+            M1_araddr  = 0;
+            M1_arid    = 0;
+            M1_arlen   = 0;
+            M1_arsize  = 0;
+            M1_arburst = 0;
+            M1_rready  = 0;
+        end else begin
+            M1_awvalid = S_awvalid;
+            M1_awaddr  = S_awaddr;
+            M1_awid    = S_awid;
+            M1_awlen   = S_awlen;
+            M1_awsize  = S_awsize;
+            M1_awburst = S_awburst;
+            M1_wvalid  = S_wvalid;
+            M1_wdata   = S_wdata;
+            M1_wstrb   = S_wstrb;
+            M1_wlast   = S_wlast;
+            M1_bready  = S_bready;
+            M1_arvalid = S_arvalid;
+            M1_araddr  = S_araddr;
+            M1_arid    = S_arid;
+            M1_arlen   = S_arlen;
+            M1_arsize  = S_arsize;
+            M1_arburst = S_arburst;
+            M1_rready  = S_rready;
+            S_awready  = M1_awready;
+            S_wready   = M1_wready;
+            S_bvalid   = M1_bvalid;
+            S_bresp    = M1_bresp;
+            S_bid      = M1_bid;
+            S_arready  = M1_arready;
+            S_rvalid   = M1_rvalid;
+            S_rdata    = M1_rdata;
+            S_rresp    = M1_rresp;
+            S_rlast    = M1_rlast;
+            S_rid      = M1_rid;
+            M0_awvalid = 0;
+            M0_awaddr  = 0;
+            M0_awid    = 0;
+            M0_awlen   = 0;
+            M0_awsize  = 0;
+            M0_awburst = 0;
+            M0_wvalid  = 0;
+            M0_wdata   = 0;
+            M0_wstrb   = 0;
+            M0_wlast   = 0;
+            M0_bready  = 0;
+            M0_arvalid = 0;
+            M0_araddr  = 0;
+            M0_arid    = 0;
+            M0_arlen   = 0;
+            M0_arsize  = 0;
+            M0_arburst = 0;
+            M0_rready  = 0;
+        end
     end
 
 
