@@ -217,32 +217,27 @@
 `define ALUCTL_SRA      5'b01000       // Shift Right Arithmetic
 `define ALUCTL_OR       5'b01001       // OR
 `define ALUCTL_AND      5'b01010       // AND
-// `define ALUCTL_AUIPC    5'b01011       // add upper immediate to PC
-// `define ALUCTL_LUI      5'b01100       // Load Upper Immediate
-// `define ALUCTL_JAL      5'b01101       // Jump and Link
-// `define ALUCTL_JALR     5'b01110       // Jump and Link Register
-
 `define ALUCTL_MUL      5'b10000       // Multiply
 `define ALUCTL_MULH     5'b10001       // Multiply High
 `define ALUCTL_MULHSU   5'b10010       // Multiply High Signed Unsigned
 `define ALUCTL_MULHU    5'b10011       // Multiply High Unsigned
-`define ALUCTL_DIV      5'b10100       // Divide
-`define ALUCTL_DIVU     5'b10101       // Divide Unsigned
-`define ALUCTL_REM      5'b10110       // Remainder
-`define ALUCTL_REMU     5'b10111       // Remainder Unsigned
+`define ALUCTL_DIV      5'b11000       // Divide
+`define ALUCTL_DIVU     5'b11001       // Divide Unsigned
+`define ALUCTL_REM      5'b11010       // Remainder
+`define ALUCTL_REMU     5'b11011       // Remainder Unsigned
 
 //------------------------------------------------------------------------
 // BRANCH AND JUMP CONTROL DEFINITIONS
 //------------------------------------------------------------------------
-`define BRUCTL_WIDTH    4
-`define BRUCTL_NOP      4'b0000
-`define BRUCTL_JAL      4'b0001
-`define BRUCTL_BEQ      4'b0011
-`define BRUCTL_BNE      4'b0100
-`define BRUCTL_BLT      4'b0101
-`define BRUCTL_BGE      4'b0110
-`define BRUCTL_BLTU     4'b0111
-`define BRUCTL_BGEU     4'b1000
+`define BRUCTL_WIDTH    3
+`define BRUCTL_NOP      3'b000
+`define BRUCTL_JAL      3'b001
+`define BRUCTL_BEQ      3'b010
+`define BRUCTL_BNE      3'b011
+`define BRUCTL_BLT      3'b100
+`define BRUCTL_BGE      3'b101
+`define BRUCTL_BLTU     3'b110
+`define BRUCTL_BGEU     3'b111
 
 //------------------------------------------------------------------------
 // CSR CONTROL DEFINITIONS
