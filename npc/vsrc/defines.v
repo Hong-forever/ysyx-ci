@@ -221,10 +221,10 @@
 `define ALUCTL_MULH     5'b10001       // Multiply High
 `define ALUCTL_MULHSU   5'b10010       // Multiply High Signed Unsigned
 `define ALUCTL_MULHU    5'b10011       // Multiply High Unsigned
-`define ALUCTL_DIV      5'b11000       // Divide
-`define ALUCTL_DIVU     5'b11001       // Divide Unsigned
-`define ALUCTL_REM      5'b11010       // Remainder
-`define ALUCTL_REMU     5'b11011       // Remainder Unsigned
+`define ALUCTL_DIV      5'b10100       // Divide
+`define ALUCTL_DIVU     5'b10101       // Divide Unsigned
+`define ALUCTL_REM      5'b10110       // Remainder
+`define ALUCTL_REMU     5'b10111       // Remainder Unsigned
 
 //------------------------------------------------------------------------
 // BRANCH AND JUMP CONTROL DEFINITIONS
