@@ -153,6 +153,10 @@ module ysyx_25110270_decoder
     reg [`BRUCTL_WIDTH-1:0] bru_ctrl;
 
     always @(*) begin
+        ls_type  = `ls_nop;
+        alu_ctrl = `ALUCTL_NOP;
+        bru_ctrl = `BRUCTL_NOP;
+        csr_ctrl = `CSRCTL_NOP;
         case(opcode)
             `RV32I_OP_TYPE_IL: begin
                 case(funct3)
@@ -273,12 +277,7 @@ module ysyx_25110270_decoder
                     default:       csr_ctrl = `CSRCTL_NOP;
                 endcase
             end
-            default: begin 
-                alu_ctrl = `ALUCTL_NOP;
-                bru_ctrl = `BRUCTL_NOP;
-                csr_ctrl = `CSRCTL_NOP;
-                ls_type  = `ls_nop;
-            end
+            default: begin end
         endcase
     end
 
