@@ -166,72 +166,68 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     // 存储逻辑
     //------------------------------------------------------------------------
+
     reg [`MemDataBus] wdata;
-    always @(*) begin
-        case(I_ls_type)
-            `ls_sb: begin
-                case(memory_byte_addr)
-                    2'b00:   wdata = sb_00_res;
-                    2'b01:   wdata = sb_01_res;
-                    2'b10:   wdata = sb_10_res;
-                    2'b11:   wdata = sb_11_res;
-                    default: wdata = 0;
-                endcase
-            end
-            `ls_sh: begin
-                case(memory_byte_addr[1])
-                    1'b0:    wdata = sh_00_res;
-                    1'b1:    wdata = sh_10_res;
-                    default: wdata = 0;
-                endcase
-            end
-            `ls_sw:          wdata = sw_res;
-            default:         wdata = 0;
-        endcase
-    end
-
-    //------------------------------------------------------------------------
-    // 字节选通
-    //------------------------------------------------------------------------
-
-    reg [`DBUS_MASK-1:0] data_mask;
-    always @(*) begin
-        case(I_ls_type)
-            `ls_sb: begin
-                case(memory_byte_addr)
-                    2'b00:   data_mask = 4'b0001;
-                    2'b01:   data_mask = 4'b0010;
-                    2'b10:   data_mask = 4'b0100;
-                    2'b11:   data_mask = 4'b1000;
-                    default: data_mask = 4'b0000;
-                endcase
-            end
-            `ls_sh: begin
-                case(memory_byte_addr[1])
-                    1'b0:    data_mask = 4'b0011;
-                    1'b1:    data_mask = 4'b1100;
-                    default: data_mask = 4'b0000;
-                endcase
-            end
-            `ls_sw:          data_mask = 4'b1111;
-            default:         data_mask = 4'b0000;
-        endcase
+    reg [3:0] data_mask;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            wdata     <= 0;
+            data_mask <= 0;
+        end else begin
+            case({I_ls_type, memory_byte_addr})
+                {`ls_sb, 2'b00}: begin
+                    wdata     <= sb_00_res;
+                    data_mask <= 4'b0001;
+                end
+                {`ls_sb, 2'b01}: begin
+                    wdata     <= sb_01_res;
+                    data_mask <= 4'b0010;
+                end
+                {`ls_sb, 2'b10}: begin
+                    wdata     <= sb_10_res;
+                    data_mask <= 4'b0100;
+                end
+                {`ls_sb, 2'b11}: begin
+                    wdata     <= sb_11_res;
+                    data_mask <= 4'b1000;
+                end
+                {`ls_sh, 2'b00}: begin
+                    wdata     <= sh_00_res;
+                    data_mask <= 4'b0011;
+                end
+                {`ls_sh, 2'b10}: begin
+                    wdata     <= sh_10_res;
+                    data_mask <= 4'b1100;
+                end
+                {`ls_sw, 2'b00}: begin
+                    wdata     <= sw_res;
+                    data_mask <= 4'b1111;
+                end
+                default: begin
+                    wdata     <= 0;
+                    data_mask <= 0;
+                end
+            endcase
+        end
     end
     
     reg [2:0] data_awsize;
     reg [2:0] data_arsize;
-    always @(*) begin
-        data_awsize = 3'b000;
-        data_arsize = 3'b000;
-        case(I_ls_type)
-            `ls_sb:             data_awsize = 3'b000;
-            `ls_sh:             data_awsize = 3'b001;
-            `ls_sw:             data_awsize = 3'b010;
-            `ls_lb, `ls_lbu:    data_arsize = 3'b000;
-            `ls_lh, `ls_lhu:    data_arsize = 3'b001;
-            `ls_lw:             data_arsize = 3'b010;
-            default:            begin end
-        endcase
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            data_awsize <= 3'b000;
+            data_arsize <= 3'b000;
+        end else begin
+            case(I_ls_type)
+                `ls_sb:             data_awsize <= 3'b000;
+                `ls_sh:             data_awsize <= 3'b001;
+                `ls_sw:             data_awsize <= 3'b010;
+                `ls_lb, `ls_lbu:    data_arsize <= 3'b000;
+                `ls_lh, `ls_lhu:    data_arsize <= 3'b001;
+                `ls_lw:             data_arsize <= 3'b010;
+                default:            data_awsize <= 3'b000;
+            endcase
+        end
     end
 
     reg valid;
@@ -264,7 +260,7 @@ module ysyx_25110270_lsu
 
     always @(posedge clk) begin
         if(!rst_n) begin
-            data_avalid <= 1'b0;
+            data_avalid <= 0;
         end else begin
             data_avalid <= data_avalid_next;
         end
