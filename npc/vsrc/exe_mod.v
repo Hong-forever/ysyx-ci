@@ -104,10 +104,22 @@ module ysyx_25110270_alu
                                     ~I_alu_srca + 1 : I_alu_srca;
     wire [`RegDataBus] mul_op2 = I_alu_srcb;
 
-    assign rv32m_mul_res    = mul_res[`LRegDataBus];
-    assign rv32m_mulhu_res  = mul_res[`HRegDataBus];
-    assign rv32m_mulh_res   = mul_res[`HRegDataBus];
-    assign rv32m_mulhsu_res = (I_alu_srca[`RegDataWidth-1]) ? mulhsu_res_inverted[`HRegDataBus] : mul_res[`HRegDataBus];
+    reg [`RegDataBus] mul_op1_r, mul_op2_r;
+    reg mul_unsigned_r, mul_start_r;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            mul_op1_r      <= 0;
+            mul_op2_r      <= 0;
+            mul_unsigned_r <= 0;
+            mul_start_r    <= 0;
+        end else begin
+            mul_op1_r      <= mul_op1;
+            mul_op2_r      <= mul_op2;
+            mul_unsigned_r <= mul_unsigned;
+            mul_start_r    <= I_mul_start;
+        end
+    end
 
     ysyx_25110270_Booth_Mul 
     #(
@@ -116,13 +128,19 @@ module ysyx_25110270_alu
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-        .A                      (mul_op1                    ),
-        .B                      (mul_op2                    ),
-        .U                      (mul_unsigned               ),
+        .start                  (mul_start_r                ),
+        .A                      (mul_op1_r                  ),
+        .B                      (mul_op2_r                  ),
+        .U                      (mul_unsigned_r             ),
         .P                      (mul_res                    ),
-        .start                  (I_mul_start                ),
         .done                   (mul_ready                  )
     );
+
+    assign rv32m_mul_res    = mul_res[`LRegDataBus];
+    assign rv32m_mulhu_res  = mul_res[`HRegDataBus];
+    assign rv32m_mulh_res   = mul_res[`HRegDataBus];
+    assign rv32m_mulhsu_res = (I_alu_srca[`RegDataWidth-1]) ? mulhsu_res_inverted[`HRegDataBus] : mul_res[`HRegDataBus];
+
 
     ysyx_25110270_div div    // 除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
     (
