@@ -1,12 +1,12 @@
 `timescale 1ns / 1ps
-
+`default_nettype none
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
 `define DPIC
 `define PERF
-// `define LFSR
 `define DEBUG
+// `define LFSR
 
 `define RAMDOM_WIDTH 8
 

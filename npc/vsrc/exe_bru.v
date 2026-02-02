@@ -16,13 +16,14 @@ module ysyx_25110270_exe_bru
 
     always @(*) begin
         case(I_bru_ctrl)
-            `BRUCTL_JAL, `BRUCTL_JALR:  bru_taken = `Enable;
-            `BRUCTL_BEQ:                bru_taken = I_src_eq;
-            `BRUCTL_BNE:                bru_taken = ~I_src_eq;
-            `BRUCTL_BLT, `BRUCTL_BLTU:  bru_taken = I_src_lt;
-            `BRUCTL_BGE:                bru_taken = ~I_src_lt;
-            `BRUCTL_BGEU:               bru_taken = ~I_src_lt;
-            default:                    bru_taken = `Disable;
+            `BRUCTL_JAL:  bru_taken = `Enable;
+            `BRUCTL_BEQ:  bru_taken = I_src_eq;
+            `BRUCTL_BNE:  bru_taken = ~I_src_eq;
+            `BRUCTL_BLT:  bru_taken = I_src_lt;
+            `BRUCTL_BLTU: bru_taken = I_src_lt;
+            `BRUCTL_BGE:  bru_taken = ~I_src_lt;
+            `BRUCTL_BGEU: bru_taken = ~I_src_lt;
+            default:      bru_taken = `Disable;
         endcase
     end
 
