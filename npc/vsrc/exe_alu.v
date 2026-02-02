@@ -83,7 +83,7 @@ module ysyx_25110270_exe_alu
     ysyx_25110270_exe_barrel_shift
     #(
         .WIDTH                  (`RegDataWidth              )
-    ) u_exe_barrel_shift
+    ) barrel_shift
     (
         .I_shift_src            (I_alu_srca                 ),
         .I_shift_amt            (I_alu_srcb[4:0]            ),

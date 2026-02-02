@@ -18,11 +18,11 @@ module ysyx_25110270_exe_barrel_shift
     wire [WIDTH-1:0] lstage0, lstage1, lstage2, lstage3, lstage4;
     wire [WIDTH-1:0] rstage0, rstage1, rstage2, rstage3, rstage4;
 
-    assign lstage0 = I_shift_amt[0] ? {I_shift_src[WIDTH-2:0], 1'b0}   : I_shift_src;
-    assign lstage1 = I_shift_amt[1] ? {I_shift_src[WIDTH-3:0], 2'b0}   : lstage0;
-    assign lstage2 = I_shift_amt[2] ? {I_shift_src[WIDTH-5:0], 4'b0}   : lstage1;
-    assign lstage3 = I_shift_amt[3] ? {I_shift_src[WIDTH-9:0], 8'b0}   : lstage2;
-    assign lstage4 = I_shift_amt[4] ? {I_shift_src[WIDTH-17:0], 16'b0} : lstage3;
+    assign lstage0 = I_shift_amt[0] ? {I_shift_src[WIDTH-2:0], 1'b0} : I_shift_src;
+    assign lstage1 = I_shift_amt[1] ? {lstage0[WIDTH-3:0], 2'b0}     : lstage0;
+    assign lstage2 = I_shift_amt[2] ? {lstage1[WIDTH-5:0], 4'b0}     : lstage1;
+    assign lstage3 = I_shift_amt[3] ? {lstage2[WIDTH-9:0], 8'b0}     : lstage2;
+    assign lstage4 = I_shift_amt[4] ? {lstage3[WIDTH-17:0], 16'b0}   : lstage3;
 
     
     // 选择输入数据
