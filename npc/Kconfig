@@ -122,12 +122,12 @@ config PERF_CAL
   bool "Enable performance calculation"
   default y
 
-# config DIFFTEST
-#   bool "Enable differential testing"
-#   default y
-#   help
-#     Enable differential testing with a reference design.
-#     Note that this will significantly reduce the performance of CPU.
+config DIFFTEST
+  bool "Enable differential testing"
+  default y
+  help
+    Enable differential testing with a reference design.
+    Note that this will significantly reduce the performance of CPU.
 
 choice
   prompt "Reference design"
