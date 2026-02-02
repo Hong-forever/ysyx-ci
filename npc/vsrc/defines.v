@@ -3,10 +3,10 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-// `define DPIC
-// `define PERF
+`define DPIC
+`define PERF
 // `define LFSR
-// `define DEBUG
+`define DEBUG
 
 `define RAMDOM_WIDTH 8
 
