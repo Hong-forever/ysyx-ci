@@ -306,8 +306,8 @@ module ysyx_25110270_lsu
         end
     end
 
-    wire next_stall = ls_req | data_avalid | (state == MEM);
-    wire stallreq = ls_req | next_stall;
+
+    wire stallreq = ls_req | (state == MEM);
 
     //------------------------------------------------------------------------
     // 输出
