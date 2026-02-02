@@ -237,7 +237,6 @@
 `define BRUCTL_WIDTH    4
 `define BRUCTL_NOP      4'b0000
 `define BRUCTL_JAL      4'b0001
-`define BRUCTL_JALR     4'b0010
 `define BRUCTL_BEQ      4'b0011
 `define BRUCTL_BNE      4'b0100
 `define BRUCTL_BLT      4'b0101
