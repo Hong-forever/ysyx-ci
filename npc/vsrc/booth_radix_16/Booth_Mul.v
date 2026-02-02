@@ -45,6 +45,7 @@ module ysyx_25110270_Booth_Mul
     reg [LENGTH*2-1:0 ] pp_stg2_m_reg [0:1       ] ;
     reg [LENGTH*2-1:0 ] pp_stg2_l_reg [0:1       ] ;
     reg                 pp_stg2_done_reg           ;
+    
     //third-pipeline
     reg [LENGTH*2-1:0 ] pp_stg_end_m_reg           ;
     reg [LENGTH*2-1:0 ] pp_stg_end_l_reg           ;
