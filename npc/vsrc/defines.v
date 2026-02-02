@@ -3,9 +3,10 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-`define DPIC
-`define PERF
+// `define DPIC
+// `define PERF
 // `define LFSR
+// `define DEBUG
 
 `define RAMDOM_WIDTH 8
 
@@ -216,10 +217,10 @@
 `define ALUCTL_SRA      5'b01000       // Shift Right Arithmetic
 `define ALUCTL_OR       5'b01001       // OR
 `define ALUCTL_AND      5'b01010       // AND
-`define ALUCTL_AUIPC    5'b01011       // add upper immediate to PC
-`define ALUCTL_LUI      5'b01100       // Load Upper Immediate
-`define ALUCTL_JAL      5'b01101       // Jump and Link
-`define ALUCTL_JALR     5'b01110       // Jump and Link Register
+// `define ALUCTL_AUIPC    5'b01011       // add upper immediate to PC
+// `define ALUCTL_LUI      5'b01100       // Load Upper Immediate
+// `define ALUCTL_JAL      5'b01101       // Jump and Link
+// `define ALUCTL_JALR     5'b01110       // Jump and Link Register
 
 `define ALUCTL_MUL      5'b10000       // Multiply
 `define ALUCTL_MULH     5'b10001       // Multiply High

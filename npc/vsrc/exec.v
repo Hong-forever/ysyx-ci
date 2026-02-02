@@ -161,6 +161,8 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     reg start_mul_reg, start_div_reg;
 
+    wire src_eq, src_lt;
+
     wire stallreq;
 
     wire [`RegDataBus] alu_result;
@@ -207,6 +209,8 @@ module ysyx_25110270_exec
         .I_alu_srcb                 (alu_srcb               ),
         .I_alu_ctrl                 (I_ALUCtrl              ),
         .O_alu_result               (alu_result             ),
+        .O_eq                       (src_eq                 ),
+        .O_lt                       (src_lt                 ),
 
         .I_mul_start                (start_mul              ),
         .O_mul_ready                (mul_ready              ),
@@ -220,7 +224,6 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // agu运算
     //------------------------------------------------------------------------
-
     wire [`RegDataBus] agu_result;
     assign agu_result = agu_src + I_imm;
 
@@ -230,8 +233,8 @@ module ysyx_25110270_exec
     wire bru_taken;
     ysyx_25110270_exe_bru bru
     (
-        .I_alu_srca                 (alu_srca               ),
-        .I_alu_srcb                 (alu_srcb               ),
+        .I_src_eq                   (src_eq                 ),
+        .I_src_lt                   (src_lt                 ),
         .I_bru_ctrl                 (I_BRUCtrl              ),
         .O_bru_taken                (bru_taken              )
     );

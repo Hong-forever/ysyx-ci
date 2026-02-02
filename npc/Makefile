@@ -91,6 +91,8 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
+VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "*.v")
+
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
 
@@ -102,6 +104,7 @@ VSRCS-BLACKLIST-y += $(VSRCS-BLACKLIST)
 CSRCS-BLACKLIST-y += $(CSRCS-BLACKLIST)
 VSRCS := $(filter-out $(VSRCS-BLACKLIST-y),$(VSRCS-y))
 CSRCS := $(filter-out $(CSRCS-BLACKLIST-y),$(CSRCS-y))
+
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))

@@ -157,8 +157,8 @@ module ysyx_25110270_decoder
         alu_ctrl = `ALUCTL_NOP;
         csr_ctrl = `CSRCTL_NOP;
         bru_ctrl = `BRUCTL_NOP;
-        case(1'b1)
-            inst_is_type_l: begin
+        case(opcode)
+            `RV32I_OP_TYPE_IL: begin
                 case(funct3)
                     `RV32I_F3_LB:  ls_type = `ls_lb;
                     `RV32I_F3_LH:  ls_type = `ls_lh;
@@ -168,7 +168,7 @@ module ysyx_25110270_decoder
                     default:       ls_type = `ls_nop;
                 endcase
             end
-            inst_is_type_i: begin
+            `RV32I_OP_TYPE_I: begin
                 case(funct3)
                     `RV32I_F3_ADDI:  alu_ctrl = `ALUCTL_ADD;
                     `RV32I_F3_SLLI:  alu_ctrl = `ALUCTL_SLL;
@@ -181,13 +181,13 @@ module ysyx_25110270_decoder
                     default:         alu_ctrl = `ALUCTL_NOP;
                 endcase
             end
-            inst_is_auipc: begin
-                alu_ctrl = `ALUCTL_AUIPC;
+            `RV32I_OP_AUIPC: begin
+                alu_ctrl = `ALUCTL_ADD;
             end
-            inst_is_lui: begin
-                alu_ctrl = `ALUCTL_LUI;
+            `RV32I_OP_LUI: begin
+                alu_ctrl = `ALUCTL_ADD;
             end
-            inst_is_type_s: begin
+            `RV32I_OP_TYPE_S: begin
                 case(funct3)
                     `RV32I_F3_SB: ls_type = `ls_sb;
                     `RV32I_F3_SH: ls_type = `ls_sh;
@@ -195,7 +195,7 @@ module ysyx_25110270_decoder
                     default:      ls_type = `ls_nop;
                 endcase
             end
-            inst_is_type_r_m: begin
+            `RV32IM_OP_TYPE_R_M: begin
                 case(funct7)
                     `RV32I_F7_R1, `RV32I_F7_R2: begin
                         case(funct3)
@@ -226,7 +226,7 @@ module ysyx_25110270_decoder
                     default: begin end
                 endcase
             end
-            inst_is_type_b: begin
+            `RV32I_OP_TYPE_B: begin
                 case(funct3)
                     `RV32I_F3_BEQ:  bru_ctrl = `BRUCTL_BEQ;
                     `RV32I_F3_BNE:  bru_ctrl = `BRUCTL_BNE;
@@ -237,15 +237,15 @@ module ysyx_25110270_decoder
                     default:        bru_ctrl = `BRUCTL_NOP;
                 endcase
             end
-            inst_is_jalr: begin
+            `RV32I_OP_JALR: begin
                 bru_ctrl = `BRUCTL_JALR;
-                alu_ctrl = `ALUCTL_JALR;
+                alu_ctrl = `ALUCTL_ADD;
             end
-            inst_is_jal: begin
+            `RV32I_OP_JAL: begin
                 bru_ctrl = `BRUCTL_JAL;
-                alu_ctrl = `ALUCTL_JAL;
+                alu_ctrl = `ALUCTL_ADD;
             end
-            inst_is_csr: begin
+            `RV_OP_CSR: begin
                 case(funct3)
                     `RV_F3_CSRRW:  csr_ctrl = `CSRCTL_WRI;
                     `RV_F3_CSRRS:  csr_ctrl = `CSRCTL_SET;

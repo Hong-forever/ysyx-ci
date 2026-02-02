@@ -6,29 +6,23 @@
 
 module ysyx_25110270_exe_bru
 (
-    input   wire    [`RegDataBus    ]   I_alu_srca,
-    input   wire    [`RegDataBus    ]   I_alu_srcb,
+    input   wire                        I_src_eq,
+    input   wire                        I_src_lt,
     input   wire    [`BRUCTL_WIDTH-1:0] I_bru_ctrl,
     
     output  wire                        O_bru_taken
 );
     reg bru_taken;
 
-    wire alu_equal = I_alu_srca == I_alu_srcb;
-    wire alu_less = $signed(I_alu_srca) < $signed(I_alu_srcb);
-    wire alu_lessu = I_alu_srca < I_alu_srcb;
-
     always @(*) begin
         case(I_bru_ctrl)
-            `BRUCTL_JAL:  bru_taken = `Enable;
-            `BRUCTL_JALR: bru_taken = `Enable;
-            `BRUCTL_BEQ:  bru_taken = alu_equal;
-            `BRUCTL_BNE:  bru_taken = ~alu_equal;
-            `BRUCTL_BLT:  bru_taken = alu_less;
-            `BRUCTL_BLTU: bru_taken = alu_lessu;
-            `BRUCTL_BGE:  bru_taken = ~alu_less;
-            `BRUCTL_BGEU: bru_taken = ~alu_lessu;
-            default:      bru_taken = `Disable;
+            `BRUCTL_JAL, `BRUCTL_JALR:  bru_taken = `Enable;
+            `BRUCTL_BEQ:                bru_taken = I_src_eq;
+            `BRUCTL_BNE:                bru_taken = ~I_src_eq;
+            `BRUCTL_BLT, `BRUCTL_BLTU:  bru_taken = I_src_lt;
+            `BRUCTL_BGE:                bru_taken = ~I_src_lt;
+            `BRUCTL_BGEU:               bru_taken = ~I_src_lt;
+            default:                    bru_taken = `Disable;
         endcase
     end
 

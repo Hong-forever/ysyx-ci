@@ -14,6 +14,9 @@ module ysyx_25110270_exe_alu
     input   wire    [`ALUCTL_WIDTH-1:0] I_alu_ctrl,
     output  wire    [`RegDataBus    ]   O_alu_result,
 
+    output  wire                        O_eq,
+    output  wire                        O_lt,
+
     input   wire                        I_mul_start,        // 开始乘法
     output  wire                        O_mul_ready,        // 乘法运算是否结束
 
@@ -25,21 +28,24 @@ module ysyx_25110270_exe_alu
 );
     localparam MUL_CYCLE = 3'd6;
 
-    wire div_ready;
-    wire mul_ready;
 
-    wire [`RegDataBus] rv32i_add_res   = I_alu_srca + I_alu_srcb;
-    wire [`RegDataBus] rv32i_sub_res   = I_alu_srca - I_alu_srcb;
-    wire [`RegDataBus] rv32i_sll_res   = I_alu_srca << I_alu_srcb[4:0];
-    wire [`RegDataBus] rv32i_slt_res   = ($signed(I_alu_srca) < $signed(I_alu_srcb));       //有符号数比较
-    wire [`RegDataBus] rv32i_sltu_res  = (I_alu_srca < I_alu_srcb);        // 无符号数比较
-    wire [`RegDataBus] rv32i_xor_res   = I_alu_srca ^ I_alu_srcb;
-    wire [`RegDataBus] rv32i_srl_res   = I_alu_srca >> I_alu_srcb[4:0];
-    wire [`RegDataBus] rv32i_sra_res   = ($signed(I_alu_srca)) >>> I_alu_srcb[4:0];
-    wire [`RegDataBus] rv32i_or_res    = I_alu_srca | I_alu_srcb;
-    wire [`RegDataBus] rv32i_and_res   = I_alu_srca & I_alu_srcb;
-    wire [`RegDataBus] rv32i_lui_res   = I_alu_srcb;
-    wire [`RegDataBus] rv32i_auipc_res = I_alu_srcb + I_alu_srca;
+    wire adder_sign = (I_alu_ctrl != `ALUCTL_SLTU);
+    wire adder_sub = (I_alu_ctrl != `ALUCTL_ADD);
+
+    wire [`RegDataWidth:0] adder_s1 = {adder_sign & I_alu_srca[`RegDataWidth-1], I_alu_srca};
+    wire [`RegDataWidth:0] adder_s2 = {adder_sign & I_alu_srcb[`RegDataWidth-1], I_alu_srcb} ^ {{`RegDataWidth+1{adder_sub}}};
+
+    wire [`RegDataBus] rv32i_add_res;
+    wire adder_cout;
+
+    assign {adder_cout, rv32i_add_res} = adder_s1 + adder_s2 + {{`RegDataWidth{1'b0}}, adder_sub};
+
+    wire [`RegDataBus] rv32i_shift_res;
+    wire [`RegDataBus] rv32i_xor_res     = I_alu_srca ^ I_alu_srcb;
+    wire [`RegDataBus] rv32i_or_res      = I_alu_srca | I_alu_srcb;
+    wire [`RegDataBus] rv32i_and_res     = I_alu_srca & I_alu_srcb;
+    wire [`RegDataBus] rv32i_lui_res     = I_alu_srcb;
+    wire [`RegDataBus] rv32i_auipc_res   = I_alu_srcb + I_alu_srca;
 
     wire [`DoubleRegDataBus] mul_res;
     wire [`DoubleRegDataBus] mulh_res;
@@ -51,41 +57,45 @@ module ysyx_25110270_exe_alu
     wire [`RegDataBus] rv32m_mulhsu_res;
 
 
-
     wire [`DoubleRegDataBus] div_res;
     wire [`RegDataBus] rv32m_rem_res  = div_res[`HRegDataBus];
-    wire [`RegDataBus] rv32m_remu_res = div_res[`HRegDataBus];
     wire [`RegDataBus] rv32m_div_res  = div_res[`LRegDataBus];
-    wire [`RegDataBus] rv32m_divu_res = div_res[`LRegDataBus];
 
     reg [`RegDataBus] res; 
     always @(*) begin
         case(I_alu_ctrl)
-            `ALUCTL_ADD:    res = rv32i_add_res;
-            `ALUCTL_SUB:    res = rv32i_sub_res;
-            `ALUCTL_JAL:    res = rv32i_add_res;
-            `ALUCTL_JALR:   res = rv32i_add_res;
-            `ALUCTL_SLL:    res = rv32i_sll_res;
-            `ALUCTL_SLT:    res = rv32i_slt_res;
-            `ALUCTL_SLTU:   res = rv32i_sltu_res;
-            `ALUCTL_XOR:    res = rv32i_xor_res;
-            `ALUCTL_SRL:    res = rv32i_srl_res;
-            `ALUCTL_SRA:    res = rv32i_sra_res;
-            `ALUCTL_OR:     res = rv32i_or_res;
-            `ALUCTL_AND:    res = rv32i_and_res;
-            `ALUCTL_LUI:    res = rv32i_lui_res;
-            `ALUCTL_AUIPC:  res = rv32i_auipc_res;
-            `ALUCTL_MUL:    res = rv32m_mul_res;
-            `ALUCTL_MULH:   res = rv32m_mulh_res;
-            `ALUCTL_MULHSU: res = rv32m_mulhsu_res;
-            `ALUCTL_MULHU:  res = rv32m_mulhu_res;
-            `ALUCTL_DIV:    res = rv32m_div_res;
-            `ALUCTL_DIVU:   res = rv32m_divu_res;
-            `ALUCTL_REM:    res = rv32m_rem_res;
-            `ALUCTL_REMU:   res = rv32m_remu_res;
-            default:        res = 0;
+            `ALUCTL_ADD, `ALUCTL_SUB:               res = rv32i_add_res;
+            `ALUCTL_SLL, `ALUCTL_SRL, `ALUCTL_SRA:  res = rv32i_shift_res;
+            `ALUCTL_SLT, `ALUCTL_SLTU:              res = {{`RegDataWidth-1{1'b0}}, adder_cout};
+            `ALUCTL_XOR:                            res = rv32i_xor_res;
+            `ALUCTL_OR:                             res = rv32i_or_res;
+            `ALUCTL_AND:                            res = rv32i_and_res;
+            `ALUCTL_MUL:                            res = rv32m_mul_res;
+            `ALUCTL_MULH:                           res = rv32m_mulh_res;
+            `ALUCTL_MULHSU:                         res = rv32m_mulhsu_res;
+            `ALUCTL_MULHU:                          res = rv32m_mulhu_res;
+            `ALUCTL_DIV, `ALUCTL_DIVU:              res = rv32m_div_res;
+            `ALUCTL_REM, `ALUCTL_REMU:              res = rv32m_rem_res;
+            default:                                res = 0;
         endcase
     end
+
+    ysyx_25110270_exe_barrel_shift
+    #(
+        .WIDTH                  (`RegDataWidth              )
+    ) u_exe_barrel_shift
+    (
+        .I_shift_src            (I_alu_srca                 ),
+        .I_shift_amt            (I_alu_srcb[4:0]            ),
+        .I_shift_left           (I_alu_ctrl == `ALUCTL_SLL  ),
+        .I_shift_arith          (I_alu_ctrl == `ALUCTL_SRA  ),
+
+        .O_shift_result         (rv32i_shift_res            )
+    );
+
+
+    wire div_ready;
+    wire mul_ready;
 
     wire [`DoubleRegDataBus] mulhsu_res_inverted = ~mulhsu_res + 1;
 
@@ -154,6 +164,8 @@ module ysyx_25110270_exe_alu
     );
 
     assign O_alu_result = res;
+    assign O_eq = (I_alu_srca == I_alu_srcb);
+    assign O_lt = adder_cout;
     assign O_div_ready = div_ready;
     assign O_mul_ready = mul_ready;
     
