@@ -145,7 +145,7 @@ endif
 
 
 include $(NPC_HOME)/scripts/config.mk
-include $(NPC_HOME)/scripts/sta/yosys_sta.mk
+include $(NPC_HOME)/scripts/yosys_sta.mk
 
 
 clean: 

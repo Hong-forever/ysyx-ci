@@ -3,9 +3,9 @@
 #include <klib-macros.h>
 
 #define BASE 0xa0000000
-#define SIZE 0x8000000
+#define SIZE 0x800
 
-#define p_period 0x1000
+#define p_period 0x100
 
 #define PUT(i, period, op, bit) \
     do { \

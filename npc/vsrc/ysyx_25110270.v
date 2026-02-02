@@ -292,5 +292,17 @@ module ysyx_25110270
         .rresp_o                (clint_rresp                )
     );
 
+    assign io_slave_awready = 1'b0;
+    assign io_slave_wready  = 1'b0;
+    assign io_slave_bvalid  = 1'b0;
+    assign io_slave_bresp   = 2'b00;
+    assign io_slave_bid     = 4'b0;
+    assign io_slave_arready = 1'b0;
+    assign io_slave_rvalid  = 1'b0;
+    assign io_slave_rdata   = 32'b0;
+    assign io_slave_rresp   = 2'b00;
+    assign io_slave_rlast   = 1'b0;
+    assign io_slave_rid     = 4'b0;
+
 
 endmodule //ysyx_25110270
