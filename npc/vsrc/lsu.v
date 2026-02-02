@@ -245,12 +245,12 @@ module ysyx_25110270_lsu
         end
     end
 
-    parameter IDLE = 0;
-    parameter MEM  = 1;
-    parameter WB   = 2;
+    parameter IDLE = 3'b001;
+    parameter MEM  = 3'b010;
+    parameter WB   = 3'b100;
 
     reg data_avalid;
-    reg [1:0] state, nstate;
+    reg [2:0] state, nstate;
     always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
@@ -306,22 +306,8 @@ module ysyx_25110270_lsu
         end
     end
 
-    reg stallreq_mem;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            stallreq_mem <= 1'b0;
-        end else begin
-            if((dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready) || state == WB) begin
-                stallreq_mem <= 1'b0;
-            end else if(ls_req || state == MEM) begin
-                stallreq_mem <= 1'b1;
-            end
-        end
-    end
 
-    wire stallreq_ls_req = ls_req;
-    wire stallreq = stallreq_mem | stallreq_ls_req;
-
+    wire stallreq = ls_req | (state == MEM);
 
     //------------------------------------------------------------------------
     // 输出
