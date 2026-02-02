@@ -4,7 +4,7 @@
 
 
 USE_NVBOARD = 0
-DIFFTEST = 0
+DIFFTEST = 1
 
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0

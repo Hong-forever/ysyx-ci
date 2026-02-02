@@ -245,12 +245,12 @@ module ysyx_25110270_lsu
         end
     end
 
-    parameter IDLE = 3'b001;
-    parameter MEM  = 3'b010;
-    parameter WB   = 3'b100;
+    parameter IDLE = 0;
+    parameter MEM  = 1;
+    parameter WB   = 2;
 
     reg data_avalid;
-    reg [2:0] state, nstate;
+    reg [1:0] state, nstate;
     always @(posedge clk) begin
         if(!rst_n) begin
             state <= IDLE;
