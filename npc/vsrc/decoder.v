@@ -153,10 +153,6 @@ module ysyx_25110270_decoder
     reg [`BRUCTL_WIDTH-1:0] bru_ctrl;
 
     always @(*) begin
-        ls_type = `ls_nop;
-        alu_ctrl = `ALUCTL_NOP;
-        csr_ctrl = `CSRCTL_NOP;
-        bru_ctrl = `BRUCTL_NOP;
         case(opcode)
             `RV32I_OP_TYPE_IL: begin
                 case(funct3)
@@ -228,22 +224,43 @@ module ysyx_25110270_decoder
             end
             `RV32I_OP_TYPE_B: begin
                 case(funct3)
-                    `RV32I_F3_BEQ:  bru_ctrl = `BRUCTL_BEQ;
-                    `RV32I_F3_BNE:  bru_ctrl = `BRUCTL_BNE;
-                    `RV32I_F3_BLT:  bru_ctrl = `BRUCTL_BLT;
-                    `RV32I_F3_BGE:  bru_ctrl = `BRUCTL_BGE;
-                    `RV32I_F3_BLTU: bru_ctrl = `BRUCTL_BLTU;
-                    `RV32I_F3_BGEU: bru_ctrl = `BRUCTL_BGEU;
-                    default:        bru_ctrl = `BRUCTL_NOP;
+                    `RV32I_F3_BEQ: begin
+                        alu_ctrl = `ALUCTL_SLT;
+                        bru_ctrl = `BRUCTL_BEQ;
+                    end
+                    `RV32I_F3_BNE: begin
+                        alu_ctrl = `ALUCTL_SLT;
+                        bru_ctrl = `BRUCTL_BNE;
+                    end
+                    `RV32I_F3_BLT: begin 
+                        alu_ctrl = `ALUCTL_SLT;
+                        bru_ctrl = `BRUCTL_BLT;
+                    end
+                    `RV32I_F3_BGE: begin
+                        alu_ctrl = `ALUCTL_SLT;
+                        bru_ctrl = `BRUCTL_BGE;
+                    end
+                    `RV32I_F3_BLTU: begin
+                        alu_ctrl = `ALUCTL_SLTU;
+                        bru_ctrl = `BRUCTL_BLTU;
+                    end
+                    `RV32I_F3_BGEU: begin
+                        alu_ctrl = `ALUCTL_SLTU;
+                        bru_ctrl = `BRUCTL_BGEU;
+                    end
+                    default: begin
+                        alu_ctrl = `ALUCTL_NOP;
+                        bru_ctrl = `BRUCTL_NOP;
+                    end
                 endcase
             end
             `RV32I_OP_JALR: begin
-                bru_ctrl = `BRUCTL_JALR;
                 alu_ctrl = `ALUCTL_ADD;
+                bru_ctrl = `BRUCTL_JALR;
             end
             `RV32I_OP_JAL: begin
-                bru_ctrl = `BRUCTL_JAL;
                 alu_ctrl = `ALUCTL_ADD;
+                bru_ctrl = `BRUCTL_JAL;
             end
             `RV_OP_CSR: begin
                 case(funct3)
@@ -256,7 +273,12 @@ module ysyx_25110270_decoder
                     default:       csr_ctrl = `CSRCTL_NOP;
                 endcase
             end
-            default: begin end
+            default: begin 
+                alu_ctrl = `ALUCTL_NOP;
+                bru_ctrl = `BRUCTL_NOP;
+                csr_ctrl = `CSRCTL_NOP;
+                ls_type  = `ls_nop;
+            end
         endcase
     end
 

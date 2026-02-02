@@ -168,28 +168,25 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     reg [`MemDataBus] wdata;
     always @(*) begin
-        wdata = 0;
         case(I_ls_type)
             `ls_sb: begin
                 case(memory_byte_addr)
-                    2'b00: wdata = sb_00_res;
-                    2'b01: wdata = sb_01_res;
-                    2'b10: wdata = sb_10_res;
-                    2'b11: wdata = sb_11_res;
-                    default: begin end
+                    2'b00:   wdata = sb_00_res;
+                    2'b01:   wdata = sb_01_res;
+                    2'b10:   wdata = sb_10_res;
+                    2'b11:   wdata = sb_11_res;
+                    default: wdata = 0;
                 endcase
             end
             `ls_sh: begin
                 case(memory_byte_addr[1])
-                    1'b0: wdata = sh_00_res;
-                    1'b1: wdata = sh_10_res;
-                    default: begin end
+                    1'b0:    wdata = sh_00_res;
+                    1'b1:    wdata = sh_10_res;
+                    default: wdata = 0;
                 endcase
             end
-            `ls_sw: begin
-                wdata = sw_res;
-            end
-            default: begin end
+            `ls_sw:          wdata = sw_res;
+            default:         wdata = 0;
         endcase
     end
 
@@ -199,28 +196,25 @@ module ysyx_25110270_lsu
 
     reg [`DBUS_MASK-1:0] data_mask;
     always @(*) begin
-        data_mask = 'b0000;
         case(I_ls_type)
             `ls_sb: begin
                 case(memory_byte_addr)
-                    2'b00: data_mask = 4'b0001;
-                    2'b01: data_mask = 4'b0010;
-                    2'b10: data_mask = 4'b0100;
-                    2'b11: data_mask = 4'b1000;
-                    default: begin end
+                    2'b00:   data_mask = 4'b0001;
+                    2'b01:   data_mask = 4'b0010;
+                    2'b10:   data_mask = 4'b0100;
+                    2'b11:   data_mask = 4'b1000;
+                    default: data_mask = 4'b0000;
                 endcase
             end
             `ls_sh: begin
                 case(memory_byte_addr[1])
-                    1'b0: data_mask = 4'b0011;
-                    1'b1: data_mask = 4'b1100;
-                    default: begin end
+                    1'b0:    data_mask = 4'b0011;
+                    1'b1:    data_mask = 4'b1100;
+                    default: data_mask = 4'b0000;
                 endcase
             end
-            `ls_sw: begin
-                data_mask = 4'b1111;
-            end
-            default: begin end
+            `ls_sw:          data_mask = 4'b1111;
+            default:         data_mask = 4'b0000;
         endcase
     end
     
@@ -230,25 +224,13 @@ module ysyx_25110270_lsu
         data_awsize = 3'b000;
         data_arsize = 3'b000;
         case(I_ls_type)
-            `ls_sb: begin
-                data_awsize = 3'b000;
-            end
-            `ls_sh: begin
-                data_awsize = 3'b001;
-            end
-            `ls_sw: begin
-                data_awsize = 3'b010;
-            end
-            `ls_lb, `ls_lbu: begin
-                data_arsize = 3'b000;
-            end
-            `ls_lh, `ls_lhu: begin
-                data_arsize = 3'b001;
-            end
-            `ls_lw: begin
-                data_arsize = 3'b010;
-            end
-            default: begin end
+            `ls_sb:             data_awsize = 3'b000;
+            `ls_sh:             data_awsize = 3'b001;
+            `ls_sw:             data_awsize = 3'b010;
+            `ls_lb, `ls_lbu:    data_arsize = 3'b000;
+            `ls_lh, `ls_lhu:    data_arsize = 3'b001;
+            `ls_lw:             data_arsize = 3'b010;
+            default:            begin end
         endcase
     end
 
@@ -293,18 +275,10 @@ module ysyx_25110270_lsu
             nstate = IDLE;
         end else begin
             case(state)
-                IDLE: begin
-                    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
-                end
-                MEM: begin
-                    nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
-                end
-                WB: begin
-                    nstate = IDLE;
-                end
-                default: begin
-                    nstate = IDLE;
-                end
+                IDLE:    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
+                MEM:     nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
+                WB:      nstate = IDLE;
+                default: nstate = IDLE;
             endcase
         end
     end
