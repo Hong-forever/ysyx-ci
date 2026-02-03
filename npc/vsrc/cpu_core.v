@@ -88,10 +88,6 @@ module ysyx_25110270_cpu_core
     wire [`ls_diff_bus] O_dec_ls_type;
     wire [`Except_Bus ] O_dec_except;
 
-    wire                stallreq_dec;
-
-    wire                O_dec_multicycle;
-
     //-------------------------------------------------------------
     // pipeline_dec_ex
     //-------------------------------------------------------------
@@ -201,7 +197,6 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     // wb
     //-------------------------------------------------------------
-    wire                O_wb_ready;
     wire                O_flush;
     wire [`InstAddrBus] O_flush_addr;
 
@@ -353,7 +348,6 @@ module ysyx_25110270_cpu_core
         .O_inst                 (O_dec_inst                 ),
         .O_inst_addr            (O_dec_inst_addr            ),
 
-        .O_multicycle           (O_dec_multicycle           ),
         .O_rs1_rdata            (O_dec_rs1_rdata            ),
         .O_rs2_rdata            (O_dec_rs2_rdata            ),
         .O_imm                  (O_dec_imm                  ),
@@ -409,8 +403,6 @@ module ysyx_25110270_cpu_core
         .I_csr_rdata            (I_ex_csr_rdata             ),
         .I_csr_re               (I_ex_csr_re                ),
         .I_except               (I_ex_except                ),
-
-        .I_multicycle           (O_dec_multicycle           ),
 
         .O_inst                 (O_ex_inst                  ),
         .O_inst_addr            (O_ex_inst_addr             ),

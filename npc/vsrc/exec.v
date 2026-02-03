@@ -3,7 +3,6 @@
 //------------------------------------------------------------------------
 // 执行模块
 //------------------------------------------------------------------------
-
 module ysyx_25110270_exec
 (
     input   wire                        clk,
@@ -31,8 +30,6 @@ module ysyx_25110270_exec
     input   wire    [`CSRSrc_sel_width-1:0]  I_CSRSrc_sel,
     input   wire                        I_ls_valid,         //访存有效标志
     input   wire    [`ls_diff_bus   ]   I_ls_type,
-
-    input   wire                        I_multicycle,         //多周期指令标志
 
     input   wire    [`RegDataBus]       I_rs1_rdata,
     input   wire    [`RegDataBus]       I_rs2_rdata,
@@ -68,7 +65,6 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     reg [`RegDataBus] alu_srca;
     reg [`RegDataBus] alu_srcb;
-    reg [`RegDataBus] agu_src;
     reg [`CSRDataBus] csr_src;
 
     always @(*) begin
@@ -89,14 +85,6 @@ module ysyx_25110270_exec
     end
 
     always @(*) begin
-        case(I_AGUSrc_sel)
-            `AGUSrc_rs1:  agu_src = I_rs1_rdata;
-            `AGUSrc_pc:   agu_src = I_inst_addr;
-            default:      agu_src = 0;
-        endcase
-    end
-
-    always @(*) begin
         case(I_CSRSrc_sel)
             `CSRSrc_rs1:  csr_src = I_rs1_rdata;
             `CSRSrc_imm:  csr_src = I_imm;
@@ -107,42 +95,6 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // alu运算
     //------------------------------------------------------------------------
-
-    reg valid_reg;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid_reg <= 1'b0;
-        end else begin
-            valid_reg <= I_valid;
-        end
-    end
-
-    reg start_mul_reg, start_div_reg;
-    wire mul_ready, div_ready;
-    wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid_reg;
-    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & valid_reg;
-
-    wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
-    wire annul_div = 0;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            start_mul_reg <= 0;
-            start_div_reg <= 0;
-        end else if(valid_reg) begin
-            start_mul_reg <= start_mul;
-            start_div_reg <= start_div;
-        end else begin
-            start_mul_reg <= mul_ready ? 0 : start_mul_reg;
-            start_div_reg <= div_ready ? 0 : start_div_reg;
-        end
-    end
-
-
-    wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
-    wire stallreq_div = start_div | (start_div_reg & ~div_ready);
-    wire stallreq = stallreq_div | stallreq_mul;
-
     wire src_eq, src_lt;
     wire [`RegDataBus] alu_result;
 
@@ -155,21 +107,14 @@ module ysyx_25110270_exec
         .I_alu_ctrl                 (I_ALUCtrl              ),
         .O_alu_result               (alu_result             ),
         .O_eq                       (src_eq                 ),
-        .O_lt                       (src_lt                 ),
-
-        .I_mul_start                (start_mul              ),
-        .O_mul_ready                (mul_ready              ),
-
-        .I_signed_div               (signed_div             ),
-        .I_div_start                (start_div              ),
-        .I_annul                    (annul_div              ),
-        .O_div_ready                (div_ready              )
+        .O_lt                       (src_lt                 )
     );
 
     //------------------------------------------------------------------------
     // agu运算
     //------------------------------------------------------------------------
-    wire [`RegDataBus] agu_result;
+    wire [`RegDataBus] agu_result, agu_src;
+    assign agu_src = alu_srca;
     assign agu_result = agu_src + I_imm;
 
     //------------------------------------------------------------------------
@@ -204,7 +149,7 @@ module ysyx_25110270_exec
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if((I_valid & ~I_multicycle) || (mul_ready || div_ready)) begin
+        end else if(I_valid) begin
             inst_valid <= 1'b1;
         end
     end
@@ -214,7 +159,7 @@ module ysyx_25110270_exec
             ready <= 1'b1;
         end else if(I_valid) begin
             ready <= 1'b0;
-        end else if(~stallreq) begin
+        end else begin
             ready <= 1'b1;
         end
     end
@@ -236,7 +181,7 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
-    assign O_valid = inst_valid & ~stallreq;
+    assign O_valid = inst_valid;
     assign O_ready = ready;
 
     assign O_rd_we = I_rd_we;

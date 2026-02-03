@@ -28,7 +28,6 @@ module ysyx_25110270_decoder
     output  wire    [`InstBus       ]   O_inst,             //指令内容
     output  wire    [`InstAddrBus   ]   O_inst_addr,        //指令地址
 
-    output  wire                        O_multicycle,         //多周期指令标志
     output  wire    [`RegDataBus    ]   O_rs1_rdata,        //通用寄存器1数据
     output  wire    [`RegDataBus    ]   O_rs2_rdata,        //通用寄存器2数据
     output  wire    [`RegDataBus    ]   O_imm,              //立即数
@@ -99,7 +98,6 @@ module ysyx_25110270_decoder
     reg [`CSRSrc_sel_width-1:0 ] CSRSrc_sel;
 
     reg rs1_re, rs2_re, rd_we, csr_en, ls_valid;
-    reg multicyc;
 
     reg [`RegDataBus] imm;
 
@@ -114,7 +112,6 @@ module ysyx_25110270_decoder
         rd_we    = 0;
         csr_en   = 0;
         ls_valid = 0;
-        multicyc = 0;
         imm      = 0;
         ls_type  = 0;
         alu_ctrl = 0;
@@ -185,41 +182,22 @@ module ysyx_25110270_decoder
                     default:      begin end
                 endcase
             end
-            `RV32IM_OP_TYPE_R_M: begin
+            `RV32IM_OP_TYPE_R: begin
                 rs1_re = 1;
                 rs2_re = 1;
                 rd_we  = 1;
                 ALUSrcA_sel = `ALUSrcA_rs1;
                 ALUSrcB_sel = `ALUSrcB_rs2;
-                case(funct7)
-                    `RV32I_F7_R1, `RV32I_F7_R2: begin
-                        case(funct3)
-                            `RV32I_F3_ADD_SUB: alu_ctrl = I_inst[30]? `ALUCTL_SUB : `ALUCTL_ADD;
-                            `RV32I_F3_SLL:     alu_ctrl = `ALUCTL_SLL;
-                            `RV32I_F3_SLT:     alu_ctrl = `ALUCTL_SLT;
-                            `RV32I_F3_SLTU:    alu_ctrl = `ALUCTL_SLTU;
-                            `RV32I_F3_XOR:     alu_ctrl = `ALUCTL_XOR;
-                            `RV32I_F3_SR:      alu_ctrl = I_inst[30]? `ALUCTL_SRA : `ALUCTL_SRL;
-                            `RV32I_F3_OR:      alu_ctrl = `ALUCTL_OR;
-                            `RV32I_F3_AND:     alu_ctrl = `ALUCTL_AND;
-                            default:           begin end
-                        endcase
-                    end
-                    `RV32M_F7_MUL: begin
-                        multicyc = 1'b1;
-                        case(funct3)
-                            `RV32M_F3_MUL:    alu_ctrl = `ALUCTL_MUL;
-                            `RV32M_F3_MULH:   alu_ctrl = `ALUCTL_MULH;
-                            `RV32M_F3_MULHSU: alu_ctrl = `ALUCTL_MULHSU;
-                            `RV32M_F3_MULHU:  alu_ctrl = `ALUCTL_MULHU;
-                            `RV32M_F3_DIV:    alu_ctrl = `ALUCTL_DIV;
-                            `RV32M_F3_DIVU:   alu_ctrl = `ALUCTL_DIVU;
-                            `RV32M_F3_REM:    alu_ctrl = `ALUCTL_REM;
-                            `RV32M_F3_REMU:   alu_ctrl = `ALUCTL_REMU;
-                            default:          begin end
-                        endcase
-                    end
-                    default: begin end
+                case(funct3)
+                    `RV32I_F3_ADD_SUB: alu_ctrl = I_inst[30]? `ALUCTL_SUB : `ALUCTL_ADD;
+                    `RV32I_F3_SLL:     alu_ctrl = `ALUCTL_SLL;
+                    `RV32I_F3_SLT:     alu_ctrl = `ALUCTL_SLT;
+                    `RV32I_F3_SLTU:    alu_ctrl = `ALUCTL_SLTU;
+                    `RV32I_F3_XOR:     alu_ctrl = `ALUCTL_XOR;
+                    `RV32I_F3_SR:      alu_ctrl = I_inst[30]? `ALUCTL_SRA : `ALUCTL_SRL;
+                    `RV32I_F3_OR:      alu_ctrl = `ALUCTL_OR;
+                    `RV32I_F3_AND:     alu_ctrl = `ALUCTL_AND;
+                    default:           begin end
                 endcase
             end
             `RV32I_OP_TYPE_B: begin
@@ -377,8 +355,6 @@ module ysyx_25110270_decoder
     assign O_csr_we = csr_en;
     assign O_csr_waddr = I_inst[31:20];
 
-    assign O_multicycle = multicyc;
-
     assign O_rs1_re = rs1_re;
     assign O_rs2_re = rs2_re;
     assign O_csr_re = csr_en;
@@ -391,14 +367,12 @@ module ysyx_25110270_decoder
 `ifdef PERF
     import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
 
-    wire inst_is_mul = (alu_ctrl == `ALUCTL_MUL) | (alu_ctrl == `ALUCTL_MULH) | (alu_ctrl == `ALUCTL_MULHSU) | (alu_ctrl == `ALUCTL_MULHU);
-    wire inst_is_div = (alu_ctrl == `ALUCTL_DIV) | (alu_ctrl == `ALUCTL_DIVU) | (alu_ctrl == `ALUCTL_REM) | (alu_ctrl == `ALUCTL_REMU);
     wire inst_is_ls = (ls_type != 0);
     wire inst_is_br = (bru_ctrl != 0);
-    wire inst_is_alu_one = (opcode == `RV32I_OP_TYPE_I) | (opcode == `RV32I_OP_AUIPC) | (opcode == `RV32I_OP_LUI) | (opcode == `RV32IM_OP_TYPE_R_M & (funct7 == `RV32I_F7_R1 | funct7 == `RV32I_F7_R2));
+    wire inst_is_alu = (opcode == `RV32I_OP_TYPE_I) | (opcode == `RV32I_OP_AUIPC) | (opcode == `RV32I_OP_LUI) | (opcode == `RV32IM_OP_TYPE_R);
     wire inst_is_csr = (csr_en != 0);
 
-    wire [5:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_div, inst_is_mul, inst_is_alu_one};
+    wire [3:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
     
     reg valid;
     always @(posedge clk) begin
@@ -433,5 +407,29 @@ module ysyx_25110270_dec_except
     assign O_except[`EXCPT_ECALL ] = (I_inst == `RV_ECALL);
     assign O_except[`EXCPT_EBREAK] = (I_inst == `RV_EBREAK);
     assign O_except[`EXCPT_MRET  ] = (I_inst == `RV_MRET);
+
+endmodule
+
+//------------------------------------------------------------------------
+// 指令解包模块
+//------------------------------------------------------------------------
+
+module ysyx_25110270_RV32_Inst_Unpack
+(
+    input   wire    [`InstBus           ] I_inst,
+    output  wire    [`RV32_OP_WIDTH-1:0 ] opcode,
+    output  wire    [`RV32_F3_WIDTH-1:0 ] funct3,
+    output  wire    [`RV32_F7_WIDTH-1:0 ] funct7,
+    output  wire    [`RV32_RD_WIDTH-1:0 ] rd,
+    output  wire    [`RV32_RS1_WIDTH-1:0] rs1,
+    output  wire    [`RV32_RS2_WIDTH-1:0] rs2
+);
+
+    assign opcode = I_inst[`RV32_OP ];
+    assign funct3 = I_inst[`RV32_F3 ];
+    assign funct7 = I_inst[`RV32_F7 ];
+    assign rd     = I_inst[`RV32_RD ];
+    assign rs1    = I_inst[`RV32_RS1];
+    assign rs2    = I_inst[`RV32_RS2];
 
 endmodule

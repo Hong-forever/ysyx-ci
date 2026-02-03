@@ -32,27 +32,21 @@
 // INSTRUCTION FIELD DEFINITIONS (BIT RANGE)
 //------------------------------------------------------------------------
 `define RV32_OP  6:0    // Opcode field (7 bits)
-`define RV32_RD  11:7   // Destination register field (5 bits)
+`define RV32_RD  10:7   // Destination register field (4 bits)
 `define RV32_F3  14:12  // Function 3 field (3 bits)
-`define RV32_RM  14:12  // Rounding mode field (3 bits)
-`define RV32_RS1 19:15  // Source register 1 field (5 bits)
-`define RV32_RS2 24:20  // Source register 2 field (5 bits)
-`define RV32_F2  26:25  // Function 2 field (2 bits)
-`define RV32_RS3 31:27  // Source register 3 field (5 bits)
+`define RV32_RS1 18:15  // Source register 1 field (4 bits)
+`define RV32_RS2 23:20  // Source register 2 field (4 bits)
 `define RV32_F7  31:25  // Function 7 field (7 bits)
 
 //------------------------------------------------------------------------
 // FIELD WIDTH DEFINITIONS
 //------------------------------------------------------------------------
 `define RV32_OP_WIDTH   7   // Opcode field width
-`define RV32_RD_WIDTH   5   // Destination register field width
-`define RV32_RS1_WIDTH  5   // Source register 1 field width
-`define RV32_RS2_WIDTH  5   // Source register 2 field width
-`define RV32_RS3_WIDTH  5   // Source register 3 field width
+`define RV32_RD_WIDTH   4   // Destination register field width
+`define RV32_RS1_WIDTH  4   // Source register 1 field width
+`define RV32_RS2_WIDTH  4   // Source register 2 field width
 `define RV32_F3_WIDTH   3   // funct3 field width
-`define RV32_RM_WIDTH   3   // Rounding mode field width
 `define RV32_F7_WIDTH   7   // funct7 field width
-`define RV32_F2_WIDTH   2   // funct2 field width
 
 //------------------------------------------------------------------------
 // rv32i load type inst
@@ -92,7 +86,7 @@
 `define RV32I_F3_SW     3'b010
 
 // rv32i/rv32m R/M type inst
-`define RV32IM_OP_TYPE_R_M 7'b0110011
+`define RV32IM_OP_TYPE_R 7'b0110011
 
 `define RV32I_F3_ADD_SUB 3'b000
 `define RV32I_F3_SLL    3'b001
@@ -105,17 +99,6 @@
 
 `define RV32I_F7_R1    7'b0000000
 `define RV32I_F7_R2    7'b0100000
-
-`define RV32M_F3_MUL    3'b000
-`define RV32M_F3_MULH   3'b001
-`define RV32M_F3_MULHSU 3'b010
-`define RV32M_F3_MULHU  3'b011
-`define RV32M_F3_DIV    3'b100
-`define RV32M_F3_DIVU   3'b101
-`define RV32M_F3_REM    3'b110
-`define RV32M_F3_REMU   3'b111
-
-`define RV32M_F7_MUL    7'b0000001
 
 //------------------------------------------------------------------------
 // rv32i B type inst
@@ -155,7 +138,7 @@
 //------------------------------------------------------------------------
 // GENERAL PURPOSE REGISTER DEFINITIONS
 //------------------------------------------------------------------------
-`define RegNum 32        // reg num
+`define RegNum 16        // reg num
 `define RegDataWidth 32
 `define RegAddrWidth $clog2(`RegNum-1)
 `define RegAddrBus `RegAddrWidth-1:0
@@ -193,25 +176,17 @@
 //------------------------------------------------------------------------
 // ALU CONTROL DEFINITIONS
 //------------------------------------------------------------------------
-`define ALUCTL_WIDTH    5
-`define ALUCTL_ADD      5'b00001       // Add (signed)
-`define ALUCTL_SUB      5'b00010       // Subtract (signed)
-`define ALUCTL_SLL      5'b00011       // Shift Left Logical
-`define ALUCTL_SLT      5'b00100       // Set on Less Than
-`define ALUCTL_SLTU     5'b00101       // Set on Less Than (unsigned)
-`define ALUCTL_XOR      5'b00110       // XOR
-`define ALUCTL_SRL      5'b00111       // Shift Right Logical
-`define ALUCTL_SRA      5'b01000       // Shift Right Arithmetic
-`define ALUCTL_OR       5'b01001       // OR
-`define ALUCTL_AND      5'b01010       // AND
-`define ALUCTL_MUL      5'b10000       // Multiply
-`define ALUCTL_MULH     5'b10001       // Multiply High
-`define ALUCTL_MULHSU   5'b10010       // Multiply High Signed Unsigned
-`define ALUCTL_MULHU    5'b10011       // Multiply High Unsigned
-`define ALUCTL_DIV      5'b10100       // Divide
-`define ALUCTL_DIVU     5'b10101       // Divide Unsigned
-`define ALUCTL_REM      5'b10110       // Remainder
-`define ALUCTL_REMU     5'b10111       // Remainder Unsigned
+`define ALUCTL_WIDTH    4
+`define ALUCTL_ADD      4'b0001       // Add (signed)
+`define ALUCTL_SUB      4'b0010       // Subtract (signed)
+`define ALUCTL_SLL      4'b0011       // Shift Left Logical
+`define ALUCTL_SLT      4'b0100       // Set on Less Than
+`define ALUCTL_SLTU     4'b0101       // Set on Less Than (unsigned)
+`define ALUCTL_XOR      4'b0110       // XOR
+`define ALUCTL_SRL      4'b0111       // Shift Right Logical
+`define ALUCTL_SRA      4'b1000       // Shift Right Arithmetic
+`define ALUCTL_OR       4'b1001       // OR
+`define ALUCTL_AND      4'b1010       // AND
 
 //------------------------------------------------------------------------
 // BRANCH AND JUMP CONTROL DEFINITIONS

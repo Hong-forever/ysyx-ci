@@ -5,12 +5,10 @@
 extern uint64_t g_nr_guest_inst;
 
 enum Inst_Type {
-    IT_ALU_ONE = 0x01,
-    IT_ALU_MUL = 0x02,
-    IT_ALU_DIV = 0x04,
-    IT_LS      = 0x08,
-    IT_BR      = 0x10,
-    IT_CSR     = 0x20
+    IT_ALU_ALU = 0x01,
+    IT_LS      = 0x02,
+    IT_BR      = 0x04,
+    IT_CSR     = 0x08
 };
 
 typedef struct {
@@ -25,7 +23,7 @@ typedef struct {
 } Inst_log;
 
 Inst_buf inst_buffer[5];
-Inst_log one_inst_log, mul_inst_log, div_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
+Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
 uint64_t ls_delay_total, delay_begin, delay_end;
@@ -80,17 +78,13 @@ extern "C" void wb_inst_cycle_cal(int pc) {
         if (inst_buffer[i].pc == pc) {
             uint64_t cycle = end - inst_buffer[i].begin + 1;
             switch (inst_buffer[i].type) {
-                case IT_ALU_ONE: one_inst_log.inst_nr++; one_inst_log.cycle += cycle; break;
-                case IT_ALU_MUL: mul_inst_log.inst_nr++; mul_inst_log.cycle += cycle; break;
-                case IT_ALU_DIV: div_inst_log.inst_nr++; div_inst_log.cycle += cycle; break;
+                case IT_ALU_ALU: alu_inst_log.inst_nr++; alu_inst_log.cycle += cycle; break;
                 case IT_LS:      ls_inst_log.inst_nr++;  ls_inst_log.cycle  += cycle; break;
                 case IT_BR:      br_inst_log.inst_nr++;  br_inst_log.cycle  += cycle; break;
                 case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; break;
                 default:                                                              break;
             }
-            // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ONE ? "ALU_ONE" : 
-            //                                                     inst_buffer[i].type == IT_ALU_MUL ? "ALU_MUL" :
-            //                                                     inst_buffer[i].type == IT_ALU_DIV ? "ALU_DIV" :
+            // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ALU ? "ALU_ALU" : 
             //                                                     inst_buffer[i].type == IT_LS      ? "LS"      :
             //                                                     inst_buffer[i].type == IT_BR      ? "BR"      :
             //                                                     inst_buffer[i].type == IT_CSR     ? "CSR"     : "UNKNOWN",
@@ -119,17 +113,13 @@ void perf_cal() {
 
 
     printf("\n===== Proportion =====\n");
-    printf("ALU Inst(one): %u(%.2f%%)\n", one_inst_log.inst_nr, (double)one_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
-    printf("ALU Inst(mul): %u(%.2f%%)\n", mul_inst_log.inst_nr, (double)mul_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
-    printf("ALU Inst(div): %u(%.2f%%)\n", div_inst_log.inst_nr, (double)div_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
+    printf("ALU Inst(alu): %u(%.2f%%)\n", alu_inst_log.inst_nr, (double)alu_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
     printf("L/S Inst     : %u(%.2f%%)\n", ls_inst_log.inst_nr,  (double)ls_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("Branch Inst  : %u(%.2f%%)\n", br_inst_log.inst_nr,  (double)br_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %u(%.2f%%)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
 
     printf("\n===== Inst Exe Average Cycle =====\n");
-    printf("ALU Inst(one): %.2f\n", one_inst_log.inst_nr ? (double)one_inst_log.cycle / (double)one_inst_log.inst_nr : 0);
-    printf("ALU Inst(mul): %.2f\n", mul_inst_log.inst_nr ? (double)mul_inst_log.cycle / (double)mul_inst_log.inst_nr : 0);
-    printf("ALU Inst(div): %.2f\n", div_inst_log.inst_nr ? (double)div_inst_log.cycle / (double)div_inst_log.inst_nr : 0);
+    printf("ALU Inst(alu): %.2f\n", alu_inst_log.inst_nr ? (double)alu_inst_log.cycle / (double)alu_inst_log.inst_nr : 0);
     printf("L/S Inst     : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_inst_log.cycle  / (double)ls_inst_log.inst_nr  : 0);
     printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
