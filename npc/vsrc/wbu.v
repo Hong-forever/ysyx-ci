@@ -63,6 +63,32 @@ module ysyx_25110270_wbu
     wire [`CSRDataBus] csr_mvendorid;
     wire [`CSRDataBus] csr_marchid;
 
+    reg inst_valid;
+    reg ready;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_valid <= 1'b0;
+        end else if(I_ready & inst_valid) begin
+            inst_valid <= 1'b0;
+        end else if(I_valid) begin
+            inst_valid <= 1'b1;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            ready <= 1'b1;
+        end else if(I_valid) begin
+            ready <= 1'b0;
+        end else begin
+            ready <= 1'b1;
+        end
+    end
+
+    assign O_valid = inst_valid;
+    assign O_ready = ready;
+
     ysyx_25110270_regfile u_regfile
     (
         .clk                    (clk                        ),
@@ -74,7 +100,7 @@ module ysyx_25110270_wbu
         .O_rs1_rdata            (O_rs1_rdata                ),
         .O_rs2_rdata            (O_rs2_rdata                ),
 
-        .I_rd_we                (I_rd_we                    ),
+        .I_rd_we                (I_rd_we & inst_valid       ),
         .I_rd_waddr             (I_rd_waddr                 ),
         .I_rd_wdata             (I_rd_wdata                 ),
 
@@ -120,7 +146,7 @@ module ysyx_25110270_wbu
         .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
 
-        .I_we                   (I_csr_we                   ),
+        .I_we                   (I_csr_we & inst_valid      ),
         .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 
@@ -141,32 +167,6 @@ module ysyx_25110270_wbu
         .O_csr_mvendorid        (csr_mvendorid              ), //mvendorid寄存器
         .O_csr_marchid          (csr_marchid                )  //marchid寄存器
     );
-
-    reg inst_valid;
-    reg ready;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if(I_valid) begin
-            inst_valid <= 1'b1;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            ready <= 1'b1;
-        end else if(I_valid) begin
-            ready <= 1'b0;
-        end else begin
-            ready <= 1'b1;
-        end
-    end
-
-    assign O_valid = inst_valid;
-    assign O_ready = ready;
 
     reg valid_r, valid_r2;
     always @(posedge clk) begin
