@@ -17,12 +17,12 @@
         printf("Testing %d-bit access:\n", bit); \
         volatile type *p = (volatile type *)BASE; \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            p[i] = i + val_max; \
+            p[i] = (type)(i + val_max); \
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            if(p[i] != i + val_max) { \
+            if(p[i] != (type)(i + val_max)) { \
                 putstr("error\n"); \
                 return 1; \
             } \
