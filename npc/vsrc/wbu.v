@@ -170,8 +170,17 @@ module ysyx_25110270_wbu
 
 
 `ifdef DEBUG
+    reg valid_r;
     always @(posedge clk) begin
-        if(I_valid & I_inst == 0 && I_inst_addr != 0) begin
+        if(!rst_n) begin
+            valid_r <= 1'b0;
+        end else begin
+            valid_r <= I_valid;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(valid_r & I_inst == 0 && I_inst_addr != 0) begin
             $error("Error: inst is 0 at addr %h!", I_inst_addr);
         end
     end
