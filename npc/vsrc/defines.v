@@ -337,4 +337,4 @@
 `define SdramAddrBase 32'ha000_0000
 `define SdramSize     32'h2000_0000
 
-`define RESET_VECTOR  `SdramAddrBase
+`define RESET_VECTOR  `FlashAddrBase
