@@ -10,16 +10,18 @@ module ysyx_25110270_ifetch
     input   wire                        rst_n,
 
     input   wire                        I_bru_taken,        //跳转指令
-    input   wire    [`InstAddrBus   ]   I_bru_target,
+    input   wire    [31:0]              I_bru_target,
 
+    input   wire                        I_valid,
+    output  wire                        O_ready,
+    output  wire                        O_valid,
     input   wire                        I_ready,
 
     input   wire                        I_flush,            // 指令冲刷
-    input   wire    [`InstAddrBus   ]   I_flush_addr,       // 冲刷跳转地址
+    input   wire    [31:0]              I_flush_addr,       // 冲刷跳转地址
 
-    output  wire    [`InstBus       ]   O_inst,
-    output  wire    [`InstAddrBus   ]   O_inst_addr,
-    output  wire                        O_valid,
+    output  wire    [31:0]              O_inst,
+    output  wire    [31:0]              O_inst_addr,
 
     //to bus
     output  wire                        ibus_awvalid,
@@ -64,9 +66,9 @@ module ysyx_25110270_ifetch
 
     reg inst_arvalid;
 
-    reg [`InstAddrBus] pc;
-    wire [`InstAddrBus] pc_plus4;
-    wire [`InstAddrBus] npc;
+    reg [31:0] pc;
+    wire [31:0] pc_plus4;
+    wire [31:0] npc;
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -98,7 +100,7 @@ module ysyx_25110270_ifetch
                     nstate = ibus_rvalid ? EXE : MEM;
                 end
                 EXE: begin
-                    nstate = I_ready ? IDLE : EXE;
+                    nstate = I_valid ? IDLE : EXE;
                 end
                 default: begin
                     nstate = IDLE;
@@ -160,14 +162,37 @@ module ysyx_25110270_ifetch
 
     assign npc = I_flush        ? I_flush_addr    :
                  I_bru_taken    ? I_bru_target    :
-                 I_ready        ? pc_plus4        :
+                 I_valid        ? pc_plus4        :
                  pc;
     
     assign pc_plus4 = pc + 32'h4;
 
+    reg inst_valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_valid <= 1'b0;
+        end else if(I_ready) begin
+            inst_valid <= 1'b0;
+        end else if(ibus_rvalid && ibus_rready) begin
+            inst_valid <= 1'b1;
+        end
+    end
+
+    reg ready;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            ready <= 1'b1;
+        end else if(I_valid) begin
+            ready <= 1'b0;
+        end else begin
+            ready <= 1'b1;
+        end
+    end
+
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = I_ready & state == EXE;
+    assign O_valid = inst_valid;
+    assign O_ready = ready;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr = 0;

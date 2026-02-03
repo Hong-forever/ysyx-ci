@@ -14,6 +14,8 @@ module ysyx_25110270_wbu
     
     input   wire                        I_valid,
     output  wire                        O_ready,
+    output  wire                        O_valid,
+    input   wire                        I_ready,
 
     // regfile
     input   wire    [`RegAddrBus    ]   I_rs1_raddr,
@@ -140,7 +142,43 @@ module ysyx_25110270_wbu
         .O_csr_marchid          (csr_marchid                )  //marchid寄存器
     );
 
-    assign O_ready = 1'b1;
+    reg valid;
+    reg inst_valid;
+    reg ready;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 1'b0;
+        end else if(I_valid) begin
+            valid <= 1'b1;
+        end else if(ready) begin
+            valid <= 1'b0;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_valid <= 1'b0;
+        end else if(I_ready) begin
+            inst_valid <= 1'b0;
+        end else if(valid) begin
+            inst_valid <= 1'b1;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            ready <= 1'b1;
+        end else if(I_valid) begin
+            ready <= 1'b0;
+        end else if(valid) begin
+            ready <= 1'b1;
+        end
+    end
+
+    assign O_valid = inst_valid;
+    assign O_ready = ready;
+
 
 `ifdef DEBUG
     always @(posedge clk) begin
@@ -153,15 +191,6 @@ module ysyx_25110270_wbu
 `ifdef PERF
     import "DPI-C" function void wb_inst_cycle_cal(input int pc);
     import "DPI-C" function void per_cyc_get(input int mcycleh, input int mcyclel);
-
-    reg valid;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 1'b0;
-        end else begin
-            valid <= I_valid;
-        end 
-    end
 
     always @(posedge clk) begin
         if(valid && (|I_inst) && (|I_inst_addr)) begin

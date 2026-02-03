@@ -13,8 +13,9 @@ module ysyx_25110270_decoder
     input   wire    [`InstAddrBus   ]   I_inst_addr,
     
     input   wire                        I_valid,
-    input   wire                        I_ready,
     output  wire                        O_ready,
+    output  wire                        O_valid,
+    input   wire                        I_ready,
 
     output  wire    [`RegAddrBus    ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`RegAddrBus    ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
@@ -26,7 +27,6 @@ module ysyx_25110270_decoder
 
     output  wire    [`InstBus       ]   O_inst,             //指令内容
     output  wire    [`InstAddrBus   ]   O_inst_addr,        //指令地址
-    output  wire                        O_valid,
     output  wire    [`RegDataBus    ]   O_rs1_rdata,        //通用寄存器1数据
     output  wire    [`RegDataBus    ]   O_rs2_rdata,        //通用寄存器2数据
     output  wire    [`RegDataBus    ]   O_imm,              //立即数
@@ -311,10 +311,44 @@ module ysyx_25110270_decoder
         endcase
     end
 
-    wire [`Except_Bus] except;
+    reg valid;
+    reg inst_valid;
+    reg ready;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 1'b0;
+        end else if(I_valid) begin
+            valid <= 1'b1;
+        end else if(ready) begin
+            valid <= 1'b0;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_valid <= 1'b0;
+        end else if(I_ready) begin
+            inst_valid <= 1'b0;
+        end else if(valid) begin
+            inst_valid <= 1'b1;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            ready <= 1'b1;
+        end else if(I_valid) begin
+            ready <= 1'b0;
+        end else if(valid) begin
+            ready <= 1'b1;
+        end
+    end
+
     //------------------------------------------------------------------------
     // 异常解码
     //------------------------------------------------------------------------
+    wire [`Except_Bus] except;
     ysyx_25110270_dec_except dec_except
     (
         .I_inst                 (I_inst                     ),
@@ -329,8 +363,8 @@ module ysyx_25110270_decoder
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
     
-    assign O_ready = I_ready;
-    assign O_valid = O_ready;
+    assign O_ready = ready;
+    assign O_valid = inst_valid;
 
     assign O_rs1_raddr = rs1;
     assign O_rs2_raddr = rs2;
@@ -361,15 +395,6 @@ module ysyx_25110270_decoder
 `ifdef PERF
     import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
 
-    reg valid;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 0; 
-        end else begin
-            valid <= I_valid;
-        end
-    end
-
     wire inst_is_mul = (alu_ctrl == `ALUCTL_MUL) | (alu_ctrl == `ALUCTL_MULH) | (alu_ctrl == `ALUCTL_MULHSU) | (alu_ctrl == `ALUCTL_MULHU);
     wire inst_is_div = (alu_ctrl == `ALUCTL_DIV) | (alu_ctrl == `ALUCTL_DIVU) | (alu_ctrl == `ALUCTL_REM) | (alu_ctrl == `ALUCTL_REMU);
     wire inst_is_ls = (ls_type != 0);
@@ -380,7 +405,7 @@ module ysyx_25110270_decoder
     wire [5:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_div, inst_is_mul, inst_is_alu_one};
     
     always @(posedge clk) begin
-        if(valid && (|inst_type)) begin
+        if(I_valid && (|inst_type)) begin
             decoder_inst_type_cal(inst_type, I_inst_addr);
         end
     end
