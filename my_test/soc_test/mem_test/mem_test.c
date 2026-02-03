@@ -14,6 +14,7 @@
 
 #define TEST(bit, val_max, type) \
     do { \
+        printf("Testing %d-bit access:\n", bit); \
         volatile type *p = (volatile type *)BASE; \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             p[i] = i + val_max; \
