@@ -13,8 +13,9 @@ module ysyx_25110270_exec
     input   wire    [`InstAddrBus   ]   I_inst_addr,
 
     input   wire                        I_valid,
-    input   wire                        I_ready,
     output  wire                        O_ready,
+    output  wire                        O_valid,
+    input   wire                        I_ready,
 
     input   wire                        I_rd_we,
     input   wire    [`RegAddrBus    ]   I_rd_waddr,
@@ -24,9 +25,6 @@ module ysyx_25110270_exec
     input   wire    [`CSRCTL_WIDTH-1:0] I_CSRCtrl,
     input   wire    [`ALUCTL_WIDTH-1:0] I_ALUCtrl,
     input   wire    [`BRUCTL_WIDTH-1:0] I_BRUCtrl,
-    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_rs1,
-    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_rs2,
-    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_csr,
     input   wire    [`ALUSrcA_sel_width-1:0] I_ALUSrcA_sel,
     input   wire    [`ALUSrcB_sel_width-1:0] I_ALUSrcB_sel,
     input   wire    [`AGUSrc_sel_width-1:0]  I_AGUSrc_sel,
@@ -34,22 +32,17 @@ module ysyx_25110270_exec
     input   wire                        I_ls_valid,         //访存有效标志
     input   wire    [`ls_diff_bus   ]   I_ls_type,
 
+    input   wire                        I_multicycle,         //多周期指令标志
+
     input   wire    [`RegDataBus]       I_rs1_rdata,
     input   wire    [`RegDataBus]       I_rs2_rdata,
     input   wire    [`CSRDataBus]       I_csr_rdata,
-
-    input   wire    [`RegDataBus]       I_ls_rd_wdata,
-    input   wire    [`RegDataBus]       I_wb_rd_wdata,
-
-    input   wire    [`CSRDataBus]       I_ls_csr_wdata,
-    input   wire    [`CSRDataBus]       I_wb_csr_wdata,
 
     input   wire                        I_csr_re,           //判断结果是否来自csr
     input   wire    [`Except_Bus    ]   I_except,           //异常
 
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
-    output  wire                        O_valid,
 
     output  wire                        O_rd_we,
     output  wire    [`RegAddrBus    ]   O_rd_waddr,
@@ -71,50 +64,6 @@ module ysyx_25110270_exec
 );
 
     //------------------------------------------------------------------------
-    // fwd选择
-    //------------------------------------------------------------------------
-    reg [`RegDataBus] final_rs1_rdata;
-    reg [`RegDataBus] final_rs2_rdata;
-    reg [`RegDataBus] final_agu_src;
-    reg [`CSRDataBus] final_csr_rdata;
-
-    always @(*) begin
-        case(I_FWDCtrl_rs1)
-            `FWDSrc_nfw     :   final_rs1_rdata = I_rs1_rdata;
-            `FWDSrc_ls      :   final_rs1_rdata = I_ls_rd_wdata;
-            `FWDSrc_wb      :   final_rs1_rdata = I_wb_rd_wdata;
-            default         :   final_rs1_rdata = 0;
-        endcase
-    end
-
-    always @(*) begin
-        case(I_FWDCtrl_rs2)
-            `FWDSrc_nfw     :   final_rs2_rdata = I_rs2_rdata;
-            `FWDSrc_ls      :   final_rs2_rdata = I_ls_rd_wdata;
-            `FWDSrc_wb      :   final_rs2_rdata = I_wb_rd_wdata;
-            default         :   final_rs2_rdata = 0;
-        endcase
-    end
-
-    always @(*) begin
-        case(I_FWDCtrl_csr)
-            `FWDSrc_nfw     :   final_csr_rdata = I_csr_rdata;
-            `FWDSrc_ls      :   final_csr_rdata = I_ls_csr_wdata;
-            `FWDSrc_wb      :   final_csr_rdata = I_wb_csr_wdata;
-            default         :   final_csr_rdata = 0;
-        endcase
-    end
-
-    always @(*) begin
-        case(I_FWDCtrl_rs1)
-            `FWDSrc_nfw     :   final_agu_src = I_rs1_rdata;
-            `FWDSrc_ls      :   final_agu_src = I_ls_rd_wdata;
-            `FWDSrc_wb      :   final_agu_src = I_wb_rd_wdata;
-            default         :   final_agu_src = 0;
-        endcase
-    end
-
-    //------------------------------------------------------------------------
     // src选择
     //------------------------------------------------------------------------
     reg [`RegDataBus] alu_srca;
@@ -124,7 +73,7 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_ALUSrcA_sel)
-            `ALUSrcA_rs1: alu_srca = final_rs1_rdata;
+            `ALUSrcA_rs1: alu_srca = I_rs1_rdata;
             `ALUSrcA_pc:  alu_srca = I_inst_addr;
             default:      alu_srca = 0;
         endcase
@@ -132,7 +81,7 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_ALUSrcB_sel)
-            `ALUSrcB_rs2: alu_srcb = final_rs2_rdata;
+            `ALUSrcB_rs2: alu_srcb = I_rs2_rdata;
             `ALUSrcB_imm: alu_srcb = I_imm;
             `ALUSrcB_4:   alu_srcb = 4;
             default:      alu_srcb = 0;
@@ -141,7 +90,7 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_AGUSrc_sel)
-            `AGUSrc_rs1:  agu_src = final_agu_src;
+            `AGUSrc_rs1:  agu_src = I_rs1_rdata;
             `AGUSrc_pc:   agu_src = I_inst_addr;
             default:      agu_src = 0;
         endcase
@@ -149,7 +98,7 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_CSRSrc_sel)
-            `CSRSrc_rs1:  csr_src = final_rs1_rdata;
+            `CSRSrc_rs1:  csr_src = I_rs1_rdata;
             `CSRSrc_imm:  csr_src = I_imm;
             default:      csr_src = 0;
         endcase
@@ -159,19 +108,19 @@ module ysyx_25110270_exec
     // alu运算
     //------------------------------------------------------------------------
 
-    reg valid;
+    reg valid_reg;
     always @(posedge clk) begin
         if(!rst_n) begin
-            valid <= 1'b0;
+            valid_reg <= 1'b0;
         end else begin
-            valid <= I_valid;
+            valid_reg <= I_valid;
         end
     end
 
     reg start_mul_reg, start_div_reg;
     wire mul_ready, div_ready;
-    wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
-    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & valid;
+    wire start_mul = I_ALUCtrl[`ALUCTL_WIDTH-1] & ~I_ALUCtrl[`ALUCTL_WIDTH-3] & valid_reg;
+    wire start_div = I_ALUCtrl[`ALUCTL_WIDTH-1] & I_ALUCtrl[`ALUCTL_WIDTH-3] & valid_reg;
 
     wire signed_div = (I_ALUCtrl == `ALUCTL_DIV) | (I_ALUCtrl == `ALUCTL_REM);
     wire annul_div = 0;
@@ -180,7 +129,7 @@ module ysyx_25110270_exec
         if(!rst_n) begin
             start_mul_reg <= 0;
             start_div_reg <= 0;
-        end else if(valid) begin
+        end else if(valid_reg) begin
             start_mul_reg <= start_mul;
             start_div_reg <= start_div;
         end else begin
@@ -242,22 +191,59 @@ module ysyx_25110270_exec
     ysyx_25110270_csr csr
     (
         .I_csr_src                  (csr_src                ),
-        .I_csr_rdata                (final_csr_rdata        ),
+        .I_csr_rdata                (I_csr_rdata            ),
         .I_csr_ctrl                 (I_CSRCtrl              ),
         .O_csr_wdata                (csr_wdata              )
     );
+
+    reg inst_valid;
+    reg ready;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_valid <= 1'b0;
+        end else if(I_ready & inst_valid) begin
+            inst_valid <= 1'b0;
+        end else if((I_valid & ~I_multicycle) || (mul_ready || div_ready)) begin
+            inst_valid <= 1'b1;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            ready <= 1'b1;
+        end else if(I_valid) begin
+            ready <= 1'b0;
+        end else if(~stallreq) begin
+            ready <= 1'b1;
+        end
+    end
+
+    reg bru_taken_r;
+    reg [`InstAddrBus] agu_result_r;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            bru_taken_r <= 0;
+            agu_result_r <= 0;
+        end else if(inst_valid) begin
+            bru_taken_r <= bru_taken;
+            agu_result_r <= agu_result;
+        end
+    end
 
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
+    assign O_valid = inst_valid & ~stallreq;
+    assign O_ready = ready;
 
     assign O_rd_we = I_rd_we;
     assign O_rd_waddr = I_rd_waddr;
-    assign O_rd_wdata = I_csr_re? final_csr_rdata : alu_result;
+    assign O_rd_wdata = I_csr_re? I_csr_rdata : alu_result;
     assign O_memory_addr = agu_result;
-    assign O_store_data = final_rs2_rdata;
+    assign O_store_data = I_rs2_rdata;
 
     assign O_ls_valid = I_ls_valid;
     assign O_ls_type = I_ls_type;
@@ -266,19 +252,17 @@ module ysyx_25110270_exec
     assign O_csr_waddr = I_csr_waddr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_bru_taken = bru_taken;
-    assign O_bru_target = agu_result;
+    assign O_bru_taken = bru_taken_r;
+    assign O_bru_target = agu_result_r;
 
     assign O_except = I_except;
 
-    assign O_ready = ~stallreq & I_ready;
-    assign O_valid = O_ready;
 
 `ifdef PERF
     import "DPI-C" function void exec_inst_cal();
 
     always @(posedge clk) begin
-        if(valid && (|I_inst) && (|I_inst_addr)) begin
+        if(inst_valid && (|I_inst) && (|I_inst_addr)) begin
             exec_inst_cal();
         end
     end

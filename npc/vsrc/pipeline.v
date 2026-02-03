@@ -13,19 +13,14 @@ module ysyx_25110270_pipeline_if_dec
     input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
-    output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg     [`InstAddrBus   ]   O_inst_addr         // 指令地址
 
-    input   wire                        I_enable,
-    input   wire                        I_flush             // 指令冲刷
 );
     always @(posedge clk) begin
         if (!rst_n) begin
             O_inst          <= 0;
             O_inst_addr     <= 0;
-        end else if (I_flush) begin
-            O_inst          <= 0;
-            O_inst_addr     <= 0;
-        end else if (I_enable) begin
+        end else begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
         end
@@ -57,9 +52,6 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire    [`CSRCTL_WIDTH-1:0] I_CSRCtrl,
     input   wire    [`ALUCTL_WIDTH-1:0] I_ALUCtrl,          // ALU控制信号
     input   wire    [`BRUCTL_WIDTH-1:0] I_BRUCtrl,          // BRU控制信号
-    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_rs1,
-    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_rs2,
-    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_csr,
     input   wire    [`ALUSrcA_sel_width-1:0] I_ALUSrcA_sel,
     input   wire    [`ALUSrcB_sel_width-1:0] I_ALUSrcB_sel,
     input   wire    [`AGUSrc_sel_width-1:0]  I_AGUSrc_sel,
@@ -82,13 +74,6 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg     [`CSRCTL_WIDTH-1:0] O_CSRCtrl,
     output  reg     [`ALUCTL_WIDTH-1:0] O_ALUCtrl,          // ALU控制信号
     output  reg     [`BRUCTL_WIDTH-1:0] O_BRUCtrl,          // BRU控制信号
-    output  reg     [`FWDSrc_sel_width-1:0] O_FWDCtrl_rs1,
-    output  reg     [`FWDSrc_sel_width-1:0] O_FWDCtrl_rs2,
-    output  reg     [`FWDSrc_sel_width-1:0] O_FWDCtrl_csr,
-    output  reg                         O_fwd_rd_we,            // 写通用寄存器标志
-    output  reg     [`RegAddrBus    ]   O_fwd_rd_waddr,         // 写通用寄存器地址
-    output  reg                         O_fwd_csr_we,           // 写CSR寄存器标志
-    output  reg     [`CSRAddrBus    ]   O_fwd_csr_waddr,        // 写CSR寄存器地址
     output  reg     [`ALUSrcA_sel_width-1:0] O_ALUSrcA_sel,
     output  reg     [`ALUSrcB_sel_width-1:0] O_ALUSrcB_sel,
     output  reg     [`AGUSrc_sel_width-1:0]  O_AGUSrc_sel,
@@ -96,10 +81,7 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg                         O_ls_valid,         // 访存有效标志
     output  reg     [`ls_diff_bus   ]   O_ls_type,          // 访存有效标志
     output  reg                         O_csr_re,
-    output  reg     [`Except_Bus    ]   O_except,           // 异常
-
-    input   wire                        I_enable,
-    input   wire                        I_flush             // 指令冲刷
+    output  reg     [`Except_Bus    ]   O_except           // 异常
 );
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -116,13 +98,6 @@ module ysyx_25110270_pipeline_dec_ex
             O_CSRCtrl       <= 0;
             O_ALUCtrl       <= 0;
             O_BRUCtrl       <= 0;
-            O_FWDCtrl_rs1   <= 0;
-            O_FWDCtrl_rs2   <= 0;
-            O_FWDCtrl_csr   <= 0;
-            O_fwd_rd_we     <= 0;
-            O_fwd_rd_waddr  <= 0;
-            O_fwd_csr_we    <= 0;
-            O_fwd_csr_waddr <= 0;
             O_ALUSrcA_sel   <= 0;
             O_ALUSrcB_sel   <= 0;
             O_AGUSrc_sel    <= 0;
@@ -131,36 +106,7 @@ module ysyx_25110270_pipeline_dec_ex
             O_ls_type       <= 0;
             O_csr_re        <= 0;
             O_except        <= 0;
-        end else if (I_flush) begin
-            O_inst          <= 0;
-            O_inst_addr     <= 0;
-            O_rs1_rdata     <= 0;
-            O_rs2_rdata     <= 0;
-            O_rd_we         <= 0;
-            O_imm           <= 0;
-            O_rd_waddr      <= 0;
-            O_csr_we        <= 0;
-            O_csr_waddr     <= 0;
-            O_csr_rdata     <= 0;
-            O_CSRCtrl       <= 0;
-            O_ALUCtrl       <= 0;
-            O_BRUCtrl       <= 0;
-            O_FWDCtrl_rs1   <= 0;
-            O_FWDCtrl_rs2   <= 0;
-            O_FWDCtrl_csr   <= 0;
-            O_fwd_rd_we     <= 0;
-            O_fwd_rd_waddr  <= 0;
-            O_fwd_csr_we    <= 0;
-            O_fwd_csr_waddr <= 0;
-            O_ALUSrcA_sel   <= 0;
-            O_ALUSrcB_sel   <= 0;
-            O_AGUSrc_sel    <= 0;
-            O_CSRSrc_sel    <= 0;
-            O_ls_valid      <= 0;
-            O_ls_type       <= 0;
-            O_csr_re        <= 0;
-            O_except        <= 0;
-        end else if (I_enable) begin
+        end else begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
             O_rs1_rdata     <= I_rs1_rdata;
@@ -174,13 +120,6 @@ module ysyx_25110270_pipeline_dec_ex
             O_CSRCtrl       <= I_CSRCtrl;
             O_ALUCtrl       <= I_ALUCtrl;
             O_BRUCtrl       <= I_BRUCtrl;
-            O_FWDCtrl_rs1   <= I_FWDCtrl_rs1;
-            O_FWDCtrl_rs2   <= I_FWDCtrl_rs2;
-            O_FWDCtrl_csr   <= I_FWDCtrl_csr;
-            O_fwd_rd_we     <= I_rd_we;
-            O_fwd_rd_waddr  <= I_rd_waddr;
-            O_fwd_csr_we    <= I_csr_we;
-            O_fwd_csr_waddr <= I_csr_waddr;
             O_ALUSrcA_sel   <= I_ALUSrcA_sel;
             O_ALUSrcB_sel   <= I_ALUSrcB_sel;
             O_AGUSrc_sel    <= I_AGUSrc_sel;
@@ -230,16 +169,8 @@ module ysyx_25110270_pipeline_ex_ls
     output  reg                         O_csr_we,           // 写CSR寄存器标志
     output  reg     [`CSRAddrBus    ]   O_csr_waddr,        // 写CSR寄存器地址
     output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg                         O_fwd_rd_we,
-    output  reg     [`RegAddrBus    ]   O_fwd_rd_waddr,
-    output  reg     [`RegDataBus    ]   O_fwd_rd_wdata,
-    output  reg                         O_fwd_csr_we,
-    output  reg     [`CSRAddrBus    ]   O_fwd_csr_waddr,
-    output  reg     [`CSRDataBus    ]   O_fwd_csr_wdata,
-    output  reg     [`Except_Bus    ]   O_except,           // 异常
-    
-    input   wire                        I_enable,
-    input   wire                        I_flush
+    output  reg     [`Except_Bus    ]   O_except           // 异常
+
 );
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -250,39 +181,13 @@ module ysyx_25110270_pipeline_ex_ls
             O_rd_wdata      <= 0;
             O_memory_addr   <= 0;
             O_store_data    <= 0;
-            O_fwd_rd_we     <= 0;
-            O_fwd_rd_waddr  <= 0;
-            O_fwd_rd_wdata  <= 0;
-            O_fwd_csr_we    <= 0;
-            O_fwd_csr_waddr <= 0;
-            O_fwd_csr_wdata <= 0;
             O_ls_valid      <= 0;
             O_ls_type       <= 0;
             O_csr_we        <= 0;
             O_csr_waddr     <= 0;
             O_csr_wdata     <= 0;
             O_except        <= 0;
-        end else if (I_flush) begin
-            O_inst          <= 0;
-            O_inst_addr     <= 0;
-            O_rd_we         <= 0;
-            O_rd_waddr      <= 0;
-            O_rd_wdata      <= 0;
-            O_memory_addr   <= 0;
-            O_store_data    <= 0;
-            O_fwd_rd_we     <= 0;
-            O_fwd_rd_waddr  <= 0;
-            O_fwd_rd_wdata  <= 0;
-            O_fwd_csr_we    <= 0;
-            O_fwd_csr_waddr <= 0;
-            O_fwd_csr_wdata <= 0;
-            O_ls_valid      <= 0;
-            O_ls_type       <= 0;
-            O_csr_we        <= 0;
-            O_csr_waddr     <= 0;
-            O_csr_wdata     <= 0;
-            O_except        <= 0;
-        end else if (I_enable) begin
+        end else begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
             O_rd_we         <= I_rd_we;
@@ -290,12 +195,6 @@ module ysyx_25110270_pipeline_ex_ls
             O_rd_wdata      <= I_rd_wdata;
             O_memory_addr   <= I_memory_addr;
             O_store_data    <= I_store_data;
-            O_fwd_rd_we     <= I_rd_we;
-            O_fwd_rd_waddr  <= I_rd_waddr;
-            O_fwd_rd_wdata  <= I_rd_wdata;
-            O_fwd_csr_we    <= I_csr_we;
-            O_fwd_csr_waddr <= I_csr_waddr;
-            O_fwd_csr_wdata <= I_csr_wdata;
             O_ls_valid      <= I_ls_valid;
             O_ls_type       <= I_ls_type;
             O_csr_we        <= I_csr_we;
@@ -337,14 +236,10 @@ module ysyx_25110270_pipeline_ls_wb
     output  reg                         O_csr_we,           // 写CSR寄存器标志
     output  reg     [`CSRAddrBus    ]   O_csr_waddr,        // 写CSR寄存器地址
     output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`RegDataBus    ]   O_fwd_rd_wdata,
-    output  reg     [`CSRDataBus    ]   O_fwd_csr_wdata,
     output  reg     [`Except_Bus    ]   O_except,           // 异常
 
-    output  wire                        O_device_skip,
+    output  wire                        O_device_skip
 
-    input   wire                        I_enable,
-    input   wire                        I_flush
 );
 
     always @(posedge clk) begin
@@ -354,41 +249,21 @@ module ysyx_25110270_pipeline_ls_wb
             O_rd_we         <= 0;
             O_rd_waddr      <= 0;
             O_rd_wdata      <= 0;
-            O_fwd_rd_wdata  <= 0;
-            O_fwd_csr_wdata <= 0;
             O_csr_we        <= 0;
             O_csr_waddr     <= 0;
             O_csr_wdata     <= 0;
             O_except        <= 0;
-
             O_device_skip   <= 0;
-        end else if (I_flush) begin
-            O_inst          <= 0;
-            O_inst_addr     <= 0;
-            O_rd_we         <= 0;
-            O_rd_waddr      <= 0;
-            O_rd_wdata      <= 0;
-            O_fwd_rd_wdata  <= 0;
-            O_fwd_csr_wdata <= 0;
-            O_csr_we        <= 0;
-            O_csr_waddr     <= 0;
-            O_csr_wdata     <= 0;
-            O_except        <= 0;
-
-            O_device_skip   <= 0;
-        end else if (I_enable) begin
+        end else begin
             O_inst          <= I_inst;
             O_inst_addr     <= I_inst_addr;
             O_rd_we         <= I_rd_we;
             O_rd_waddr      <= I_rd_waddr;
             O_rd_wdata      <= I_rd_wdata;
-            O_fwd_rd_wdata  <= I_rd_wdata;
-            O_fwd_csr_wdata <= I_csr_wdata;
             O_csr_we        <= I_csr_we;
             O_csr_waddr     <= I_csr_waddr;
             O_csr_wdata     <= I_csr_wdata;
             O_except        <= I_except;
-
             O_device_skip   <= I_device_skip;
         end
     end
