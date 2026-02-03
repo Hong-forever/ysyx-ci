@@ -168,17 +168,17 @@ module ysyx_25110270_wbu
     assign O_valid = inst_valid;
     assign O_ready = ready;
 
-
-`ifdef DEBUG
-    reg valid_r;
+    reg valid_r, valid_r2;
     always @(posedge clk) begin
         if(!rst_n) begin
             valid_r <= 1'b0;
+            valid_r2 <= 1'b0;
         end else begin
             valid_r <= I_valid;
+            valid_r2 <= valid_r;
         end
     end
-
+`ifdef DEBUG
     always @(posedge clk) begin
         if(valid_r & I_inst == 0 && I_inst_addr != 0) begin
             $error("Error: inst is 0 at addr %h!", I_inst_addr);
@@ -222,23 +222,19 @@ module ysyx_25110270_wbu
         input int mvendorid, input int marchid
     );
 
-    reg [`InstBus] inst_r1, inst_r2;
-    reg [`InstAddrBus] inst_addr_r1, inst_addr_r2;
+    reg [`InstBus] inst_r1;
+    reg [`InstAddrBus] inst_addr_r1;
     reg [`InstAddrBus] pc;
     reg skip_r;
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_r1         <= 0;
             inst_addr_r1    <= 0;
-            inst_r2         <= 0;
-            inst_addr_r2    <= 0;
             pc              <= 0;
             skip_r          <= 1'b0;
         end else begin
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
-            inst_r2         <= inst_r1;
-            inst_addr_r2    <= inst_addr_r1;
             pc              <= O_flush ? O_flush_addr :
                                (I_ls_addr == 0 ? 
                                (I_ex_addr == 0 ? 
@@ -249,9 +245,8 @@ module ysyx_25110270_wbu
         end
     end
 
-    always @(*) begin
-
-        if((inst_r1 != 0 && inst_addr_r1 != 0) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
+    always @(posedge clk) begin
+        if(valid_r2) begin
             cpu_value
             (
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 
