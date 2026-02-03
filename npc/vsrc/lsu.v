@@ -313,7 +313,7 @@ module ysyx_25110270_lsu
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if((valid & ~I_ls_valid) || (dbus_bvalid || dbus_rvalid)) begin
+        end else if((I_valid & ~I_ls_valid) || (dbus_bvalid || dbus_rvalid)) begin
             inst_valid <= 1'b1;
         end
     end
