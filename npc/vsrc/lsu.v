@@ -29,6 +29,8 @@ module ysyx_25110270_lsu
     input   wire    [`CSRDataBus    ]   I_csr_wdata,
     input   wire    [`Except_Bus    ]   I_except,
 
+    input   wire                        I_is_ldst,          //是否为访存指令
+
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
 
@@ -313,7 +315,7 @@ module ysyx_25110270_lsu
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if((I_valid & ~I_ls_valid) || (dbus_bvalid || dbus_rvalid)) begin
+        end else if((I_valid & ~I_is_ldst) || (dbus_bvalid || dbus_rvalid)) begin
             inst_valid <= 1'b1;
         end
     end
