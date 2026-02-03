@@ -258,7 +258,7 @@ module ysyx_25110270_lsu
     end
 
     wire ls_req = I_ls_valid & req_valid;
-    wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || I_is_ldst;
+    wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_is_ldst && I_valid);
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -416,7 +416,7 @@ module ysyx_25110270_lsu
     import "DPI-C" function void ls_data_cal();
 
     always @(posedge clk) begin
-        if((dbus_bvalid & dbus_bready) | (dbus_rvalid & dbus_rready)) begin
+        if(dbus_bvalid & dbus_bready | dbus_rvalid & dbus_rready) begin
             ls_data_cal();
         end
     end
