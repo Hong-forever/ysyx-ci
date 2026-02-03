@@ -142,26 +142,15 @@ module ysyx_25110270_wbu
         .O_csr_marchid          (csr_marchid                )  //marchid寄存器
     );
 
-    reg valid;
     reg inst_valid;
     reg ready;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 1'b0;
-        end else if(I_valid) begin
-            valid <= 1'b1;
-        end else if(ready) begin
-            valid <= 1'b0;
-        end
-    end
 
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(valid) begin
+        end else if(I_valid) begin
             inst_valid <= 1'b1;
         end
     end
@@ -171,7 +160,7 @@ module ysyx_25110270_wbu
             ready <= 1'b1;
         end else if(I_valid) begin
             ready <= 1'b0;
-        end else if(valid) begin
+        end else begin
             ready <= 1'b1;
         end
     end
@@ -182,7 +171,7 @@ module ysyx_25110270_wbu
 
 `ifdef DEBUG
     always @(posedge clk) begin
-        if(valid & I_inst == 0 && I_inst_addr != 0) begin
+        if(I_valid & I_inst == 0 && I_inst_addr != 0) begin
             $error("Error: inst is 0 at addr %h!", I_inst_addr);
         end
     end
@@ -193,7 +182,7 @@ module ysyx_25110270_wbu
     import "DPI-C" function void per_cyc_get(input int mcycleh, input int mcyclel);
 
     always @(posedge clk) begin
-        if(valid && (|I_inst) && (|I_inst_addr)) begin
+        if(I_valid && (|I_inst) && (|I_inst_addr)) begin
             wb_inst_cycle_cal(I_inst_addr);
         end
     end

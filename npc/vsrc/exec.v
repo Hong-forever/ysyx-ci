@@ -194,26 +194,15 @@ module ysyx_25110270_exec
         .O_csr_wdata                (csr_wdata              )
     );
 
-    reg valid;
     reg inst_valid;
     reg ready;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 1'b0;
-        end else if(I_valid) begin
-            valid <= 1'b1;
-        end else if(ready) begin
-            valid <= 1'b0;
-        end
-    end
 
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(valid & ~stallreq) begin
+        end else if((I_valid & ~stallreq) || (mul_ready || div_ready)) begin
             inst_valid <= 1'b1;
         end
     end
@@ -223,7 +212,7 @@ module ysyx_25110270_exec
             ready <= 1'b1;
         end else if(I_valid) begin
             ready <= 1'b0;
-        end else if(valid & ~stallreq) begin
+        end else if(~stallreq) begin
             ready <= 1'b1;
         end
     end

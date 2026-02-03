@@ -323,7 +323,7 @@ module ysyx_25110270_lsu
             ready <= 1'b1;
         end else if(I_valid) begin
             ready <= 1'b0;
-        end else if((valid & ~I_ls_valid) || (dbus_bvalid || dbus_rvalid)) begin
+        end else if(~stallreq) begin
             ready <= 1'b1;
         end
     end
