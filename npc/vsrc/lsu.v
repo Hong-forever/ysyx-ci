@@ -313,7 +313,7 @@ module ysyx_25110270_lsu
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_valid <= 1'b0;
-        end else if(I_ready) begin
+        end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
         end else if((I_valid && ~I_is_ldst) || (dbus_bvalid || dbus_rvalid)) begin
             inst_valid <= 1'b1;
@@ -325,7 +325,7 @@ module ysyx_25110270_lsu
             ready <= 1'b1;
         end else if(I_valid) begin
             ready <= 1'b0;
-        end else if(~I_ls_valid || (dbus_bvalid || dbus_rvalid)) begin
+        end else if(~stallreq) begin
             ready <= 1'b1;
         end
     end
