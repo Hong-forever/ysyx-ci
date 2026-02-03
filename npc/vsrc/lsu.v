@@ -401,7 +401,7 @@ module ysyx_25110270_lsu
 
     always @(posedge clk) begin
         if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
-            $error("LSU: Data read address out of range at pc 0x%08x!", I_inst_addr);
+            $error("LSU: Data read address out of range at pc 0x%08x, access addr 0x%08x!", I_inst_addr, I_memory_addr);
         end
         if(dbus_bvalid && dbus_bresp != 2'b00) begin
             $error("LSU: DBUS write error at pc 0x%08x!", I_inst_addr);
