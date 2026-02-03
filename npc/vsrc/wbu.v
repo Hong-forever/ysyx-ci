@@ -191,7 +191,7 @@ module ysyx_25110270_wbu
     import "DPI-C" function void per_cyc_get(input int mcycleh, input int mcyclel);
 
     always @(posedge clk) begin
-        if(I_valid && (|I_inst) && (|I_inst_addr)) begin
+        if(valid_r && (|I_inst) && (|I_inst_addr)) begin
             wb_inst_cycle_cal(I_inst_addr);
         end
     end

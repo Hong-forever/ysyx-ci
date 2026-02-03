@@ -393,8 +393,17 @@ module ysyx_25110270_decoder
 
     wire [5:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_div, inst_is_mul, inst_is_alu_one};
     
+    reg valid;
     always @(posedge clk) begin
-        if(I_valid && (|inst_type)) begin
+        if(!rst_n) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(valid && (|inst_type)) begin
             decoder_inst_type_cal(inst_type, I_inst_addr);
         end
     end

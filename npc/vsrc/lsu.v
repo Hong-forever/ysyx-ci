@@ -416,7 +416,7 @@ module ysyx_25110270_lsu
     import "DPI-C" function void ls_data_cal();
 
     always @(posedge clk) begin
-        if(dbus_bvalid & dbus_bready | dbus_rvalid & dbus_rready) begin
+        if((dbus_bvalid & dbus_bready) | (dbus_rvalid & dbus_rready)) begin
             ls_data_cal();
         end
     end
