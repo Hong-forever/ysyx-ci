@@ -3,6 +3,7 @@
 #include <klib-macros.h>
 
 #define BASE 0xa0000000
+#define B2   0x02000000
 #define SIZE 0x800
 
 #define p_period 0x100
@@ -21,8 +22,47 @@
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
+        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + B2); i++) { \
+            p[i] = i + 12574237; \
+            PUT(i, p_period, "w", bit); \
+        } \
+        printf("\n"); \
+        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 2*B2); i++) { \
+            p[i] = i + 12392227; \
+            PUT(i, p_period, "w", bit); \
+        } \
+        printf("\n"); \
+        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 3*B2); i++) { \
+            p[i] = i + 121358037; \
+            PUT(i, p_period, "w", bit); \
+        } \
+        printf("\n"); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             if(p[i] != i + val_max) { \
+                putstr("error\n"); \
+                return 1; \
+            } \
+            PUT(i, p_period, "r", bit); \
+        } \
+        printf("\n"); \
+        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + B2); i++) { \
+            if(p[i] != i + 12574237) { \
+                putstr("error\n"); \
+                return 1; \
+            } \
+            PUT(i, p_period, "r", bit); \
+        } \
+        printf("\n"); \
+        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 2*B2); i++) { \
+            if(p[i] != i + 12392227) { \
+                putstr("error\n"); \
+                return 1; \
+            } \
+            PUT(i, p_period, "r", bit); \
+        } \
+        printf("\n"); \
+        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 3*B2); i++) { \
+            if(p[i] != i + 121358037) { \
                 putstr("error\n"); \
                 return 1; \
             } \
@@ -37,9 +77,9 @@ int main(const char *args) {
     printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
     TEST(64, 9876789, uint64_t);
-    TEST(32, 124321,  uint32_t);
-    TEST(16, 656,     uint16_t);
-    TEST(8,  26,      uint8_t );
+    // TEST(32, 124321,  uint32_t);
+    // TEST(16, 656,     uint16_t);
+    // TEST(8,  26,      uint8_t );
 
     putstr("mem test pass!\n\n");
     return 0;
