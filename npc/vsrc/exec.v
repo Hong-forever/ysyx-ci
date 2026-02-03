@@ -65,6 +65,7 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     reg [`RegDataBus] alu_srca;
     reg [`RegDataBus] alu_srcb;
+    reg [`RegDataBus] agu_src;
     reg [`CSRDataBus] csr_src;
 
     always @(*) begin
@@ -81,6 +82,14 @@ module ysyx_25110270_exec
             `ALUSrcB_imm: alu_srcb = I_imm;
             `ALUSrcB_4:   alu_srcb = 4;
             default:      alu_srcb = 0;
+        endcase
+    end
+
+    always @(*) begin
+        case(I_AGUSrc_sel)
+            `AGUSrc_rs1:  agu_src = I_rs1_rdata;
+            `AGUSrc_pc:   agu_src = I_inst_addr;
+            default:      agu_src = 0;
         endcase
     end
 
@@ -113,8 +122,7 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // agu运算
     //------------------------------------------------------------------------
-    wire [`RegDataBus] agu_result, agu_src;
-    assign agu_src = alu_srca;
+    wire [`RegDataBus] agu_result;
     assign agu_result = agu_src + I_imm;
 
     //------------------------------------------------------------------------
