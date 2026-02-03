@@ -4,9 +4,9 @@
 
 #define BASE 0xa0000000
 #define B2   0x02000000
-#define SIZE 0x80
+#define SIZE 0x8
 
-#define p_period 0x10
+#define p_period 0x1
 
 #define PUT(i, period, op, bit) \
     do { \
