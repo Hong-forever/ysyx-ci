@@ -171,7 +171,7 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_valid <= 1'b0;
-        end else if(I_ready) begin
+        end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
         end else if(ibus_rvalid && ibus_rready) begin
             inst_valid <= 1'b1;
