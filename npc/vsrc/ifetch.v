@@ -78,7 +78,7 @@ module ysyx_25110270_ifetch
         end
     end
 
-    wire inst_arvalid_next = I_valid;
+    wire inst_arvalid_next = (state == IDLE && ~ibus_arready);
 
     always @(posedge clk) begin
         if(!rst_n) begin
