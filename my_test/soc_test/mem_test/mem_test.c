@@ -4,7 +4,7 @@
 
 #define BASE 0xa0000000
 #define B2   0x02000000
-#define SIZE 0x8
+#define SIZE 0x20
 
 #define p_period 0x1
 
