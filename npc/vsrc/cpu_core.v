@@ -448,8 +448,6 @@ module ysyx_25110270_cpu_core
         .I_csr_wdata            (I_ls_csr_wdata             ),
         .I_except               (I_ls_except                ),
 
-        .I_is_ldst              (O_ex_ls_valid              ),
-
         .O_device_skip          (lsu_device_skip            ),
 
         .O_inst                 (O_ls_inst                  ),

@@ -202,7 +202,7 @@ module ysyx_25110270_exec
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if((I_valid & ~stallreq) || (mul_ready || div_ready)) begin
+        end else if(I_valid) begin
             inst_valid <= 1'b1;
         end
     end
@@ -234,7 +234,7 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
-    assign O_valid = inst_valid;
+    assign O_valid = inst_valid & ~stallreq;
     assign O_ready = ready;
 
     assign O_rd_we = I_rd_we;
