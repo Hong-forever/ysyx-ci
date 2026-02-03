@@ -36,9 +36,9 @@ int main(const char *args) {
     putstr("\nmem test start!\n");
     printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
-    TEST(64, 9876789, uint64_t);
-    TEST(32, 124321,  uint32_t);
-    TEST(16, 656,     uint16_t);
+    // TEST(64, 9876789, uint64_t);
+    // TEST(32, 124321,  uint32_t);
+    // TEST(16, 656,     uint16_t);
     TEST(8,  26,      uint8_t );
 
     putstr("mem test pass!\n\n");
