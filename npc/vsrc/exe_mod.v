@@ -14,20 +14,8 @@ module ysyx_25110270_alu
     output  wire    [`RegDataBus    ]   O_alu_result,
 
     output  wire                        O_eq,
-    output  wire                        O_lt,
-
-    input   wire                        I_mul_start,        // 开始乘法
-    output  wire                        O_mul_ready,        // 乘法运算是否结束
-
-    input   wire                        I_signed_div,       // 是否是有符号除法
-    input   wire                        I_div_start,            // 开始除法
-    input   wire                        I_annul,            // 是否取消
-    output  wire                        O_div_ready         // 除法运算是否结束
-
+    output  wire                        O_lt
 );
-    localparam MUL_CYCLE = 3'd6;
-
-
     wire adder_sign = (I_alu_ctrl != `ALUCTL_SLTU);
     wire adder_sub = (I_alu_ctrl != `ALUCTL_ADD);
 
@@ -46,19 +34,6 @@ module ysyx_25110270_alu
     wire [`RegDataBus] rv32i_lui_res     = I_alu_srcb;
     wire [`RegDataBus] rv32i_auipc_res   = I_alu_srcb + I_alu_srca;
 
-    wire [`DoubleRegDataBus] mul_res;
-    wire [`DoubleRegDataBus] mulh_res;
-    wire [`DoubleRegDataBus] mulhsu_res;
-
-    wire [`RegDataBus] rv32m_mul_res;
-    wire [`RegDataBus] rv32m_mulhu_res;
-    wire [`RegDataBus] rv32m_mulh_res;
-    wire [`RegDataBus] rv32m_mulhsu_res;
-
-
-    wire [`DoubleRegDataBus] div_res;
-    wire [`RegDataBus] rv32m_rem_res  = div_res[`HRegDataBus];
-    wire [`RegDataBus] rv32m_div_res  = div_res[`LRegDataBus];
 
     reg [`RegDataBus] res; 
     always @(*) begin
@@ -69,12 +44,6 @@ module ysyx_25110270_alu
             `ALUCTL_XOR:                            res = rv32i_xor_res;
             `ALUCTL_OR:                             res = rv32i_or_res;
             `ALUCTL_AND:                            res = rv32i_and_res;
-            `ALUCTL_MUL:                            res = rv32m_mul_res;
-            `ALUCTL_MULH:                           res = rv32m_mulh_res;
-            `ALUCTL_MULHSU:                         res = rv32m_mulhsu_res;
-            `ALUCTL_MULHU:                          res = rv32m_mulhu_res;
-            `ALUCTL_DIV, `ALUCTL_DIVU:              res = rv32m_div_res;
-            `ALUCTL_REM, `ALUCTL_REMU:              res = rv32m_rem_res;
             default:                                res = 0;
         endcase
     end
@@ -92,75 +61,9 @@ module ysyx_25110270_alu
         .O_shift_result         (rv32i_shift_res            )
     );
 
-
-    wire div_ready;
-    wire mul_ready;
-
-    wire [`DoubleRegDataBus] mulhsu_res_inverted = ~mul_res + 1;
-
-    wire mul_unsigned = (I_alu_ctrl != `ALUCTL_MULH);
-
-    wire [`RegDataBus] mul_op1 = (I_alu_ctrl == `ALUCTL_MULHSU && I_alu_srca[`RegDataWidth-1]) ? 
-                                    ~I_alu_srca + 1 : I_alu_srca;
-    wire [`RegDataBus] mul_op2 = I_alu_srcb;
-
-    reg [`RegDataBus] mul_op1_r, mul_op2_r;
-    reg mul_unsigned_r, mul_start_r;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            mul_op1_r      <= 0;
-            mul_op2_r      <= 0;
-            mul_unsigned_r <= 0;
-            mul_start_r    <= 0;
-        end else begin
-            mul_op1_r      <= mul_op1;
-            mul_op2_r      <= mul_op2;
-            mul_unsigned_r <= mul_unsigned;
-            mul_start_r    <= I_mul_start;
-        end
-    end
-
-    ysyx_25110270_Booth_Mul 
-    #(
-        .LENGTH                 (`RegDataWidth              )
-    ) mul 
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .start                  (mul_start_r                ),
-        .A                      (mul_op1_r                  ),
-        .B                      (mul_op2_r                  ),
-        .U                      (mul_unsigned_r             ),
-        .P                      (mul_res                    ),
-        .done                   (mul_ready                  )
-    );
-
-    assign rv32m_mul_res    = mul_res[`LRegDataBus];
-    assign rv32m_mulhu_res  = mul_res[`HRegDataBus];
-    assign rv32m_mulh_res   = mul_res[`HRegDataBus];
-    assign rv32m_mulhsu_res = (I_alu_srca[`RegDataWidth-1]) ? mulhsu_res_inverted[`HRegDataBus] : mul_res[`HRegDataBus];
-
-
-    ysyx_25110270_div div    // 除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_signed_div           (I_signed_div               ),
-        .I_op_div               (I_alu_ctrl[1:0]            ),
-        .I_opdata1              (I_alu_srca                 ),
-        .I_opdata2              (I_alu_srcb                 ),
-        .I_start                (I_div_start                ),
-        .I_annul                (I_annul                    ),
-        .O_result               (div_res                    ),
-        .O_ready                (div_ready                  )
-    );
-
     assign O_alu_result = res;
     assign O_eq = (I_alu_srca == I_alu_srcb);
     assign O_lt = adder_cout;
-    assign O_div_ready = div_ready;
-    assign O_mul_ready = mul_ready;
     
 endmodule
     
