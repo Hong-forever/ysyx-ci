@@ -90,6 +90,8 @@ module ysyx_25110270_cpu_core
 
     wire                stallreq_dec;
 
+    wire                O_dec_multicycle;
+
     //-------------------------------------------------------------
     // pipeline_dec_ex
     //-------------------------------------------------------------
@@ -148,6 +150,7 @@ module ysyx_25110270_cpu_core
     wire [`CSRAddrBus ] O_ex_csr_waddr;
     wire [`CSRDataBus ] O_ex_csr_wdata;
     wire [`Except_Bus ] O_ex_except;
+
 
     //-------------------------------------------------------------
     // pipeline_ex_ls
@@ -349,6 +352,8 @@ module ysyx_25110270_cpu_core
 
         .O_inst                 (O_dec_inst                 ),
         .O_inst_addr            (O_dec_inst_addr            ),
+
+        .O_multicycle           (O_dec_multicycle           ),
         .O_rs1_rdata            (O_dec_rs1_rdata            ),
         .O_rs2_rdata            (O_dec_rs2_rdata            ),
         .O_imm                  (O_dec_imm                  ),
@@ -405,6 +410,8 @@ module ysyx_25110270_cpu_core
         .I_csr_re               (I_ex_csr_re                ),
         .I_except               (I_ex_except                ),
 
+        .I_multicycle           (O_dec_multicycle           ),
+
         .O_inst                 (O_ex_inst                  ),
         .O_inst_addr            (O_ex_inst_addr             ),
 
@@ -447,6 +454,8 @@ module ysyx_25110270_cpu_core
         .I_csr_waddr            (I_ls_csr_waddr             ),
         .I_csr_wdata            (I_ls_csr_wdata             ),
         .I_except               (I_ls_except                ),
+
+        .I_is_ldst              (O_ex_ls_valid              ),
 
         .O_device_skip          (lsu_device_skip            ),
 

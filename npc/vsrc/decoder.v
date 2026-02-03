@@ -27,6 +27,8 @@ module ysyx_25110270_decoder
 
     output  wire    [`InstBus       ]   O_inst,             //指令内容
     output  wire    [`InstAddrBus   ]   O_inst_addr,        //指令地址
+
+    output  wire                        O_multicycle,         //多周期指令标志
     output  wire    [`RegDataBus    ]   O_rs1_rdata,        //通用寄存器1数据
     output  wire    [`RegDataBus    ]   O_rs2_rdata,        //通用寄存器2数据
     output  wire    [`RegDataBus    ]   O_imm,              //立即数
@@ -97,6 +99,7 @@ module ysyx_25110270_decoder
     reg [`CSRSrc_sel_width-1:0 ] CSRSrc_sel;
 
     reg rs1_re, rs2_re, rd_we, csr_en, ls_valid;
+    reg multicyc;
 
     reg [`RegDataBus] imm;
 
@@ -111,6 +114,7 @@ module ysyx_25110270_decoder
         rd_we    = 0;
         csr_en   = 0;
         ls_valid = 0;
+        multicyc = 0;
         imm      = 0;
         ls_type  = 0;
         alu_ctrl = 0;
@@ -202,6 +206,7 @@ module ysyx_25110270_decoder
                         endcase
                     end
                     `RV32M_F7_MUL: begin
+                        multicyc = 1'b1;
                         case(funct3)
                             `RV32M_F3_MUL:    alu_ctrl = `ALUCTL_MUL;
                             `RV32M_F3_MULH:   alu_ctrl = `ALUCTL_MULH;
@@ -371,6 +376,8 @@ module ysyx_25110270_decoder
     assign O_csr_rdata = I_csr_rdata;
     assign O_csr_we = csr_en;
     assign O_csr_waddr = I_inst[31:20];
+
+    assign O_multicycle = multicyc;
 
     assign O_rs1_re = rs1_re;
     assign O_rs2_re = rs2_re;

@@ -29,6 +29,8 @@ module ysyx_25110270_lsu
     input   wire    [`CSRDataBus    ]   I_csr_wdata,
     input   wire    [`Except_Bus    ]   I_except,
 
+    input   wire                        I_is_ldst,          //是否为访存指令
+
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
 
@@ -256,7 +258,7 @@ module ysyx_25110270_lsu
     end
 
     wire ls_req = I_ls_valid & req_valid;
-    wire data_avalid_next = ls_req && !(dbus_awready | dbus_arready);
+    wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -311,9 +313,9 @@ module ysyx_25110270_lsu
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
+        end else if(I_ready) begin
             inst_valid <= 1'b0;
-        end else if(I_valid) begin
+        end else if((I_valid && ~I_is_ldst) || (dbus_bvalid || dbus_rvalid)) begin
             inst_valid <= 1'b1;
         end
     end
@@ -323,7 +325,7 @@ module ysyx_25110270_lsu
             ready <= 1'b1;
         end else if(I_valid) begin
             ready <= 1'b0;
-        end else if(~stallreq) begin
+        end else if(~I_ls_valid || (dbus_bvalid || dbus_rvalid)) begin
             ready <= 1'b1;
         end
     end
@@ -333,7 +335,7 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
-    assign O_valid = inst_valid & ~stallreq;
+    assign O_valid = inst_valid;
     assign O_ready = ready;
 
     assign O_rd_we = I_rd_we;

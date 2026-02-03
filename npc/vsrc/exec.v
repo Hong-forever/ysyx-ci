@@ -32,6 +32,8 @@ module ysyx_25110270_exec
     input   wire                        I_ls_valid,         //访存有效标志
     input   wire    [`ls_diff_bus   ]   I_ls_type,
 
+    input   wire                        I_multicycle,         //多周期指令标志
+
     input   wire    [`RegDataBus]       I_rs1_rdata,
     input   wire    [`RegDataBus]       I_rs2_rdata,
     input   wire    [`CSRDataBus]       I_csr_rdata,
@@ -202,7 +204,7 @@ module ysyx_25110270_exec
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(I_valid) begin
+        end else if(I_valid & ~I_multicycle || (mul_ready || div_ready)) begin
             inst_valid <= 1'b1;
         end
     end
