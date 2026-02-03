@@ -221,8 +221,8 @@ module ysyx_25110270_ifetch
     import "DPI-C" function void ifetch_inst_get_nr_cal(input int inst, input int pc);
 
     always @(posedge clk) begin
-        if(O_valid && (|O_inst) && (|O_inst_addr)) begin
-            ifetch_inst_get_nr_cal(O_inst, O_inst_addr);
+        if(inst_valid && (|inst) && (|pc)) begin
+            ifetch_inst_get_nr_cal(inst, pc);
         end
     end
 `endif

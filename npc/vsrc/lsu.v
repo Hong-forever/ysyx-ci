@@ -232,14 +232,14 @@ module ysyx_25110270_lsu
         end
     end
 
-    reg valid;
+    reg req_valid;
     always @(posedge clk) begin
         if(!rst_n) begin
-            valid <= 1'b0;
+            req_valid <= 1'b0;
         end else if(I_valid) begin
-            valid <= 1'b1;
+            req_valid <= 1'b1;
         end else if(I_ls_valid & (dbus_arready | dbus_awready)) begin
-            valid <= 1'b0;
+            req_valid <= 1'b0;
         end
     end
 
@@ -257,8 +257,8 @@ module ysyx_25110270_lsu
         end
     end
 
-    wire ls_req = I_ls_valid & valid;
-    wire data_avalid_next = (state == IDLE && ls_req && !(dbus_awready | dbus_arready));
+    wire ls_req = I_ls_valid & req_valid;
+    wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || I_is_ldst;
 
     always @(posedge clk) begin
         if(!rst_n) begin
