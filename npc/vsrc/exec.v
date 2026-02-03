@@ -217,6 +217,18 @@ module ysyx_25110270_exec
         end
     end
 
+    reg bru_taken_r;
+    reg [`InstAddrBus] agu_result_r;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            bru_taken_r <= 0;
+            agu_result_r <= 0;
+        end else if(inst_valid) begin
+            bru_taken_r <= bru_taken;
+            agu_result_r <= agu_result;
+        end
+    end
+
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
@@ -238,8 +250,8 @@ module ysyx_25110270_exec
     assign O_csr_waddr = I_csr_waddr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_bru_taken = bru_taken;
-    assign O_bru_target = agu_result;
+    assign O_bru_taken = bru_taken_r;
+    assign O_bru_target = agu_result_r;
 
     assign O_except = I_except;
 
