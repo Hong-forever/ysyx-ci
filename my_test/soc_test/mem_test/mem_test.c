@@ -22,21 +22,25 @@
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE + B2); \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + B2); i++) { \
             p[i] = i + 12574237; \
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE + 2*B2); \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 2*B2); i++) { \
             p[i] = i + 12392227; \
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE + 3*B2); \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 3*B2); i++) { \
             p[i] = i + 121358037; \
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             if(p[i] != i + val_max) { \
                 putstr("error\n"); \
@@ -45,6 +49,7 @@
             PUT(i, p_period, "r", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE + B2); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + B2); i++) { \
             if(p[i] != i + 12574237) { \
                 putstr("error\n"); \
@@ -53,6 +58,7 @@
             PUT(i, p_period, "r", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE + 2*B2); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 2*B2); i++) { \
             if(p[i] != i + 12392227) { \
                 putstr("error\n"); \
@@ -61,6 +67,7 @@
             PUT(i, p_period, "r", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE + 3*B2); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 3*B2); i++) { \
             if(p[i] != i + 121358037) { \
                 putstr("error\n"); \
