@@ -4,9 +4,9 @@
 
 #define BASE 0xa0000000
 #define B2   0x02000000
-#define SIZE 0x800
+#define SIZE 0x80
 
-#define p_period 0x100
+#define p_period 0x10
 
 #define PUT(i, period, op, bit) \
     do { \
@@ -15,10 +15,15 @@
 
 #define TEST(bit, val_max, type) \
     do { \
-        printf("Testing %d-bit memory...\n", bit); \
         volatile type *p = (volatile type *)BASE; \
         for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             p[i] = i + val_max; \
+            PUT(i, p_period, "w", bit); \
+        } \
+        printf("\n"); \
+        p = (volatile type *)(BASE + B2); \
+        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + B2); i++) { \
+            p[i] = i + 12574237; \
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
@@ -28,9 +33,24 @@
             PUT(i, p_period, "w", bit); \
         } \
         printf("\n"); \
+        p = (volatile type *)(BASE + 3*B2); \
+        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 3*B2); i++) { \
+            p[i] = i + 121358037; \
+            PUT(i, p_period, "w", bit); \
+        } \
+        printf("\n"); \
         p = (volatile type *)(BASE); \
         for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
             if(p[i] != i + val_max) { \
+                putstr("error\n"); \
+                return 1; \
+            } \
+            PUT(i, p_period, "r", bit); \
+        } \
+        printf("\n"); \
+        p = (volatile type *)(BASE + B2); \
+        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + B2); i++) { \
+            if(p[i] != i + 12574237) { \
                 putstr("error\n"); \
                 return 1; \
             } \
@@ -45,13 +65,22 @@
             } \
             PUT(i, p_period, "r", bit); \
         } \
+        printf("\n"); \
+        p = (volatile type *)(BASE + 3*B2); \
+        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE + 3*B2); i++) { \
+            if(p[i] != i + 121358037) { \
+                putstr("error\n"); \
+                return 1; \
+            } \
+            PUT(i, p_period, "r", bit); \
+        } \
         printf("\n\n"); \
     } while (0)
 
 int main(const char *args) {
 
     putstr("\nmem test start!\n");
-    printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
+    // printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
 
     TEST(64, 9876789, uint64_t);
     // TEST(32, 124321,  uint32_t);
