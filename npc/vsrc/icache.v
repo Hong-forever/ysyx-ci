@@ -87,16 +87,11 @@ module ysyx_25110270_icache
                         nstate = MISS;
                     end
                 end
-                WRITE: begin
-                    hit = 1'b0;
-                    miss = 1'b0;
-                    nstate = IDLE;
-                end
                 MISS: begin
                     hit = 1'b0;
                     miss = 1'b1;
                     if(I_valid & I_wr) begin
-                        nstate = WRITE;
+                        nstate = IDLE;
                     end else begin
                         nstate = MISS;
                     end
@@ -118,7 +113,7 @@ module ysyx_25110270_icache
                 valid_mem[i] <= 0;
                 tag_mem[i] <= 0;
             end
-        end else if(state == WRITE) begin
+        end else if(I_valid && I_wr) begin
             data_mem[index] <= I_wdata; // 简化为写入同一数据
             tag_mem[index] <= tag;
             valid_mem[index] <= 1'b1;
