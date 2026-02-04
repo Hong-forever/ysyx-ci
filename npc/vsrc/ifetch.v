@@ -144,7 +144,7 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .I_wr                   (ibus_rvalid                ),
         .I_wdata                (ibus_rdata                 ),
-        .I_valid                (inst_reqvalid              ),
+        .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
         .O_miss                 (cache_miss                 )
