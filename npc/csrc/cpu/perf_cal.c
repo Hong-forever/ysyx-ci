@@ -137,7 +137,7 @@ void perf_cal() {
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
 
     printf("\n===== MEM Average Delay =====\n");
-    printf("Inst Delay   : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)g_nr_guest_inst : 0);
+    printf("Inst Delay   : %.2f\n", (double)if_delay_total / (double)g_nr_guest_inst);
     printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
 
     printf("\n==================================\n");
