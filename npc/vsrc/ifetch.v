@@ -70,6 +70,7 @@ module ysyx_25110270_ifetch
 
     reg inst_reqvalid;
     reg inst_arvalid;
+    reg miss_reg;
 
     reg  [31:0] pc;
     wire [31:0] inst, cache_data;
@@ -88,8 +89,10 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_reqvalid <= 1'b0;
+            miss_reg <= 1'b0;
         end else begin
             inst_reqvalid <= inst_reqvalid_next;
+            miss_reg <= cache_miss;
         end
     end
 
@@ -98,7 +101,7 @@ module ysyx_25110270_ifetch
             inst_arvalid <= 1'b0;
         end else if(ibus_arvalid && ibus_arready) begin
             inst_arvalid <= 1'b0;
-        end else if(cache_miss) begin
+        end else if(cache_miss & ~miss_reg) begin
             inst_arvalid <= 1'b1;
         end
     end
