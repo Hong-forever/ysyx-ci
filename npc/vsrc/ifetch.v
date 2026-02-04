@@ -59,16 +59,21 @@ module ysyx_25110270_ifetch
     // 变量定义
     //------------------------------------------------------------------------
 
-    parameter IDLE = 0;
-    parameter MEM = 1;
-    parameter EXE = 2;
+    parameter IDLE  = 2'b00;
+    parameter CACHE = 2'b01;
+    parameter MISS  = 2'b10;
+    parameter EXE   = 2'b11;
+
     reg [1:0] state, nstate;
 
+    wire cache_valid, cache_miss;
+
+    reg inst_reqvalid;
     reg inst_arvalid;
 
-    reg [31:0] pc;
-    wire [31:0] pc_plus4;
-    wire [31:0] npc;
+    reg  [31:0] pc;
+    wire [31:0] inst, cache_data;
+    wire [31:0] npc, pc_plus4;
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -78,13 +83,23 @@ module ysyx_25110270_ifetch
         end
     end
 
-    wire inst_arvalid_next = (state == IDLE && ~ibus_arready) || I_valid;
+    wire inst_reqvalid_next = (state == IDLE) || I_valid;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_reqvalid <= 1'b0;
+        end else begin
+            inst_reqvalid <= inst_reqvalid_next;
+        end
+    end
 
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_arvalid <= 1'b0;
-        end else begin
-            inst_arvalid <= inst_arvalid_next;
+        end else if(ibus_arvalid && ibus_arready) begin
+            inst_arvalid <= 1'b0;
+        end else if(cache_miss) begin
+            inst_arvalid <= 1'b1;
         end
     end
 
@@ -94,10 +109,13 @@ module ysyx_25110270_ifetch
         end else begin
             case(state)
                 IDLE: begin
-                    nstate = ibus_arready ? MEM : IDLE;
+                    nstate = inst_reqvalid ? CACHE : IDLE;
                 end
-                MEM: begin
-                    nstate = ibus_rvalid ? EXE : MEM;
+                CACHE: begin
+                    nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
+                end
+                MISS: begin
+                    nstate = ibus_rvalid ? EXE : MISS;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
@@ -108,6 +126,26 @@ module ysyx_25110270_ifetch
             endcase
         end
     end
+
+    ysyx_25110270_icache 
+    #(
+        .ADDR_WIDTH             (32                         ),
+        .DATA_WIDTH             (32                         ),
+        .SET_NUM                (16                         ),
+        .N_WAYS                 (1                          ),
+        .BLOCK_SIZE             (4                          )
+    ) icache
+    (
+        .clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .I_addr                 (pc                         ),
+        .I_wr                   (ibus_rvalid                ),
+        .I_wdata                (ibus_rdata                 ),
+        .I_valid                (inst_reqvalid              ),
+        .O_data                 (cache_data                 ),
+        .O_valid                (cache_valid                ),
+        .O_miss                 (cache_miss                 )
+    );
 
 `ifdef DEBUG
     always @(posedge clk) begin
@@ -140,15 +178,6 @@ module ysyx_25110270_ifetch
     end
 `endif
 
-    reg [`InstBus] inst;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst <= 0;
-        end else if(ibus_rvalid && ibus_rready) begin
-            inst <= ibus_rdata;
-        end
-    end
-
     reg inst_rready;
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -166,6 +195,7 @@ module ysyx_25110270_ifetch
                  pc;
     
     assign pc_plus4 = pc + 32'h4;
+    assign inst = cache_valid ? cache_data : ibus_rdata;
 
     reg inst_valid;
     always @(posedge clk) begin
@@ -173,7 +203,7 @@ module ysyx_25110270_ifetch
             inst_valid <= 1'b0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(ibus_rvalid && ibus_rready) begin
+        end else if(ibus_rvalid && ibus_rready || cache_valid) begin
             inst_valid <= 1'b1;
         end
     end
