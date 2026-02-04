@@ -63,18 +63,21 @@ include $(NPC_HOME)/scripts/difftest.mk
 
 IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
-NPC_EXEC := $(BIN) $(IMG)
-
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-sim: $(NPC_EXEC)
+sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
 else
 	$(BIN) $(ARGS) $(IMG)
 endif
+
+perf: 
+	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
+	make -C $(AM_HOME)/am-kernels/tests/cpu-tests ARCH=riscv32e-npc run
+
 
 $(shell mkdir -p $(BUILD_DIR))
 
