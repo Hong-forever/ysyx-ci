@@ -1,3 +1,4 @@
+.DEFAULT_GOAL := all
 
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
@@ -141,9 +142,7 @@ else
 run: sim
 endif
 
-default: all
 all: run
-
 
 include $(NPC_HOME)/scripts/config.mk
 include $(NPC_HOME)/scripts/yosys_sta.mk
