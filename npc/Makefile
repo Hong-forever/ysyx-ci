@@ -146,9 +146,9 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 
 ifeq ($(WAVE_ENABLE),1)
-run: sim view_wave
+run: clean sim view_wave
 else
-run: sim
+run: clean sim
 endif
 
 all: run
