@@ -76,7 +76,7 @@ endif
 
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(NPC_HOME)/../am-kernels/tests/cpu-tests ARCH=riscv32e-npc run ALL=dummy
+	make -C $(NPC_HOME)/../am-kernels/tests/cpu-tests ARCH=riscv32e-npc run ALL=crc32
 
 
 $(shell mkdir -p $(BUILD_DIR))

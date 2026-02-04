@@ -26,7 +26,7 @@ Inst_buf inst_buffer[5];
 Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
-uint64_t ls_delay_total, delay_begin, delay_end;
+uint64_t if_delay_total, ls_delay_total;
 
 uint64_t total_cycle;
 extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
@@ -41,6 +41,17 @@ extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
     inst_buffer[ifu_inst%5].pc = pc;
     inst_buffer[ifu_inst%5].begin = rdtime();
     ifu_inst++;
+}
+
+extern "C" void ifetch_delay_cal(int begin_flag, int end_flag) {
+    static uint64_t delay_begin, delay_end;
+    if(begin_flag) {
+        delay_begin = rdtime();
+    }
+    if(end_flag) {
+        delay_end = rdtime();
+        if_delay_total += (delay_end - delay_begin + 1);
+    }
 }
 
 extern "C" void decoder_inst_type_cal(int inst_type, int pc) {
@@ -63,6 +74,7 @@ extern "C" void ls_data_cal() {
 }
 
 extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
+    static uint64_t delay_begin, delay_end;
     if(begin_flag) {
         delay_begin = rdtime();
     }
@@ -124,7 +136,8 @@ void perf_cal() {
     printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
 
-    printf("\n===== L/S Average Delay =====\n");
+    printf("\n===== MEM Average Delay =====\n");
+    printf("Inst Delay   : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)g_nr_guest_inst : 0);
     printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
 
     printf("\n==================================\n");
