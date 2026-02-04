@@ -200,17 +200,6 @@ module ysyx_25110270_ifetch
     assign pc_plus4 = pc + 32'h4;
     assign inst = cache_valid ? cache_data : ibus_rdata;
 
-    reg inst_valid;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if(ibus_rvalid && ibus_rready || cache_valid) begin
-            inst_valid <= 1'b1;
-        end
-    end
-
     reg ready;
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -224,7 +213,7 @@ module ysyx_25110270_ifetch
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = inst_valid;
+    assign O_valid = ibus_rvalid | cache_valid;
     assign O_ready = ready;
     
     assign ibus_awvalid = 1'b0;
@@ -255,7 +244,7 @@ module ysyx_25110270_ifetch
     import "DPI-C" function void ifetch_delay_cal(input int begin_flag, input int end_flag);
 
     always @(posedge clk) begin
-        if(inst_valid && (|inst) && (|pc)) begin
+        if(O_valid && (|inst) && (|pc)) begin
             ifetch_inst_get_nr_cal(inst, pc);
         end
     end
