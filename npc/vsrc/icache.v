@@ -110,7 +110,7 @@ module ysyx_25110270_icache
         end
     end
 
-    integer i, j;
+    integer i;
     always @(posedge clk) begin
         if(!rst_n) begin
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
