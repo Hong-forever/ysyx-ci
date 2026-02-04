@@ -1,3 +1,4 @@
+.DEFAULT_GOAL := all
 
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
@@ -8,7 +9,7 @@ USE_NVBOARD = 0
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
 # else
-WAVE_ENABLE = 1
+WAVE_ENABLE = 0
 # endif
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
@@ -35,6 +36,9 @@ VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 8
 VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
+ifeq ($(SOC),1)
+VERILATOR_CFLAGS += -DSOC=1
+endif
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
@@ -62,18 +66,21 @@ include $(NPC_HOME)/scripts/difftest.mk
 
 IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
-NPC_EXEC := $(BIN) $(IMG)
-
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-sim: $(NPC_EXEC)
+sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
 else
 	$(BIN) $(ARGS) $(IMG)
 endif
+
+perf: 
+	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
+	make -C $(NPC_HOME)/../am-kernels/tests/cpu-tests ARCH=riscv32e-ysyxsoc run ALL=crc32
+
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -122,6 +129,9 @@ CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
+ifeq ($(SOC),1)
+CXXFLAGS += -DSOC=1
+endif
 
 # CXXFLAGS += -fpermissive
 
@@ -134,7 +144,6 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-all: run
 
 ifeq ($(WAVE_ENABLE),1)
 run: sim view_wave
@@ -142,7 +151,7 @@ else
 run: sim
 endif
 
-
+all: run
 
 include $(NPC_HOME)/scripts/config.mk
 include $(NPC_HOME)/scripts/yosys_sta.mk

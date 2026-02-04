@@ -37,6 +37,12 @@ int main(int argc, char *argv[])
 
     init_monitor(argc, argv);
 
+#ifdef SOC
+    printf("SIMULATOR is running in SOC mode! Reset vector: 0x%08x\n", RESET_VECTOR);
+#else
+    printf("SIMULATOR is running in NPC mode! Reset vector: 0x%08x\n", RESET_VECTOR);
+#endif
+
     cpu_reset(20);
 
     engine_start();

@@ -219,11 +219,37 @@ module ysyx_25110270_ifetch
 
 `ifdef PERF
     import "DPI-C" function void ifetch_inst_get_nr_cal(input int inst, input int pc);
+    import "DPI-C" function void ifetch_delay_cal(input int begin_flag, input int end_flag);
 
     always @(posedge clk) begin
         if(inst_valid && (|inst) && (|pc)) begin
             ifetch_inst_get_nr_cal(inst, pc);
         end
+    end
+
+    reg begin_flag_r;
+    wire begin_flag = ibus_arvalid;
+    wire end_flag   = ibus_rvalid && ibus_rready;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            begin_flag_r <= 1'b0;
+        end else begin
+            begin_flag_r <= begin_flag;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(begin_flag && ~begin_flag_r) begin
+            ifetch_delay_cal(1, 0);
+        end else if(end_flag) begin
+            ifetch_delay_cal(0, 1);
+        end
+        // if(begin_flag && ~begin_flag_r && pc != `RESET_VECTOR) begin
+        //     ifetch_delay_cal(1, 0);
+        // end else if(end_flag && pc != `RESET_VECTOR) begin
+        //     ifetch_delay_cal(0, 1);
+        // end
     end
 `endif
 

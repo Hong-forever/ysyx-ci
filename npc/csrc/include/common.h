@@ -19,8 +19,10 @@ typedef uint32_t paddr_t;
 typedef uint32_t vaddr_t;
 typedef uint32_t word_t;
 
-
+#ifdef SOC
+#define RESET_VECTOR (CONFIG_FLASH_BASE + CONFIG_PC_RESET_OFFSET)
+#else
 #define RESET_VECTOR (CONFIG_SDRAM_BASE + CONFIG_PC_RESET_OFFSET)
-
+#endif
 
 #endif
