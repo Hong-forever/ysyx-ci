@@ -240,9 +240,9 @@ module ysyx_25110270_ifetch
     end
 
     always @(posedge clk) begin
-        if(begin_flag && ~begin_flag_r) begin
+        if(begin_flag && ~begin_flag_r && pc != `RESET_VECTOR) begin
             ifetch_delay_cal(1, 0);
-        end else if(end_flag) begin
+        end else if(end_flag && pc != `RESET_VECTOR) begin
             ifetch_delay_cal(0, 1);
         end
     end
