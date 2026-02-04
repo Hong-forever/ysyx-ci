@@ -271,7 +271,7 @@ module ysyx_25110270_ifetch
     end
 
     reg begin_flag_r;
-    wire begin_flag = ibus_arvalid;
+    wire begin_flag = ibus_arvalid || cache_valid;
     wire end_flag   = ibus_rvalid && ibus_rready;
 
     always @(posedge clk) begin
@@ -283,7 +283,7 @@ module ysyx_25110270_ifetch
     end
 
     always @(posedge clk) begin
-        if(begin_flag && ~begin_flag_r) begin
+        if(begin_flag && !begin_flag_r) begin
             ifetch_delay_cal(1, 0);
         end else if(end_flag) begin
             ifetch_delay_cal(0, 1);

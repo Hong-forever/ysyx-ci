@@ -31,8 +31,7 @@ module ysyx_25110270_icache
 
     parameter IDLE = 2'b00;
     parameter READ = 2'b01;
-    parameter WRITE= 2'b10;
-    parameter MISS = 2'b11;
+    parameter MISS = 2'b10;
 
     // 存储器定义
     reg [TAG_WIDTH-1:0] tag_mem [0:SET_NUM*N_WAYS-1];
