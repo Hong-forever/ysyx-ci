@@ -134,7 +134,6 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-all: run
 
 ifeq ($(WAVE_ENABLE),1)
 run: sim view_wave
@@ -142,6 +141,8 @@ else
 run: sim
 endif
 
+default: all
+all: run
 
 
 include $(NPC_HOME)/scripts/config.mk
