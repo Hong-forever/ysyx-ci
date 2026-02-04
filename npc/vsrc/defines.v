@@ -7,6 +7,7 @@
 `define PERF
 `define DEBUG
 // `define LFSR
+// `define SOC //no verilog macro define here, define it in Makefile
 
 `define RAMDOM_WIDTH 8
 
@@ -312,4 +313,8 @@
 `define SdramAddrBase 32'ha000_0000
 `define SdramSize     32'h2000_0000
 
-`define RESET_VECTOR  `FlashAddrBase
+`ifdef SOC
+    `define RESET_VECTOR  `FlashAddrBase
+`else
+    `define RESET_VECTOR  `SdramAddrBase
+`endif

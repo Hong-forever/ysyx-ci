@@ -189,6 +189,16 @@ module ysyx_25110270_wbu
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
 
+    `ifdef SOC
+        initial begin
+            $display("Verilog SOC is enabled!, reset vector: %h", `RESET_VECTOR);
+        end
+    `else 
+        initial begin
+            $display("Verilog NPC is enabled!, reset vector: %h", `RESET_VECTOR);
+        end
+    `endif
+
     import "DPI-C" function void trap(input int reg_data, input int halt_pc);
 
     import "DPI-C" function void cpu_value(input int diff_skip, input int valid, input int inst, input int inst_addr, input int pc, 

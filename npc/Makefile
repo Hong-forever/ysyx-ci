@@ -36,6 +36,9 @@ VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 8
 VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
+ifeq ($(SOC),1)
+VERILATOR_CFLAGS += -DSOC=1
+endif
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
@@ -76,7 +79,7 @@ endif
 
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(NPC_HOME)/../am-kernels/tests/cpu-tests ARCH=riscv32e-npc run ALL=crc32
+	make -C $(NPC_HOME)/../am-kernels/tests/cpu-tests ARCH=riscv32e-syxsoc run ALL=crc32
 
 
 $(shell mkdir -p $(BUILD_DIR))
@@ -126,6 +129,9 @@ CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
+ifeq ($(SOC),1)
+CXXFLAGS += -DSOC=1
+endif
 
 # CXXFLAGS += -fpermissive
 
