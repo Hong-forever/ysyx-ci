@@ -191,11 +191,11 @@ module ysyx_25110270_wbu
 
     `ifdef SOC
         initial begin
-            $display("Verilog enabled SOC! Reset vector: 0x%h", `RESET_VECTOR);
+            $display("VERILOG enabled SOC! Reset vector: 0x%h", `RESET_VECTOR);
         end
     `else 
         initial begin
-            $display("Verilog enabled NPC! Reset vector: 0x%h", `RESET_VECTOR);
+            $display("VERILOG enabled NPC! Reset vector: 0x%h", `RESET_VECTOR);
         end
     `endif
 
