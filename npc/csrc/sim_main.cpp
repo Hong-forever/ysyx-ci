@@ -1,6 +1,7 @@
 #include "common.h"
 #include "utils.h"
 
+
 void cpu_reset(int n);
 void init_monitor(int argc, char *argv[]);
 void engine_start();
@@ -38,9 +39,9 @@ int main(int argc, char *argv[])
     init_monitor(argc, argv);
 
 #if WAVE_ENABLE == 1
-    printf("Waveform: " COLOR_GREEN "%s" COLOR_END "\n", "ON");
+    printf("Waveform generation " COLOR_GREEN "%s" COLOR_END "\n", "ON");
 #else
-    printf("Waveform: " COLOR_RED "%s" COLOR_END "\n", "OFF");
+    printf("Waveform generation " COLOR_RED "%s" COLOR_END "\n", "OFF");
 #endif
 
 #ifdef SOC
