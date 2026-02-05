@@ -285,11 +285,11 @@ module ysyx_25110270_ifetch
 
     always @(posedge clk) begin
         if(cache_valid) begin
-            iamat(1, 0, 0, 0);
+            iamat_cal(1, 0, 0, 0);
         end else if(begin_flag && !begin_flag_r) begin
-            iamat(0, 1, 1, 0);
+            iamat_cal(0, 1, 1, 0);
         end else if(end_flag) begin
-            iamat(0, 1, 0, 1);
+            iamat_cal(0, 1, 0, 1);
         end
     end
 
