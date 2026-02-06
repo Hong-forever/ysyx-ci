@@ -1,5 +1,4 @@
 #include "common.h"
-#include "utils.h"
 
 
 void cpu_reset(int n);
@@ -37,12 +36,6 @@ int main(int argc, char *argv[])
 #endif
 
     init_monitor(argc, argv);
-
-#if WAVE_ENABLE == 1
-    printf("Waveform generation " COLOR_GREEN "%s" COLOR_END "\n", "ON");
-#else
-    printf("Waveform generation " COLOR_RED "%s" COLOR_END "\n", "OFF");
-#endif
 
 #ifdef SOC
     printf("SIMULATOR is running in SOC mode! Reset vector: 0x%08x\n", RESET_VECTOR);
