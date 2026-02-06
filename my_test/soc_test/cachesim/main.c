@@ -70,7 +70,7 @@ int parse_args(int argc, char *argv[], CmdArgs *args) {
                 printf("Options:\n");
                 printf("  -t, --trace FILE        Trace file (default: trace.txt)\n");
                 printf("  -y, --type TYPE         Cache type: icache/dcache/unified\n");
-                printf("  -s, --size KB           Cache size in KB (default: 32)\n");
+                printf("  -s, --size KB           Cache size in B (default: 32)\n");
                 printf("  -w, --ways N            Associativity (default: 4)\n");
                 printf("  -b, --block BYTES       Block size in bytes (default: 64)\n");
                 printf("  -p, --policy POLICY     Replacement policy: lru/fifo/random (default: lru)\n");
