@@ -136,7 +136,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     static FILE *itrace_fp = NULL;
         
     if (itrace_fp == NULL) {
-        itrace_fp = fopen("/tmp/nemu_itrace_pc.txt", "w");
+        itrace_fp = fopen("/tmp/nemu_itrace_pc.bin", "wb");
         if (itrace_fp == NULL) {
             perror("Failed to open itrace file");
         }
@@ -144,7 +144,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     
     if (itrace_fp != NULL) {
         // 写入PC值（十六进制）
-        fprintf(itrace_fp, "0x%08x\n", pc);
+        fwrite(&cpu.pc, sizeof(vaddr_t), 1, itrace_fp);
         
         // 定期flush防止数据丢失
         static int count = 0;
