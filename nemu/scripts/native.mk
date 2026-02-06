@@ -37,6 +37,10 @@ run: run-env
 	$(call git_commit, "run NEMU")
 	$(NEMU_EXEC)
 
+cache: run-env
+	$(call git_commit, "run NEMU for cache")
+	$(BINARY) $(ARGS) -b IMG=$(AM_HOME)/../am_kernels/tests/cpu-tests/crc32.bin
+
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
