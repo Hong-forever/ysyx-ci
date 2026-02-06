@@ -6,7 +6,7 @@
 
 // Cache配置参数
 typedef struct {
-    uint32_t size_kb;      // Cache大小(KB)
+    uint32_t size_byte;        // Cache大小(字节)
     uint32_t ways;         // 相联度
     uint32_t block_size;   // 块大小(字节)
     uint32_t sets;         // 组数（自动计算）
@@ -46,10 +46,7 @@ void cachesim_reset_stats(CacheSim *cache);
 uint64_t cachesim_calculate_miss_penalty(uint32_t block_size, bool is_dram);
 double cachesim_estimate_tmt(CacheSim *cache, double clock_freq);
 
-
-int process_text_trace(const char *filename, CacheSim *cache);
 int process_binary_trace(const char *filename, CacheSim *cache);
-int process_compressed_trace(const char *filename, CacheSim *cache);
 #endif
 
 

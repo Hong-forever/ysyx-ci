@@ -19,9 +19,6 @@ clean:
 	rm -f $(TARGET) $(OBJS)
 
 run: $(TARGET)
-	./$(TARGET) --trace test_trace.txt --size 32 --ways 4 --block 64 --policy lru --icache
+	./$(TARGET) --trace /tmp/nemu_itrace_pc.bin --size 64 --ways 1 --block 4 --policy lru --icache
 
-test_batch: $(TARGET)
-	./$(TARGET) --trace batch
-
-.PHONY: all clean run test_batch
+.PHONY: all clean run
