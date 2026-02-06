@@ -22,7 +22,7 @@ CacheSim* cachesim_create(CacheConfig *config) {
     cache->config = *config;
     
     // 计算组数
-    uint32_t total_bytes = config->size_kb * 1024;
+    uint32_t total_bytes = config->size_byte;
     uint32_t block_bytes = config->block_size;
     uint32_t lines_per_set = config->ways;
     uint32_t total_lines = total_bytes / block_bytes;
@@ -229,7 +229,7 @@ void cachesim_print_stats(CacheSim *cache) {
     
     printf("\n========== Cache Simulator Statistics ==========\n");
     printf("Configuration:\n");
-    printf("  Size:           %u KB\n", cache->config.size_kb);
+    printf("  Size:           %u B\n", cache->config.size_byte);
     printf("  Associativity:  %u-way\n", cache->config.ways);
     printf("  Block size:     %u bytes\n", cache->config.block_size);
     printf("  Sets:           %u\n", cache->config.sets);
