@@ -43,7 +43,7 @@ gdb: run-env
 
 cache: run-env
 	$(call git_commit, "run NEMU for cache sim")
-	$(BINARY) $(ARGS) -b $(AM_HOME)/../am-kernels/tests/cpu-tests/build/crc32-riscv32e-ysyxsoc.bin
+	$(BINARY) $(ARGS) -b $(AM_HOME)/../am-kernels/tests/cpu-tests/build/add-riscv32e-ysyxsoc.bin
 
 clean-tools = $(dir $(shell find ./tools -maxdepth 2 -mindepth 2 -name "Makefile"))
 $(clean-tools):
