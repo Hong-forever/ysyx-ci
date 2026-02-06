@@ -51,7 +51,7 @@ module ysyx_25110270_wbu
     input   wire                        I_device_skip
 );
     // registers for DPI
-    wire [`RegDataBus] gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7, gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15, gpr16, gpr17, gpr18, gpr19, gpr20, gpr21, gpr22, gpr23, gpr24, gpr25, gpr26, gpr27, gpr28, gpr29, gpr30, gpr31;   //寄存器组
+    wire [`RegDataBus] gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7, gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15, gpr16;   //寄存器组
 
     // csr reg output for dpi
     wire [`CSRDataBus] csr_mtvec;
