@@ -3,7 +3,6 @@
 extern char _heap_start, _heap_end;
 int main(const char *args);
 
-extern char _edata;
 
 Area heap = RANGE(&_heap_start, &_heap_end);
 static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
@@ -47,7 +46,6 @@ void _trm_init()
     // printf("Student Number: ysyx_%x\n", stu_num);
     // printf("Name: %s\n", "HUANG HAIHONG");
     // printf("========================================\n");
-    printf("%d\n", _edata);
     
     int ret = main(mainargs);
     halt(ret);
