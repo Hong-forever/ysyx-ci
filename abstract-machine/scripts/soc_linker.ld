@@ -41,9 +41,10 @@ SECTIONS {
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    _sdata = .;
+    _sdata = ALIGN(4);
     *(.data*)
-    _edata = .;
+    *(.sdata*)
+    _edata = ALIGN(4);
   } > sdram AT>flash : data
 
   _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
