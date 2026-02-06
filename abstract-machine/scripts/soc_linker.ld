@@ -43,7 +43,6 @@ SECTIONS {
   .data : {
     _sdata = ALIGN(4);
     *(.data*)
-    *(.sdata*)
     _edata = .;
   } > sdram AT>flash : data
 
