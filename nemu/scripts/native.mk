@@ -43,7 +43,7 @@ gdb: run-env
 
 cache: run-env
 	$(call git_commit, "run NEMU for cache sim")
-	$(NEMU_EXEC)
+	$(BINARY) $(ARGS) -b $(IMG)
 
 clean-tools = $(dir $(shell find ./tools -maxdepth 2 -mindepth 2 -name "Makefile"))
 $(clean-tools):
