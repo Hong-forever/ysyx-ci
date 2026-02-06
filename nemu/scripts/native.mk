@@ -28,7 +28,7 @@ override ARGS ?= --log=$(BUILD_DIR)/nemu-log.txt
 override ARGS += $(ARGS_DIFF)
 
 # Command to execute NEMU
-IMG ?= $(AM_HOME)/../am-kernels/tests/cpu-tests/build/crc32-riscv32e-ysyxsoc.bin
+IMG ?= 
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 run-env: $(BINARY) $(DIFF_REF_SO)
@@ -43,7 +43,7 @@ gdb: run-env
 
 cache: run-env
 	$(call git_commit, "run NEMU for cache sim")
-	$(BINARY) $(ARGS) -b $(IMG)
+	$(BINARY) $(ARGS) -b $(AM_HOME)/../am-kernels/tests/cpu-tests/build/crc32-riscv32e-ysyxsoc.bin
 
 clean-tools = $(dir $(shell find ./tools -maxdepth 2 -mindepth 2 -name "Makefile"))
 $(clean-tools):
