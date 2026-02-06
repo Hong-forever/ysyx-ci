@@ -257,15 +257,7 @@ void cachesim_print_stats(CacheSim *cache) {
         printf("  Read hit rate:  %.2f%%\n", 
                100.0 * cache->read_hit / cache->read_count);
     }
-    
-    // if (cache->write_count > 0) {
-    //     printf("  Write hit rate: %.2f%%\n", 
-    //            100.0 * cache->write_hit / cache->write_count);
-    // }
-    
-    // if (!cache->config.is_icache) {
-    //     printf("  Write backs:    %lu\n", cache->write_backs);
-    // }
+   
     
     printf("================================================\n");
 }

@@ -158,7 +158,7 @@ module ysyx_25110270_ifetch
         .DATA_WIDTH             (32                         ),
         .SET_NUM                (16                         ),
         .N_WAYS                 (1                          ),
-        .BLOCK_SIZE             (4                          )
+        .BLOCK_SIZE             (8                          )
     ) icache
     (
         .clk                    (clk                        ),
@@ -166,6 +166,7 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .I_wr                   (ibus_rvalid                ),
         .I_wdata                (ibus_rdata                 ),
+        .I_wlast                (1'b1                       ),
         .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
