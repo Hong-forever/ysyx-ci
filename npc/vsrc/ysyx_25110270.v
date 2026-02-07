@@ -276,20 +276,32 @@ module ysyx_25110270
         .awvalid_i              (clint_awvalid              ),
         .awready_o              (clint_awready              ),
         .awaddr_i               (clint_awaddr               ),
+        .awid_i                 (clint_awid                 ),
+        .awlen_i                (clint_awlen                ),
+        .awsize_i               (clint_awsize               ),
+        .awburst_i              (clint_awburst              ),
         .wvalid_i               (clint_wvalid               ),
         .wready_o               (clint_wready               ),
         .wdata_i                (clint_wdata                ),
         .wstrb_i                (clint_wstrb                ),
+        .wlast_i                (clint_wlast                ),
         .bvalid_o               (clint_bvalid               ),
         .bready_i               (clint_bready               ),
         .bresp_o                (clint_bresp                ),
+        .bid_o                  (clint_bid                  ),
         .arvalid_i              (clint_arvalid              ),
         .arready_o              (clint_arready              ),
         .araddr_i               (clint_araddr               ),
+        .arid_i                 (clint_arid                 ),
+        .arlen_i                (clint_arlen                ),
+        .arsize_i               (clint_arsize               ),
+        .arburst_i              (clint_arburst              ),
         .rvalid_o               (clint_rvalid               ),
         .rready_i               (clint_rready               ),
         .rdata_o                (clint_rdata                ),
-        .rresp_o                (clint_rresp                )
+        .rresp_o                (clint_rresp                ),
+        .rlast_o                (clint_rlast                ),
+        .rid_o                  (clint_rid                  )
     );
 
     assign io_slave_awready = 1'b0;
