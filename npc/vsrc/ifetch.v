@@ -205,11 +205,11 @@ module ysyx_25110270_ifetch
     reg inst_rready;
     always @(posedge clk) begin
         if(!rst_n) begin
-            inst_rready <= 1'b1;
-        end else if(ibus_rvalid && ibus_rready) begin
             inst_rready <= 1'b0;
-        end else begin
+        end else if(ibus_rvalid && !ibus_rready) begin
             inst_rready <= 1'b1;
+        end else begin
+            inst_rready <= 1'b0;
         end
     end
 
