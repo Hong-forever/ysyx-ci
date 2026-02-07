@@ -14,5 +14,5 @@
 /fceux-am
 /am-kernels
 /nvboard
-# /rt-thread-am/
-# /ysyxSoC/
+/rt-thread-am/
+/ysyxSoC/

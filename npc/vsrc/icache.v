@@ -41,13 +41,15 @@ module ysyx_25110270_icache
 
     wire [TAG_WIDTH-1:0]               tag;      // 标签位
     wire [SET_WIDTH-1:0]               index;    // 组索引
-    wire [BLOCK_WIDTH-1:0]               offset;   // 块内字偏移
+    wire [BLOCK_WIDTH-1:0]             offset;   // 块内字偏移
 
     assign tag     = I_addr[ADDR_WIDTH-1 : SET_WIDTH + BLOCK_WIDTH + 2];
     assign index   = I_addr[SET_WIDTH + BLOCK_WIDTH + 1 : BLOCK_WIDTH + 2];
+    assign offset  = I_addr[BLOCK_WIDTH + 1 : 2];
 
 
     reg [1:0] state, nstate;
+    reg [BLOCK_WIDTH-1:0] cnt;
 
     reg hit;
     reg miss;
@@ -107,10 +109,12 @@ module ysyx_25110270_icache
                     data_mem[i][j] <= 0;
                 end
             end
+            cnt <= 0;
         end else if(I_valid && I_wr) begin
-            data_mem[index][offset] <= I_wdata;
+            data_mem[index][cnt] <= I_wdata;
             tag_mem[index] <= tag;
             valid_mem[index] <= 1'b1;
+            cnt <= I_wlast ? 0 : cnt + 1;
         end
     end
 
