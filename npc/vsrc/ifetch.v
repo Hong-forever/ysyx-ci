@@ -140,7 +140,7 @@ module ysyx_25110270_ifetch
                     nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
                 end
                 MISS: begin
-                    nstate = ibus_rvalid ? EXE : MISS;
+                    nstate = ibus_rvalid && ibus_rlast ? EXE : MISS;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
@@ -158,7 +158,7 @@ module ysyx_25110270_ifetch
         .DATA_WIDTH             (32                         ),
         .SET_NUM                (16                         ),
         .N_WAYS                 (1                          ),
-        .BLOCK_SIZE             (4                          )
+        .BLOCK_SIZE             (8                          )
     ) icache
     (
         .clk                    (clk                        ),
@@ -166,6 +166,7 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .I_wr                   (ibus_rvalid                ),
         .I_wdata                (ibus_rdata                 ),
+        .I_wlast                (ibus_rlast                 ),
         .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
@@ -252,7 +253,7 @@ module ysyx_25110270_ifetch
     assign ibus_bready = 1'b0;
 
     assign ibus_arid = 0;
-    assign ibus_arlen = 8'b0000_0000;
+    assign ibus_arlen = 8'b0000_0001;
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
