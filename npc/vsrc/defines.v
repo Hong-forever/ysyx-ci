@@ -141,7 +141,7 @@
 //------------------------------------------------------------------------
 `define RegNum 16        // reg num
 `define RegDataWidth 32
-`define RegAddrWidth $clog2(`RegNum-1)
+`define RegAddrWidth $clog2(`RegNum)
 `define RegAddrBus `RegAddrWidth-1:0
 `define RegDataBus `RegDataWidth-1:0
 
