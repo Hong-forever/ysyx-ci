@@ -40,8 +40,8 @@ ifeq ($(SOC),1)
 VERILATOR_CFLAGS += -DSOC=1
 endif
 VERILATOR_CFLAGS += -I./vsrc
-VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../my_test/soc_back/perip/uart16550/rtl) -name "*.v")))
-VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../my_test/soc_back/perip/spi/rtl) -name "*.v")))
+VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
+VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 
