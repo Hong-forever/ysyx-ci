@@ -151,7 +151,7 @@ module ysyx_25110270_arbiter
                     end
                 end
                 M0_ACCESS: begin
-                    if((M_rvalid && M0_rready && M_rlast) || (M_bvalid && M0_bready)) begin
+                    if((M_rvalid && M0_rready) || (M_bvalid && M0_bready)) begin
                         if(m1_req && m_resp) begin
                             nstate = M1_ACCESS;
                         end else begin
@@ -162,7 +162,7 @@ module ysyx_25110270_arbiter
                     end
                 end
                 M1_ACCESS: begin
-                    if((M_rvalid && M1_rready && M_rlast) || (M_bvalid && M1_bready)) begin
+                    if((M_rvalid && M1_rready) || (M_bvalid && M1_bready)) begin
                         if(m0_req && m_resp) begin
                             nstate = M0_ACCESS;
                         end else begin

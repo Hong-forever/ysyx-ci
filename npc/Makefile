@@ -53,7 +53,7 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
+	@gtkwave -o ${NPC_HOME}/build/waveform.vcd
 else
 	@gtkwave ${NPC_HOME}/build/waveform.fst
 endif

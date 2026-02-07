@@ -59,24 +59,16 @@ module ysyx_25110270_ifetch
     // 变量定义
     //------------------------------------------------------------------------
 
-    parameter IDLE  = 2'b00;
-    parameter CACHE = 2'b01;
-    parameter MISS  = 2'b10;
-    parameter EXE   = 2'b11;
-
+    parameter IDLE = 0;
+    parameter MEM = 1;
+    parameter EXE = 2;
     reg [1:0] state, nstate;
 
-    wire cache_valid, cache_miss;
-
-    reg inst_reqvalid;
     reg inst_arvalid;
-    reg miss_reg;
 
-    reg  [31:0] pc;
-    reg  [31:0] inst;
-    reg         inst_valid;
-    wire [31:0] cache_data;
-    wire [31:0] npc, pc_plus4;
+    reg [31:0] pc;
+    wire [31:0] pc_plus4;
+    wire [31:0] npc;
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -86,43 +78,13 @@ module ysyx_25110270_ifetch
         end
     end
 
-    wire inst_reqvalid_next = (state == IDLE) || I_valid;
+    wire inst_arvalid_next = (state == IDLE && ~ibus_arready) || I_valid;
 
     always @(posedge clk) begin
         if(!rst_n) begin
-            inst_reqvalid <= 1'b0;
-            miss_reg <= 1'b0;
+            inst_arvalid <= 1'b0;
         end else begin
-            inst_reqvalid <= inst_reqvalid_next;
-            miss_reg <= cache_miss;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_arvalid <= 1'b0;
-        end else if(ibus_arvalid && ibus_arready) begin
-            inst_arvalid <= 1'b0;
-        end else if(cache_miss & ~miss_reg) begin
-            inst_arvalid <= 1'b1;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst <= 0;
-        end else if(cache_valid) begin
-            inst <= cache_data;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if(cache_valid) begin
-            inst_valid <= 1'b1;
+            inst_arvalid <= inst_arvalid_next;
         end
     end
 
@@ -132,13 +94,10 @@ module ysyx_25110270_ifetch
         end else begin
             case(state)
                 IDLE: begin
-                    nstate = inst_reqvalid ? CACHE : IDLE;
+                    nstate = ibus_arready ? MEM : IDLE;
                 end
-                CACHE: begin
-                    nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
-                end
-                MISS: begin
-                    nstate = ibus_rvalid && ibus_rlast ? IDLE : MISS;
+                MEM: begin
+                    nstate = ibus_rvalid ? EXE : MEM;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
@@ -149,27 +108,6 @@ module ysyx_25110270_ifetch
             endcase
         end
     end
-
-    ysyx_25110270_icache 
-    #(
-        .ADDR_WIDTH             (32                         ),
-        .DATA_WIDTH             (32                         ),
-        .SET_NUM                (16                         ),
-        .N_WAYS                 (1                          ),
-        .BLOCK_SIZE             (8                          )
-    ) icache
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_addr                 (pc                         ),
-        .I_wr                   (ibus_rvalid                ),
-        .I_wdata                (ibus_rdata                 ),
-        .I_wlast                (ibus_rlast                 ),
-        .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
-        .O_data                 (cache_data                 ),
-        .O_valid                (cache_valid                ),
-        .O_miss                 (cache_miss                 )
-    );
 
 `ifdef DEBUG
     always @(posedge clk) begin
@@ -202,6 +140,15 @@ module ysyx_25110270_ifetch
     end
 `endif
 
+    reg [`InstBus] inst;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst <= 0;
+        end else if(ibus_rvalid && ibus_rready) begin
+            inst <= ibus_rdata;
+        end
+    end
+
     reg inst_rready;
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -219,6 +166,17 @@ module ysyx_25110270_ifetch
                  pc;
     
     assign pc_plus4 = pc + 32'h4;
+
+    reg inst_valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_valid <= 1'b0;
+        end else if(I_ready & inst_valid) begin
+            inst_valid <= 1'b0;
+        end else if(ibus_rvalid && ibus_rready) begin
+            inst_valid <= 1'b1;
+        end
+    end
 
     reg ready;
     always @(posedge clk) begin
@@ -251,17 +209,17 @@ module ysyx_25110270_ifetch
     assign ibus_bready = 1'b0;
 
     assign ibus_arid = 0;
-    assign ibus_arlen = 8'b0000_0001;
+    assign ibus_arlen = 8'b0000_0000;
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
-    assign ibus_araddr = {pc[31:3], 3'b000};
+    assign ibus_araddr = pc;
 
     assign ibus_rready = inst_rready;
 
 `ifdef PERF
     import "DPI-C" function void ifetch_inst_get_nr_cal(input int inst, input int pc);
-    import "DPI-C" function void iamat_cal(input int hit, input int miss, input int begin_flag, input int end_flag);
+    import "DPI-C" function void ifetch_delay_cal(input int begin_flag, input int end_flag);
 
     always @(posedge clk) begin
         if(inst_valid && (|inst) && (|pc)) begin
@@ -281,17 +239,18 @@ module ysyx_25110270_ifetch
         end
     end
 
-
     always @(posedge clk) begin
-        if(cache_valid) begin
-            iamat_cal(1, 0, 0, 0);
-        end else if(begin_flag && !begin_flag_r) begin
-            iamat_cal(0, 1, 1, 0);
+        if(begin_flag && ~begin_flag_r) begin
+            ifetch_delay_cal(1, 0);
         end else if(end_flag) begin
-            iamat_cal(0, 1, 0, 1);
+            ifetch_delay_cal(0, 1);
         end
+        // if(begin_flag && ~begin_flag_r && pc != `RESET_VECTOR) begin
+        //     ifetch_delay_cal(1, 0);
+        // end else if(end_flag && pc != `RESET_VECTOR) begin
+        //     ifetch_delay_cal(0, 1);
+        // end
     end
-
 `endif
 
 `ifndef LFSR
