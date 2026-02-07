@@ -255,7 +255,7 @@ module ysyx_25110270_ifetch
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
-    assign ibus_araddr = pc;
+    assign ibus_araddr = {pc[31:3], 3'b000};
 
     assign ibus_rready = inst_rready;
 
