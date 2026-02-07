@@ -138,7 +138,7 @@ module ysyx_25110270_ifetch
                     nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
                 end
                 MISS: begin
-                    nstate = ibus_rvalid && ibus_rready && ibus_rlast ? IDLE : MISS;
+                    nstate = ibus_rvalid && ibus_rlast ? IDLE : MISS;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
@@ -162,10 +162,10 @@ module ysyx_25110270_ifetch
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
         .I_addr                 (pc                         ),
-        .I_wr                   (ibus_rvalid & ibus_rready  ),
+        .I_wr                   (ibus_rvalid                ),
         .I_wdata                (ibus_rdata                 ),
         .I_wlast                (ibus_rlast                 ),
-        .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid & ibus_rready) ),
+        .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
         .O_miss                 (cache_miss                 )
@@ -205,11 +205,11 @@ module ysyx_25110270_ifetch
     reg inst_rready;
     always @(posedge clk) begin
         if(!rst_n) begin
-            inst_rready <= 1'b0;
-        end else if(ibus_rvalid && !ibus_rready) begin
             inst_rready <= 1'b1;
-        end else begin
+        end else if(ibus_rvalid && ibus_rready) begin
             inst_rready <= 1'b0;
+        end else begin
+            inst_rready <= 1'b1;
         end
     end
 
