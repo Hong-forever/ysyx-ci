@@ -113,8 +113,6 @@ module ysyx_25110270_ifetch
             inst <= 0;
         end else if(cache_valid) begin
             inst <= cache_data;
-        end else if(ibus_rvalid) begin
-            inst <= ibus_rdata;
         end
     end
 
@@ -123,7 +121,7 @@ module ysyx_25110270_ifetch
             inst_valid <= 0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(cache_valid | ibus_rvalid) begin
+        end else if(cache_valid) begin
             inst_valid <= 1'b1;
         end
     end
@@ -140,7 +138,7 @@ module ysyx_25110270_ifetch
                     nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
                 end
                 MISS: begin
-                    nstate = ibus_rvalid && ibus_rlast ? EXE : MISS;
+                    nstate = ibus_rvalid && ibus_rlast ? IDLE : MISS;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
