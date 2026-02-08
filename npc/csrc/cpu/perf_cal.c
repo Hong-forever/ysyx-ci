@@ -47,10 +47,12 @@ extern "C" void ifetch_delay_cal(int begin_flag, int end_flag) {
     static uint64_t delay_begin, delay_end;
     if(begin_flag) {
         delay_begin = rdtime();
+        printf("IF Delay Begin: %lu\n", delay_begin);
     }
     if(end_flag) {
         delay_end = rdtime();
         if_delay_total += (delay_end - delay_begin + 1);
+        printf("IF Delay End: %lu, Total IF Delay: %lu\n", delay_end, if_delay_total);
     }
 }
 
@@ -96,11 +98,11 @@ extern "C" void wb_inst_cycle_cal(int pc) {
                 case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; break;
                 default:                                                              break;
             }
-            // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ALU ? "ALU_ALU" : 
-            //                                                     inst_buffer[i].type == IT_LS      ? "LS"      :
-            //                                                     inst_buffer[i].type == IT_BR      ? "BR"      :
-            //                                                     inst_buffer[i].type == IT_CSR     ? "CSR"     : "UNKNOWN",
-            //                                                 cycle);
+            printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ALU ? "ALU_ALU" : 
+                                                                inst_buffer[i].type == IT_LS      ? "LS"      :
+                                                                inst_buffer[i].type == IT_BR      ? "BR"      :
+                                                                inst_buffer[i].type == IT_CSR     ? "CSR"     : "UNKNOWN",
+                                                            cycle);
             break;
         }
     }
