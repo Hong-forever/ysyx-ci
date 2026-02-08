@@ -7,7 +7,6 @@ void init_monitor(int argc, char *argv[]);
 void engine_start();
 void cleanup_ftrace();
 int is_exit_status_bad();
-void perf_reset();
 
 IFDEF(CONFIG_USE_NVBOARD, void nvboard_bind_all_pins(TOP_NAME *top));
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
@@ -52,7 +51,6 @@ int main(int argc, char *argv[])
 #endif
 
     cpu_reset(20);
-    perf_reset();
 
     engine_start();
     
