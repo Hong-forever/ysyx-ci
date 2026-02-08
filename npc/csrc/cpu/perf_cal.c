@@ -107,7 +107,20 @@ extern "C" void wb_inst_cycle_cal(int pc) {
         }
     }
 }
-
+void perf_reset() {
+    ifu_inst = 0;
+    dec_inst = 0;
+    exec_inst = 0;
+    ls_data_nr = 0;
+    total_cycle = 0;
+    if_delay_total = 0;
+    ls_delay_total = 0;
+    memset(inst_buffer, 0, sizeof(inst_buffer));
+    memset(&alu_inst_log, 0, sizeof(alu_inst_log));
+    memset(&ls_inst_log, 0, sizeof(ls_inst_log));
+    memset(&br_inst_log, 0, sizeof(br_inst_log));
+    memset(&csr_inst_log, 0, sizeof(csr_inst_log));
+}
 void perf_cal() {
 
 
