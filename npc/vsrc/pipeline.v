@@ -59,7 +59,7 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                        I_ls_valid,         // 访存有效标志
     input   wire    [`ls_diff_bus   ]   I_ls_type,          // 访存有效标志
     input   wire                        I_csr_re,
-    input   wire    [`Except_Bus    ]   I_except,           // 异常
+    input   wire    [`ExceptBus     ]   I_except,           // 异常
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
@@ -81,7 +81,7 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg                         O_ls_valid,         // 访存有效标志
     output  reg     [`ls_diff_bus   ]   O_ls_type,          // 访存有效标志
     output  reg                         O_csr_re,
-    output  reg     [`Except_Bus    ]   O_except           // 异常
+    output  reg     [`ExceptBus     ]   O_except           // 异常
 );
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -155,7 +155,7 @@ module ysyx_25110270_pipeline_ex_ls
     input   wire                        I_csr_we,           // 写CSR寄存器标志
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,        // 写CSR寄存器地址
     input   wire    [`CSRDataBus    ]   I_csr_wdata,        // 写CSR寄存器数据
-    input   wire    [`Except_Bus    ]   I_except,           // 异常
+    input   wire    [`ExceptBus     ]   I_except,           // 异常
 
     output  reg     [`InstBus       ]   O_inst,             // 指令内容
     output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
@@ -169,7 +169,7 @@ module ysyx_25110270_pipeline_ex_ls
     output  reg                         O_csr_we,           // 写CSR寄存器标志
     output  reg     [`CSRAddrBus    ]   O_csr_waddr,        // 写CSR寄存器地址
     output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`Except_Bus    ]   O_except           // 异常
+    output  reg     [`ExceptBus     ]   O_except           // 异常
 
 );
     always @(posedge clk) begin
@@ -224,7 +224,7 @@ module ysyx_25110270_pipeline_ls_wb
     input   wire                        I_csr_we,           // 写CSR寄存器标志
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,        // 写CSR寄存器地址
     input   wire    [`CSRDataBus    ]   I_csr_wdata,        // 写CSR寄存器数据
-    input   wire    [`Except_Bus    ]   I_except,           // 异常
+    input   wire    [`ExceptBus     ]   I_except,           // 异常
 
     input   wire                        I_device_skip,
 
@@ -236,7 +236,7 @@ module ysyx_25110270_pipeline_ls_wb
     output  reg                         O_csr_we,           // 写CSR寄存器标志
     output  reg     [`CSRAddrBus    ]   O_csr_waddr,        // 写CSR寄存器地址
     output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`Except_Bus    ]   O_except,           // 异常
+    output  reg     [`ExceptBus     ]   O_except,           // 异常
 
     output  wire                        O_device_skip
 
