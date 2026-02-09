@@ -26,11 +26,14 @@ _start:
 .section ssbl_entry, "ax"
 .globl _start_ssbl
 .type _start_ssbl, @function
+.globl test_smc
 
 _start_ssbl:
   la a0, _text_loadaddr
   la a1, _stext
   la a2, _etext
+
+  call test_smc
 
 .text_copy_loop:
   beq a1, a2, .text_copy_done
@@ -66,6 +69,65 @@ _start_ssbl:
 .bss_zero_done:
   la t0, _start_text
   jr t0
+
+test_smc:
+  la t0, 0x00000013
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  sw t0, 0(a1)
+  add a1, a1, 4
+  ret
+
 
 .size _start_ssbl, . - _start_ssbl
 
