@@ -138,7 +138,8 @@ void perf_cal() {
 
     double hit_per = (double)icache_hit / (double)(icache_miss + icache_hit);
     double miss_per = (double)icache_miss / (double)(icache_miss + icache_hit);
-    double iamat = (double)icache_miss_penal / (double)icache_miss * miss_per + 2 * hit_per;
+    double miss_penalty = (double)icache_miss_penal / (double)icache_miss;
+    double iamat = miss_penalty * miss_per + 2 * hit_per;
     printf("\n===== MEM Average Delay =====\n");
     printf("Inst Delay   : %.2f\n", iamat);
     printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
@@ -146,6 +147,7 @@ void perf_cal() {
     printf("\n===== IAMAT =====\n");
     printf("IAMAT        : %.2f\n", iamat);
     printf("IHIT         : %.2f%%\n", hit_per * 100);
+    printf("MISSPENALTY   : %.2f cycles\n", miss_penalty);
 
     printf("\n===== DAMAT =====\n");
     printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
