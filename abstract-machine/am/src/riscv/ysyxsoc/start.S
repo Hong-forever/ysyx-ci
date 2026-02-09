@@ -36,6 +36,7 @@ _start_ssbl:
   call test_smc
   call _start_text
   la a1, _stext
+  fence.i
 
 .text_copy_loop:
   beq a1, a2, .text_copy_done
