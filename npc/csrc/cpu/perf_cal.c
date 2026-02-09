@@ -22,7 +22,7 @@ typedef struct {
     uint64_t cycle;
 } Inst_log;
 
-Inst_buf inst_buffer[5];
+Inst_buf inst_buffer;
 Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
@@ -38,8 +38,8 @@ static inline uint64_t rdtime() {
 }
 
 extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
-    inst_buffer[ifu_inst%5].pc = pc;
-    inst_buffer[ifu_inst%5].begin = rdtime();
+    inst_buffer.pc = pc;
+    inst_buffer.begin = rdtime();
     ifu_inst++;
 }
 
@@ -57,11 +57,8 @@ extern "C" void ifetch_delay_cal(int begin_flag, int end_flag) {
 }
 
 extern "C" void decoder_inst_type_cal(int inst_type, int pc) {
-    for(int i = 0; i < 5; i++) {
-        if (inst_buffer[i].pc == pc) {
-            inst_buffer[i].type = inst_type;
-            break;
-        }
+    if (inst_buffer.pc == pc) {
+        inst_buffer.type = inst_type;
     }
     dec_inst++;
     // printf("Decoder Cal: inst_type=0x%x, total %lu\n", inst_type, dec_inst);
@@ -88,23 +85,20 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
 
 extern "C" void wb_inst_cycle_cal(int pc) {
     uint64_t end = rdtime();
-    for(int i = 0; i < 5; i++) {
-        if (inst_buffer[i].pc == pc) {
-            uint64_t cycle = end - inst_buffer[i].begin + 1;
-            switch (inst_buffer[i].type) {
-                case IT_ALU_ALU: alu_inst_log.inst_nr++; alu_inst_log.cycle += cycle, printf("alu, pc == 0x%08x\n", pc); assert(cycle == 5); break;
-                case IT_LS:      ls_inst_log.inst_nr++;  ls_inst_log.cycle  += cycle; break;
-                case IT_BR:      br_inst_log.inst_nr++;  br_inst_log.cycle  += cycle; printf("br, pc == 0x%08x\n", pc); assert(cycle == 5); break;
-                case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; printf("csr, pc == 0x%08x\n", pc); assert(cycle == 5); break;
-                default:                                                              break;
-            }
+    if (inst_buffer.pc == pc) {
+        uint64_t cycle = end - inst_buffer.begin + 1;
+        switch (inst_buffer.type) {
+            case IT_ALU_ALU: alu_inst_log.inst_nr++; alu_inst_log.cycle += cycle, printf("alu, pc == 0x%08x\n", pc); assert(cycle == 5); break;
+            case IT_LS:      ls_inst_log.inst_nr++;  ls_inst_log.cycle  += cycle; break;
+            case IT_BR:      br_inst_log.inst_nr++;  br_inst_log.cycle  += cycle; printf("br, pc == 0x%08x\n", pc); assert(cycle == 5); break;
+            case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; printf("csr, pc == 0x%08x\n", pc); assert(cycle == 5); break;
+            default:                                                              break;
+        }
             // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ALU ? "ALU_ALU" : 
             //                                                     inst_buffer[i].type == IT_LS      ? "LS"      :
             //                                                     inst_buffer[i].type == IT_BR      ? "BR"      :
             //                                                     inst_buffer[i].type == IT_CSR     ? "CSR"     : "UNKNOWN",
             //                                                 cycle);
-            break;
-        }
     }
 }
 
