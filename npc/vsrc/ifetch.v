@@ -113,8 +113,6 @@ module ysyx_25110270_ifetch
             inst <= 0;
         end else if(cache_valid) begin
             inst <= cache_data;
-        end else if(ibus_rvalid) begin
-            inst <= ibus_rdata;
         end
     end
 
@@ -123,7 +121,7 @@ module ysyx_25110270_ifetch
             inst_valid <= 0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(cache_valid | ibus_rvalid) begin
+        end else if(cache_valid) begin
             inst_valid <= 1'b1;
         end
     end
@@ -140,7 +138,7 @@ module ysyx_25110270_ifetch
                     nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
                 end
                 MISS: begin
-                    nstate = ibus_rvalid ? EXE : MISS;
+                    nstate = ibus_rvalid && ibus_rlast ? IDLE : MISS;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
@@ -156,9 +154,9 @@ module ysyx_25110270_ifetch
     #(
         .ADDR_WIDTH             (32                         ),
         .DATA_WIDTH             (32                         ),
-        .SET_NUM                (16                         ),
+        .SET_NUM                (8                          ),
         .N_WAYS                 (1                          ),
-        .BLOCK_SIZE             (4                          )
+        .BLOCK_SIZE             (8                          )
     ) icache
     (
         .clk                    (clk                        ),
@@ -166,6 +164,7 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .I_wr                   (ibus_rvalid                ),
         .I_wdata                (ibus_rdata                 ),
+        .I_wlast                (ibus_rlast                 ),
         .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
@@ -252,11 +251,11 @@ module ysyx_25110270_ifetch
     assign ibus_bready = 1'b0;
 
     assign ibus_arid = 0;
-    assign ibus_arlen = 8'b0000_0000;
+    assign ibus_arlen = 8'b0000_0001;
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
-    assign ibus_araddr = pc;
+    assign ibus_araddr = {pc[31:3], 3'b000};
 
     assign ibus_rready = inst_rready;
 
@@ -272,7 +271,7 @@ module ysyx_25110270_ifetch
 
     reg begin_flag_r;
     wire begin_flag = ibus_arvalid;
-    wire end_flag   = ibus_rvalid && ibus_rready;
+    wire end_flag   = ibus_rvalid && ibus_rready && ibus_rlast;
 
     always @(posedge clk) begin
         if(!rst_n) begin
