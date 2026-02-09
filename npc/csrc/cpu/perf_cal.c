@@ -145,7 +145,7 @@ void perf_cal() {
 
     printf("\n===== IAMAT =====\n");
     printf("IAMAT        : %.2f\n", iamat);
-    printf("IHIT         : %.2ld(%.2f%%)\n", icache_hit, hit_per * 100);
+    printf("IHIT         : %.2f%%\n", hit_per * 100);
 
     printf("\n===== DAMAT =====\n");
     printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
