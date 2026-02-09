@@ -204,8 +204,8 @@ bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write) {
     }
 }
 
-uint64_t cachesim_calculate_miss_penalty() {
-    return (uint64_t)100;
+double cachesim_calculate_miss_penalty() {
+    return 122.98;
 }
 
 // 估算总缺失时间（TMT）
@@ -213,9 +213,9 @@ double cachesim_estimate_tmt(CacheSim *cache, double clock_freq) {
     if (cache->access_count == 0) return 0.0;
     
     // double miss_rate = (double)cache->miss_count / cache->access_count;
-    uint64_t miss_penalty = cachesim_calculate_miss_penalty();  
+    double miss_penalty = cachesim_calculate_miss_penalty();
     
-    double total_cycles = cache->miss_count * (double)miss_penalty;         
+    double total_cycles = cache->miss_count * miss_penalty;         
     
     return total_cycles / clock_freq;
 }

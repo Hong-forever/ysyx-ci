@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
     cachesim_print_stats(cache);
     
     // 估算TMT
-    double clock_freq = 100e6;  // 100 MHz
+    double clock_freq = 1000e6;  // 1000 MHz
     double tmt = cachesim_estimate_tmt(cache, clock_freq);
     printf("\nPerformance Estimation (assuming %.0f MHz clock):\n", clock_freq / 1e6);
     printf("  Total Miss Time (TMT): %.6f seconds\n", tmt);
