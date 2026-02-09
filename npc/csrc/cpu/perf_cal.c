@@ -26,7 +26,8 @@ Inst_buf inst_buffer;
 Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
-uint64_t if_delay_total, ls_delay_total;
+uint64_t ls_delay_total;
+uint64_t icache_hit, icache_miss, icache_miss_penal;
 
 uint64_t total_cycle;
 extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
@@ -43,18 +44,22 @@ extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
     ifu_inst++;
 }
 
-extern "C" void ifetch_delay_cal(int begin_flag, int end_flag) {
+extern "C" void iamat_cal(int hit, int miss, int begin_flag, int end_flag) {
     static uint64_t delay_begin, delay_end;
-    if(begin_flag) {
-        delay_begin = rdtime();
-        // printf("IF Delay Begin: %lu\n", delay_begin);
-    }
-    if(end_flag) {
-        delay_end = rdtime();
-        if_delay_total += (delay_end - delay_begin + 1);
-        // printf("IF Delay End: %lu, Total IF Delay: %lu\n", delay_end, if_delay_total);
+    if(hit) {
+        icache_hit ++;
+    } else if(miss) {
+        if(begin_flag) {
+            delay_begin = rdtime();
+        }
+        if(end_flag) {
+            delay_end = rdtime();
+            icache_miss_penal += delay_end - delay_begin;
+            icache_miss ++;
+        }
     }
 }
+
 
 extern "C" void decoder_inst_type_cal(int inst_type, int pc) {
     if (inst_buffer.pc == pc) {
@@ -104,7 +109,6 @@ extern "C" void wb_inst_cycle_cal(int pc) {
 
 void perf_cal() {
 
-
     printf("\n===== Performance Calulation =====\n");
     printf("Total Cycle: %lu\n", total_cycle);
     printf("Total Inst : %lu\n", g_nr_guest_inst);
@@ -132,11 +136,19 @@ void perf_cal() {
     printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
 
+    double hit_per = (double)icache_hit / (double)(icache_miss + icache_hit);
+    double miss_per = (double)icache_miss / (double)(icache_miss + icache_hit);
+    double iamat = (double)icache_miss_penal / (double)icache_miss * miss_per + 2 * hit_per;
     printf("\n===== MEM Average Delay =====\n");
-    printf("Inst Delay   : %.2f\n", (double)if_delay_total / (double)g_nr_guest_inst);
+    printf("Inst Delay   : %.2f\n", iamat);
+    printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
+
+    printf("\n===== IAMAT =====\n");
+    printf("IAMAT        : %.2f\n", iamat);
+    printf("IHIT         : %.2ld(%.2f%%)\n", icache_hit, hit_per * 100);
+
+    printf("\n===== DAMAT =====\n");
     printf("L/S Delay    : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_delay_total / (double)ls_inst_log.inst_nr : 0);
 
     printf("\n==================================\n");
-
-
 }
