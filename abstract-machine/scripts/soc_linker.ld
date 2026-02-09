@@ -30,12 +30,12 @@ SECTIONS {
   _ssbl_loadaddr = LOADADDR(.ssbl);
   
   .text : {
-    _stext = ALIGN(8);
+    _stext = ALIGN(4);
     *(text_entry)
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    _etext = ALIGN(8);
+    _etext = ALIGN(4);
   } > sdram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
