@@ -34,6 +34,7 @@ _start_ssbl:
   la a2, _etext
 
   call test_smc
+  la a1, _stext
 
 .text_copy_loop:
   beq a1, a2, .text_copy_done
