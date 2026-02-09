@@ -156,9 +156,9 @@ module ysyx_25110270_ifetch
     #(
         .ADDR_WIDTH             (32                         ),
         .DATA_WIDTH             (32                         ),
-        .SET_NUM                (16                          ),
+        .SET_NUM                (32                          ),
         .N_WAYS                 (1                          ),
-        .BLOCK_SIZE             (32                          )
+        .BLOCK_SIZE             (8                          )
     ) icache
     (
         .clk                    (clk                        ),
