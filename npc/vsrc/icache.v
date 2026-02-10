@@ -15,13 +15,22 @@ module ysyx_25110270_icache
     input                           clk,
     input                           rst_n,
     input       [ADDR_WIDTH-1:0]    I_addr,
-    input                           I_wr,
-    input       [DATA_WIDTH-1:0]    I_wdata,
-    input                           I_wlast,
     input                           I_valid,
     output      [DATA_WIDTH-1:0]    O_data,
     output                          O_valid,
     output                          O_miss,
+
+    output                          O_arvalid,
+    input                           I_arready,
+    output      [ADDR_WIDTH-1:0]    O_araddr,
+    output      [7:0]               O_arlen,
+    output      [2:0]               O_arsize,
+    output      [1:0]               O_arburst,
+    input                           I_rvalid,
+    output                          O_rready,
+    input       [DATA_WIDTH-1:0]    I_rdata,
+    input                           I_rlast,
+    input       [1:0]               I_rresp,
 
     input                           I_clear
 );
@@ -32,9 +41,10 @@ module ysyx_25110270_icache
     parameter SET_WIDTH         = $clog2(SET_NUM);              // 组索引宽度
     parameter TAG_WIDTH         = ADDR_WIDTH - SET_WIDTH - BLOCK_WIDTH - 2; // 标签宽度
 
-    parameter IDLE = 2'b00;
-    parameter READ = 2'b01;
-    parameter MISS = 2'b10;
+    parameter IDLE   = 2'b00;
+    parameter LOOKUP = 2'b01;
+    parameter REQ    = 2'b10;
+    parameter REFILL = 2'b11;
 
     // 存储器定义
     reg [TAG_WIDTH-1:0] tag_mem [0:SET_NUM*N_WAYS-1];
@@ -53,8 +63,15 @@ module ysyx_25110270_icache
     reg [1:0] state, nstate;
     reg [BLOCK_WIDTH-1:0] cnt;
 
-    reg hit;
-    reg miss;
+    reg [ADDR_WIDTH-1:0] miss_addr;
+    reg [SET_WIDTH-1:0]   miss_index;
+    reg [TAG_WIDTH-1:0]   miss_tag;
+    reg [BLOCK_WIDTH-1:0] miss_offset;
+
+    wire [BLOCK_WIDTH-1:0] refill_offset = (miss_offset + cnt >= WORDS_PER_BLOCK) ? miss_offset + cnt - WORDS_PER_BLOCK : miss_offset + cnt;
+
+    wire hit = (tag_mem[index] == tag) & valid_mem[index];
+    wire miss = I_valid & ~hit;
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -65,40 +82,13 @@ module ysyx_25110270_icache
     end
 
     always @(*) begin
-        if(!rst_n) begin
-            nstate = IDLE;
-            hit = 1'b0;
-            miss = 1'b0;
-        end else begin
-            case(state)
-                IDLE: begin
-                    hit = 1'b0;
-                    miss = 1'b0;
-                    nstate = I_valid ? READ : IDLE;
-                end
-                READ: begin
-                    if((tag_mem[index] == tag) & valid_mem[index]) begin
-                        hit = 1'b1;
-                        miss = 1'b0;
-                        nstate = IDLE;
-                    end else begin
-                        hit = 1'b0;
-                        miss = 1'b1;
-                        nstate = MISS;
-                    end
-                end
-                MISS: begin
-                    hit = 1'b0;
-                    miss = 1'b1;
-                    nstate = I_valid & I_wr & I_wlast ? IDLE : MISS;
-                end
-                default: begin
-                    hit = 1'b0;
-                    miss = 1'b0;
-                    nstate = IDLE;
-                end
-            endcase
-        end
+        case(state)
+            IDLE:    nstate = I_valid ? LOOKUP : IDLE;
+            LOOKUP:  nstate = hit ? IDLE : REQ;
+            REQ:     nstate = I_arready ? REFILL : REQ;
+            REFILL:  nstate = (I_rvalid && I_rlast) ? IDLE : REFILL;
+            default: nstate = IDLE;
+        endcase
     end
 
     reg clear_r;
@@ -121,26 +111,66 @@ module ysyx_25110270_icache
                 end
             end
             cnt <= 0;
+            miss_addr   <= 0;
+            miss_index  <= 0;
+            miss_tag    <= 0;
+            miss_offset <= 0;
         end else if(I_clear && !clear_r) begin
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
                 valid_mem[i] <= 0;
             end
-        end else if(I_valid && I_wr) begin
-            data_mem[index][cnt] <= I_wdata;
-            tag_mem[index] <= tag;
-            valid_mem[index] <= 1'b1;
-            cnt <= I_wlast ? 0 : cnt + 1;
+        end else begin
+            if(state == LOOKUP && miss) begin
+                miss_addr   <= {I_addr[ADDR_WIDTH-1:2], 2'b00};
+                miss_index  <= index;
+                miss_tag    <= tag;
+                miss_offset <= offset;
+                cnt <= 0;
+            end else if(state == REFILL && I_rvalid) begin
+                data_mem[miss_index][refill_offset] <= I_rdata; // WRAP offset
+                cnt <= I_rlast ? 0 : cnt + 1;
+                if(I_rlast) begin
+                    tag_mem[miss_index]   <= miss_tag;
+                    valid_mem[miss_index] <= 1'b1;
+                end
+            end
         end
     end
 
-    generate
-        if(BLOCK_WIDTH > 0) begin
-            assign O_data = data_mem[index][offset];
+    wire refill_hit = (state == REFILL) && I_rvalid && (index == miss_index) && (tag == miss_tag) && (offset == refill_offset);
+    wire [DATA_WIDTH-1:0] refill_data = I_rdata;
+
+    reg [DATA_WIDTH-1:0] odata_r;
+    reg ovalid_r;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            odata_r  <= {DATA_WIDTH{1'b0}};
+            ovalid_r <= 1'b0;
+        end else if(refill_hit) begin
+            odata_r  <= refill_data;
+            ovalid_r <= 1'b1;
+        end else if((state == LOOKUP) && hit) begin
+            if(BLOCK_WIDTH > 0) begin
+                odata_r <= data_mem[index][offset];
+            end else begin
+                odata_r <= data_mem[index][0];
+            end
+            ovalid_r <= 1'b1;
         end else begin
-            assign O_data = data_mem[index][0];
+            ovalid_r <= 1'b0;
         end
-    endgenerate
-    assign O_valid = hit;
-    assign O_miss = miss;
+    end
+
+    assign O_data  = odata_r;
+    assign O_valid = ovalid_r;
+    assign O_miss  = (state == REQ) || ((state == REFILL) && !refill_hit) || miss;
+
+    assign O_arvalid = (state == REQ);
+    assign O_araddr  = miss_addr;
+    assign O_arlen   = WORDS_PER_BLOCK[7:0] - 1'b1;
+    assign O_arsize  = $clog2(WORD_BYTES);
+    assign O_arburst = 2'b10; // WRAP
+    assign O_rready  = 1'b1;
 
 endmodule

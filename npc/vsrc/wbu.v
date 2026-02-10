@@ -76,18 +76,9 @@ module ysyx_25110270_wbu
         end
     end
 
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            ready <= 1'b1;
-        end else if(I_valid) begin
-            ready <= 1'b0;
-        end else begin
-            ready <= 1'b1;
-        end
-    end
 
     assign O_valid = inst_valid;
-    assign O_ready = ready;
+    assign O_ready = 1'b1;
 
     ysyx_25110270_regfile u_regfile
     (
@@ -152,6 +143,16 @@ module ysyx_25110270_wbu
         .O_csr_marchid          (csr_marchid                )  //marchid寄存器
     );
 
+
+`ifdef DEBUG
+    always @(posedge clk) begin
+        if(valid_r & I_inst == 0 && I_inst_addr != 0) begin
+            $error("Error: inst is 0 at addr %h!", I_inst_addr);
+        end
+    end
+`endif
+
+`ifdef PERF
     reg valid_r, valid_r2;
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -162,15 +163,7 @@ module ysyx_25110270_wbu
             valid_r2 <= valid_r;
         end
     end
-`ifdef DEBUG
-    always @(posedge clk) begin
-        if(valid_r & I_inst == 0 && I_inst_addr != 0) begin
-            $error("Error: inst is 0 at addr %h!", I_inst_addr);
-        end
-    end
-`endif
-
-`ifdef PERF
+    
     import "DPI-C" function void wb_inst_cycle_cal(input int pc);
     import "DPI-C" function void per_cyc_get(input int mcycleh, input int mcyclel);
 

@@ -281,30 +281,6 @@ module ysyx_25110270_lsu
         end
     end
 
-
-    reg data_bready;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            data_bready <= 1'b1;
-        end else if(dbus_bvalid && dbus_bready) begin
-            data_bready <= 1'b0;
-        end else begin
-            data_bready <= 1'b1;
-        end
-    end
-
-    reg data_rready;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            data_rready <= 1'b1;
-        end else if(dbus_rvalid && dbus_rready) begin
-            data_rready <= 1'b0;
-        end else begin
-            data_rready <= 1'b1;
-        end
-    end
-
-
     wire stallreq = ls_req | (state == MEM);
 
     reg inst_valid;
@@ -374,7 +350,7 @@ module ysyx_25110270_lsu
     assign dbus_wstrb = data_mask;
     assign dbus_wlast = 1'b1;
 
-    assign dbus_bready = data_bready;
+    assign dbus_bready = 1'b1;
 
     assign dbus_araddr = I_memory_addr;
     assign dbus_arid = 4'b0000;
@@ -382,7 +358,7 @@ module ysyx_25110270_lsu
     assign dbus_arsize = data_arsize;
     assign dbus_arburst = 2'b01;
 
-    assign dbus_rready = data_rready;
+    assign dbus_rready = 1'b1;
 
 `ifdef DEBUG
     wire not_in_mrom   = (I_memory_addr < `ysyx_25110270_MromAddrBase ) | (I_memory_addr >= (`ysyx_25110270_MromAddrBase  + `ysyx_25110270_MromSize   ));

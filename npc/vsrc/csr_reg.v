@@ -34,15 +34,12 @@ module ysyx_25110270_csr_reg
     output  wire    [31:0                       ]   O_csr_marchid         //marchid寄存器
 );
 
-    reg [31:0       ] mstatus;
-    reg [31:0       ] mie;
-    reg [31:0       ] mtvec;
-    reg [31:0       ] mepc;
-    reg [31:0       ] mcause;
-    reg [63:0       ] cycle;
-
-    reg [31:0       ] mvendorid;
-    reg [31:0       ] marchid;
+    reg [31:0] mstatus;
+    reg [31:0] mie;
+    reg [31:0] mtvec;
+    reg [31:0] mepc;
+    reg [31:0] mcause;
+    reg [63:0] cycle;
 
     wire is_ecall  = I_except[`yxyx_25110270_EXCPT_ECALL];
     wire is_ebreak = I_except[`yxyx_25110270_EXCPT_EBREAK];
@@ -64,10 +61,14 @@ module ysyx_25110270_csr_reg
         end
     end
     
+    wire [31:0] mvendorid;
+    wire [31:0] marchid;
 
     parameter YSYX_LOGO      = 32'h79737978; //ysyx的logo
     parameter YSYX_STU_NUM   = 32'h25110270; //我的学号-25110270
 
+    assign mvendorid = YSYX_LOGO;
+    assign marchid = YSYX_STU_NUM;
 
     //cycle counter
     //复位撤销后就一直计数
@@ -88,8 +89,6 @@ module ysyx_25110270_csr_reg
             mepc <= 0;
             mie <= 0;
             mstatus <= 0;
-            mvendorid <= YSYX_LOGO;
-            marchid <= YSYX_STU_NUM;
         end else begin
             if(except_sync & ~e_sync_r) begin
                 mepc <= I_except_addr;
@@ -115,7 +114,7 @@ module ysyx_25110270_csr_reg
 
     //read reg
     //idu模块读CSR寄存器
-    reg [31:0       ]   rdata1;
+    reg [31:0] rdata1;
     always @(*) begin
         if(I_we && I_raddr == I_waddr) begin
             rdata1 = I_wdata;
@@ -128,8 +127,6 @@ module ysyx_25110270_csr_reg
                 `CSR_Addr_MCAUSE:   rdata1 = mcause;
                 `CSR_Addr_CYCLE:    rdata1 = cycle[31:0];
                 `CSR_Addr_CYCLEH:   rdata1 = cycle[63:32];
-                `CSR_Addr_MVENDORID:rdata1 = mvendorid;
-                `CSR_Addr_MARCHID:  rdata1 = marchid;
                 default:            rdata1 = 0;
             endcase
         end

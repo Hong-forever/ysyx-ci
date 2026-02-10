@@ -37,13 +37,13 @@ module ysyx_25110270_decoder
     output  wire    [11:0                       ]   O_csr_waddr,        //写CSR寄存器地址
     output  wire    [31:0                       ]   O_csr_rdata,        //CSR寄存器数据
 
-    output  wire    [`yxyx_25110270_CSRCTL_BUS  ]   O_CSRCtrl,
-    output  wire    [`yxyx_25110270_ALUCTL_BUS  ]   O_ALUCtrl,          //ALU控制信号
-    output  wire    [`yxyx_25110270_BRUCTL_BUS  ]   O_BRUCtrl,          //BRU控制信号
-    output  wire    [`yxyx_25110270_ALUSRCA_BUS ]   O_ALUSrcA_sel,
-    output  wire    [`yxyx_25110270_ALUSRCB_BUS ]   O_ALUSrcB_sel,
-    output  wire    [`yxyx_25110270_AGUSRC_BUS  ]   O_AGUSrc_sel,
-    output  wire    [`yxyx_25110270_CSRSRC_BUS  ]   O_CSRSrc_sel,
+    output  wire    [`yxyx_25110270_CSRCTL_BUS  ]   O_csr_ctrl,
+    output  wire    [`yxyx_25110270_ALUCTL_BUS  ]   O_alu_ctrl,          //ALU控制信号
+    output  wire    [`yxyx_25110270_BRUCTL_BUS  ]   O_bru_ctrl,          //BRU控制信号
+    output  wire    [`yxyx_25110270_ALUSRCA_BUS ]   O_alu_srca_sel,
+    output  wire    [`yxyx_25110270_ALUSRCB_BUS ]   O_alu_srcb_sel,
+    output  wire    [`yxyx_25110270_AGUSRC_BUS  ]   O_agu_src_sel,
+    output  wire    [`yxyx_25110270_CSRSRC_BUS  ]   O_csr_src_sel,
     
     //ls明辨
     output  wire                                    O_ls_valid,         //访存有效标志
@@ -89,22 +89,41 @@ module ysyx_25110270_decoder
     wire [31:0] rv32i_j_type_imm = {{12{I_inst[31]}}, I_inst[19:12], I_inst[20], I_inst[30:21], 1'b0};
     wire [31:0] rv_csr_type_imm  = {27'h0, I_inst[19:15]};
 
+    reg [31:0] imm;
+    always @(*) begin
+        case(opcode)
+            `ysyx_25110270_RV32I_OP_TYPE_IL,
+            `ysyx_25110270_RV32I_OP_TYPE_I,
+            `ysyx_25110270_RV32I_OP_JALR:       imm = rv32i_i_type_imm;
+
+            `ysyx_25110270_RV32I_OP_TYPE_S:     imm = rv32i_s_type_imm;
+
+            `ysyx_25110270_RV32I_OP_AUIPC,
+            `ysyx_25110270_RV32I_OP_LUI:        imm = rv32i_u_type_imm;
+
+            `ysyx_25110270_RV32I_OP_TYPE_B:     imm = rv32i_b_type_imm;
+            `ysyx_25110270_RV32I_OP_TYPE_JAL:   imm = rv32i_j_type_imm;
+            `ysyx_25110270_RV_OP_CSR:           imm = rv_csr_type_imm;
+            default:                            imm = 0;
+        endcase
+    end
+
     //------------------------------------------------------------------------
     // 控制信号生成
     //------------------------------------------------------------------------
-    reg [`yxyx_25110270_ALUSRCA_BUS] ALUSrcA_sel;
-    reg [`yxyx_25110270_ALUSRCB_BUS] ALUSrcB_sel;
-    reg [`yxyx_25110270_AGUSRC_BUS ] AGUSrc_sel;
-    reg [`yxyx_25110270_CSRSRC_BUS ] CSRSrc_sel;
 
-    reg rs1_re, rs2_re, rd_we, csr_en, ls_valid;
+    // basic_ctrl[11:10]: alu_srca_sel
+    // basic_ctrl[9:8]:   alu_srcb_sel  
+    // basic_ctrl[7:6]:   agu_src_sel
+    // basic_ctrl[5:4]:   csr_src_sel
+    // basic_ctrl[3]:     rs1_re
+    // basic_ctrl[2]:     rs2_re
+    // basic_ctrl[1]:     rd_we
+    // basic_ctrl[0]:     csr_en
+    reg [15:0] basic_ctrl;
+    reg ls_valid;
 
-    reg [31:0] imm;
 
-    reg [`yxyx_25110270_LSUCTL_BUS] lsu_ctrl;
-    reg [`yxyx_25110270_ALUCTL_BUS] alu_ctrl;
-    reg [`yxyx_25110270_CSRCTL_BUS] csr_ctrl;
-    reg [`yxyx_25110270_BRUCTL_BUS] bru_ctrl;
 
     always @(*) begin
         rs1_re   = 0;
@@ -112,22 +131,20 @@ module ysyx_25110270_decoder
         rd_we    = 0;
         csr_en   = 0;
         ls_valid = 0;
-        imm      = 0;
         lsu_ctrl  = 0;
         alu_ctrl = 0;
         bru_ctrl = 0;
         csr_ctrl = 0;
-        ALUSrcA_sel = 0;
-        ALUSrcB_sel = 0;
-        AGUSrc_sel  = 0;
-        CSRSrc_sel  = 0;
+        alu_srca_sel = 0;
+        alu_srcb_sel = 0;
+        agu_src_sel  = 0;
+        csr_src_sel  = 0;
         case(opcode)
             `ysyx_25110270_RV32I_OP_TYPE_IL: begin
                 rs1_re   = 1;
                 rd_we    = 1;
                 ls_valid = 1;
-                imm      = rv32i_i_type_imm;
-                AGUSrc_sel = `ysyx_25110270_AGUSRC_RS1;
+                agu_src_sel = `ysyx_25110270_AGUSRC_RS1;
                 case(funct3)
                     `ysyx_25110270_RV32I_F3_LB:  lsu_ctrl = `ysyx_25110270_LS_LB;
                     `ysyx_25110270_RV32I_F3_LH:  lsu_ctrl = `ysyx_25110270_LS_LH;
@@ -140,9 +157,8 @@ module ysyx_25110270_decoder
             `ysyx_25110270_RV32I_OP_TYPE_I: begin
                 rs1_re = 1;
                 rd_we  = 1;
-                imm    = rv32i_i_type_imm;
-                ALUSrcA_sel = `ysyx_25110270_ALUSRCA_RS1;
-                ALUSrcB_sel = `ysyx_25110270_ALUSRCB_IMM;
+                alu_srca_sel = `ysyx_25110270_ALUSRCA_RS1;
+                alu_srcb_sel = `ysyx_25110270_ALUSRCB_IMM;
                 case(funct3)
                     `ysyx_25110270_RV32I_F3_ADDI:  alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
                     `ysyx_25110270_RV32I_F3_SLLI:  alu_ctrl = `ysyx_25110270_ALUCTL_SLL;
@@ -158,23 +174,20 @@ module ysyx_25110270_decoder
             `ysyx_25110270_RV32I_OP_AUIPC: begin
                 rd_we    = 1'b1;
                 alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
-                imm      = rv32i_u_type_imm;
-                ALUSrcA_sel = `ysyx_25110270_ALUSRCA_PC;
-                ALUSrcB_sel = `ysyx_25110270_ALUSRCB_IMM;
+                alu_srca_sel = `ysyx_25110270_ALUSRCA_PC;
+                alu_srcb_sel = `ysyx_25110270_ALUSRCB_IMM;
             end
             `ysyx_25110270_RV32I_OP_LUI: begin
                 rd_we    = 1'b1;
                 alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
-                imm      = rv32i_u_type_imm;
-                ALUSrcA_sel = `ysyx_25110270_ALUSRCA_0;
-                ALUSrcB_sel = `ysyx_25110270_ALUSRCB_IMM;
+                alu_srca_sel = `ysyx_25110270_ALUSRCA_0;
+                alu_srcb_sel = `ysyx_25110270_ALUSRCB_IMM;
             end
             `ysyx_25110270_RV32I_OP_TYPE_S: begin
                 rs1_re   = 1;
                 rs2_re   = 1;
                 ls_valid = 1;
-                imm      = rv32i_s_type_imm;
-                AGUSrc_sel = `ysyx_25110270_AGUSRC_RS1;
+                agu_src_sel = `ysyx_25110270_AGUSRC_RS1;
                 case(funct3)
                     `ysyx_25110270_RV32I_F3_SB: lsu_ctrl = `ysyx_25110270_LS_SB;
                     `ysyx_25110270_RV32I_F3_SH: lsu_ctrl = `ysyx_25110270_LS_SH;
@@ -186,8 +199,8 @@ module ysyx_25110270_decoder
                 rs1_re = 1;
                 rs2_re = 1;
                 rd_we  = 1;
-                ALUSrcA_sel = `ysyx_25110270_ALUSRCA_RS1;
-                ALUSrcB_sel = `ysyx_25110270_ALUSRCB_RS2;
+                alu_srca_sel = `ysyx_25110270_ALUSRCA_RS1;
+                alu_srcb_sel = `ysyx_25110270_ALUSRCB_RS2;
                 case(funct3)
                     `ysyx_25110270_RV32I_F3_ADD_SUB: alu_ctrl = I_inst[30]? `ysyx_25110270_ALUCTL_SUB : `ysyx_25110270_ALUCTL_ADD;
                     `ysyx_25110270_RV32I_F3_SLL:     alu_ctrl = `ysyx_25110270_ALUCTL_SLL;
@@ -203,10 +216,9 @@ module ysyx_25110270_decoder
             `ysyx_25110270_RV32I_OP_TYPE_B: begin
                 rs1_re = 1;
                 rs2_re = 1;
-                imm    = rv32i_b_type_imm;
-                ALUSrcA_sel = `ysyx_25110270_ALUSRCA_RS1;
-                ALUSrcB_sel = `ysyx_25110270_ALUSRCB_RS2;
-                AGUSrc_sel  = `ysyx_25110270_AGUSRC_PC;
+                alu_srca_sel = `ysyx_25110270_ALUSRCA_RS1;
+                alu_srcb_sel = `ysyx_25110270_ALUSRCB_RS2;
+                agu_src_sel  = `ysyx_25110270_AGUSRC_PC;
                 case(funct3)
                     `ysyx_25110270_RV32I_F3_BEQ: begin
                         alu_ctrl = `ysyx_25110270_ALUCTL_SLT;
@@ -240,10 +252,9 @@ module ysyx_25110270_decoder
                 rd_we    = 1;
                 alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
                 bru_ctrl = `ysyx_25110270_BRUCTL_JAL;
-                imm      = rv32i_i_type_imm;
-                ALUSrcA_sel = `ysyx_25110270_ALUSRCA_PC;
-                ALUSrcB_sel = `ysyx_25110270_ALUSRCB_4;
-                AGUSrc_sel  = `ysyx_25110270_AGUSRC_RS1;
+                alu_srca_sel = `ysyx_25110270_ALUSRCA_PC;
+                alu_srcb_sel = `ysyx_25110270_ALUSRCB_4;
+                agu_src_sel  = `ysyx_25110270_AGUSRC_RS1;
             end
             `ysyx_25110270_RV32I_OP_JAL: begin
                 rs1_re   = 1;
@@ -251,9 +262,9 @@ module ysyx_25110270_decoder
                 alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
                 bru_ctrl = `ysyx_25110270_BRUCTL_JAL;
                 imm      = rv32i_j_type_imm;
-                ALUSrcA_sel = `ysyx_25110270_ALUSRCA_PC;
-                ALUSrcB_sel = `ysyx_25110270_ALUSRCB_4;
-                AGUSrc_sel  = `ysyx_25110270_AGUSRC_PC;
+                alu_srca_sel = `ysyx_25110270_ALUSRCA_PC;
+                alu_srcb_sel = `ysyx_25110270_ALUSRCB_4;
+                agu_src_sel  = `ysyx_25110270_AGUSRC_PC;
             end
             `ysyx_25110270_RV_OP_CSR: begin
                 rd_we  = 1;
@@ -263,29 +274,29 @@ module ysyx_25110270_decoder
                     `ysyx_25110270_RV_F3_CSRRW: begin
                         rs1_re   = 1;
                         csr_ctrl = `ysyx_25110270_CSRCTL_WRI;
-                        CSRSrc_sel = `ysyx_25110270_CSRSRC_RS1;
+                        csr_src_sel = `ysyx_25110270_CSRSRC_RS1;
                     end
                     `ysyx_25110270_RV_F3_CSRRS: begin
                         rs1_re   = 1;
                         csr_ctrl = `ysyx_25110270_CSRCTL_SET;
-                        CSRSrc_sel = `ysyx_25110270_CSRSRC_RS1;
+                        csr_src_sel = `ysyx_25110270_CSRSRC_RS1;
                     end
                     `ysyx_25110270_RV_F3_CSRRC: begin
                         rs1_re   = 1;
                         csr_ctrl = `ysyx_25110270_CSRCTL_CLR;
-                        CSRSrc_sel = `ysyx_25110270_CSRSRC_RS1;
+                        csr_src_sel = `ysyx_25110270_CSRSRC_RS1;
                     end
                     `ysyx_25110270_RV_F3_CSRRWI: begin
                         csr_ctrl = `ysyx_25110270_CSRCTL_WRI;
-                        CSRSrc_sel = `ysyx_25110270_CSRSRC_IMM;
+                        csr_src_sel = `ysyx_25110270_CSRSRC_IMM;
                     end
                     `ysyx_25110270_RV_F3_CSRRSI: begin
                         csr_ctrl = `ysyx_25110270_CSRCTL_SET;
-                        CSRSrc_sel = `ysyx_25110270_CSRSRC_IMM;
+                        csr_src_sel = `ysyx_25110270_CSRSRC_IMM;
                     end
                     `ysyx_25110270_RV_F3_CSRRCI: begin
                         csr_ctrl = `ysyx_25110270_CSRCTL_CLR;
-                        CSRSrc_sel = `ysyx_25110270_CSRSRC_IMM;
+                        csr_src_sel = `ysyx_25110270_CSRSRC_IMM;
                     end
                     default:       begin end
                 endcase
@@ -320,7 +331,7 @@ module ysyx_25110270_decoder
     //------------------------------------------------------------------------
     // 异常解码
     //------------------------------------------------------------------------
-    wire [`ysyx_25110270_ExceptBus   ] except;
+    wire [`yxyx_25110270_ExceptBus ] except;
     ysyx_25110270_dec_except dec_except
     (
         .I_inst                 (I_inst                     ),
@@ -345,9 +356,9 @@ module ysyx_25110270_decoder
     assign O_imm = imm;
     assign O_rd_we = rd_we;
     assign O_rd_waddr = rd;
-    assign O_ALUCtrl = alu_ctrl;
-    assign O_CSRCtrl = csr_ctrl;
-    assign O_BRUCtrl = bru_ctrl;
+    assign O_alu_ctrl = alu_ctrl;
+    assign O_csr_ctrl = csr_ctrl;
+    assign O_bru_ctrl = bru_ctrl;
     assign O_ls_valid = ls_valid;
     assign O_lsu_ctrl = lsu_ctrl;
     assign O_csr_raddr = I_inst[31:20];
@@ -359,10 +370,10 @@ module ysyx_25110270_decoder
     assign O_rs2_re = rs2_re;
     assign O_csr_re = csr_en;
 
-    assign O_ALUSrcA_sel = ALUSrcA_sel;
-    assign O_ALUSrcB_sel = ALUSrcB_sel;
-    assign O_AGUSrc_sel  = AGUSrc_sel;
-    assign O_CSRSrc_sel  = CSRSrc_sel;
+    assign O_alu_srca_sel = alu_srca_sel;
+    assign O_alu_srcb_sel = alu_srcb_sel;
+    assign O_agu_src_sel  = agu_src_sel;
+    assign O_csr_src_sel  = csr_src_sel;
 
 `ifdef PERF
     import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
@@ -371,7 +382,7 @@ module ysyx_25110270_decoder
     wire inst_is_br = (bru_ctrl != 0);
     wire inst_is_alu = (opcode == `ysyx_25110270_RV32I_OP_TYPE_I) | (opcode == `ysyx_25110270_RV32I_OP_AUIPC) | (opcode == `ysyx_25110270_RV32I_OP_LUI) | (opcode == `ysyx_25110270_RV32IM_OP_TYPE_R);
     wire inst_is_csr = (csr_en != 0);
-    wire inst_is_fence_i = except[`ysyx_25110270_EXCPT_FENCE_I];
+    wire inst_is_fence_i = except[`_EXCPT_FENCE_I];
 
     wire [4:0] inst_type = {inst_is_fence_i, inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
     
@@ -399,14 +410,14 @@ endmodule
 module ysyx_25110270_dec_except
 (
     input   wire    [31:0                       ]   I_inst,
-    output  wire    [`ysyx_25110270_ExceptBus   ]   O_except
+    output  wire    [`yxyx_25110270_ExceptBus   ]   O_except
 );
 
     // 异常指令
-    assign O_except[`ysyx_25110270_EXCPT_ECALL  ] = (I_inst == `ysyx_25110270_RV_ECALL  );
-    assign O_except[`ysyx_25110270_EXCPT_EBREAK ] = (I_inst == `ysyx_25110270_RV_EBREAK );
-    assign O_except[`ysyx_25110270_EXCPT_MRET   ] = (I_inst == `ysyx_25110270_RV_MRET   );
-    assign O_except[`ysyx_25110270_EXCPT_FENCE_I] = (I_inst == `ysyx_25110270_RV_FENCE_I);
+    assign O_except[`EXCPT_ECALL  ] = (I_inst == `ysyx_25110270_RV_ECALL  );
+    assign O_except[`EXCPT_EBREAK ] = (I_inst == `ysyx_25110270_RV_EBREAK );
+    assign O_except[`EXCPT_MRET   ] = (I_inst == `ysyx_25110270_RV_MRET   );
+    assign O_except[`EXCPT_FENCE_I] = (I_inst == `ysyx_25110270_RV_FENCE_I);
 
 endmodule
 
