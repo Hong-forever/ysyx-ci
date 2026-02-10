@@ -27,7 +27,7 @@ Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
 uint64_t ls_delay_total;
-uint64_t icache_miss_penal;
+uint64_t icache_miss, icache_miss_penal;
 
 uint64_t total_cycle;
 extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
@@ -44,7 +44,7 @@ extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
     ifu_inst++;
 }
 
-extern "C" void iamat_cal(int miss, int begin_flag, int end_flag) {
+extern "C" void iamat_cal(int begin_flag, int end_flag) {
     static uint64_t delay_begin, delay_end;
     if(begin_flag) {
         delay_begin = rdtime();
