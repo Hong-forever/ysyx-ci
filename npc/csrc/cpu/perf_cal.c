@@ -32,7 +32,14 @@ uint64_t icache_miss, icache_miss_penal;
 
 uint64_t total_cycle;
 extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
-    total_cycle = ((uint64_t)mcycleh << 32) | (uint64_t)mcyclel;
+    // 确保单调：若遇到撕裂/回退，用 2^32 补偿
+    static uint64_t last_cycle;
+    uint64_t cur = ((uint64_t)(uint32_t)mcycleh << 32) | (uint64_t)(uint32_t)mcyclel;
+    if (cur < last_cycle) {
+        cur += (1ULL << 32);
+    }
+    total_cycle = cur;
+    last_cycle = cur;
 }
 
 static inline uint64_t rdtime() {
