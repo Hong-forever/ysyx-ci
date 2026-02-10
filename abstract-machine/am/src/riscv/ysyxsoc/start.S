@@ -129,6 +129,8 @@ test_smc:
   add a1, a1, 4
   sw t0, 0(a1)
   add a1, a1, 4
+  la t0, 0x00008067
+  sw t0, 0(a1)
   ret
 
 
