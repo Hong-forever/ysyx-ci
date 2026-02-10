@@ -265,7 +265,7 @@ module ysyx_25110270_ifetch
 
 `ifdef PERF
     import "DPI-C" function void ifetch_inst_get_nr_cal(input int inst, input int pc);
-    import "DPI-C" function void iamat_cal(input int hit, input int miss, input int begin_flag, input int end_flag);
+    import "DPI-C" function void iamat_cal(input int begin_flag, input int end_flag);
 
     always @(posedge clk) begin
         if(inst_valid && (|inst) && (|pc)) begin
@@ -287,12 +287,10 @@ module ysyx_25110270_ifetch
 
 
     always @(posedge clk) begin
-        if(cache_valid) begin
-            iamat_cal(1, 0, 0, 0);
-        end else if(begin_flag && !begin_flag_r) begin
-            iamat_cal(0, 1, 1, 0);
+        if(begin_flag && !begin_flag_r) begin
+            iamat_cal(1, 0);
         end else if(end_flag) begin
-            iamat_cal(0, 1, 0, 1);
+            iamat_cal(0, 1);
         end
     end
 
