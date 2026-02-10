@@ -40,6 +40,7 @@ extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
     }
     total_cycle = cur;
     last_cycle = cur;
+    printf("Total Cycle Updated: %lu\n", total_cycle);
 }
 
 static inline uint64_t rdtime() {
