@@ -19,11 +19,7 @@ module ysyx_25110270_decoder
 
     output  wire    [`yxyx_25110270_RegAddrBus  ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`yxyx_25110270_RegAddrBus  ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
-    output  wire    [11:0                       ]   O_csr_raddr,        //读CSR寄存器地址
-
-    input   wire    [31:0                       ]   I_rs1_rdata,        //获取通用寄存器1地址指向的数据
-    input   wire    [31:0                       ]   I_rs2_rdata,        //获取通用寄存器2地址指向的数据
-    input   wire    [31:0                       ]   I_csr_rdata,        //CSR寄存器输入数据
+    output  wire    [11:0                       ]   O_csr_addr,         //CSR寄存器地址
 
     output  wire    [31:0                       ]   O_inst,             //指令内容
     output  wire    [31:0                       ]   O_inst_addr,        //指令地址
@@ -33,26 +29,24 @@ module ysyx_25110270_decoder
     output  wire    [31:0                       ]   O_imm,              //立即数
     output  wire                                    O_rd_we,            //写通用寄存器标志
     output  wire    [`yxyx_25110270_RegAddrBus  ]   O_rd_waddr,         //写通用寄存器地址
-    output  wire                                    O_csr_we,           //写CSR寄存器标志
-    output  wire    [11:0                       ]   O_csr_waddr,        //写CSR寄存器地址
+    output  wire    [2:0                        ]   O_op,
+
     output  wire    [31:0                       ]   O_csr_rdata,        //CSR寄存器数据
 
-    output  wire    [`yxyx_25110270_CSRCTL_BUS  ]   O_csr_ctrl,
-    output  wire    [`yxyx_25110270_ALUCTL_BUS  ]   O_alu_ctrl,          //ALU控制信号
-    output  wire    [`yxyx_25110270_BRUCTL_BUS  ]   O_bru_ctrl,          //BRU控制信号
-    output  wire    [`yxyx_25110270_ALUSRCA_BUS ]   O_alu_srca_sel,
-    output  wire    [`yxyx_25110270_ALUSRCB_BUS ]   O_alu_srcb_sel,
-    output  wire    [`yxyx_25110270_AGUSRC_BUS  ]   O_agu_src_sel,
-    output  wire    [`yxyx_25110270_CSRSRC_BUS  ]   O_csr_src_sel,
+    output  wire    [1:0                        ]   O_alu_srca_sel,
+    output  wire    [1:0                        ]   O_alu_srcb_sel,
+    output  wire    [1:0                        ]   O_agu_src_sel,
+    output  wire                                    O_csr_src_sel,
     
-    //ls明辨
     output  wire                                    O_ls_valid,         //访存有效标志
-    output  wire    [`yxyx_25110270_LSUCTL_BUS  ]   O_lsu_ctrl,         //访存类型
+    output  wire                                    O_bru_valid,        //跳转有效标志
+    output  wire                                    O_csr_valid,        //CSR指令有效标志
+    output  wire                                    O_f7b5_en,          //funct7[5]使能，针对srai, sub, sra指令
+    output  wire                                    O_sign,             //有符号位
 
     //forward
     output  wire                                    O_rs1_re,
     output  wire                                    O_rs2_re,
-    output  wire                                    O_csr_re,
 
     // 异常
     output  wire    [`yxyx_25110270_ExceptBus   ]   O_except
@@ -112,194 +106,117 @@ module ysyx_25110270_decoder
     // 控制信号生成
     //------------------------------------------------------------------------
 
-    // basic_ctrl[11:10]: alu_srca_sel
-    // basic_ctrl[9:8]:   alu_srcb_sel  
-    // basic_ctrl[7:6]:   agu_src_sel
-    // basic_ctrl[5:4]:   csr_src_sel
-    // basic_ctrl[3]:     rs1_re
-    // basic_ctrl[2]:     rs2_re
-    // basic_ctrl[1]:     rd_we
-    // basic_ctrl[0]:     csr_en
-    reg [15:0] basic_ctrl;
-    reg ls_valid;
+    /*=======================================================================
+        [17:15]:    op
+        [14   ]:    csr_src_sel
+        [13:12]:    agu_src_sel  
+        [11:10]:    alu_srcb_sel
+        [9:8  ]:    alu_srca_sel
+        [7    ]:    f7b5_en    ---> srai, sub, sra
+        [6    ]:    csr_valid
+        [5    ]:    bru_valid
+        [4    ]:    ls_valid
+        [3    ]:    sign
+        [2    ]:    rs2_re
+        [1    ]:    rs1_re
+        [0    ]:    rd_we
+    ========================================================================*/
+    
+    localparam bit_rd_we     = 0;
+    localparam bit_rs1_re    = 1;
+    localparam bit_rs2_re    = 2;
+    localparam bit_sign      = 3;
+    localparam bit_ls_valid  = 4;
+    localparam bit_bru_valid = 5;
+    localparam bit_csr_valid = 6;
+    localparam bit_f7b5_en   = 7;
+    localparam bit_alu_srca  = 8;
+    localparam bit_alu_srcb  = 10;
+    localparam bit_agu_src   = 12;
+    localparam bit_csr_src   = 14;
+    localparam bit_op        = 15;
 
-
+    reg [17:0] basic_ctrl;
 
     always @(*) begin
-        rs1_re   = 0;
-        rs2_re   = 0;
-        rd_we    = 0;
-        csr_en   = 0;
-        ls_valid = 0;
-        lsu_ctrl  = 0;
-        alu_ctrl = 0;
-        bru_ctrl = 0;
-        csr_ctrl = 0;
-        alu_srca_sel = 0;
-        alu_srcb_sel = 0;
-        agu_src_sel  = 0;
-        csr_src_sel  = 0;
+        basic_ctrl = 0;
         case(opcode)
             `ysyx_25110270_RV32I_OP_TYPE_IL: begin
-                rs1_re   = 1;
-                rd_we    = 1;
-                ls_valid = 1;
-                agu_src_sel = `ysyx_25110270_AGUSRC_RS1;
-                case(funct3)
-                    `ysyx_25110270_RV32I_F3_LB:  lsu_ctrl = `ysyx_25110270_LS_LB;
-                    `ysyx_25110270_RV32I_F3_LH:  lsu_ctrl = `ysyx_25110270_LS_LH;
-                    `ysyx_25110270_RV32I_F3_LW:  lsu_ctrl = `ysyx_25110270_LS_LW;
-                    `ysyx_25110270_RV32I_F3_LBU: lsu_ctrl = `ysyx_25110270_LS_LBU;
-                    `ysyx_25110270_RV32I_F3_LHU: lsu_ctrl = `ysyx_25110270_LS_LHU;
-                    default: begin end
-                endcase
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rs1_re       ] = 1'b1;
+                basic_ctrl[bit_ls_valid     ] = 1'b1;
+                basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_RS1;
+                basic_ctrl[bit_op +: 3      ] = funct3;
             end
             `ysyx_25110270_RV32I_OP_TYPE_I: begin
-                rs1_re = 1;
-                rd_we  = 1;
-                alu_srca_sel = `ysyx_25110270_ALUSRCA_RS1;
-                alu_srcb_sel = `ysyx_25110270_ALUSRCB_IMM;
-                case(funct3)
-                    `ysyx_25110270_RV32I_F3_ADDI:  alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
-                    `ysyx_25110270_RV32I_F3_SLLI:  alu_ctrl = `ysyx_25110270_ALUCTL_SLL;
-                    `ysyx_25110270_RV32I_F3_SLTI:  alu_ctrl = `ysyx_25110270_ALUCTL_SLT;
-                    `ysyx_25110270_RV32I_F3_SLTIU: alu_ctrl = `ysyx_25110270_ALUCTL_SLTU;
-                    `ysyx_25110270_RV32I_F3_XORI:  alu_ctrl = `ysyx_25110270_ALUCTL_XOR;
-                    `ysyx_25110270_RV32I_F3_SRI:   alu_ctrl = I_inst[30]? `ysyx_25110270_ALUCTL_SRA : `ysyx_25110270_ALUCTL_SRL;
-                    `ysyx_25110270_RV32I_F3_ORI:   alu_ctrl = `ysyx_25110270_ALUCTL_OR;
-                    `ysyx_25110270_RV32I_F3_ANDI:  alu_ctrl = `ysyx_25110270_ALUCTL_AND;
-                    default:         begin end
-                endcase
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rs1_re       ] = 1'b1;
+                basic_ctrl[bit_sign         ] = (funct3 != `ysyx_25110270_RV32I_F3_SLTIU);  // no stiu
+                basic_ctrl[bit_f7b5_en      ] = I_inst[30];
+                basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_RS1;
+                basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_IMM;
+                basic_ctrl[bit_op +: 3      ] = funct3;
             end
             `ysyx_25110270_RV32I_OP_AUIPC: begin
-                rd_we    = 1'b1;
-                alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
-                alu_srca_sel = `ysyx_25110270_ALUSRCA_PC;
-                alu_srcb_sel = `ysyx_25110270_ALUSRCB_IMM;
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
+                basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_IMM;
+                basic_ctrl[bit_op +: 3      ] = `ysyx_25110270_RV32I_F3_ADD_SUB;
             end
             `ysyx_25110270_RV32I_OP_LUI: begin
-                rd_we    = 1'b1;
-                alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
-                alu_srca_sel = `ysyx_25110270_ALUSRCA_0;
-                alu_srcb_sel = `ysyx_25110270_ALUSRCB_IMM;
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_0;
+                basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_IMM;
+                basic_ctrl[bit_op +: 3      ] = `ysyx_25110270_RV32I_F3_ADD_SUB;
             end
             `ysyx_25110270_RV32I_OP_TYPE_S: begin
-                rs1_re   = 1;
-                rs2_re   = 1;
-                ls_valid = 1;
-                agu_src_sel = `ysyx_25110270_AGUSRC_RS1;
-                case(funct3)
-                    `ysyx_25110270_RV32I_F3_SB: lsu_ctrl = `ysyx_25110270_LS_SB;
-                    `ysyx_25110270_RV32I_F3_SH: lsu_ctrl = `ysyx_25110270_LS_SH;
-                    `ysyx_25110270_RV32I_F3_SW: lsu_ctrl = `ysyx_25110270_LS_SW;
-                    default:      begin end
-                endcase
+                basic_ctrl[bit_rs1_re       ] = 1'b1;
+                basic_ctrl[bit_rs2_re       ] = 1'b1;
+                basic_ctrl[bit_ls_valid     ] = 1'b1;
+                basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_RS1;
+                basic_ctrl[bit_op +: 3      ] = funct3;
             end
             `ysyx_25110270_RV32IM_OP_TYPE_R: begin
-                rs1_re = 1;
-                rs2_re = 1;
-                rd_we  = 1;
-                alu_srca_sel = `ysyx_25110270_ALUSRCA_RS1;
-                alu_srcb_sel = `ysyx_25110270_ALUSRCB_RS2;
-                case(funct3)
-                    `ysyx_25110270_RV32I_F3_ADD_SUB: alu_ctrl = I_inst[30]? `ysyx_25110270_ALUCTL_SUB : `ysyx_25110270_ALUCTL_ADD;
-                    `ysyx_25110270_RV32I_F3_SLL:     alu_ctrl = `ysyx_25110270_ALUCTL_SLL;
-                    `ysyx_25110270_RV32I_F3_SLT:     alu_ctrl = `ysyx_25110270_ALUCTL_SLT;
-                    `ysyx_25110270_RV32I_F3_SLTU:    alu_ctrl = `ysyx_25110270_ALUCTL_SLTU;
-                    `ysyx_25110270_RV32I_F3_XOR:     alu_ctrl = `ysyx_25110270_ALUCTL_XOR;
-                    `ysyx_25110270_RV32I_F3_SR:      alu_ctrl = I_inst[30]? `ysyx_25110270_ALUCTL_SRA : `ysyx_25110270_ALUCTL_SRL;
-                    `ysyx_25110270_RV32I_F3_OR:      alu_ctrl = `ysyx_25110270_ALUCTL_OR;
-                    `ysyx_25110270_RV32I_F3_AND:     alu_ctrl = `ysyx_25110270_ALUCTL_AND;
-                    default:           begin end
-                endcase
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rs1_re       ] = 1'b1;
+                basic_ctrl[bit_rs2_re       ] = 1'b1;
+                basic_ctrl[bit_f7b5_en      ] = I_inst[30];
+                basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_RS1;
+                basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_RS2;
+                basic_ctrl[bit_op +: 3      ] = funct3;
             end
             `ysyx_25110270_RV32I_OP_TYPE_B: begin
-                rs1_re = 1;
-                rs2_re = 1;
-                alu_srca_sel = `ysyx_25110270_ALUSRCA_RS1;
-                alu_srcb_sel = `ysyx_25110270_ALUSRCB_RS2;
-                agu_src_sel  = `ysyx_25110270_AGUSRC_PC;
-                case(funct3)
-                    `ysyx_25110270_RV32I_F3_BEQ: begin
-                        alu_ctrl = `ysyx_25110270_ALUCTL_SLT;
-                        bru_ctrl = `ysyx_25110270_BRUCTL_BEQ;
-                    end
-                    `ysyx_25110270_RV32I_F3_BNE: begin
-                        alu_ctrl = `ysyx_25110270_ALUCTL_SLT;
-                        bru_ctrl = `ysyx_25110270_BRUCTL_BNE;
-                    end
-                    `ysyx_25110270_RV32I_F3_BLT: begin 
-                        alu_ctrl = `ysyx_25110270_ALUCTL_SLT;
-                        bru_ctrl = `ysyx_25110270_BRUCTL_BLT;
-                    end
-                    `ysyx_25110270_RV32I_F3_BGE: begin
-                        alu_ctrl = `ysyx_25110270_ALUCTL_SLT;
-                        bru_ctrl = `ysyx_25110270_BRUCTL_BGE;
-                    end
-                    `ysyx_25110270_RV32I_F3_BLTU: begin
-                        alu_ctrl = `ysyx_25110270_ALUCTL_SLTU;
-                        bru_ctrl = `ysyx_25110270_BRUCTL_BLTU;
-                    end
-                    `ysyx_25110270_RV32I_F3_BGEU: begin
-                        alu_ctrl = `ysyx_25110270_ALUCTL_SLTU;
-                        bru_ctrl = `ysyx_25110270_BRUCTL_BGEU;
-                    end
-                    default: begin end
-                endcase
+                basic_ctrl[bit_rs1_re       ] = 1'b1;
+                basic_ctrl[bit_rs2_re       ] = 1'b1;
+                basic_ctrl[bit_sign         ] = ~(funct3[2] & funct3[1]);   // no bltu, bgeu
+                basic_ctrl[bit_bru_valid    ] = 1'b1;
+                basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_RS1;
+                basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_RS2;
+                basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_PC;
+                basic_ctrl[bit_op +: 3      ] = funct3;
             end
             `ysyx_25110270_RV32I_OP_JALR: begin
-                rs1_re   = 1;
-                rd_we    = 1;
-                alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
-                bru_ctrl = `ysyx_25110270_BRUCTL_JAL;
-                alu_srca_sel = `ysyx_25110270_ALUSRCA_PC;
-                alu_srcb_sel = `ysyx_25110270_ALUSRCB_4;
-                agu_src_sel  = `ysyx_25110270_AGUSRC_RS1;
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rs1_re       ] = 1'b1;
+                basic_ctrl[bit_bru_valid    ] = 1'b1;
+                basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
+                basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_4;
+                basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_RS1;
             end
             `ysyx_25110270_RV32I_OP_JAL: begin
-                rs1_re   = 1;
-                rd_we    = 1;
-                alu_ctrl = `ysyx_25110270_ALUCTL_ADD;
-                bru_ctrl = `ysyx_25110270_BRUCTL_JAL;
-                imm      = rv32i_j_type_imm;
-                alu_srca_sel = `ysyx_25110270_ALUSRCA_PC;
-                alu_srcb_sel = `ysyx_25110270_ALUSRCB_4;
-                agu_src_sel  = `ysyx_25110270_AGUSRC_PC;
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rs1_re       ] = 1'b1;
+                basic_ctrl[bit_bru_valid    ] = 1'b1;                        // bru_valid ---->  alu_add
+                basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
+                basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_4;
+                basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_PC;
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                rd_we  = 1;
-                csr_en = 1;
-                imm    = rv_csr_type_imm;
-                case(funct3)
-                    `ysyx_25110270_RV_F3_CSRRW: begin
-                        rs1_re   = 1;
-                        csr_ctrl = `ysyx_25110270_CSRCTL_WRI;
-                        csr_src_sel = `ysyx_25110270_CSRSRC_RS1;
-                    end
-                    `ysyx_25110270_RV_F3_CSRRS: begin
-                        rs1_re   = 1;
-                        csr_ctrl = `ysyx_25110270_CSRCTL_SET;
-                        csr_src_sel = `ysyx_25110270_CSRSRC_RS1;
-                    end
-                    `ysyx_25110270_RV_F3_CSRRC: begin
-                        rs1_re   = 1;
-                        csr_ctrl = `ysyx_25110270_CSRCTL_CLR;
-                        csr_src_sel = `ysyx_25110270_CSRSRC_RS1;
-                    end
-                    `ysyx_25110270_RV_F3_CSRRWI: begin
-                        csr_ctrl = `ysyx_25110270_CSRCTL_WRI;
-                        csr_src_sel = `ysyx_25110270_CSRSRC_IMM;
-                    end
-                    `ysyx_25110270_RV_F3_CSRRSI: begin
-                        csr_ctrl = `ysyx_25110270_CSRCTL_SET;
-                        csr_src_sel = `ysyx_25110270_CSRSRC_IMM;
-                    end
-                    `ysyx_25110270_RV_F3_CSRRCI: begin
-                        csr_ctrl = `ysyx_25110270_CSRCTL_CLR;
-                        csr_src_sel = `ysyx_25110270_CSRSRC_IMM;
-                    end
-                    default:       begin end
-                endcase
+                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
+                basic_ctrl[bit_csr_valid    ] = 1'b1;
+                basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
+                basic_ctrl[bit_op +: 3      ] = funct3;
             end
             default: begin end
         endcase
@@ -351,38 +268,37 @@ module ysyx_25110270_decoder
 
     assign O_rs1_raddr = rs1;
     assign O_rs2_raddr = rs2;
-    assign O_rs1_rdata = I_rs1_rdata;
-    assign O_rs2_rdata = I_rs2_rdata;
-    assign O_imm = imm;
-    assign O_rd_we = rd_we;
     assign O_rd_waddr = rd;
-    assign O_alu_ctrl = alu_ctrl;
-    assign O_csr_ctrl = csr_ctrl;
-    assign O_bru_ctrl = bru_ctrl;
-    assign O_ls_valid = ls_valid;
-    assign O_lsu_ctrl = lsu_ctrl;
-    assign O_csr_raddr = I_inst[31:20];
-    assign O_csr_rdata = I_csr_rdata;
-    assign O_csr_we = csr_en;
-    assign O_csr_waddr = I_inst[31:20];
 
-    assign O_rs1_re = rs1_re;
-    assign O_rs2_re = rs2_re;
-    assign O_csr_re = csr_en;
+    assign O_imm = imm;
+    assign O_rd_we = basic_ctrl[bit_rd_we];
 
-    assign O_alu_srca_sel = alu_srca_sel;
-    assign O_alu_srcb_sel = alu_srcb_sel;
-    assign O_agu_src_sel  = agu_src_sel;
-    assign O_csr_src_sel  = csr_src_sel;
+    assign O_op = basic_ctrl[bit_op +: 3];
+
+    assign O_ls_valid = basic_ctrl[bit_ls_valid];
+    assign O_csr_valid = basic_ctrl[bit_csr_valid];
+    assign O_bru_valid = basic_ctrl[bit_bru_valid];
+    assign O_f7b5_en = basic_ctrl[bit_f7b5_en];
+    assign O_sign = basic_ctrl[bit_sign];
+
+    assign O_csr_addr  = I_inst[31:20];
+
+    assign O_rs1_re = basic_ctrl[bit_rs1_re];
+    assign O_rs2_re = basic_ctrl[bit_rs2_re];
+
+    assign O_alu_srca_sel = basic_ctrl[bit_alu_srca +: 2];
+    assign O_alu_srcb_sel = basic_ctrl[bit_alu_srcb +: 2];
+    assign O_agu_src_sel  = basic_ctrl[bit_agu_src +: 2];
+    assign O_csr_src_sel  = basic_ctrl[bit_csr_src];
 
 `ifdef PERF
     import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
 
-    wire inst_is_ls = (lsu_ctrl != 0);
-    wire inst_is_br = (bru_ctrl != 0);
+    wire inst_is_ls = basic_ctrl[bit_ls_valid];
+    wire inst_is_br = basic_ctrl[bit_bru_valid];
     wire inst_is_alu = (opcode == `ysyx_25110270_RV32I_OP_TYPE_I) | (opcode == `ysyx_25110270_RV32I_OP_AUIPC) | (opcode == `ysyx_25110270_RV32I_OP_LUI) | (opcode == `ysyx_25110270_RV32IM_OP_TYPE_R);
-    wire inst_is_csr = (csr_en != 0);
-    wire inst_is_fence_i = except[`_EXCPT_FENCE_I];
+    wire inst_is_csr = basic_ctrl[bit_csr_valid];
+    wire inst_is_fence_i = except[`ysyx_25110270_EXCPT_FENCE_I];
 
     wire [4:0] inst_type = {inst_is_fence_i, inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
     

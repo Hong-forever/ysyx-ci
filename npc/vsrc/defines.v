@@ -142,48 +142,8 @@
 `define ysyx_25110270_MARCHID    12'hf12     // Architecture ID
 
 //------------------------------------------------------------------------
-// ALU CONTROL DEFINITIONS
-//------------------------------------------------------------------------
-`define ysyx_25110270_ALUCTL_WIDTH    4
-`define ysyx_25110270_ALUCTL_BUS      `ysyx_25110270_ALUCTL_WIDTH-1:0
-`define ysyx_25110270_ALUCTL_ADD      4'b0001       // Add (signed)
-`define ysyx_25110270_ALUCTL_SUB      4'b0010       // Subtract (signed)
-`define ysyx_25110270_ALUCTL_SLL      4'b0011       // Shift Left Logical
-`define ysyx_25110270_ALUCTL_SLT      4'b0100       // Set on Less Than
-`define ysyx_25110270_ALUCTL_SLTU     4'b0101       // Set on Less Than (unsigned)
-`define ysyx_25110270_ALUCTL_XOR      4'b0110       // XOR
-`define ysyx_25110270_ALUCTL_SRL      4'b0111       // Shift Right Logical
-`define ysyx_25110270_ALUCTL_SRA      4'b1000       // Shift Right Arithmetic
-`define ysyx_25110270_ALUCTL_OR       4'b1001       // OR
-`define ysyx_25110270_ALUCTL_AND      4'b1010       // AND
-
-//------------------------------------------------------------------------
-// BRANCH AND JUMP CONTROL DEFINITIONS
-//------------------------------------------------------------------------
-`define ysyx_25110270_BRUCTL_WIDTH    3
-`define ysyx_25110270_BRUCTL_BUS      `ysyx_25110270_BRUCTL_WIDTH-1:0
-`define ysyx_25110270_BRUCTL_JAL      3'b001
-`define ysyx_25110270_BRUCTL_BEQ      3'b010
-`define ysyx_25110270_BRUCTL_BNE      3'b011
-`define ysyx_25110270_BRUCTL_BLT      3'b100
-`define ysyx_25110270_BRUCTL_BGE      3'b101
-`define ysyx_25110270_BRUCTL_BLTU     3'b110
-`define ysyx_25110270_BRUCTL_BGEU     3'b111
-
-//------------------------------------------------------------------------
-// CSR CONTROL DEFINITIONS
-//------------------------------------------------------------------------
-`define ysyx_25110270_CSRCTL_WIDTH    2
-`define ysyx_25110270_CSRCTL_BUS      `ysyx_25110270_CSRCTL_WIDTH-1:0
-`define ysyx_25110270_CSRCTL_WRI      2'b01
-`define ysyx_25110270_CSRCTL_SET      2'b10
-`define ysyx_25110270_CSRCTL_CLR      2'b11
-
-//------------------------------------------------------------------------
 // ALU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_ALUSRCA_WIDTH   2
-`define ysyx_25110270_ALUSRCA_BUS     `ysyx_25110270_ALUSRCA_WIDTH-1:0
 `define ysyx_25110270_ALUSRCA_RS1     2'b01
 `define ysyx_25110270_ALUSRCA_PC      2'b10
 `define ysyx_25110270_ALUSRCA_0       2'b11
@@ -191,8 +151,6 @@
 //------------------------------------------------------------------------
 // ALU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_ALUSRCB_WIDTH   2
-`define ysyx_25110270_ALUSRCB_BUS     `ysyx_25110270_ALUSRCB_WIDTH-1:0
 `define ysyx_25110270_ALUSRCB_RS2     2'b01
 `define ysyx_25110270_ALUSRCB_IMM     2'b10
 `define ysyx_25110270_ALUSRCB_4       2'b11
@@ -200,8 +158,6 @@
 //------------------------------------------------------------------------
 // AGU SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_AGUSRC_WIDTH    2
-`define ysyx_25110270_AGUSRC_BUS      `ysyx_25110270_AGUSRC_WIDTH-1:0
 `define ysyx_25110270_AGUSRC_RS1      2'b01
 `define ysyx_25110270_AGUSRC_PC       2'b10
 `define ysyx_25110270_AGUSRC_0        2'b11
@@ -209,44 +165,26 @@
 //------------------------------------------------------------------------
 // CSR SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_CSRSRC_WIDTH    2
-`define ysyx_25110270_CSRSRC_BUS      `ysyx_25110270_CSRSRC_WIDTH-1:0
-`define ysyx_25110270_CSRSRC_RS1      2'b01
-`define ysyx_25110270_CSRSRC_IMM      2'b10
+`define ysyx_25110270_CSRSRC_RS1      1'b0
+`define ysyx_25110270_CSRSRC_IMM      1'b1
 
 //------------------------------------------------------------------------
 // FWD SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_FWDSRC_WIDTH    2
-`define ysyx_25110270_FWDSRC_BUS      `ysyx_25110270_FWDSRC_WIDTH-1:0
 `define ysyx_25110270_FWDSRC_NFW      2'b01
 `define ysyx_25110270_FWDSRC_LS       2'b10
 `define ysyx_25110270_FWDSRC_WB       2'b11
 
 //------------------------------------------------------------------------
-// STORE/LOAD TYPE DEFINITIONS
-//------------------------------------------------------------------------
-`define ysyx_25110270_LSUCTL_WIDTH   4
-`define ysyx_25110270_LSUCTL_BUS     `ysyx_25110270_LSUCTL_WIDTH-1:0
-`define ysyx_25110270_LS_LB           4'b0001
-`define ysyx_25110270_LS_LH           4'b0011
-`define ysyx_25110270_LS_LW           4'b0010
-`define ysyx_25110270_LS_LBU          4'b0110
-`define ysyx_25110270_LS_LHU          4'b0111
-`define ysyx_25110270_LS_SB           4'b1000
-`define ysyx_25110270_LS_SH           4'b1001
-`define ysyx_25110270_LS_SW           4'b1011 
-
-//------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_ExceptWidth                 4
-`define ysyx_25110270_ExceptBus                   `ysyx_25110270_ExceptWidth-1:0
+`define ysyx_25110270_ExceptWidth     4
+`define ysyx_25110270_ExceptBus       `ysyx_25110270_ExceptWidth-1:0
 
-`define ysyx_25110270_EXCPT_ECALL                 0
-`define ysyx_25110270_EXCPT_EBREAK                1
-`define ysyx_25110270_EXCPT_MRET                  2
-`define ysyx_25110270_EXCPT_FENCE_I               3
+`define ysyx_25110270_EXCPT_ECALL     0
+`define ysyx_25110270_EXCPT_EBREAK    1
+`define ysyx_25110270_EXCPT_MRET      2
+`define ysyx_25110270_EXCPT_FENCE_I   3
 
 //------------------------------------------------------------------------
 // MEMORY DEFINITIONS

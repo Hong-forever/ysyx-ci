@@ -19,23 +19,24 @@ module ysyx_25110270_exec
     input   wire                                        I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus      ]   I_rd_waddr,
     input   wire    [31:0                           ]   I_imm,
-    input   wire                                        I_csr_we,
-    input   wire    [12:0                           ]   I_csr_waddr,
-    input   wire    [`ysyx_25110270_CSRCTL_BUS      ]   I_csr_ctrl,
-    input   wire    [`ysyx_25110270_ALUCTL_BUS      ]   I_alu_ctrl,
-    input   wire    [`ysyx_25110270_BRUCTL_BUS      ]   I_bru_ctrl,
-    input   wire    [`ysyx_25110270_ALUSRCA_BUS     ]   I_alu_srca_sel,
-    input   wire    [`ysyx_25110270_ALUSRCB_BUS     ]   I_alu_srcb_sel,
-    input   wire    [`ysyx_25110270_AGUSRC_BUS      ]   I_agu_src_sel,
-    input   wire    [`ysyx_25110270_CSRSRC_BUS      ]   I_csr_src_sel,
+    input   wire    [1:0                            ]   I_alu_srca_sel,
+    input   wire    [1:0                            ]   I_alu_srcb_sel,
+    input   wire    [1:0                            ]   I_agu_src_sel,
+    input   wire                                        I_csr_src_sel,
+
     input   wire                                        I_ls_valid,         //访存有效标志
-    input   wire    [`ysyx_25110270_LSUCTL_BUS      ]   I_lsu_ctrl,
+    input   wire                                        I_bru_valid,        //跳转指令标志
+    input   wire                                        I_csr_valid,        //CSR指令标志
+    input   wire                                        I_f7b5_en,          //指令funct7=0x7b或0x5时有效
+    input   wire                                        I_sign,             //有符号位
+    input   wire    [2:0                            ]   I_op,
+
+    input   wire    [12:0                           ]   I_csr_addr,
 
     input   wire    [31:0                           ]   I_rs1_rdata,
     input   wire    [31:0                           ]   I_rs2_rdata,
     input   wire    [31:0                           ]   I_csr_rdata,
 
-    input   wire                                        I_csr_re,           //判断结果是否来自csr
     input   wire    [`ysyx_25110270_ExceptBus       ]   I_except,           //异常
 
     output  wire    [31:0                           ]   O_inst,
@@ -47,11 +48,12 @@ module ysyx_25110270_exec
     output  wire    [31:0                           ]   O_memory_addr,
     output  wire    [31:0                           ]   O_store_data,
     output  wire                                        O_ls_valid,         //访存有效标志
-    output  wire    [`ysyx_25110270_LSUCTL_BUS      ]   O_lsu_ctrl,
+    output  wire    [2:0                            ]   O_ls_op,
 
-    output  wire                                        O_csr_we,
-    output  wire    [12:0                           ]   O_csr_waddr,
+    output  wire                                        O_csr_valid,
+    output  wire    [12:0                           ]   O_csr_addr,
     output  wire    [31:0                           ]   O_csr_wdata,
+
     output  wire    [`ysyx_25110270_ExceptBus       ]   O_except,
 
     //bru
@@ -66,7 +68,6 @@ module ysyx_25110270_exec
     reg [31:0] alu_srca;
     reg [31:0] alu_srcb;
     reg [31:0] agu_src;
-    reg [31:0] csr_src;
 
     always @(*) begin
         case(I_alu_srca_sel)
@@ -93,13 +94,7 @@ module ysyx_25110270_exec
         endcase
     end
 
-    always @(*) begin
-        case(I_csr_src_sel)
-            `ysyx_25110270_CSRSRC_RS1:  csr_src = I_rs1_rdata;
-            `ysyx_25110270_CSRSRC_IMM:  csr_src = I_imm;
-            default:                    csr_src = 0;
-        endcase
-    end
+    wire [31:0] csr_src = I_csr_src_sel ? I_imm : I_rs1_rdata;
 
     //------------------------------------------------------------------------
     // alu运算
@@ -107,13 +102,19 @@ module ysyx_25110270_exec
     wire src_eq, src_lt;
     wire [31:0] alu_result;
 
+    wire [2:0] alu_op = I_bru_valid ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
+    wire f7b5_en = I_f7b5_en & ~I_bru_valid; // srai, sub, sra指令才需要判断funct7[5]
+
     ysyx_25110270_alu alu
     (
         .clk                        (clk                    ),
         .rst_n                      (rst_n                  ),
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
-        .I_alu_ctrl                 (I_alu_ctrl             ),
+        .I_bru_valid                (I_bru_valid            ),
+        .I_sign                     (I_sign                 ),
+        .I_f7b5_en                  (f7b5_en                ),
+        .I_alu_ctrl                 (alu_op                 ),
         .O_alu_result               (alu_result             ),
         .O_eq                       (src_eq                 ),
         .O_lt                       (src_lt                 )
@@ -133,7 +134,7 @@ module ysyx_25110270_exec
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
-        .I_bru_ctrl                 (I_bru_ctrl             ),
+        .I_bru_ctrl                 (I_op                   ),
         .O_bru_taken                (bru_taken              )
     );
 
@@ -145,7 +146,7 @@ module ysyx_25110270_exec
     (
         .I_csr_src                  (csr_src                ),
         .I_csr_rdata                (I_csr_rdata            ),
-        .I_csr_ctrl                 (I_csr_ctrl             ),
+        .I_csr_ctrl                 (I_op                   ),
         .O_csr_wdata                (csr_wdata              )
     );
 
@@ -194,15 +195,15 @@ module ysyx_25110270_exec
 
     assign O_rd_we = I_rd_we;
     assign O_rd_waddr = I_rd_waddr;
-    assign O_rd_wdata = I_csr_re? I_csr_rdata : alu_result;
+    assign O_rd_wdata = I_csr_valid ? I_csr_rdata : alu_result;
     assign O_memory_addr = agu_result;
     assign O_store_data = I_rs2_rdata;
 
     assign O_ls_valid = I_ls_valid;
-    assign O_lsu_ctrl = I_lsu_ctrl;
+    assign O_ls_op = I_op;
 
     assign O_csr_we = I_csr_we;
-    assign O_csr_waddr = I_csr_waddr;
+    assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
     assign O_bru_taken = bru_taken_r;
