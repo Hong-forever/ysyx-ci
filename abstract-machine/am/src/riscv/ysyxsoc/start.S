@@ -33,10 +33,6 @@ _start_ssbl:
   la a1, _stext
   la a2, _etext
 
-  call test_smc
-  call _start_text
-  la a1, _stext
-
 .text_copy_loop:
   beq a1, a2, .text_copy_done
   lw t0, 0(a0)
@@ -73,70 +69,7 @@ _start_ssbl:
   la t0, _start_text
   jr t0
 
-test_smc:
-  la t0, 0x00000013
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  sw t0, 0(a1)
-  add a1, a1, 4
-  la t0, 0x00008067
-  sw t0, 0(a1)
-  ret
-
-
 .size _start_ssbl, . - _start_ssbl
-
-
 
 .section text_entry, "ax"
 .globl _start_text
