@@ -371,8 +371,9 @@ module ysyx_25110270_decoder
     wire inst_is_br = (bru_ctrl != 0);
     wire inst_is_alu = (opcode == `RV32I_OP_TYPE_I) | (opcode == `RV32I_OP_AUIPC) | (opcode == `RV32I_OP_LUI) | (opcode == `RV32IM_OP_TYPE_R);
     wire inst_is_csr = (csr_en != 0);
+    wire inst_is_fence_i = except[`EXCPT_FENCE_I];
 
-    wire [3:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
+    wire [4:0] inst_type = {inst_is_fence_i, inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
     
     reg valid;
     always @(posedge clk) begin
