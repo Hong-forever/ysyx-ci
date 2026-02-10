@@ -156,7 +156,7 @@ module ysyx_25110270_ifetch
     #(
         .ADDR_WIDTH             (32                         ),
         .DATA_WIDTH             (32                         ),
-        .SET_NUM                (256                      ),
+        .SET_NUM                (8                          ),
         .N_WAYS                 (1                          ),
         .BLOCK_SIZE             (8                          )
     ) icache
