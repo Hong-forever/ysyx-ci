@@ -91,12 +91,36 @@ extern "C" void wb_inst_cycle_cal(int pc) {
     if (inst_buffer.pc == pc) {
         uint64_t cycle = end - inst_buffer.begin + 1;
         switch (inst_buffer.type) {
-            case IT_ALU_ALU: alu_inst_log.inst_nr++; alu_inst_log.cycle += cycle; /*printf("alu, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
-            case IT_LS:      ls_inst_log.inst_nr++;  ls_inst_log.cycle  += cycle; break;
-            case IT_BR:      br_inst_log.inst_nr++;  br_inst_log.cycle  += cycle; /*printf("br, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
-            case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; /*printf("csr, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
-            case IT_FENCE_I: fence_i_inst_log.inst_nr++; fence_i_inst_log.cycle += cycle; /*printf("fence_i, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
-            default:                                                              break;
+            case IT_ALU_ALU: 
+                alu_inst_log.inst_nr++; 
+                alu_inst_log.cycle += cycle; 
+                // printf("alu, pc == 0x%08x\n", pc);  
+                assert(cycle == 5); 
+            break;
+            case IT_LS:      
+                ls_inst_log.inst_nr++;  
+                ls_inst_log.cycle  += cycle; 
+                assert(cycle < 10000);
+            break;
+            case IT_BR:      
+                br_inst_log.inst_nr++;  
+                br_inst_log.cycle  += cycle; 
+                // printf("br, pc == 0x%08x\n", pc);  
+                assert(cycle == 5); 
+            break;
+            case IT_CSR:     
+                csr_inst_log.inst_nr++; 
+                csr_inst_log.cycle += cycle; 
+                // printf("csr, pc == 0x%08x\n", pc);  
+                assert(cycle == 5); 
+            break;
+            case IT_FENCE_I: 
+                fence_i_inst_log.inst_nr++; 
+                fence_i_inst_log.cycle += cycle; 
+                // printf("fence_i, pc == 0x%08x\n", pc);  
+                assert(cycle == 5); 
+            break;
+            default: break;
         }
             // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ALU ? "ALU_ALU" : 
             //                                                     inst_buffer[i].type == IT_LS      ? "LS"      :
