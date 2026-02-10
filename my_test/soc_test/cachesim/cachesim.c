@@ -205,7 +205,7 @@ bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write) {
 }
 
 double cachesim_calculate_miss_penalty() {
-    return 122.98;
+    return 92.08;
 }
 
 // 估算总缺失时间（TMT）
