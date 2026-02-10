@@ -26,7 +26,6 @@ _start:
 .section ssbl_entry, "ax"
 .globl _start_ssbl
 .type _start_ssbl, @function
-.globl test_smc
 
 _start_ssbl:
   la a0, _text_loadaddr
