@@ -36,7 +36,6 @@ _start_ssbl:
   call test_smc
   call _start_text
   la a1, _stext
-  fence.i
 
 .text_copy_loop:
   beq a1, a2, .text_copy_done
@@ -70,6 +69,7 @@ _start_ssbl:
   j .bss_zero_loop
 
 .bss_zero_done:
+  fence.i
   la t0, _start_text
   jr t0
 
