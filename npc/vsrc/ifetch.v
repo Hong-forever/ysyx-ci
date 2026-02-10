@@ -182,14 +182,14 @@ module ysyx_25110270_ifetch
 `ifdef DEBUG
     always @(posedge clk) begin
         if(!rst_n) begin
-            pc <= `RESET_VECTOR;
+            pc <= `ysyx_25110270_RESET_VECTOR;
         end else if(ibus_arvalid && 
             !(
-                (ibus_araddr >= `MromAddrBase  && ibus_araddr <= (`MromAddrBase + `MromSize - 1))   || 
-                (ibus_araddr >= `SramAddrBase  && ibus_araddr <= (`SramAddrBase + `SramSize - 1))   ||
-                (ibus_araddr >= `FlashAddrBase && ibus_araddr <= (`FlashAddrBase + `FlashSize - 1)) ||
-                (ibus_araddr >= `PsramAddrBase && ibus_araddr <= (`PsramAddrBase + `PsramSize - 1)) ||
-                (ibus_araddr >= `SdramAddrBase && ibus_araddr <= (`SdramAddrBase + `SdramSize - 1))
+                (ibus_araddr >= `ysyx_25110270_MromAddrBase  && ibus_araddr <= (`ysyx_25110270_MromAddrBase + `ysyx_25110270_MromSize - 1))   || 
+                (ibus_araddr >= `ysyx_25110270_SramAddrBase  && ibus_araddr <= (`ysyx_25110270_SramAddrBase + `ysyx_25110270_SramSize - 1))   ||
+                (ibus_araddr >= `ysyx_25110270_FlashAddrBase && ibus_araddr <= (`ysyx_25110270_FlashAddrBase + `ysyx_25110270_FlashSize - 1)) ||
+                (ibus_araddr >= `ysyx_25110270_PsramAddrBase && ibus_araddr <= (`ysyx_25110270_PsramAddrBase + `ysyx_25110270_PsramSize - 1)) ||
+                (ibus_araddr >= `ysyx_25110270_SdramAddrBase && ibus_araddr <= (`ysyx_25110270_SdramAddrBase + `ysyx_25110270_SdramSize - 1))
             )) begin
             pc <= 0;
             $error("IFETCH: PC address out of range at pc = 0x%08x", ibus_araddr);
@@ -203,7 +203,7 @@ module ysyx_25110270_ifetch
 `else
     always @(posedge clk) begin
         if(!rst_n) begin
-            pc <= `RESET_VECTOR;
+            pc <= `ysyx_25110270_RESET_VECTOR;
         end else if(state == EXE) begin
             pc <= npc;
         end
@@ -221,10 +221,10 @@ module ysyx_25110270_ifetch
         end
     end
 
-    assign npc = I_flush        ? I_flush_addr    :
-                 I_bru_taken    ? I_bru_target    :
-                 I_valid        ? pc_plus4        :
-                 pc;
+    assign npc =    I_flush        ? I_flush_addr    :
+                    I_bru_taken    ? I_bru_target    :
+                    I_valid        ? pc_plus4        :
+                    pc;
     
     assign pc_plus4 = pc + 32'h4;
 
@@ -258,6 +258,7 @@ module ysyx_25110270_ifetch
 
     assign ibus_bready = 1'b0;
 
+    assign ibus_arvalid = inst_arvalid;
     assign ibus_arid = 0;
     assign ibus_arlen = noneed_cache ? 8'b0000_0000 : 8'b0000_0001;
     assign ibus_arsize = 3'b010;
@@ -300,44 +301,5 @@ module ysyx_25110270_ifetch
 
 `endif
 
-`ifndef LFSR
-    assign ibus_arvalid = inst_arvalid;
-`else
-    reg arvalid_r;
-    wire [`RAMDOM_WIDTH-1:0] irandom;
-    reg [`RAMDOM_WIDTH-1:0] irandom_r;
-    reg req_flag;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            arvalid_r <= 1'b0;
-            irandom_r <= 0;
-            req_flag <= 1'b0;
-        end else if(req_flag) begin
-            irandom_r <= irandom_r - 1;
-            if(irandom_r == 0) begin
-                arvalid_r <= 1'b1;
-                req_flag <= 1'b0;
-            end
-        end else if(state == IDLE && inst_arvalid && !arvalid_r) begin
-            arvalid_r <= 1'b0;
-            irandom_r <= irandom;
-            req_flag <= 1'b1;
-        end else if(ibus_arvalid && ibus_arready) begin
-            arvalid_r <= 1'b0;
-        end
-    end
-
-    assign ibus_arvalid = arvalid_r;
-
-    lfsr #(
-        .WIDTH                  (`RAMDOM_WIDTH              )      
-    ) ilfsr_inst
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_seed                 (`SEED1                     ),
-        .O_random               (irandom                    )
-    );
-`endif
 
 endmodule

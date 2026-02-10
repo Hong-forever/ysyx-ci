@@ -6,49 +6,47 @@
 
 module ysyx_25110270_csr_reg
 (
-    input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                                    clk,
+    input   wire                                    rst_n,
 
-    input   wire    [`CSRAddrBus    ]   I_raddr,
-    output  wire    [`CSRDataBus    ]   O_rdata,
+    input   wire    [11:0                       ]   I_raddr,
+    output  wire    [31:0                       ]   O_rdata,
 
-    input   wire                        I_we,
-    input   wire    [`CSRAddrBus    ]   I_waddr,
-    input   wire    [`CSRDataBus    ]   I_wdata,
+    input   wire                                    I_we,
+    input   wire    [11:0                       ]   I_waddr,
+    input   wire    [31:0                       ]   I_wdata,
 
-    input   wire    [`ExceptBus     ]   I_except,
-    input   wire    [`InstAddrBus   ]   I_except_addr,
+    input   wire    [`yxyx_25110270_ExceptBus   ]   I_except,
+    input   wire    [31:0                       ]   I_except_addr,
 
-    input   wire    [`InstAddrBus   ]   I_next_inst_addr,
+    input   wire    [31:0                       ]   I_next_inst_addr,
 
-    output  wire                        O_flush,
-    output  wire    [`InstAddrBus   ]   O_flush_addr,
+    output  wire                                    O_flush,
+    output  wire    [31:0                       ]   O_flush_addr,
 
-    output  wire    [`CSRDataBus    ]   O_csr_mtvec,        //mtvec寄存器
-    output  wire    [`CSRDataBus    ]   O_csr_mepc,         //mepc寄存器
-    output  wire    [`CSRDataBus    ]   O_csr_mstatus,      //mstatus寄存器
-    output  wire    [`CSRDataBus    ]   O_csr_mcause,       //mcause寄存器
-    output  wire    [`CSRDataBus]       O_csr_mcyclel,       //mcycle寄存器
-    output  wire    [`CSRDataBus]       O_csr_mcycleh,       //mcycle寄存器
-    output  wire    [`CSRDataBus    ]   O_csr_mvendorid,      //mvendorid寄存器
-    output  wire    [`CSRDataBus    ]   O_csr_marchid         //marchid寄存器
+    output  wire    [31:0                       ]   O_csr_mtvec,        //mtvec寄存器
+    output  wire    [31:0                       ]   O_csr_mepc,         //mepc寄存器
+    output  wire    [31:0                       ]   O_csr_mstatus,      //mstatus寄存器
+    output  wire    [31:0                       ]   O_csr_mcause,       //mcause寄存器
+    output  wire    [31:0                       ]   O_csr_mcyclel,       //mcycle寄存器
+    output  wire    [31:0                       ]   O_csr_mcycleh,       //mcycle寄存器
+    output  wire    [31:0                       ]   O_csr_mvendorid,      //mvendorid寄存器
+    output  wire    [31:0                       ]   O_csr_marchid         //marchid寄存器
 );
 
-    reg [`CSRDataBus] mstatus;
-    reg [`CSRDataBus] mie;
-    reg [`CSRDataBus] mtvec;
-    reg [`CSRDataBus] mscratch;
-    reg [`CSRDataBus] mepc;
-    reg [`CSRDataBus] mcause;
-    // reg [`DoubleCSRDataBus] mtimecmp;   //未定义地址，未实现
-    reg [`DoubleCSRDataBus] cycle;
+    reg [31:0       ] mstatus;
+    reg [31:0       ] mie;
+    reg [31:0       ] mtvec;
+    reg [31:0       ] mepc;
+    reg [31:0       ] mcause;
+    reg [63:0       ] cycle;
 
-    reg [`CSRDataBus] mvendorid;
-    reg [`CSRDataBus] marchid;
+    reg [31:0       ] mvendorid;
+    reg [31:0       ] marchid;
 
-    wire is_ecall = I_except[`EXCPT_ECALL];
-    wire is_ebreak = I_except[`EXCPT_EBREAK];
-    wire is_mret  = I_except[`EXCPT_MRET];
+    wire is_ecall  = I_except[`yxyx_25110270_EXCPT_ECALL];
+    wire is_ebreak = I_except[`yxyx_25110270_EXCPT_EBREAK];
+    wire is_mret   = I_except[`yxyx_25110270_EXCPT_MRET];
 
     // wire except_sync = is_ecall | is_ebreak;
     wire except_sync = is_ecall; // for ysyx
@@ -67,8 +65,8 @@ module ysyx_25110270_csr_reg
     end
     
 
-    `define YSYX_LOGO      32'h79737978 //ysyx的logo
-    `define YSYX_STU_NUM   32'h25110270 //我的学号-25110270
+    parameter YSYX_LOGO      = 32'h79737978; //ysyx的logo
+    parameter YSYX_STU_NUM   = 32'h25110270; //我的学号-25110270
 
 
     //cycle counter
@@ -90,9 +88,8 @@ module ysyx_25110270_csr_reg
             mepc <= 0;
             mie <= 0;
             mstatus <= 0;
-            mscratch <= 0;
-            mvendorid <= `YSYX_LOGO;
-            marchid <= `YSYX_STU_NUM;
+            mvendorid <= YSYX_LOGO;
+            marchid <= YSYX_STU_NUM;
         end else begin
             if(except_sync & ~e_sync_r) begin
                 mepc <= I_except_addr;
@@ -106,7 +103,6 @@ module ysyx_25110270_csr_reg
                         `CSR_Addr_MSTATUS:  mstatus     <= I_wdata;
                         `CSR_Addr_MIE:      mie         <= I_wdata;
                         `CSR_Addr_MTVEC:    mtvec       <= I_wdata;
-                        `CSR_Addr_MSCRATCH: mscratch    <= I_wdata;
                         `CSR_Addr_MEPC:     mepc        <= I_wdata;
                         `CSR_Addr_MCAUSE:   mcause      <= I_wdata;
                         default: begin end
@@ -119,7 +115,7 @@ module ysyx_25110270_csr_reg
 
     //read reg
     //idu模块读CSR寄存器
-    reg [`CSRDataBus]   rdata1;
+    reg [31:0       ]   rdata1;
     always @(*) begin
         if(I_we && I_raddr == I_waddr) begin
             rdata1 = I_wdata;
@@ -128,7 +124,6 @@ module ysyx_25110270_csr_reg
                 `CSR_Addr_MSTATUS:  rdata1 = mstatus;
                 `CSR_Addr_MIE:      rdata1 = mie;
                 `CSR_Addr_MTVEC:    rdata1 = mtvec;
-                `CSR_Addr_MSCRATCH: rdata1 = mscratch;
                 `CSR_Addr_MEPC:     rdata1 = mepc;
                 `CSR_Addr_MCAUSE:   rdata1 = mcause;
                 `CSR_Addr_CYCLE:    rdata1 = cycle[31:0];

@@ -101,15 +101,6 @@ module ysyx_25110270_clint
             if(bvalid_o && bready_i) begin
                 wdata_valid <= 1'b0;
             end else if(wvalid_i && wready_o) begin
-                mtime[7:0  ] <= awaddr_i[2] ? mtime[7:0  ] : (wstrb_i[0] ? wdata_i[7:0  ] : mtime[7:0  ]);
-                mtime[15:8 ] <= awaddr_i[2] ? mtime[15:8 ] : (wstrb_i[1] ? wdata_i[15:8 ] : mtime[15:8 ]);
-                mtime[23:16] <= awaddr_i[2] ? mtime[23:16] : (wstrb_i[2] ? wdata_i[23:16] : mtime[23:16]);
-                mtime[31:24] <= awaddr_i[2] ? mtime[31:24] : (wstrb_i[3] ? wdata_i[31:24] : mtime[31:24]);
-
-                mtime[39:32] <= awaddr_i[2] ? (wstrb_i[0] ? wdata_i[7:0  ] : mtime[39:32]) : mtime[39:32];
-                mtime[47:40] <= awaddr_i[2] ? (wstrb_i[1] ? wdata_i[15:8 ] : mtime[47:40]) : mtime[47:40];
-                mtime[55:48] <= awaddr_i[2] ? (wstrb_i[2] ? wdata_i[23:16] : mtime[55:48]) : mtime[55:48];
-                mtime[63:56] <= awaddr_i[2] ? (wstrb_i[3] ? wdata_i[31:24] : mtime[63:56]) : mtime[63:56];
                 wdata_valid <= 1'b1;
             end
         end

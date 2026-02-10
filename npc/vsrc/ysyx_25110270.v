@@ -1,5 +1,3 @@
-`include "defines.v"
-
 module ysyx_25110270
 (
     input   wire                        clock,
