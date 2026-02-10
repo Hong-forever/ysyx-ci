@@ -136,7 +136,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     // static FILE *itrace_fp = NULL;
         
     // if (itrace_fp == NULL) {
-    //     itrace_fp = fopen("/tmp/nemu_itrace_pc.bin", "wb");
+    //     itrace_fp = fopen("/tmp/cachesim.bin", "wb");
     //     if (itrace_fp == NULL) {
     //         perror("Failed to open itrace file");
     //     }

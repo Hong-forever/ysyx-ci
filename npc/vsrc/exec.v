@@ -36,7 +36,7 @@ module ysyx_25110270_exec
     input   wire    [`CSRDataBus]       I_csr_rdata,
 
     input   wire                        I_csr_re,           //判断结果是否来自csr
-    input   wire    [`Except_Bus    ]   I_except,           //异常
+    input   wire    [`ExceptBus     ]   I_except,           //异常
 
     output  wire    [`InstBus       ]   O_inst,
     output  wire    [`InstAddrBus   ]   O_inst_addr,
@@ -52,7 +52,7 @@ module ysyx_25110270_exec
     output  wire                        O_csr_we,
     output  wire    [`CSRAddrBus    ]   O_csr_waddr,
     output  wire    [`CSRDataBus    ]   O_csr_wdata,
-    output  wire    [`Except_Bus    ]   O_except,
+    output  wire    [`ExceptBus     ]   O_except,
 
     //bru
     output  wire                        O_bru_taken,

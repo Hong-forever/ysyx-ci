@@ -55,7 +55,7 @@ module ysyx_25110270_decoder
     output  wire                        O_csr_re,
 
     // 异常
-    output  wire    [`Except_Bus    ]   O_except
+    output  wire    [`ExceptBus     ]   O_except
 );
     
     //------------------------------------------------------------------------
@@ -320,7 +320,7 @@ module ysyx_25110270_decoder
     //------------------------------------------------------------------------
     // 异常解码
     //------------------------------------------------------------------------
-    wire [`Except_Bus] except;
+    wire [`ExceptBus ] except;
     ysyx_25110270_dec_except dec_except
     (
         .I_inst                 (I_inst                     ),
@@ -398,15 +398,14 @@ endmodule
 module ysyx_25110270_dec_except
 (
     input   wire    [`InstBus       ]   I_inst,
-    // output  wire                        O_except_valid,
-    output  wire    [`Except_Bus    ]   O_except
+    output  wire    [`ExceptBus     ]   O_except
 );
-    // assign O_except_valid = 1'b0;
 
     // 异常指令
-    assign O_except[`EXCPT_ECALL ] = (I_inst == `RV_ECALL);
-    assign O_except[`EXCPT_EBREAK] = (I_inst == `RV_EBREAK);
-    assign O_except[`EXCPT_MRET  ] = (I_inst == `RV_MRET);
+    assign O_except[`EXCPT_ECALL  ] = (I_inst == `RV_ECALL  );
+    assign O_except[`EXCPT_EBREAK ] = (I_inst == `RV_EBREAK );
+    assign O_except[`EXCPT_MRET   ] = (I_inst == `RV_MRET   );
+    assign O_except[`EXCPT_FENCE_I] = (I_inst == `RV_FENCE_I);
 
 endmodule
 

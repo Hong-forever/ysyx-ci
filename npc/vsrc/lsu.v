@@ -27,7 +27,7 @@ module ysyx_25110270_lsu
     input   wire                        I_csr_we,
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,
     input   wire    [`CSRDataBus    ]   I_csr_wdata,
-    input   wire    [`Except_Bus    ]   I_except,
+    input   wire    [`ExceptBus     ]   I_except,
 
     input   wire                        I_is_ldst,          //是否为访存指令
 
@@ -40,7 +40,7 @@ module ysyx_25110270_lsu
     output  wire                        O_csr_we,
     output  wire    [`CSRAddrBus    ]   O_csr_waddr,
     output  wire    [`CSRDataBus    ]   O_csr_wdata,
-    output  wire    [`Except_Bus    ]   O_except,
+    output  wire    [`ExceptBus     ]   O_except,
 
     output  wire                        O_device_skip,
 
