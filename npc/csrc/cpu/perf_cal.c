@@ -8,7 +8,8 @@ enum Inst_Type {
     IT_ALU_ALU = 0x01,
     IT_LS      = 0x02,
     IT_BR      = 0x04,
-    IT_CSR     = 0x08
+    IT_CSR     = 0x08,
+    IT_FENCE_I = 0x10
 };
 
 typedef struct {
@@ -23,7 +24,7 @@ typedef struct {
 } Inst_log;
 
 Inst_buf inst_buffer;
-Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
+Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log, fence_i_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
 uint64_t ls_delay_total;
@@ -94,6 +95,7 @@ extern "C" void wb_inst_cycle_cal(int pc) {
             case IT_LS:      ls_inst_log.inst_nr++;  ls_inst_log.cycle  += cycle; break;
             case IT_BR:      br_inst_log.inst_nr++;  br_inst_log.cycle  += cycle; /*printf("br, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
             case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; /*printf("csr, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
+            case IT_FENCE_I: fence_i_inst_log.inst_nr++; fence_i_inst_log.cycle += cycle; /*printf("fence_i, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
             default:                                                              break;
         }
             // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ALU ? "ALU_ALU" : 
@@ -126,12 +128,14 @@ void perf_cal() {
     printf("L/S Inst     : %u(%.2f%%)\n", ls_inst_log.inst_nr,  (double)ls_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("Branch Inst  : %u(%.2f%%)\n", br_inst_log.inst_nr,  (double)br_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %u(%.2f%%)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
+    printf("FENCE Inst   : %u(%.2f%%)\n", fence_i_inst_log.inst_nr, (double)fence_i_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
 
     printf("\n===== Inst Exe Average Cycle =====\n");
     printf("ALU Inst(alu): %.2f\n", alu_inst_log.inst_nr ? (double)alu_inst_log.cycle / (double)alu_inst_log.inst_nr : 0);
     printf("L/S Inst     : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_inst_log.cycle  / (double)ls_inst_log.inst_nr  : 0);
     printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
+    printf("FENCE Inst   : %.2f\n", fence_i_inst_log.inst_nr ? (double)fence_i_inst_log.cycle / (double)fence_i_inst_log.inst_nr : 0);
 
     double miss_per = (double)icache_miss / (double)(g_nr_guest_inst);
     double hit_per = (double)1 - miss_per;

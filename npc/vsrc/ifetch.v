@@ -88,6 +88,8 @@ module ysyx_25110270_ifetch
         end
     end
 
+    wire noneed_cache = (pc >= `SramAddrBase) && (pc < (`SramAddrBase + `SramSize));
+
     wire inst_reqvalid_next = (state == IDLE) || I_valid;
 
     always @(posedge clk) begin
@@ -105,7 +107,7 @@ module ysyx_25110270_ifetch
             inst_arvalid <= 1'b0;
         end else if(ibus_arvalid && ibus_arready) begin
             inst_arvalid <= 1'b0;
-        end else if(cache_miss & ~miss_reg) begin
+        end else if(cache_miss & ~miss_reg || inst_reqvalid & noneed_cache) begin
             inst_arvalid <= 1'b1;
         end
     end
@@ -115,6 +117,8 @@ module ysyx_25110270_ifetch
             inst <= 0;
         end else if(cache_valid) begin
             inst <= cache_data;
+        end else if(noneed_cache && ibus_rvalid) begin
+            inst <= ibus_rdata;
         end
     end
 
@@ -123,7 +127,7 @@ module ysyx_25110270_ifetch
             inst_valid <= 0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(cache_valid) begin
+        end else if(cache_valid || (noneed_cache && ibus_rvalid)) begin
             inst_valid <= 1'b1;
         end
     end
@@ -134,13 +138,13 @@ module ysyx_25110270_ifetch
         end else begin
             case(state)
                 IDLE: begin
-                    nstate = inst_reqvalid ? CACHE : IDLE;
+                    nstate = inst_reqvalid ? (noneed_cache ? MISS : CACHE) : IDLE;
                 end
                 CACHE: begin
                     nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
                 end
                 MISS: begin
-                    nstate = ibus_rvalid && ibus_rlast ? IDLE : MISS;
+                    nstate = ibus_rvalid && ibus_rlast ? (noneed_cache ? EXE : IDLE) : MISS;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
@@ -167,7 +171,7 @@ module ysyx_25110270_ifetch
         .I_wr                   (ibus_rvalid                ),
         .I_wdata                (ibus_rdata                 ),
         .I_wlast                (ibus_rlast                 ),
-        .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
+        .I_valid                ((inst_reqvalid & !noneed_cache) | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
         .O_miss                 (cache_miss                 ),
@@ -255,11 +259,11 @@ module ysyx_25110270_ifetch
     assign ibus_bready = 1'b0;
 
     assign ibus_arid = 0;
-    assign ibus_arlen = 8'b0000_0001;
+    assign ibus_arlen = noneed_cache ? 8'b0000_0000 : 8'b0000_0001;
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
-    assign ibus_araddr = {pc[31:3], 3'b000};
+    assign ibus_araddr = noneed_cache ? pc : {pc[31:3], 3'b000};
 
     assign ibus_rready = inst_rready;
 
