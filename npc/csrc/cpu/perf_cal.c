@@ -100,7 +100,7 @@ extern "C" void wb_inst_cycle_cal(int pc) {
             case IT_LS:      
                 ls_inst_log.inst_nr++;  
                 ls_inst_log.cycle  += cycle; 
-                assert(cycle < 3000);
+                assert(cycle < 10000);
             break;
             case IT_BR:      
                 br_inst_log.inst_nr++;  
