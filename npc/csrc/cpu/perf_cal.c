@@ -128,12 +128,14 @@ void perf_cal() {
     printf("L/S Inst     : %u(%.2f%%)\n", ls_inst_log.inst_nr,  (double)ls_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("Branch Inst  : %u(%.2f%%)\n", br_inst_log.inst_nr,  (double)br_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %u(%.2f%%)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
+    printf("FENCE Inst   : %u(%.2f%%)\n", fence_i_inst_log.inst_nr, (double)fence_i_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
 
     printf("\n===== Inst Exe Average Cycle =====\n");
     printf("ALU Inst(alu): %.2f\n", alu_inst_log.inst_nr ? (double)alu_inst_log.cycle / (double)alu_inst_log.inst_nr : 0);
     printf("L/S Inst     : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_inst_log.cycle  / (double)ls_inst_log.inst_nr  : 0);
     printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
+    printf("FENCE Inst   : %.2f\n", fence_i_inst_log.inst_nr ? (double)fence_i_inst_log.cycle / (double)fence_i_inst_log.inst_nr : 0);
 
     double miss_per = (double)icache_miss / (double)(g_nr_guest_inst);
     double hit_per = (double)1 - miss_per;
