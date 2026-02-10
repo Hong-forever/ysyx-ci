@@ -86,7 +86,7 @@ module ysyx_25110270_cpu_core
     wire [`CSRSrc_sel_width-1:0 ] O_dec_CSRSrc_sel;
     wire                O_dec_ls_valid;
     wire [`ls_diff_bus] O_dec_ls_type;
-    wire [`ExceptBus  ] O_dec_except;
+    wire [`Except_Bus ] O_dec_except;
 
     //-------------------------------------------------------------
     // pipeline_dec_ex
@@ -116,7 +116,7 @@ module ysyx_25110270_cpu_core
     wire [`RegAddrBus ] I_ex_rs1_raddr;
     wire [`RegAddrBus ] I_ex_rs2_raddr;
     wire [`CSRAddrBus ] I_ex_csr_raddr;
-    wire [`ExceptBus  ] I_ex_except;
+    wire [`Except_Bus ] I_ex_except;
 
     //-------------------------------------------------------------
     // fwd_unit
@@ -145,7 +145,7 @@ module ysyx_25110270_cpu_core
     wire                O_ex_csr_we;
     wire [`CSRAddrBus ] O_ex_csr_waddr;
     wire [`CSRDataBus ] O_ex_csr_wdata;
-    wire [`ExceptBus  ] O_ex_except;
+    wire [`Except_Bus ] O_ex_except;
 
 
     //-------------------------------------------------------------
@@ -163,7 +163,7 @@ module ysyx_25110270_cpu_core
     wire                I_ls_csr_we;
     wire [`CSRAddrBus ] I_ls_csr_waddr;
     wire [`CSRDataBus ] I_ls_csr_wdata;
-    wire [`ExceptBus  ] I_ls_except;
+    wire [`Except_Bus ] I_ls_except;
 
 
     //-------------------------------------------------------------
@@ -179,7 +179,7 @@ module ysyx_25110270_cpu_core
     wire                O_ls_csr_we;
     wire [`CSRAddrBus ] O_ls_csr_waddr;
     wire [`CSRDataBus ] O_ls_csr_wdata;
-    wire [`ExceptBus  ] O_ls_except;
+    wire [`Except_Bus ] O_ls_except;
 
     //-------------------------------------------------------------
     // pipeline_ls_wb
@@ -192,7 +192,7 @@ module ysyx_25110270_cpu_core
     wire                I_wb_csr_we;
     wire [`CSRAddrBus ] I_wb_csr_waddr;
     wire [`CSRDataBus ] I_wb_csr_wdata;
-    wire [`ExceptBus  ] I_wb_except;
+    wire [`Except_Bus ] I_wb_except;
 
     //-------------------------------------------------------------
     // wb
@@ -289,8 +289,6 @@ module ysyx_25110270_cpu_core
 
         .I_flush                (O_flush                    ),
         .I_flush_addr           (O_flush_addr               ),
-
-        .I_fence_i              (O_ex_except[`EXCPT_FENCE_I]),
 
         .O_inst                 (O_if_inst                  ),
         .O_inst_addr            (O_if_inst_addr             ),

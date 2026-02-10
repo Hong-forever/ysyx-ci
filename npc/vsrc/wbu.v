@@ -35,7 +35,7 @@ module ysyx_25110270_wbu
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,
     input   wire    [`CSRDataBus    ]   I_csr_wdata,
 
-    input   wire    [`ExceptBus     ]   I_except,
+    input   wire    [`Except_Bus    ]   I_except,
     input   wire    [`InstAddrBus   ]   I_except_addr,
 
     input   wire    [`InstAddrBus   ]   I_next_inst_addr,

@@ -26,7 +26,6 @@ _start:
 .section ssbl_entry, "ax"
 .globl _start_ssbl
 .type _start_ssbl, @function
-.globl test_smc
 
 _start_ssbl:
   la a0, _text_loadaddr
@@ -65,11 +64,12 @@ _start_ssbl:
   j .bss_zero_loop
 
 .bss_zero_done:
-  fence.i
   la t0, _start_text
   jr t0
 
 .size _start_ssbl, . - _start_ssbl
+
+
 
 .section text_entry, "ax"
 .globl _start_text

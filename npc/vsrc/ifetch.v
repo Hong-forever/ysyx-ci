@@ -20,8 +20,6 @@ module ysyx_25110270_ifetch
     input   wire                        I_flush,            // 指令冲刷
     input   wire    [31:0]              I_flush_addr,       // 冲刷跳转地址
 
-    input                               I_fence_i,           // 指令同步
-
     output  wire    [31:0]              O_inst,
     output  wire    [31:0]              O_inst_addr,
 
@@ -170,9 +168,7 @@ module ysyx_25110270_ifetch
         .I_valid                (inst_reqvalid | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
-        .O_miss                 (cache_miss                 ),
-
-        .I_clear                (I_fence_i                  )
+        .O_miss                 (cache_miss                 )
     );
 
 `ifdef DEBUG

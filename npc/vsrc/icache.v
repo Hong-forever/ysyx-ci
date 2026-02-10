@@ -21,9 +21,7 @@ module ysyx_25110270_icache
     input                           I_valid,
     output      [DATA_WIDTH-1:0]    O_data,
     output                          O_valid,
-    output                          O_miss,
-
-    input                           I_clear
+    output                          O_miss
 );
 
     parameter WORD_BYTES        = DATA_WIDTH/8;                 // 每个字的字节数
@@ -101,15 +99,6 @@ module ysyx_25110270_icache
         end
     end
 
-    reg clear_r;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            clear_r <= 1'b0;
-        end else begin
-            clear_r <= I_clear;
-        end
-    end
-
     integer i, j;
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -121,10 +110,6 @@ module ysyx_25110270_icache
                 end
             end
             cnt <= 0;
-        end else if(I_clear && !clear_r) begin
-            for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
-                valid_mem[i] <= 0;
-            end
         end else if(I_valid && I_wr) begin
             data_mem[index][cnt] <= I_wdata;
             tag_mem[index] <= tag;

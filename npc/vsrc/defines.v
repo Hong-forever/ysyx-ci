@@ -119,13 +119,11 @@
 `define RV32I_OP_JAL    7'b1101111
 
 //------------------------------------------------------------------------
-// rv32 Debug type inst
+// rv32i Debug type inst
 //------------------------------------------------------------------------
 `define RV_MRET       32'h30200073
-`define RV_ECALL      32'h00000073
+`define RV_ECALL      32'h73
 `define RV_EBREAK     32'h00100073
-
-`define RV_FENCE_I    32'h0000100F
 
 //------------------------------------------------------------------------
 // rv32zicsr CSR type inst
@@ -267,13 +265,12 @@
 //------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS
 //------------------------------------------------------------------------
-`define ExceptWidth                 4
-`define ExceptBus                   `ExceptWidth-1:0
+`define Except_Width                3
+`define Except_Bus                  `Except_Width-1:0
 
 `define EXCPT_ECALL                 0
 `define EXCPT_EBREAK                1
 `define EXCPT_MRET                  2
-`define EXCPT_FENCE_I               3
 
 //------------------------------------------------------------------------
 // MEMORY DEFINITIONS
