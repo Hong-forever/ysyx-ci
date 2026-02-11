@@ -103,7 +103,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
     // printf("flash_read addr: 0x%08x\n", addr);
     //spi
     *data = paddr_read(addr + CONFIG_FLASH_BASE);
-    printf("flash_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
+    // printf("flash_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
 }
 
 extern "C" void psram_read(int32_t addr, int32_t *data) {
