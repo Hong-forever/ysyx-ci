@@ -40,6 +40,7 @@ SECTIONS {
   _start_loadaddr = LOADADDR(.text);
 
   .data : {
+    . = ALIGN(4);
     *(.data*)
     *(.sdata*)
     . = ALIGN(4);
