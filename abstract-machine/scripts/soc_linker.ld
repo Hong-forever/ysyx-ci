@@ -35,12 +35,13 @@ SECTIONS {
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    . = ALIGN(4);
+    . = ALIGN(8);
   } > sdram AT>flash : text
 
   _start_loadaddr = LOADADDR(.text);
 
   .data : {
+    . = ALIGN(4);
     *(.data*)
     *(.sdata*)
     . = ALIGN(4);
