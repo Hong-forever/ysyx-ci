@@ -42,7 +42,7 @@ _start_ssbl:
 
 .text_copy_done:
   la a0, _data_loadaddr
-  la a1, _etext
+  la a1, _sdata
   la a2, _edata
 
 .data_copy_loop:
@@ -54,7 +54,7 @@ _start_ssbl:
   j .data_copy_loop
 
 .data_copy_done:
-  la a0, _edata
+  la a0, _sbss
   la a1, _ebss
 
 .bss_zero_loop:
