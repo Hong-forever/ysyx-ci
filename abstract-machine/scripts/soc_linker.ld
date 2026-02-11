@@ -41,8 +41,7 @@ SECTIONS {
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    _sdata = .;
-    . = ALIGN(8);
+    _sdata = ALIGN(8);
     *(.data*)
     *(.sdata*)
     _edata = ALIGN(4);
