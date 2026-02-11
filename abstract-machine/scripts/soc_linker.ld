@@ -35,7 +35,7 @@ SECTIONS {
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    _etext = .;
+    _etext = ALIGN(4);
   } > sdram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
@@ -84,7 +84,7 @@ SECTIONS {
   .bss.extra (NOLOAD): {
 
 	  _sbss = ALIGN(4);
-    
+
     . = ALIGN(8);
     __am_apps_bss_start = .;
     *(__am_apps.bss*)
