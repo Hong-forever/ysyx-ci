@@ -1,5 +1,3 @@
-`include "defines.v"
-
 //------------------------------------------------------------------------
 // clint模块
 //------------------------------------------------------------------------
@@ -46,7 +44,7 @@ module ysyx_25110270_clint
 
     reg [2*DATA_WIDTH-1:0] mtime;
 
-    reg [`MemDataBus] rdata;
+    reg [31:0] rdata;
     reg               rdata_valid;
     always @(posedge clk) begin
         if(!rst_n) begin

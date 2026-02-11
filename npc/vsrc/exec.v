@@ -24,7 +24,8 @@ module ysyx_25110270_exec
     input   wire    [1:0                            ]   I_agu_src_sel,
     input   wire                                        I_csr_src_sel,
 
-    input   wire                                        I_ls_valid,         //访存有效标志
+    input   wire                                        I_ld_valid,         //访存有效标志
+    input   wire                                        I_st_valid,         //访存有效标志
     input   wire                                        I_bru_valid,        //跳转指令标志
     input   wire                                        I_csr_valid,        //CSR指令标志
     input   wire                                        I_f7b5_en,          //指令funct7=0x7b或0x5时有效
@@ -47,8 +48,9 @@ module ysyx_25110270_exec
     output  wire    [31:0                           ]   O_rd_wdata,
     output  wire    [31:0                           ]   O_memory_addr,
     output  wire    [31:0                           ]   O_store_data,
-    output  wire                                        O_ls_valid,         //访存有效标志
-    output  wire    [2:0                            ]   O_ls_op,
+    output  wire                                        O_ld_valid,         //访存有效标志
+    output  wire                                        O_st_valid,         //访存有效标志
+    output  wire    [2:0                            ]   O_ls_ctrl,
 
     output  wire                                        O_csr_valid,
     output  wire    [12:0                           ]   O_csr_addr,
@@ -103,7 +105,6 @@ module ysyx_25110270_exec
     wire [31:0] alu_result;
 
     wire [2:0] alu_op = I_bru_valid ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
-    wire f7b5_en = I_f7b5_en & ~I_bru_valid; // srai, sub, sra指令才需要判断funct7[5]
 
     ysyx_25110270_alu alu
     (
@@ -111,9 +112,8 @@ module ysyx_25110270_exec
         .rst_n                      (rst_n                  ),
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
-        .I_bru_valid                (I_bru_valid            ),
         .I_sign                     (I_sign                 ),
-        .I_f7b5_en                  (f7b5_en                ),
+        .I_f7b5_en                  (I_f7b5_en              ),
         .I_alu_ctrl                 (alu_op                 ),
         .O_alu_result               (alu_result             ),
         .O_eq                       (src_eq                 ),
@@ -134,6 +134,7 @@ module ysyx_25110270_exec
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
+        .I_bru_valid                (I_bru_valid            ),
         .I_bru_ctrl                 (I_op                   ),
         .O_bru_taken                (bru_taken              )
     );
@@ -146,7 +147,7 @@ module ysyx_25110270_exec
     (
         .I_csr_src                  (csr_src                ),
         .I_csr_rdata                (I_csr_rdata            ),
-        .I_csr_ctrl                 (I_op                   ),
+        .I_csr_ctrl                 (I_op[1:0]              ),
         .O_csr_wdata                (csr_wdata              )
     );
 
@@ -199,8 +200,9 @@ module ysyx_25110270_exec
     assign O_memory_addr = agu_result;
     assign O_store_data = I_rs2_rdata;
 
-    assign O_ls_valid = I_ls_valid;
-    assign O_ls_op = I_op;
+    assign O_ld_valid = I_ld_valid;
+    assign O_st_valid = I_st_valid;
+    assign O_ls_ctrl = I_op;
 
     assign O_csr_we = I_csr_we;
     assign O_csr_addr = I_csr_addr;

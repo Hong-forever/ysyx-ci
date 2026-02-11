@@ -3,7 +3,10 @@
 //------------------------------------------------------------------------
 
 module ysyx_25110270_xbar
-(
+#(
+    parameter M0_BASE = 32'h0200_0000,
+    parameter M0_SIZE = 32'h0001_0000
+)(
     input   wire                        clk,
     input   wire                        rst_n,
 
@@ -99,8 +102,8 @@ module ysyx_25110270_xbar
     input   wire                        M1_rlast,
     input   wire    [3:0]               M1_rid
 );
-    wire sel_slave0   = (`CLINT_BASE <= S_araddr && S_araddr < `CLINT_BASE + `CLINT_SIZE) ||
-                        (`CLINT_BASE <= S_awaddr && S_awaddr < `CLINT_BASE + `CLINT_SIZE) ;
+    wire sel_slave0   = (M0_BASE <= S_araddr && S_araddr < M0_BASE + M0_SIZE) ||
+                        (M0_BASE <= S_awaddr && S_awaddr < M0_BASE + M0_SIZE) ;
 
     
     assign M0_awvalid = sel_slave0 ? S_awvalid  : 0 ;

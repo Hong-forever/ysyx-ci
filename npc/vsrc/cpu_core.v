@@ -60,7 +60,7 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     wire [`ysyx_25110270_RegAddrBus ]   O_rs1_raddr;
     wire [`ysyx_25110270_RegAddrBus ]   O_rs2_raddr;
-    wire [11:0                      ]   O_csr_raddr;
+    wire [11:0                      ]   O_csr_addr;
     wire [31:0                      ]   I_rs1_rdata;
     wire [31:0                      ]   I_rs2_rdata;
     wire [31:0                      ]   I_csr_rdata;
@@ -69,23 +69,21 @@ module ysyx_25110270_cpu_core
     wire [31:0                      ]   O_dec_inst_addr;
     wire                                O_dec_valid;
     wire                                O_dec_ready;
-    wire [31:0                      ]   O_dec_rs1_rdata;
-    wire [31:0                      ]   O_dec_rs2_rdata;
     wire [31:0                      ]   O_dec_imm;
     wire                                O_dec_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   O_dec_rd_waddr;
-    wire                                O_dec_csr_we;
-    wire [11:0                      ]   O_dec_csr_waddr;
-    wire [31:0                      ]   O_dec_csr_rdata;
-    wire [`ysyx_25110270_CSRCTL_BUS ]   O_dec_csr_ctrl;
-    wire [`ysyx_25110270_ALUCTL_BUS ]   O_dec_alu_ctrl;
-    wire [`ysyx_25110270_BRUCTL_BUS ]   O_dec_bru_ctrl;
-    wire [`ysyx_25110270_ALUSRCA_BUS]   O_dec_alu_srca_sel;
-    wire [`ysyx_25110270_ALUSRCB_BUS]   O_dec_alu_srcb_sel;
-    wire [`ysyx_25110270_AGUSRC_BUS ]   O_dec_agu_src_sel;
-    wire [`ysyx_25110270_CSRSRC_BUS ]   O_dec_csr_src_sel;
-    wire                                O_dec_ls_valid;
-    wire [`ysyx_25110270_LSUCTL_BUS ]   O_dec_ls_type;
+    wire [2:0                       ]   O_dec_op;
+    wire [11:0                      ]   O_dec_csr_addr;
+    wire [1:0                       ]   O_dec_alu_srca_sel;
+    wire [1:0                       ]   O_dec_alu_srcb_sel;
+    wire [1:0                       ]   O_dec_agu_src_sel;
+    wire                                O_dec_csr_src_sel;
+    wire                                O_dec_ld_valid;
+    wire                                O_dec_st_valid;
+    wire                                O_dec_bru_valid;
+    wire                                O_dec_csr_valid;
+    wire                                O_dec_f7b5_en;
+    wire                                O_dec_sign;
     wire [`ysyx_25110270_ExceptBus  ]   O_dec_except;
 
     //-------------------------------------------------------------
@@ -93,29 +91,27 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     wire [31:0                      ]   I_ex_inst;
     wire [31:0                      ]   I_ex_inst_addr;
+
     wire [31:0                      ]   I_ex_rs1_rdata;
     wire [31:0                      ]   I_ex_rs2_rdata;
+    wire [31:0                      ]   I_ex_csr_rdata;
+
     wire [31:0                      ]   I_ex_imm;
     wire                                I_ex_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   I_ex_rd_waddr;
-    wire                                I_ex_csr_we;
-    wire [11:0                      ]   I_ex_csr_waddr;
-    wire [31:0                      ]   I_ex_csr_rdata;
-    wire [`ysyx_25110270_CSRCTL_BUS ]   I_ex_csr_ctrl;
-    wire [`ysyx_25110270_ALUCTL_BUS ]   I_ex_alu_ctrl;
-    wire [`ysyx_25110270_BRUCTL_BUS ]   I_ex_bru_ctrl;
-    wire [`ysyx_25110270_ALUSRCA_BUS]   I_ex_alu_srca_sel;
-    wire [`ysyx_25110270_ALUSRCB_BUS]   I_ex_alu_srcb_sel;
-    wire [`ysyx_25110270_AGUSRC_BUS ]   I_ex_agu_src_sel;
-    wire [`ysyx_25110270_CSRSRC_BUS ]   I_ex_csr_src_sel;
-    wire                                I_ex_ls_valid;
-    wire [`ysyx_25110270_LSUCTL_BUS ]   I_ex_ls_type;
-    wire                                I_ex_rs1_re;
-    wire                                I_ex_rs2_re;
-    wire                                I_ex_csr_re;
-    wire [`ysyx_25110270_RegAddrBus ]   I_ex_rs1_raddr;
-    wire [`ysyx_25110270_RegAddrBus ]   I_ex_rs2_raddr;
-    wire [11:0                      ]   I_ex_csr_raddr;
+    wire [1:0                       ]   I_ex_alu_srca_sel;
+    wire [1:0                       ]   I_ex_alu_srcb_sel;
+    wire [1:0                       ]   I_ex_agu_src_sel;
+    wire                                I_ex_csr_src_sel;
+    wire                                I_ex_ld_valid;
+    wire                                I_ex_st_valid;
+    wire                                I_ex_csr_valid;
+    wire                                I_ex_f7b5_en;
+    wire                                I_ex_sign;
+    wire [2:0                       ]   I_ex_op;
+
+    wire [11:0                      ]   I_ex_csr_addr;
+
     wire [`ysyx_25110270_ExceptBus  ]   I_ex_except;
 
     //-------------------------------------------------------------
@@ -123,7 +119,6 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     wire                                O_dec_rs1_re;
     wire                                O_dec_rs2_re;
-    wire                                O_dec_csr_re;
 
     //-------------------------------------------------------------
     // exec
@@ -135,15 +130,17 @@ module ysyx_25110270_cpu_core
     wire [31:0                      ]   O_ex_inst_addr;
     wire                                O_ex_valid;
     wire                                O_ex_ready;
+
     wire                                O_ex_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   O_ex_rd_waddr;
     wire [31:0                      ]   O_ex_rd_wdata;
     wire [31:0                      ]   O_ex_memory_addr;
     wire [31:0                      ]   O_ex_store_data;
-    wire                                O_ex_ls_valid;
-    wire [`ysyx_25110270_LSUCTL_BUS ]   O_ex_ls_type;
-    wire                                O_ex_csr_we;
-    wire [11:0                      ]   O_ex_csr_waddr;
+    wire                                O_ex_ld_valid;
+    wire                                O_ex_st_valid;
+    wire [2:0                       ]   O_ex_ls_ctrl;
+    wire                                O_ex_csr_valid;
+    wire [11:0                      ]   O_ex_csr_addr;
     wire [31:0                      ]   O_ex_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   O_ex_except;
 
@@ -158,10 +155,11 @@ module ysyx_25110270_cpu_core
     wire [31:0                      ]   I_ls_rd_wdata;
     wire [31:0                      ]   I_ls_memory_addr;
     wire [31:0                      ]   I_ls_store_data;
-    wire                                I_ls_ls_valid;
-    wire [`ysyx_25110270_LSUCTL_BUS ]   I_ls_ls_type;
-    wire                                I_ls_csr_we;
-    wire [11:0                      ]   I_ls_csr_waddr;
+    wire                                I_ls_ld_valid;
+    wire                                I_ls_st_valid;
+    wire [2:0                       ]   I_ls_ls_ctrl;
+    wire                                I_ls_csr_valid;
+    wire [11:0                      ]   I_ls_csr_addr;
     wire [31:0                      ]   I_ls_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   I_ls_except;
 
@@ -176,8 +174,8 @@ module ysyx_25110270_cpu_core
     wire                                O_ls_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   O_ls_rd_waddr;
     wire [31:0                      ]   O_ls_rd_wdata;
-    wire                                O_ls_csr_we;
-    wire [11:0                      ]   O_ls_csr_waddr;
+    wire                                O_ls_csr_valid;
+    wire [11:0                      ]   O_ls_csr_addr;
     wire [31:0                      ]   O_ls_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   O_ls_except;
 
@@ -189,8 +187,8 @@ module ysyx_25110270_cpu_core
     wire                                I_wb_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   I_wb_rd_waddr;
     wire [31:0                      ]   I_wb_rd_wdata;
-    wire                                I_wb_csr_we;
-    wire [11:0                      ]   I_wb_csr_waddr;
+    wire                                I_wb_csr_valid;
+    wire [11:0                      ]   I_wb_csr_addr;
     wire [31:0                      ]   I_wb_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   I_wb_except;
 
@@ -343,34 +341,27 @@ module ysyx_25110270_cpu_core
 
         .O_rs1_raddr            (O_rs1_raddr                ),
         .O_rs2_raddr            (O_rs2_raddr                ),
-        .O_csr_raddr            (O_csr_raddr                ),
-        .I_rs1_rdata            (I_rs1_rdata                ),
-        .I_rs2_rdata            (I_rs2_rdata                ),
-        .I_csr_rdata            (I_csr_rdata                ),
+        .O_csr_addr             (O_csr_addr                 ),
 
         .O_inst                 (O_dec_inst                 ),
         .O_inst_addr            (O_dec_inst_addr            ),
 
-        .O_rs1_rdata            (O_dec_rs1_rdata            ),
-        .O_rs2_rdata            (O_dec_rs2_rdata            ),
         .O_imm                  (O_dec_imm                  ),
         .O_rd_we                (O_dec_rd_we                ),
         .O_rd_waddr             (O_dec_rd_waddr             ),
-        .O_csr_we               (O_dec_csr_we               ),
-        .O_csr_waddr            (O_dec_csr_waddr            ),
-        .O_csr_rdata            (O_dec_csr_rdata            ),
-        .O_csr_ctrl             (O_dec_csr_ctrl             ),
-        .O_alu_ctrl             (O_dec_alu_ctrl             ),
-        .O_bru_ctrl             (O_dec_bru_ctrl             ),
+        .O_op                   (O_dec_op                   ),
         .O_alu_srca_sel         (O_dec_alu_srca_sel         ),
         .O_alu_srcb_sel         (O_dec_alu_srcb_sel         ),
         .O_agu_src_sel          (O_dec_agu_src_sel          ),
         .O_csr_src_sel          (O_dec_csr_src_sel          ),
-        .O_ls_valid             (O_dec_ls_valid             ),
-        .O_ls_type              (O_dec_ls_type              ),
+        .O_ld_valid             (O_dec_ld_valid             ),
+        .O_st_valid             (O_dec_st_valid             ),
+        .O_bru_valid            (O_dec_bru_valid            ),
+        .O_csr_valid            (O_dec_csr_valid            ),
+        .O_f7b5_en              (O_dec_f7b5_en              ),
+        .O_sign                 (O_dec_sign                 ),
         .O_rs1_re               (O_dec_rs1_re               ),
         .O_rs2_re               (O_dec_rs2_re               ),
-        .O_csr_re               (O_dec_csr_re               ),
         .O_except               (O_dec_except               )    
     );
 
@@ -390,21 +381,23 @@ module ysyx_25110270_cpu_core
         .I_rd_we                (I_ex_rd_we                 ),
         .I_rd_waddr             (I_ex_rd_waddr              ),
         .I_imm                  (I_ex_imm                   ),
-        .I_csr_we               (I_ex_csr_we                ),
-        .I_csr_waddr            (I_ex_csr_waddr             ),
-        .I_csr_ctrl             (I_ex_csr_ctrl              ),
-        .I_alu_ctrl             (I_ex_alu_ctrl              ),
-        .I_bru_ctrl             (I_ex_bru_ctrl              ),
         .I_alu_srca_sel         (I_ex_alu_srca_sel          ),
         .I_alu_srcb_sel         (I_ex_alu_srcb_sel          ),
         .I_agu_src_sel          (I_ex_agu_src_sel           ),
         .I_csr_src_sel          (I_ex_csr_src_sel           ),
-        .I_ls_valid             (I_ex_ls_valid              ),
-        .I_ls_type              (I_ex_ls_type               ),
+        .I_ld_valid             (I_ex_ld_valid              ),
+        .I_st_valid             (I_ex_st_valid              ),
+        .I_bru_valid            (I_ex_bru_valid             ),
+        .I_csr_valid            (I_ex_csr_valid             ),
+        .I_f7b5_en              (I_ex_f7b5_en               ),
+        .I_sign                 (I_ex_sign                  ),
+
+        .I_csr_addr             (I_ex_csr_addr              ),
+
         .I_rs1_rdata            (I_ex_rs1_rdata             ),
         .I_rs2_rdata            (I_ex_rs2_rdata             ),
         .I_csr_rdata            (I_ex_csr_rdata             ),
-        .I_csr_re               (I_ex_csr_re                ),
+
         .I_except               (I_ex_except                ),
 
         .O_inst                 (O_ex_inst                  ),
@@ -415,10 +408,12 @@ module ysyx_25110270_cpu_core
         .O_rd_wdata             (O_ex_rd_wdata              ),
         .O_memory_addr          (O_ex_memory_addr           ),
         .O_store_data           (O_ex_store_data            ),
-        .O_ls_valid             (O_ex_ls_valid              ),
-        .O_ls_type              (O_ex_ls_type               ),
-        .O_csr_we               (O_ex_csr_we                ),
-        .O_csr_waddr            (O_ex_csr_waddr             ),
+        .O_ld_valid             (O_ex_ld_valid              ),
+        .O_st_valid             (O_ex_st_valid              ),
+        .O_ls_ctrl              (O_ex_ls_ctrl               ),
+
+        .O_csr_valid            (O_ex_csr_valid             ),
+        .O_csr_addr             (O_ex_csr_addr              ),
         .O_csr_wdata            (O_ex_csr_wdata             ),
         .O_except               (O_ex_except                ),
         .O_bru_taken            (O_ex_bru_taken             ),
@@ -443,14 +438,15 @@ module ysyx_25110270_cpu_core
         .I_rd_wdata             (I_ls_rd_wdata              ),
         .I_memory_addr          (I_ls_memory_addr           ),
         .I_store_data           (I_ls_store_data            ),
-        .I_ls_valid             (I_ls_ls_valid              ),
+        .I_ld_valid             (I_ls_ld_valid              ),
+        .I_st_valid             (I_ls_st_valid              ),
         .I_ls_type              (I_ls_ls_type               ),
-        .I_csr_we               (I_ls_csr_we                ),
-        .I_csr_waddr            (I_ls_csr_waddr             ),
+        .I_csr_valid            (I_ls_csr_valid             ),
+        .I_csr_addr             (I_ls_csr_addr              ),
         .I_csr_wdata            (I_ls_csr_wdata             ),
         .I_except               (I_ls_except                ),
 
-        .I_is_ldst              (O_ex_ls_valid              ),
+        .I_is_ldst              (O_ex_ld_valid|O_ex_st_valid),
 
         .O_device_skip          (lsu_device_skip            ),
 
@@ -459,8 +455,8 @@ module ysyx_25110270_cpu_core
         .O_rd_we                (O_ls_rd_we                 ),
         .O_rd_waddr             (O_ls_rd_waddr              ),
         .O_rd_wdata             (O_ls_rd_wdata              ),
-        .O_csr_we               (O_ls_csr_we                ),
-        .O_csr_waddr            (O_ls_csr_waddr             ),
+        .O_csr_valid            (O_ls_csr_valid             ),
+        .O_csr_addr             (O_ls_csr_addr              ),
         .O_csr_wdata            (O_ls_csr_wdata             ),
         .O_except               (O_ls_except                ),
 
@@ -517,10 +513,11 @@ module ysyx_25110270_cpu_core
         .I_rd_waddr             (I_wb_rd_waddr              ),
         .I_rd_wdata             (I_wb_rd_wdata              ),
 
-        .I_csr_raddr            (O_csr_raddr                ),
+        .I_csr_raddr            (O_csr_addr                 ),
         .O_csr_rdata            (I_csr_rdata                ),
-        .I_csr_we               (I_wb_csr_we                ),
-        .I_csr_waddr            (I_wb_csr_waddr             ),
+
+        .I_csr_valid            (I_wb_csr_valid             ),
+        .I_csr_waddr            (I_wb_csr_addr              ),
         .I_csr_wdata            (I_wb_csr_wdata             ),
 
         .I_except               (I_wb_except                ),
@@ -663,8 +660,8 @@ module ysyx_25110270_cpu_core
         .I_imm                  (O_dec_imm                  ),
         .I_rd_we                (O_dec_rd_we                ),
         .I_rd_waddr             (O_dec_rd_waddr             ),
-        .I_csr_we               (O_dec_csr_we               ),
-        .I_csr_waddr            (O_dec_csr_waddr            ),
+        .I_csr_valid               (O_dec_csr_valid               ),
+        .I_csr_addr            (O_dec_csr_addr            ),
         .I_csr_rdata            (O_dec_csr_rdata            ),
         .I_csr_ctrl             (O_dec_csr_ctrl             ),
         .I_alu_ctrl             (O_dec_alu_ctrl             ),
@@ -685,8 +682,8 @@ module ysyx_25110270_cpu_core
         .O_imm                  (I_ex_imm                   ),
         .O_rd_we                (I_ex_rd_we                 ),
         .O_rd_waddr             (I_ex_rd_waddr              ),
-        .O_csr_we               (I_ex_csr_we                ),
-        .O_csr_waddr            (I_ex_csr_waddr             ),
+        .O_csr_valid               (I_ex_csr_valid                ),
+        .O_csr_addr            (I_ex_csr_addr             ),
         .O_csr_rdata            (I_ex_csr_rdata             ),
         .O_csr_ctrl             (I_ex_csr_ctrl              ),
         .O_alu_ctrl             (I_ex_alu_ctrl              ),
@@ -715,8 +712,8 @@ module ysyx_25110270_cpu_core
         .I_store_data           (O_ex_store_data            ),
         .I_ls_valid             (O_ex_ls_valid              ),
         .I_ls_type              (O_ex_ls_type               ),
-        .I_csr_we               (O_ex_csr_we                ),
-        .I_csr_waddr            (O_ex_csr_waddr             ),
+        .I_csr_valid               (O_ex_csr_valid                ),
+        .I_csr_addr            (O_ex_csr_addr             ),
         .I_csr_wdata            (O_ex_csr_wdata             ),
         .I_except               (O_ex_except                ),
 
@@ -729,8 +726,8 @@ module ysyx_25110270_cpu_core
         .O_store_data           (I_ls_store_data            ),
         .O_ls_valid             (I_ls_ls_valid              ),
         .O_ls_type              (I_ls_ls_type               ),
-        .O_csr_we               (I_ls_csr_we                ),
-        .O_csr_waddr            (I_ls_csr_waddr             ),
+        .O_csr_valid               (I_ls_csr_valid                ),
+        .O_csr_addr            (I_ls_csr_addr             ),
         .O_csr_wdata            (I_ls_csr_wdata             ),
         .O_except               (I_ls_except                )
     );
@@ -745,8 +742,8 @@ module ysyx_25110270_cpu_core
         .I_rd_we                (O_ls_rd_we                 ),
         .I_rd_waddr             (O_ls_rd_waddr              ),
         .I_rd_wdata             (O_ls_rd_wdata              ),
-        .I_csr_we               (O_ls_csr_we                ),
-        .I_csr_waddr            (O_ls_csr_waddr             ),
+        .I_csr_valid               (O_ls_csr_valid                ),
+        .I_csr_addr            (O_ls_csr_addr             ),
         .I_csr_wdata            (O_ls_csr_wdata             ),
         .I_except               (O_ls_except                ),
 
@@ -757,8 +754,8 @@ module ysyx_25110270_cpu_core
         .O_rd_we                (I_wb_rd_we                 ),
         .O_rd_waddr             (I_wb_rd_waddr              ),
         .O_rd_wdata             (I_wb_rd_wdata              ),
-        .O_csr_we               (I_wb_csr_we                ),
-        .O_csr_waddr            (I_wb_csr_waddr             ),
+        .O_csr_valid               (I_wb_csr_valid                ),
+        .O_csr_addr            (I_wb_csr_addr             ),
         .O_csr_wdata            (I_wb_csr_wdata             ),
         .O_except               (I_wb_except                ),
 

@@ -10,15 +10,17 @@ module ysyx_25110270_alu
 
     input   wire    [31:0                       ]   I_alu_srca,
     input   wire    [31:0                       ]   I_alu_srcb,
-    input   wire    [`ysyx_25110270_ALUCTL_BUS  ]   I_alu_ctrl,
+    input   wire                                    I_sign,             // 有符号位
+    input   wire                                    I_f7b5_en,          // 指令funct7=
+    input   wire    [2:0                        ]   I_alu_ctrl,
     output  wire    [31:0                       ]   O_alu_result,
 
     output  wire                                    O_eq,
     output  wire                                    O_lt
 );
 
-    wire adder_sign = (I_alu_ctrl != `ysyx_25110270_ALUCTL_SLTU);
-    wire adder_sub = (I_alu_ctrl != `ysyx_25110270_ALUCTL_ADD);
+    wire adder_sign = I_sign;
+    wire adder_sub = I_f7b5_en;
 
     wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
     wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
@@ -39,17 +41,17 @@ module ysyx_25110270_alu
     reg [31:0] res; 
     always @(*) begin
         case(I_alu_ctrl)
-            `ysyx_25110270_ALUCTL_ADD, `ysyx_25110270_ALUCTL_SUB:
+            `ysyx_25110270_RV32I_F3_ADD_SUB:
                 res = rv32i_add_res;
-            `ysyx_25110270_ALUCTL_SLL, `ysyx_25110270_ALUCTL_SRL, `ysyx_25110270_ALUCTL_SRA:
+            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SRL, `ysyx_25110270_RV32I_F3_SRA:
                 res = rv32i_shift_res;
-            `ysyx_25110270_ALUCTL_SLT, `ysyx_25110270_ALUCTL_SLTU:
+            `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
                 res = {{32-1{1'b0}}, adder_cout};
-            `ysyx_25110270_ALUCTL_XOR:
+            `ysyx_25110270_RV32I_F3_XOR:
                 res = rv32i_xor_res;
-            `ysyx_25110270_ALUCTL_OR: 
+            `ysyx_25110270_RV32I_F3_OR: 
                 res = rv32i_or_res;
-            `ysyx_25110270_ALUCTL_AND:
+            `ysyx_25110270_RV32I_F3_AND:
                 res = rv32i_and_res;
             default:
                 res = 0;
@@ -58,15 +60,15 @@ module ysyx_25110270_alu
 
     ysyx_25110270_barrel_shift
     #(
-        .WIDTH                  (32                                     )
+        .WIDTH                  (32                                         )
     ) barrel_shift
     (
-        .I_shift_src            (I_alu_srca                             ),
-        .I_shift_amt            (I_alu_srcb[4:0]                        ),
-        .I_shift_left           (I_alu_ctrl == `ysyx_25110270_ALUCTL_SLL),
-        .I_shift_arith          (I_alu_ctrl == `ysyx_25110270_ALUCTL_SRA),
+        .I_shift_src            (I_alu_srca                                 ),
+        .I_shift_amt            (I_alu_srcb[4:0]                            ),
+        .I_shift_left           (I_alu_ctrl == `ysyx_25110270_RV32I_F3_SLL  ),  // sll, slli指令左移
+        .I_shift_arith          (I_f7b5_en                                  ),
 
-        .O_shift_result         (rv32i_shift_res                        )
+        .O_shift_result         (rv32i_shift_res                            )
     );
 
     assign O_alu_result = res;
@@ -83,7 +85,8 @@ module ysyx_25110270_bru
 (
     input   wire                                    I_src_eq,
     input   wire                                    I_src_lt,
-    input   wire    [`ysyx_25110270_BRUCTL_BUS  ]   I_bru_ctrl,
+    input   wire                                    I_bru_valid,        // 是否为分支指令
+    input   wire    [2:0]                           I_bru_ctrl,
     
     output  wire                                    O_bru_taken
 );
@@ -91,18 +94,18 @@ module ysyx_25110270_bru
 
     always @(*) begin
         case(I_bru_ctrl)
-            `ysyx_25110270_BRUCTL_JAL:  bru_taken = 1'b1;
-            `ysyx_25110270_BRUCTL_BEQ:  bru_taken = I_src_eq;
-            `ysyx_25110270_BRUCTL_BNE:  bru_taken = ~I_src_eq;
-            `ysyx_25110270_BRUCTL_BLT:  bru_taken = I_src_lt;
-            `ysyx_25110270_BRUCTL_BLTU: bru_taken = I_src_lt;
-            `ysyx_25110270_BRUCTL_BGE:  bru_taken = ~I_src_lt;
-            `ysyx_25110270_BRUCTL_BGEU: bru_taken = ~I_src_lt;
-            default:                    bru_taken = 1'b0;
+            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = I_src_eq;
+            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = ~I_src_eq;
+            3'b011                     :  bru_taken = 1'b1;         // jal, jalr指令无条件跳转
+            `ysyx_25110270_RV32I_F3_BLT:  bru_taken = I_src_lt;
+            `ysyx_25110270_RV32I_F3_BLTU: bru_taken = I_src_lt;
+            `ysyx_25110270_RV32I_F3_BGE:  bru_taken = ~I_src_lt;
+            `ysyx_25110270_RV32I_F3_BGEU: bru_taken = ~I_src_lt;
+            default:                      bru_taken = 1'b0;
         endcase
     end
 
-    assign O_bru_taken = bru_taken;
+    assign O_bru_taken = bru_taken & I_bru_valid;
 
 
 endmodule
@@ -154,7 +157,7 @@ module ysyx_25110270_csr
 (
     input   wire    [31:0                           ]   I_csr_src,
     input   wire    [31:0                           ]   I_csr_rdata,
-    input   wire    [`ysyx_25110270_CSRCTL_BUS      ]   I_csr_ctrl,
+    input   wire    [1:0                            ]   I_csr_ctrl,
 
     output  wire    [31:0                           ]   O_csr_wdata
 );
@@ -165,10 +168,10 @@ module ysyx_25110270_csr
     reg [31:0] csr_wdata;
     always @(*) begin
         case(I_csr_ctrl)
-            `ysyx_25110270_CSRCTL_WRI:   csr_wdata = rv_csrrw_res;
-            `ysyx_25110270_CSRCTL_SET:   csr_wdata = rv_csrrs_res;
-            `ysyx_25110270_CSRCTL_CLR:   csr_wdata = rv_csrrc_res;
-            default:                    csr_wdata = 0;
+            2'b00:      csr_wdata = rv_csrrw_res;   // rw, rwi
+            2'b10:      csr_wdata = rv_csrrs_res;   // rs, rsi
+            2'b11:      csr_wdata = rv_csrrc_res;   // rc, rci
+            default:    csr_wdata = 0;
         endcase
     end
 

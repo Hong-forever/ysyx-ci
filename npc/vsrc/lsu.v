@@ -22,10 +22,11 @@ module ysyx_25110270_lsu
     input   wire    [31:0                       ]   I_rd_wdata,
     input   wire    [31:0                       ]   I_memory_addr,
     input   wire    [31:0                       ]   I_store_data,
-    input   wire                                    I_ls_valid,
-    input   wire    [`ysyx_25110270_LSUCTL_BUS  ]   I_lsu_ctrl,
-    input   wire                                    I_csr_we,
-    input   wire    [11:0                       ]   I_csr_waddr,
+    input   wire                                    I_ld_valid,
+    input   wire                                    I_st_valid,
+    input   wire    [2:0                        ]   I_ls_ctrl,
+    input   wire                                    I_csr_valid,
+    input   wire    [11:0                       ]   I_csr_addr,
     input   wire    [31:0                       ]   I_csr_wdata,
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
 
@@ -37,8 +38,8 @@ module ysyx_25110270_lsu
     output  wire                                    O_rd_we,
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
     output  wire    [31:0                       ]   O_rd_wdata,
-    output  wire                                    O_csr_we,
-    output  wire    [11:0                       ]   O_csr_waddr,
+    output  wire                                    O_csr_valid,
+    output  wire    [11:0                       ]   O_csr_addr,
     output  wire    [31:0                       ]   O_csr_wdata,
     output  wire    [`ysyx_25110270_ExceptBus   ]   O_except,
 
@@ -83,7 +84,7 @@ module ysyx_25110270_lsu
     always @(posedge clk) begin
         if (!rst_n) begin
             rdata <= 0;
-        end else if(dbus_rvalid && dbus_rready) begin
+        end else if(dbus_rvalid) begin
             rdata <= dbus_rdata;
         end
     end
@@ -106,61 +107,38 @@ module ysyx_25110270_lsu
     wire [31:0] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
     wire [31:0] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
 
-    wire [31:0] sb_00_res = {24'b0, I_store_data[7:0]};
-    wire [31:0] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
-    wire [31:0] sb_10_res = {8'b0, I_store_data[7:0], 16'b0};
-    wire [31:0] sb_11_res = {I_store_data[7:0], 24'b0};
-
-    wire [31:0] sh_00_res = {16'b0, I_store_data[15:0]};
-    wire [31:0] sh_10_res = {I_store_data[15:0], 16'b0};
-
-    wire [31:0] sw_res = I_store_data;
 
     // 地址明辨
-    wire [1:0] memory_byte_addr = I_memory_addr[1:0];
+    wire [1:0] offset = I_memory_addr[1:0];
 
     //------------------------------------------------------------------------
     // 访存逻辑
     //------------------------------------------------------------------------
+
+    wire [2:0] ld_ctrl = I_ld_valid ? I_ls_ctrl : 3'b111; // 111 no op
+
     reg [31:0] rd_data;
     always @(*) begin
         rd_data = I_rd_wdata;
-        case(I_lsu_ctrl)
-            `ysyx_25110270_LS_LB: begin
-                case(memory_byte_addr)
-                    2'b00: rd_data = lb_00_res;
-                    2'b01: rd_data = lb_01_res;
-                    2'b10: rd_data = lb_10_res;
-                    2'b11: rd_data = lb_11_res;
-                    default: begin end
-                endcase
-            end
-            `ysyx_25110270_LS_LH: begin
-                case(memory_byte_addr[1])
-                    1'b0: rd_data = lh_00_res;
-                    1'b1: rd_data = lh_10_res;
-                    default: begin end
-                endcase
-            end
-            `ysyx_25110270_LS_LW: begin
-                rd_data = lw_res;
-            end
-            `ysyx_25110270_LS_LBU: begin
-                case(memory_byte_addr)
-                    2'b00: rd_data = lbu_00_res;
-                    2'b01: rd_data = lbu_01_res;
-                    2'b10: rd_data = lbu_10_res;
-                    2'b11: rd_data = lbu_11_res;
-                    default: begin end
-                endcase
-            end
-            `ysyx_25110270_LS_LHU: begin
-                case(memory_byte_addr[1])
-                    1'b0: rd_data = lhu_00_res;
-                    1'b1: rd_data = lhu_10_res;
-                    default: begin end
-                endcase
-            end
+        case({ld_ctrl, offset})
+            {`ysyx_25110270_RV32I_F3_LB,  2'b00}: rd_data = lb_00_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b01}: rd_data = lb_01_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b10}: rd_data = lb_10_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b11}: rd_data = lb_11_res;
+
+            {`ysyx_25110270_RV32I_F3_LH,  2'b00}: rd_data = lh_00_res;
+            {`ysyx_25110270_RV32I_F3_LH,  2'b10}: rd_data = lh_10_res;
+
+            {`ysyx_25110270_RV32I_F3_LW,  2'b00}: rd_data = lw_res;
+
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b00}: rd_data = lbu_00_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b01}: rd_data = lbu_01_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b10}: rd_data = lbu_10_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b11}: rd_data = lbu_11_res;
+
+            {`ysyx_25110270_RV32I_F3_LHU, 2'b00}: rd_data = lhu_00_res;
+            {`ysyx_25110270_RV32I_F3_LHU, 2'b10}: rd_data = lhu_10_res;
+
             default: begin end
         endcase
     end
@@ -176,33 +154,33 @@ module ysyx_25110270_lsu
             wdata     <= 0;
             data_mask <= 0;
         end else begin
-            case({I_lsu_ctrl, memory_byte_addr})
-                {`ysyx_25110270_LS_SB, 2'b00}: begin
-                    wdata     <= sb_00_res;
+            case({I_ls_ctrl[1:0], offset})  // 00 sb, 01 sh, 10 sw
+                {2'b00, 2'b00}: begin
+                    wdata     <= {24'b0, I_store_data[7:0]};
                     data_mask <= 4'b0001;
                 end
-                {`ysyx_25110270_LS_SB, 2'b01}: begin
-                    wdata     <= sb_01_res;
+                {2'b00, 2'b01}: begin
+                    wdata     <= {16'b0, I_store_data[7:0], 8'b0};
                     data_mask <= 4'b0010;
                 end
-                {`ysyx_25110270_LS_SB, 2'b10}: begin
-                    wdata     <= sb_10_res;
+                {2'b00, 2'b10}: begin
+                    wdata     <= {8'b0, I_store_data[7:0], 16'b0};
                     data_mask <= 4'b0100;
                 end
-                {`ysyx_25110270_LS_SB, 2'b11}: begin
-                    wdata     <= sb_11_res;
+                {2'b00, 2'b11}: begin
+                    wdata     <= {I_store_data[7:0], 24'b0};
                     data_mask <= 4'b1000;
                 end
-                {`ysyx_25110270_LS_SH, 2'b00}: begin
-                    wdata     <= sh_00_res;
+                {2'b01, 2'b00}: begin
+                    wdata     <= {16'b0, I_store_data[15:0]};
                     data_mask <= 4'b0011;
                 end
-                {`ysyx_25110270_LS_SH, 2'b10}: begin
-                    wdata     <= sh_10_res;
+                {2'b01, 2'b10}: begin
+                    wdata     <= {I_store_data[15:0], 16'b0};
                     data_mask <= 4'b1100;
                 end
-                {`ysyx_25110270_LS_SW, 2'b00}: begin
-                    wdata     <= sw_res;
+                {2'b10, 2'b00}: begin
+                    wdata     <= I_store_data;
                     data_mask <= 4'b1111;
                 end
                 default: begin
@@ -213,21 +191,16 @@ module ysyx_25110270_lsu
         end
     end
     
-    reg [2:0] data_awsize;
-    reg [2:0] data_arsize;
+    reg [2:0] data_axsize;
     always @(posedge clk) begin
         if(!rst_n) begin
-            data_awsize <= 3'b000;
-            data_arsize <= 3'b000;
+            data_axsize <= 3'b000;
         end else begin
-            case(I_lsu_ctrl)
-                `ysyx_25110270_LS_SB:                           data_awsize <= 3'b000;
-                `ysyx_25110270_LS_SH:                           data_awsize <= 3'b001;
-                `ysyx_25110270_LS_SW:                           data_awsize <= 3'b010;
-                `ysyx_25110270_LS_LB, `ysyx_25110270_LS_LBU:    data_arsize <= 3'b000;
-                `ysyx_25110270_LS_LH, `ysyx_25110270_LS_LHU:    data_arsize <= 3'b001;
-                `ysyx_25110270_LS_LW:                           data_arsize <= 3'b010;
-                default:                                        data_awsize <= 3'b000;
+            case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
+                2'b00:   data_axsize <= 3'b000;
+                2'b01:   data_axsize <= 3'b001;
+                2'b10:   data_axsize <= 3'b010;
+                default: data_axsize <= 3'b000;
             endcase
         end
     end
@@ -238,7 +211,7 @@ module ysyx_25110270_lsu
             req_valid <= 1'b0;
         end else if(I_valid) begin
             req_valid <= 1'b1;
-        end else if(I_ls_valid & (dbus_arready | dbus_awready)) begin
+        end else if((I_ld_valid && dbus_arready) || (I_st_valid && dbus_awready))begin
             req_valid <= 1'b0;
         end
     end
@@ -257,7 +230,7 @@ module ysyx_25110270_lsu
         end
     end
 
-    wire ls_req = I_ls_valid & req_valid;
+    wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
     wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
 
     always @(posedge clk) begin
@@ -273,8 +246,8 @@ module ysyx_25110270_lsu
             nstate = IDLE;
         end else begin
             case(state)
-                IDLE:    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
-                MEM:     nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
+                IDLE:    nstate = (dbus_awready | dbus_arready) ? MEM : IDLE;
+                MEM:     nstate = (dbus_bvalid | dbus_rvalid)   ? WB  : MEM;
                 WB:      nstate = IDLE;
                 default: nstate = IDLE;
             endcase
@@ -318,13 +291,13 @@ module ysyx_25110270_lsu
     assign O_rd_waddr = I_rd_waddr;
     assign O_rd_wdata = rd_data;
 
-    assign O_csr_we = I_csr_we;
-    assign O_csr_waddr = I_csr_waddr;
+    assign O_csr_valid = I_csr_valid;
+    assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = I_csr_wdata;
 
     assign O_except = I_except;
 
-    assign O_device_skip = I_ls_valid & 
+    assign O_device_skip = (I_ld_valid | I_st_valid) & 
     (
         (I_memory_addr >= `ysyx_25110270_SERIAL_BASE & I_memory_addr < (`ysyx_25110270_SERIAL_BASE + `ysyx_25110270_SERIAL_SIZE)) |
         (I_memory_addr >= `ysyx_25110270_CLINT_BASE  & I_memory_addr < (`ysyx_25110270_CLINT_BASE  + `ysyx_25110270_CLINT_SIZE )) |
@@ -336,14 +309,14 @@ module ysyx_25110270_lsu
     );
 
 
-    assign dbus_awvalid = data_avalid & I_lsu_ctrl[`ls_diff_width-1];
-    assign dbus_wvalid = data_avalid & I_lsu_ctrl[`ls_diff_width-1];
-    assign dbus_arvalid = data_avalid & ~I_lsu_ctrl[`ls_diff_width-1];
+    assign dbus_awvalid = data_avalid & I_st_valid;
+    assign dbus_wvalid = data_avalid & I_st_valid;
+    assign dbus_arvalid = data_avalid & I_ld_valid;
 
     assign dbus_awaddr = I_memory_addr;
     assign dbus_awid = 4'b0000;
     assign dbus_awlen = 8'b0000_0000;
-    assign dbus_awsize = data_awsize;
+    assign dbus_awsize = data_axsize;
     assign dbus_awburst = 2'b01;
 
     assign dbus_wdata = wdata;
@@ -355,7 +328,7 @@ module ysyx_25110270_lsu
     assign dbus_araddr = I_memory_addr;
     assign dbus_arid = 4'b0000;
     assign dbus_arlen = 8'b0000_0000;
-    assign dbus_arsize = data_arsize;
+    assign dbus_arsize = data_axsize;
     assign dbus_arburst = 2'b01;
 
     assign dbus_rready = 1'b1;

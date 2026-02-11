@@ -42,7 +42,7 @@ endif
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
-VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
+# VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 
 ifeq ($(WAVE_FORMAT),1)
