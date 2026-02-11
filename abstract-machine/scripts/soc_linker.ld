@@ -82,6 +82,9 @@ SECTIONS {
   _data_loadaddr = LOADADDR(.data);
   
   .bss.extra (NOLOAD): {
+
+	  _sbss = ALIGN(4);
+    
     . = ALIGN(8);
     __am_apps_bss_start = .;
     *(__am_apps.bss*)
@@ -92,7 +95,6 @@ SECTIONS {
   } > sdram
 
   .bss (NOLOAD) : {
-	  _sbss = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
