@@ -22,53 +22,39 @@ _start:
 .size _start, . - _start
 
 
-
 .section ssbl_entry, "ax"
 .globl _start_ssbl
 .type _start_ssbl, @function
 
 _start_ssbl:
-  la a0, _text_loadaddr
-  la a1, _stext
-  la a2, _etext
+  la a0, _start_loadaddr
+  la a1, _sload
+  la a2, _eload
 
-.text_copy_loop:
-  beq a1, a2, .text_copy_done
+.copy_loop:
+  beq a1, a2, .copy_done
   lw t0, 0(a0)
   sw t0, 0(a1)
   addi a0, a0, 4
   addi a1, a1, 4
-  j .text_copy_loop
+  j .copy_loop
 
-.text_copy_done:
-  la a0, _data_loadaddr
-  la a1, _sdata
-  la a2, _edata
+.copy_done:
+  la a0, _eload
+  la a1, _ezero
 
-.data_copy_loop:
-  beq a1, a2, .data_copy_done
-  lw t0, 0(a0)
-  sw t0, 0(a1)
-  addi a0, a0, 4
-  addi a1, a1, 4
-  j .data_copy_loop
-
-.data_copy_done:
-  la a0, _sbss
-  la a1, _ebss
-
-.bss_zero_loop:
-  beq a0, a1, .bss_zero_done
+.zero_loop:
+  beq a0, a1, .zero_done
   sw zero, 0(a0)
   addi a0, a0, 4
-  j .bss_zero_loop
+  j .zero_loop
 
-.bss_zero_done:
-  fence.i
+.zero_done:
   la t0, _start_text
   jr t0
 
 .size _start_ssbl, . - _start_ssbl
+
 
 .section text_entry, "ax"
 .globl _start_text
@@ -78,3 +64,5 @@ _start_text:
   mv s0, zero
   la sp, _stack_pointer
   call _trm_init
+
+.size _start_text, . - _start_text
