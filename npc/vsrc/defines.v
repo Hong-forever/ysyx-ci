@@ -72,13 +72,13 @@
 `define ysyx_25110270_RV32IM_OP_TYPE_R 7'b0110011
 
 `define ysyx_25110270_RV32I_F3_ADD_SUB 3'b000
-`define ysyx_25110270_RV32I_F3_SLL    3'b001
-`define ysyx_25110270_RV32I_F3_SLT    3'b010
-`define ysyx_25110270_RV32I_F3_SLTU   3'b011
-`define ysyx_25110270_RV32I_F3_XOR    3'b100
-`define ysyx_25110270_RV32I_F3_SR     3'b101
-`define ysyx_25110270_RV32I_F3_OR     3'b110
-`define ysyx_25110270_RV32I_F3_AND    3'b111
+`define ysyx_25110270_RV32I_F3_SLL     3'b001
+`define ysyx_25110270_RV32I_F3_SLT     3'b010
+`define ysyx_25110270_RV32I_F3_SLTU    3'b011
+`define ysyx_25110270_RV32I_F3_XOR     3'b100
+`define ysyx_25110270_RV32I_F3_SR      3'b101
+`define ysyx_25110270_RV32I_F3_OR      3'b110
+`define ysyx_25110270_RV32I_F3_AND     3'b111
 
 `define ysyx_25110270_RV32I_F7_R1    7'b0000000
 `define ysyx_25110270_RV32I_F7_R2    7'b0100000
@@ -130,16 +130,16 @@
 //------------------------------------------------------------------------
 // CSR REGISTER DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_MSTATUS    12'h300     // Machine Status Register
-`define ysyx_25110270_MIE        12'h304     // Machine Interrupt Enable Registers
-`define ysyx_25110270_MTVEC      12'h305     // Machine Trap-Vector Base-Address Register
-`define ysyx_25110270_MSCRATCH   12'h340     // Machine Scratch Register
-`define ysyx_25110270_MEPC       12'h341     // Machine Exception Program Counter
-`define ysyx_25110270_MCAUSE     12'h342     // Machine Cause Register
-`define ysyx_25110270_CYCLE      12'hc00     // Lower 32 bits of Cycle counter
-`define ysyx_25110270_CYCLEH     12'hc80     // Upper 32 bits of Cycle counter
-`define ysyx_25110270_MVENDORID  12'hf11     // Vendor ID
-`define ysyx_25110270_MARCHID    12'hf12     // Architecture ID
+`define ysyx_25110270_CSR_MSTATUS     12'h300     // Machine Status Register
+`define ysyx_25110270_CSR_MIE         12'h304     // Machine Interrupt Enable Registers
+`define ysyx_25110270_CSR_MTVEC       12'h305     // Machine Trap-Vector Base-Address Register
+`define ysyx_25110270_CSR_MSCRATCH    12'h340     // Machine Scratch Register
+`define ysyx_25110270_CSR_MEPC        12'h341     // Machine Exception Program Counter
+`define ysyx_25110270_CSR_MCAUSE      12'h342     // Machine Cause Register
+`define ysyx_25110270_CSR_CYCLE       12'hc00     // Lower 32 bits of Cycle counter
+`define ysyx_25110270_CSR_CYCLEH      12'hc80     // Upper 32 bits of Cycle counter
+`define ysyx_25110270_CSR_MVENDORID   12'hf11     // Vendor ID
+`define ysyx_25110270_CSR_MARCHID     12'hf12     // Architecture ID
 
 //------------------------------------------------------------------------
 // ALU SOURCE SELECTION DEFINITIONS

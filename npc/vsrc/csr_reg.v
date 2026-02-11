@@ -16,7 +16,7 @@ module ysyx_25110270_csr_reg
     input   wire    [11:0                       ]   I_waddr,
     input   wire    [31:0                       ]   I_wdata,
 
-    input   wire    [`yxyx_25110270_ExceptBus   ]   I_except,
+    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
 
     input   wire    [31:0                       ]   I_next_inst_addr,
@@ -41,9 +41,9 @@ module ysyx_25110270_csr_reg
     reg [31:0] mcause;
     reg [63:0] cycle;
 
-    wire is_ecall  = I_except[`yxyx_25110270_EXCPT_ECALL];
-    wire is_ebreak = I_except[`yxyx_25110270_EXCPT_EBREAK];
-    wire is_mret   = I_except[`yxyx_25110270_EXCPT_MRET];
+    wire is_ecall  = I_except[`ysyx_25110270_EXCPT_ECALL];
+    wire is_ebreak = I_except[`ysyx_25110270_EXCPT_EBREAK];
+    wire is_mret   = I_except[`ysyx_25110270_EXCPT_MRET];
 
     // wire except_sync = is_ecall | is_ebreak;
     wire except_sync = is_ecall; // for ysyx
@@ -99,11 +99,11 @@ module ysyx_25110270_csr_reg
             end else begin    
                 if(I_we) begin
                     case(I_waddr)
-                        `CSR_Addr_MSTATUS:  mstatus     <= I_wdata;
-                        `CSR_Addr_MIE:      mie         <= I_wdata;
-                        `CSR_Addr_MTVEC:    mtvec       <= I_wdata;
-                        `CSR_Addr_MEPC:     mepc        <= I_wdata;
-                        `CSR_Addr_MCAUSE:   mcause      <= I_wdata;
+                        `ysyx_25110270_CSR_MSTATUS:  mstatus     <= I_wdata;
+                        `ysyx_25110270_CSR_MIE:      mie         <= I_wdata;
+                        `ysyx_25110270_CSR_MTVEC:    mtvec       <= I_wdata;
+                        `ysyx_25110270_CSR_MEPC:     mepc        <= I_wdata;
+                        `ysyx_25110270_CSR_MCAUSE:   mcause      <= I_wdata;
                         default: begin end
                     endcase
                 end
@@ -114,20 +114,20 @@ module ysyx_25110270_csr_reg
 
     //read reg
     //idu模块读CSR寄存器
-    reg [31:0] rdata1;
+    reg [31:0] rdata;
     always @(*) begin
         if(I_we && I_raddr == I_waddr) begin
-            rdata1 = I_wdata;
+            rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `CSR_Addr_MSTATUS:  rdata1 = mstatus;
-                `CSR_Addr_MIE:      rdata1 = mie;
-                `CSR_Addr_MTVEC:    rdata1 = mtvec;
-                `CSR_Addr_MEPC:     rdata1 = mepc;
-                `CSR_Addr_MCAUSE:   rdata1 = mcause;
-                `CSR_Addr_CYCLE:    rdata1 = cycle[31:0];
-                `CSR_Addr_CYCLEH:   rdata1 = cycle[63:32];
-                default:            rdata1 = 0;
+                `ysyx_25110270_CSR_MSTATUS:  rdata = mstatus;
+                `ysyx_25110270_CSR_MIE:      rdata = mie;
+                `ysyx_25110270_CSR_MTVEC:    rdata = mtvec;
+                `ysyx_25110270_CSR_MEPC:     rdata = mepc;
+                `ysyx_25110270_CSR_MCAUSE:   rdata = mcause;
+                `ysyx_25110270_CSR_CYCLE:    rdata = cycle[31:0];
+                `ysyx_25110270_CSR_CYCLEH:   rdata = cycle[63:32];
+                default:                     rdata = 0;
             endcase
         end
     end
@@ -136,7 +136,7 @@ module ysyx_25110270_csr_reg
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
-    assign O_rdata = rdata1;
+    assign O_rdata = rdata;
 
     assign O_flush = except_call | except_mret;
     assign O_flush_addr =   except_call ? mtvec :

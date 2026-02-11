@@ -43,7 +43,7 @@ module ysyx_25110270_alu
         case(I_alu_ctrl)
             `ysyx_25110270_RV32I_F3_ADD_SUB:
                 res = rv32i_add_res;
-            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SRL, `ysyx_25110270_RV32I_F3_SRA:
+            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:    // srl, sra, slli, srli, srai指令的结果都由桶式移位模块计算得到
                 res = rv32i_shift_res;
             `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
                 res = {{32-1{1'b0}}, adder_cout};
@@ -85,7 +85,7 @@ module ysyx_25110270_bru
 (
     input   wire                                    I_src_eq,
     input   wire                                    I_src_lt,
-    input   wire                                    I_bru_valid,        // 是否为分支指令
+    input   wire                                    I_br_valid,        // 是否为分支指令
     input   wire    [2:0]                           I_bru_ctrl,
     
     output  wire                                    O_bru_taken
@@ -105,7 +105,7 @@ module ysyx_25110270_bru
         endcase
     end
 
-    assign O_bru_taken = bru_taken & I_bru_valid;
+    assign O_bru_taken = bru_taken & I_br_valid;
 
 
 endmodule

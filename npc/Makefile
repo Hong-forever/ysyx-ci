@@ -9,7 +9,7 @@ USE_NVBOARD = 0
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
 # else
-WAVE_ENABLE = 0
+WAVE_ENABLE = 1
 # endif
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
@@ -42,7 +42,7 @@ endif
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
-# VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
+VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 
 ifeq ($(WAVE_FORMAT),1)

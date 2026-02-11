@@ -68,9 +68,19 @@ module ysyx_25110270_icache
     reg [TAG_WIDTH-1:0]   miss_tag;
     reg [BLOCK_WIDTH-1:0] miss_offset;
 
-    wire [BLOCK_WIDTH-1:0] refill_offset = (miss_offset + cnt >= WORDS_PER_BLOCK) ? miss_offset + cnt - WORDS_PER_BLOCK : miss_offset + cnt;
+    wire [BLOCK_WIDTH-1:0] refill_offset = miss_offset + cnt;
 
-    wire hit = (tag_mem[index] == tag) & valid_mem[index];
+     wire way_hit;
+    generate
+        if (N_WAYS == 1) begin
+            assign way_hit = (tag_mem[index] == tag) & valid_mem[index];
+        end else begin
+            // 多路情况，暂不实现
+            assign way_hit = 1'b0;
+        end
+    endgenerate
+
+    wire hit = way_hit;
     wire miss = I_valid & ~hit;
 
     always @(posedge clk) begin
@@ -151,11 +161,7 @@ module ysyx_25110270_icache
             odata_r  <= refill_data;
             ovalid_r <= 1'b1;
         end else if((state == LOOKUP) && hit) begin
-            if(BLOCK_WIDTH > 0) begin
-                odata_r <= data_mem[index][offset];
-            end else begin
-                odata_r <= data_mem[index][0];
-            end
+            odata_r <= data_mem[index][offset];
             ovalid_r <= 1'b1;
         end else begin
             ovalid_r <= 1'b0;
@@ -168,8 +174,8 @@ module ysyx_25110270_icache
 
     assign O_arvalid = (state == REQ);
     assign O_araddr  = miss_addr;
-    assign O_arlen   = WORDS_PER_BLOCK[7:0] - 1'b1;
-    assign O_arsize  = $clog2(WORD_BYTES);
+    assign O_arlen   = WORDS_PER_BLOCK[7:0] - 8'b1;
+    assign O_arsize  = 3'b010; // 4 bytes
     assign O_arburst = 2'b10; // WRAP
     assign O_rready  = 1'b1;
 

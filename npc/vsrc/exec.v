@@ -26,13 +26,13 @@ module ysyx_25110270_exec
 
     input   wire                                        I_ld_valid,         //访存有效标志
     input   wire                                        I_st_valid,         //访存有效标志
-    input   wire                                        I_bru_valid,        //跳转指令标志
+    input   wire                                        I_br_valid,        //跳转指令标志
     input   wire                                        I_csr_valid,        //CSR指令标志
     input   wire                                        I_f7b5_en,          //指令funct7=0x7b或0x5时有效
     input   wire                                        I_sign,             //有符号位
     input   wire    [2:0                            ]   I_op,
 
-    input   wire    [12:0                           ]   I_csr_addr,
+    input   wire    [11:0                           ]   I_csr_addr,
 
     input   wire    [31:0                           ]   I_rs1_rdata,
     input   wire    [31:0                           ]   I_rs2_rdata,
@@ -53,7 +53,7 @@ module ysyx_25110270_exec
     output  wire    [2:0                            ]   O_ls_ctrl,
 
     output  wire                                        O_csr_valid,
-    output  wire    [12:0                           ]   O_csr_addr,
+    output  wire    [11:0                           ]   O_csr_addr,
     output  wire    [31:0                           ]   O_csr_wdata,
 
     output  wire    [`ysyx_25110270_ExceptBus       ]   O_except,
@@ -104,7 +104,7 @@ module ysyx_25110270_exec
     wire src_eq, src_lt;
     wire [31:0] alu_result;
 
-    wire [2:0] alu_op = I_bru_valid ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
+    wire [2:0] alu_op = I_br_valid ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
 
     ysyx_25110270_alu alu
     (
@@ -134,7 +134,7 @@ module ysyx_25110270_exec
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
-        .I_bru_valid                (I_bru_valid            ),
+        .I_br_valid                 (I_br_valid             ),
         .I_bru_ctrl                 (I_op                   ),
         .O_bru_taken                (bru_taken              )
     );
@@ -204,7 +204,7 @@ module ysyx_25110270_exec
     assign O_st_valid = I_st_valid;
     assign O_ls_ctrl = I_op;
 
-    assign O_csr_we = I_csr_we;
+    assign O_csr_valid = I_csr_valid;
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
@@ -232,10 +232,9 @@ module ysyx_25110270_exec
     wire [3:0] rs1 = I_inst[18:15];
 
     always @(*) begin
-        if (I_bru_ctrl == 1) begin
+        if(I_br_valid & (I_op == 3'b011) & I_agu_src_sel == `ysyx_25110270_AGUSRC_PC) begin
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 1);
-        end
-        else if (I_bru_ctrl == 2) begin
+        end else if(I_br_valid & (I_op == 3'b011) & I_agu_src_sel == `ysyx_25110270_AGUSRC_RS1) begin
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 2);
         end
     end

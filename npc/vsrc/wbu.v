@@ -17,21 +17,19 @@ module ysyx_25110270_wbu
     output  wire                                    O_valid,
     input   wire                                    I_ready,
 
-    // regfile
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs1_raddr,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
     output  wire    [31:0                       ]   O_rs1_rdata,
     output  wire    [31:0                       ]   O_rs2_rdata,
+    input   wire    [11:0                       ]   I_csr_raddr,
+    output  wire    [31:0                       ]   O_csr_rdata,
 
     input   wire                                    I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
     input   wire    [31:0                       ]   I_rd_wdata,
 
-    // csr reg
-    input   wire    [11:0                       ]   I_csr_addr,
-    output  wire    [31:0                       ]   O_csr_rdata,
-
     input   wire                                    I_csr_valid,
+    input   wire    [11:0                       ]   I_csr_waddr,
     input   wire    [31:0                       ]   I_csr_wdata,
 
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
@@ -117,11 +115,11 @@ module ysyx_25110270_wbu
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
 
-        .I_raddr                (I_csr_addr                 ),
+        .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
 
-        .I_we                   (I_csr_valid & inst_val     ),
-        .I_waddr                (I_csr_addr                 ),
+        .I_we                   (I_csr_valid & inst_valid   ),
+        .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 
         .I_except               (I_except                   ),

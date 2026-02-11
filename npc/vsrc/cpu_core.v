@@ -105,6 +105,7 @@ module ysyx_25110270_cpu_core
     wire                                I_ex_csr_src_sel;
     wire                                I_ex_ld_valid;
     wire                                I_ex_st_valid;
+    wire                                I_ex_br_valid;
     wire                                I_ex_csr_valid;
     wire                                I_ex_f7b5_en;
     wire                                I_ex_sign;
@@ -391,6 +392,7 @@ module ysyx_25110270_cpu_core
         .I_csr_valid            (I_ex_csr_valid             ),
         .I_f7b5_en              (I_ex_f7b5_en               ),
         .I_sign                 (I_ex_sign                  ),
+        .I_op                   (I_ex_op                    ),
 
         .I_csr_addr             (I_ex_csr_addr              ),
 
@@ -440,7 +442,7 @@ module ysyx_25110270_cpu_core
         .I_store_data           (I_ls_store_data            ),
         .I_ld_valid             (I_ls_ld_valid              ),
         .I_st_valid             (I_ls_st_valid              ),
-        .I_ls_type              (I_ls_ls_type               ),
+        .I_ls_ctrl              (I_ls_ls_ctrl               ),
         .I_csr_valid            (I_ls_csr_valid             ),
         .I_csr_addr             (I_ls_csr_addr              ),
         .I_csr_wdata            (I_ls_csr_wdata             ),
@@ -509,12 +511,12 @@ module ysyx_25110270_cpu_core
         .I_rs2_raddr            (O_rs2_raddr                ),
         .O_rs1_rdata            (I_rs1_rdata                ),
         .O_rs2_rdata            (I_rs2_rdata                ),
+        .I_csr_raddr            (O_csr_addr                 ),
+        .O_csr_rdata            (I_csr_rdata                ),
+
         .I_rd_we                (I_wb_rd_we                 ),
         .I_rd_waddr             (I_wb_rd_waddr              ),
         .I_rd_wdata             (I_wb_rd_wdata              ),
-
-        .I_csr_raddr            (O_csr_addr                 ),
-        .O_csr_rdata            (I_csr_rdata                ),
 
         .I_csr_valid            (I_wb_csr_valid             ),
         .I_csr_waddr            (I_wb_csr_addr              ),
