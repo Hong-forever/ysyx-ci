@@ -30,32 +30,31 @@ SECTIONS {
   _ssbl_loadaddr = LOADADDR(.ssbl);
   
   .text : {
-    _stext = ALIGN(4);
+    _sload = ALIGN(4);
     *(text_entry)
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    _etext = ALIGN(4);
+    . = ALIGN(4);
   } > sdram AT>flash : text
 
-  _text_loadaddr = LOADADDR(.text);
+  _start_loadaddr = LOADADDR(.text);
 
   .data : {
-    _sdata = ALIGN(4);
+    . = ALIGN(4);
     *(.data*)
     *(.sdata*)
-    _edata = ALIGN(4);
+    . = ALIGN(4);
+    _eload = .;
   } > sdram AT>flash : data
 
-  _data_loadaddr = LOADADDR(.text) + SIZEOF(.text); 
 
   .bss (NOLOAD) : {
-    _sbss = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-	  _ebss = ALIGN(4);
+	  _ezero = ALIGN(4);
   } > sdram
 
   .heap (NOLOAD) : {
