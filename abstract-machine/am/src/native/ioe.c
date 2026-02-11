@@ -57,7 +57,6 @@ bool ioe_init() {
   panic_on(cpu_current() != 0, "call ioe_init() in other CPUs");
   panic_on(ioe_init_done, "double-initialization");
   __am_has_ioe = true;
-  printf("IOE initialized\n");
   return true;
 }
 
