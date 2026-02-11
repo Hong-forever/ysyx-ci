@@ -3,6 +3,7 @@
 #include "isa.h"
 
 extern uint64_t g_nr_guest_inst;
+extern uint64_t g_cycle;
 
 enum Inst_Type {
     IT_ALU_ALU = 0x01,
@@ -29,13 +30,9 @@ uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 uint64_t ls_delay_total;
 uint64_t icache_miss, icache_miss_penal;
 
-uint64_t total_cycle;
-extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
-    total_cycle = ((uint64_t)mcycleh << 32) | (uint64_t)mcyclel;
-}
 
 static inline uint64_t rdtime() {
-    return total_cycle;
+    return g_cycle;
 }
 
 extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
@@ -107,10 +104,10 @@ extern "C" void wb_inst_cycle_cal(int pc) {
 void perf_cal() {
 
     printf("\n===== Performance Calulation =====\n");
-    printf("Total Cycle: %lu\n", total_cycle);
+    printf("Total Cycle: %lu\n", g_cycle);
     printf("Total Inst : %lu\n", g_nr_guest_inst);
-    if (total_cycle != 0) {
-        printf("IPC        : %.2f\n", (double)g_nr_guest_inst / (double)total_cycle);
+    if (g_cycle != 0) {
+        printf("IPC        : %.2f\n", (double)g_nr_guest_inst / (double)g_cycle);
     } else {
         printf("IPC        : INF\n");
     }
