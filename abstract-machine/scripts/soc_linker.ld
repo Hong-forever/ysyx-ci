@@ -47,7 +47,7 @@ SECTIONS {
     _edata = ALIGN(4);
   } > sdram AT>flash : data
 
-  _data_loadaddr = LOADADDR(.text) + LENGTH(.text);
+  _data_loadaddr = LOADADDR(.text); 
 
   .bss (NOLOAD) : {
     _sbss = ALIGN(4);
