@@ -41,8 +41,8 @@ _start_ssbl:
   j .copy_loop
 
 .copy_done:
-  la a0, _sbss
-  la a1, _ebss
+  la a0, _eload
+  la a1, _ezero
 
 .zero_loop:
   beq a0, a1, .zero_done
