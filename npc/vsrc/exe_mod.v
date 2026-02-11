@@ -5,60 +5,70 @@
 //------------------------------------------------------------------------
 module ysyx_25110270_alu
 (
-    input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                                    clk,
+    input   wire                                    rst_n,
 
-    input   wire    [`RegDataBus    ]   I_alu_srca,
-    input   wire    [`RegDataBus    ]   I_alu_srcb,
-    input   wire    [`ALUCTL_WIDTH-1:0] I_alu_ctrl,
-    output  wire    [`RegDataBus    ]   O_alu_result,
+    input   wire    [31:0                       ]   I_alu_srca,
+    input   wire    [31:0                       ]   I_alu_srcb,
+    input   wire                                    I_sign,             // 有符号位
+    input   wire                                    I_f7b5_en,          // 指令funct7=
+    input   wire    [2:0                        ]   I_alu_ctrl,
+    output  wire    [31:0                       ]   O_alu_result,
 
-    output  wire                        O_eq,
-    output  wire                        O_lt
+    output  wire                                    O_eq,
+    output  wire                                    O_lt
 );
-    wire adder_sign = (I_alu_ctrl != `ALUCTL_SLTU);
-    wire adder_sub = (I_alu_ctrl != `ALUCTL_ADD);
 
-    wire [`RegDataWidth:0] adder_s1 = {adder_sign & I_alu_srca[`RegDataWidth-1], I_alu_srca};
-    wire [`RegDataWidth:0] adder_s2 = {adder_sign & I_alu_srcb[`RegDataWidth-1], I_alu_srcb} ^ {{`RegDataWidth+1{adder_sub}}};
+    wire adder_sign = I_sign;
+    wire adder_sub = I_f7b5_en;
 
-    wire [`RegDataBus] rv32i_add_res;
+    wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
+    wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
+
+    wire [31:0] rv32i_add_res;
     wire adder_cout;
 
-    assign {adder_cout, rv32i_add_res} = adder_s1 + adder_s2 + {{`RegDataWidth{1'b0}}, adder_sub};
+    assign {adder_cout, rv32i_add_res} = adder_s1 + adder_s2 + {{32{1'b0}}, adder_sub};
 
-    wire [`RegDataBus] rv32i_shift_res;
-    wire [`RegDataBus] rv32i_xor_res     = I_alu_srca ^ I_alu_srcb;
-    wire [`RegDataBus] rv32i_or_res      = I_alu_srca | I_alu_srcb;
-    wire [`RegDataBus] rv32i_and_res     = I_alu_srca & I_alu_srcb;
-    wire [`RegDataBus] rv32i_lui_res     = I_alu_srcb;
-    wire [`RegDataBus] rv32i_auipc_res   = I_alu_srcb + I_alu_srca;
+    wire [31:0] rv32i_shift_res;
+    wire [31:0] rv32i_xor_res     = I_alu_srca ^ I_alu_srcb;
+    wire [31:0] rv32i_or_res      = I_alu_srca | I_alu_srcb;
+    wire [31:0] rv32i_and_res     = I_alu_srca & I_alu_srcb;
+    wire [31:0] rv32i_lui_res     = I_alu_srcb;
+    wire [31:0] rv32i_auipc_res   = I_alu_srcb + I_alu_srca;
 
 
-    reg [`RegDataBus] res; 
+    reg [31:0] res; 
     always @(*) begin
         case(I_alu_ctrl)
-            `ALUCTL_ADD, `ALUCTL_SUB:               res = rv32i_add_res;
-            `ALUCTL_SLL, `ALUCTL_SRL, `ALUCTL_SRA:  res = rv32i_shift_res;
-            `ALUCTL_SLT, `ALUCTL_SLTU:              res = {{`RegDataWidth-1{1'b0}}, adder_cout};
-            `ALUCTL_XOR:                            res = rv32i_xor_res;
-            `ALUCTL_OR:                             res = rv32i_or_res;
-            `ALUCTL_AND:                            res = rv32i_and_res;
-            default:                                res = 0;
+            `ysyx_25110270_RV32I_F3_ADD_SUB:
+                res = rv32i_add_res;
+            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:    // srl, sra, slli, srli, srai指令的结果都由桶式移位模块计算得到
+                res = rv32i_shift_res;
+            `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
+                res = {{32-1{1'b0}}, adder_cout};
+            `ysyx_25110270_RV32I_F3_XOR:
+                res = rv32i_xor_res;
+            `ysyx_25110270_RV32I_F3_OR: 
+                res = rv32i_or_res;
+            `ysyx_25110270_RV32I_F3_AND:
+                res = rv32i_and_res;
+            default:
+                res = 0;
         endcase
     end
 
     ysyx_25110270_barrel_shift
     #(
-        .WIDTH                  (`RegDataWidth              )
+        .WIDTH                  (32                                         )
     ) barrel_shift
     (
-        .I_shift_src            (I_alu_srca                 ),
-        .I_shift_amt            (I_alu_srcb[4:0]            ),
-        .I_shift_left           (I_alu_ctrl == `ALUCTL_SLL  ),
-        .I_shift_arith          (I_alu_ctrl == `ALUCTL_SRA  ),
+        .I_shift_src            (I_alu_srca                                 ),
+        .I_shift_amt            (I_alu_srcb[4:0]                            ),
+        .I_shift_left           (I_alu_ctrl == `ysyx_25110270_RV32I_F3_SLL  ),  // sll, slli指令左移
+        .I_shift_arith          (I_f7b5_en                                  ),
 
-        .O_shift_result         (rv32i_shift_res            )
+        .O_shift_result         (rv32i_shift_res                            )
     );
 
     assign O_alu_result = res;
@@ -73,28 +83,29 @@ endmodule
 
 module ysyx_25110270_bru
 (
-    input   wire                        I_src_eq,
-    input   wire                        I_src_lt,
-    input   wire    [`BRUCTL_WIDTH-1:0] I_bru_ctrl,
+    input   wire                                    I_src_eq,
+    input   wire                                    I_src_lt,
+    input   wire                                    I_br_valid,        // 是否为分支指令
+    input   wire    [2:0]                           I_bru_ctrl,
     
-    output  wire                        O_bru_taken
+    output  wire                                    O_bru_taken
 );
     reg bru_taken;
 
     always @(*) begin
         case(I_bru_ctrl)
-            `BRUCTL_JAL:  bru_taken = `Enable;
-            `BRUCTL_BEQ:  bru_taken = I_src_eq;
-            `BRUCTL_BNE:  bru_taken = ~I_src_eq;
-            `BRUCTL_BLT:  bru_taken = I_src_lt;
-            `BRUCTL_BLTU: bru_taken = I_src_lt;
-            `BRUCTL_BGE:  bru_taken = ~I_src_lt;
-            `BRUCTL_BGEU: bru_taken = ~I_src_lt;
-            default:      bru_taken = `Disable;
+            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = I_src_eq;
+            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = ~I_src_eq;
+            3'b011                     :  bru_taken = 1'b1;         // jal, jalr指令无条件跳转
+            `ysyx_25110270_RV32I_F3_BLT:  bru_taken = I_src_lt;
+            `ysyx_25110270_RV32I_F3_BLTU: bru_taken = I_src_lt;
+            `ysyx_25110270_RV32I_F3_BGE:  bru_taken = ~I_src_lt;
+            `ysyx_25110270_RV32I_F3_BGEU: bru_taken = ~I_src_lt;
+            default:                      bru_taken = 1'b0;
         endcase
     end
 
-    assign O_bru_taken = bru_taken;
+    assign O_bru_taken = bru_taken & I_br_valid;
 
 
 endmodule
@@ -106,12 +117,12 @@ module ysyx_25110270_barrel_shift
 #(
     parameter WIDTH = 32
 )(
-    input   wire    [WIDTH-1:0]         I_shift_src,
-    input   wire    [4:0]               I_shift_amt,
+    input   wire    [WIDTH-1:0      ]   I_shift_src,
+    input   wire    [4:0            ]   I_shift_amt,
     input   wire                        I_shift_left,      // 1: left shift   0: right shift
     input   wire                        I_shift_arith,     // 1: arithmetic    0: logical
 
-    output  wire    [WIDTH-1:0]         O_shift_result
+    output  wire    [WIDTH-1:0      ]   O_shift_result
 );
 
     wire [WIDTH-1:0] lstage0, lstage1, lstage2, lstage3, lstage4;
@@ -144,23 +155,23 @@ endmodule
 
 module ysyx_25110270_csr
 (
-    input   wire    [`CSRDataBus    ]   I_csr_src,
-    input   wire    [`CSRDataBus    ]   I_csr_rdata,
-    input   wire    [`CSRCTL_WIDTH-1:0] I_csr_ctrl,
+    input   wire    [31:0                           ]   I_csr_src,
+    input   wire    [31:0                           ]   I_csr_rdata,
+    input   wire    [1:0                            ]   I_csr_ctrl,
 
-    output  wire    [`CSRDataBus    ]   O_csr_wdata
+    output  wire    [31:0                           ]   O_csr_wdata
 );
-    wire [`CSRDataBus] rv_csrrw_res = I_csr_src;
-    wire [`CSRDataBus] rv_csrrs_res = I_csr_rdata | I_csr_src;
-    wire [`CSRDataBus] rv_csrrc_res = I_csr_rdata & (~I_csr_src);
+    wire [31:0] rv_csrrw_res = I_csr_src;
+    wire [31:0] rv_csrrs_res = I_csr_rdata | I_csr_src;
+    wire [31:0] rv_csrrc_res = I_csr_rdata & (~I_csr_src);
 
-    reg [`CSRDataBus] csr_wdata;
+    reg [31:0] csr_wdata;
     always @(*) begin
         case(I_csr_ctrl)
-            `CSRCTL_WRI:   csr_wdata = rv_csrrw_res;
-            `CSRCTL_SET:   csr_wdata = rv_csrrs_res;
-            `CSRCTL_CLR:   csr_wdata = rv_csrrc_res;
-            default:       csr_wdata = 0;
+            2'b00:      csr_wdata = rv_csrrw_res;   // rw, rwi
+            2'b10:      csr_wdata = rv_csrrs_res;   // rs, rsi
+            2'b11:      csr_wdata = rv_csrrc_res;   // rc, rci
+            default:    csr_wdata = 0;
         endcase
     end
 

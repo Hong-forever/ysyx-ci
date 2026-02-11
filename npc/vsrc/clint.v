@@ -1,5 +1,3 @@
-`include "defines.v"
-
 //------------------------------------------------------------------------
 // clint模块
 //------------------------------------------------------------------------
@@ -46,35 +44,7 @@ module ysyx_25110270_clint
 
     reg [2*DATA_WIDTH-1:0] mtime;
 
-    reg                    arready;
-    reg                    awready;
-    reg                    wready;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            arready <= 1'b1;
-            awready <= 1'b1;
-            wready  <= 1'b1;
-        end else begin
-            if(arvalid_i && arready) begin
-                arready <= 1'b0;
-            end else if(rvalid_o && rready_i) begin
-                arready <= 1'b1;
-            end
-            if(awvalid_i && awready) begin
-                awready <= 1'b0;
-            end else if(bvalid_o && bready_i) begin
-                awready <= 1'b1;
-            end
-            if(wvalid_i && wready) begin
-                wready <= 1'b0;
-            end else if(bvalid_o && bready_i) begin
-                wready <= 1'b1;
-            end
-        end
-    end
-
-
-    reg [`MemDataBus] rdata;
+    reg [31:0] rdata;
     reg               rdata_valid;
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -84,7 +54,7 @@ module ysyx_25110270_clint
             if(rvalid_o && rready_i) begin
                 rdata <= 0;
                 rdata_valid <= 1'b0;
-            end else if(arvalid_i && arready_o) begin
+            end else if(arvalid_i) begin
                 rdata <= araddr_i[2] ? mtime[63:32] : mtime[31:0];
                 rdata_valid <= 1'b1;
             end
@@ -100,27 +70,18 @@ module ysyx_25110270_clint
             mtime <= mtime + 1'b1;
             if(bvalid_o && bready_i) begin
                 wdata_valid <= 1'b0;
-            end else if(wvalid_i && wready_o) begin
-                mtime[7:0  ] <= awaddr_i[2] ? mtime[7:0  ] : (wstrb_i[0] ? wdata_i[7:0  ] : mtime[7:0  ]);
-                mtime[15:8 ] <= awaddr_i[2] ? mtime[15:8 ] : (wstrb_i[1] ? wdata_i[15:8 ] : mtime[15:8 ]);
-                mtime[23:16] <= awaddr_i[2] ? mtime[23:16] : (wstrb_i[2] ? wdata_i[23:16] : mtime[23:16]);
-                mtime[31:24] <= awaddr_i[2] ? mtime[31:24] : (wstrb_i[3] ? wdata_i[31:24] : mtime[31:24]);
-
-                mtime[39:32] <= awaddr_i[2] ? (wstrb_i[0] ? wdata_i[7:0  ] : mtime[39:32]) : mtime[39:32];
-                mtime[47:40] <= awaddr_i[2] ? (wstrb_i[1] ? wdata_i[15:8 ] : mtime[47:40]) : mtime[47:40];
-                mtime[55:48] <= awaddr_i[2] ? (wstrb_i[2] ? wdata_i[23:16] : mtime[55:48]) : mtime[55:48];
-                mtime[63:56] <= awaddr_i[2] ? (wstrb_i[3] ? wdata_i[31:24] : mtime[63:56]) : mtime[63:56];
+            end else if(wvalid_i) begin
                 wdata_valid <= 1'b1;
             end
         end
     end
 
-    assign awready_o = awready;
-    assign wready_o  = wready;
+    assign awready_o = 1'b1;
+    assign wready_o  = 1'b1;
     assign bvalid_o  = wdata_valid;
     assign bresp_o   = 2'b00;
     assign bid_o     = 4'b0000;
-    assign arready_o = arready;
+    assign arready_o = 1'b1;
     assign rvalid_o  = rdata_valid;
     assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;

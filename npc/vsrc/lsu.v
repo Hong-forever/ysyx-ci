@@ -6,161 +6,139 @@
 
 module ysyx_25110270_lsu
 (
-    input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                                    clk,
+    input   wire                                    rst_n,
 
-    input   wire    [`InstBus       ]   I_inst,             //指令内容
-    input   wire    [`InstAddrBus   ]   I_inst_addr,
+    input   wire    [31:0                       ]   I_inst,             //指令内容
+    input   wire    [31:0                       ]   I_inst_addr,
 
-    input   wire                        I_valid,
-    output  wire                        O_ready,
-    output  wire                        O_valid,
-    input   wire                        I_ready,
+    input   wire                                    I_valid,
+    output  wire                                    O_ready,
+    output  wire                                    O_valid,
+    input   wire                                    I_ready,
 
-    input   wire                        I_rd_we,
-    input   wire    [`RegAddrBus    ]   I_rd_waddr,
-    input   wire    [`RegDataBus    ]   I_rd_wdata,
-    input   wire    [`MemAddrBus    ]   I_memory_addr,
-    input   wire    [`MemDataBus    ]   I_store_data,
-    input   wire                        I_ls_valid,
-    input   wire    [`ls_diff_bus   ]   I_ls_type,
-    input   wire                        I_csr_we,
-    input   wire    [`CSRAddrBus    ]   I_csr_waddr,
-    input   wire    [`CSRDataBus    ]   I_csr_wdata,
-    input   wire    [`Except_Bus    ]   I_except,
+    input   wire                                    I_rd_we,
+    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
+    input   wire    [31:0                       ]   I_rd_wdata,
+    input   wire    [31:0                       ]   I_memory_addr,
+    input   wire    [31:0                       ]   I_store_data,
+    input   wire                                    I_ld_valid,
+    input   wire                                    I_st_valid,
+    input   wire    [2:0                        ]   I_ls_ctrl,
+    input   wire                                    I_csr_valid,
+    input   wire    [11:0                       ]   I_csr_addr,
+    input   wire    [31:0                       ]   I_csr_wdata,
+    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
 
-    input   wire                        I_is_ldst,          //是否为访存指令
+    input   wire                                    I_is_ldst,          //是否为访存指令
 
-    output  wire    [`InstBus       ]   O_inst,
-    output  wire    [`InstAddrBus   ]   O_inst_addr,
+    output  wire    [31:0                       ]   O_inst,
+    output  wire    [31:0                       ]   O_inst_addr,
 
-    output  wire                        O_rd_we,
-    output  wire    [`RegAddrBus    ]   O_rd_waddr,
-    output  wire    [`RegDataBus    ]   O_rd_wdata,
-    output  wire                        O_csr_we,
-    output  wire    [`CSRAddrBus    ]   O_csr_waddr,
-    output  wire    [`CSRDataBus    ]   O_csr_wdata,
-    output  wire    [`Except_Bus    ]   O_except,
+    output  wire                                    O_rd_we,
+    output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
+    output  wire    [31:0                       ]   O_rd_wdata,
+    output  wire                                    O_csr_valid,
+    output  wire    [11:0                       ]   O_csr_addr,
+    output  wire    [31:0                       ]   O_csr_wdata,
+    output  wire    [`ysyx_25110270_ExceptBus   ]   O_except,
 
-    output  wire                        O_device_skip,
+    output  wire                                    O_device_skip,
 
     //to bus
-    output  wire                        dbus_awvalid,
-    input   wire                        dbus_awready,
-    output  wire    [31:0]              dbus_awaddr,
-    output  wire    [3:0]               dbus_awid,
-    output  wire    [7:0]               dbus_awlen,
-    output  wire    [2:0]               dbus_awsize,
-    output  wire    [1:0]               dbus_awburst,
-    output  wire                        dbus_wvalid,
-    input   wire                        dbus_wready,
-    output  wire    [31:0]              dbus_wdata,
-    output  wire    [3:0]               dbus_wstrb,
-    output  wire                        dbus_wlast,
-    input   wire                        dbus_bvalid,
-    output  wire                        dbus_bready,
-    input   wire    [1:0]               dbus_bresp,
-    input   wire    [3:0]               dbus_bid,
-    output  wire                        dbus_arvalid,
-    input   wire                        dbus_arready,
-    output  wire    [31:0]              dbus_araddr,
-    output  wire    [3:0]               dbus_arid,
-    output  wire    [7:0]               dbus_arlen,
-    output  wire    [2:0]               dbus_arsize,
-    output  wire    [1:0]               dbus_arburst,
-    input   wire                        dbus_rvalid,
-    output  wire                        dbus_rready,
-    input   wire    [31:0]              dbus_rdata,
-    input   wire    [1:0]               dbus_rresp,
-    input   wire                        dbus_rlast,
-    input   wire    [3:0]               dbus_rid
+    output  wire                                    dbus_awvalid,
+    input   wire                                    dbus_awready,
+    output  wire    [31:0]                          dbus_awaddr,
+    output  wire    [3:0 ]                          dbus_awid,
+    output  wire    [7:0 ]                          dbus_awlen,
+    output  wire    [2:0 ]                          dbus_awsize,
+    output  wire    [1:0 ]                          dbus_awburst,
+    output  wire                                    dbus_wvalid,
+    input   wire                                    dbus_wready,
+    output  wire    [31:0]                          dbus_wdata,
+    output  wire    [3:0 ]                          dbus_wstrb,
+    output  wire                                    dbus_wlast,
+    input   wire                                    dbus_bvalid,
+    output  wire                                    dbus_bready,
+    input   wire    [1:0 ]                          dbus_bresp,
+    input   wire    [3:0 ]                          dbus_bid,
+    output  wire                                    dbus_arvalid,
+    input   wire                                    dbus_arready,
+    output  wire    [31:0]                          dbus_araddr,
+    output  wire    [3:0 ]                          dbus_arid,
+    output  wire    [7:0 ]                          dbus_arlen,
+    output  wire    [2:0 ]                          dbus_arsize,
+    output  wire    [1:0 ]                          dbus_arburst,
+    input   wire                                    dbus_rvalid,
+    output  wire                                    dbus_rready,
+    input   wire    [31:0]                          dbus_rdata,
+    input   wire    [1:0 ]                          dbus_rresp,
+    input   wire                                    dbus_rlast,
+    input   wire    [3:0 ]                          dbus_rid
 );
 
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
-    reg [`MemDataBus] rdata;
+    reg [31:0] rdata;
     always @(posedge clk) begin
         if (!rst_n) begin
             rdata <= 0;
-        end else if(dbus_rvalid && dbus_rready) begin
+        end else if(dbus_rvalid) begin
             rdata <= dbus_rdata;
         end
     end
 
-    wire [`MemDataBus] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
-    wire [`MemDataBus] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
-    wire [`MemDataBus] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
-    wire [`MemDataBus] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
+    wire [31:0] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
+    wire [31:0] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
+    wire [31:0] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
+    wire [31:0] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
 
-    wire [`MemDataBus] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
-    wire [`MemDataBus] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
+    wire [31:0] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
+    wire [31:0] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
 
-    wire [`MemDataBus] lw_res = rdata;
+    wire [31:0] lw_res = rdata;
 
-    wire [`MemDataBus] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
-    wire [`MemDataBus] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
-    wire [`MemDataBus] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
-    wire [`MemDataBus] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
+    wire [31:0] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
+    wire [31:0] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
+    wire [31:0] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
+    wire [31:0] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
 
-    wire [`MemDataBus] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
-    wire [`MemDataBus] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
+    wire [31:0] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
+    wire [31:0] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
 
-    wire [`MemDataBus] sb_00_res = {24'b0, I_store_data[7:0]};
-    wire [`MemDataBus] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
-    wire [`MemDataBus] sb_10_res = {8'b0, I_store_data[7:0], 16'b0};
-    wire [`MemDataBus] sb_11_res = {I_store_data[7:0], 24'b0};
-
-    wire [`MemDataBus] sh_00_res = {16'b0, I_store_data[15:0]};
-    wire [`MemDataBus] sh_10_res = {I_store_data[15:0], 16'b0};
-
-    wire [`MemDataBus] sw_res = I_store_data;
 
     // 地址明辨
-    wire [1:0] memory_byte_addr = I_memory_addr[1:0];
+    wire [1:0] offset = I_memory_addr[1:0];
 
     //------------------------------------------------------------------------
     // 访存逻辑
     //------------------------------------------------------------------------
-    reg [`RegDataBus] rd_data;
+
+    wire [2:0] ld_ctrl = I_ld_valid ? I_ls_ctrl : 3'b111; // 111 no op
+
+    reg [31:0] rd_data;
     always @(*) begin
         rd_data = I_rd_wdata;
-        case(I_ls_type)
-            `ls_lb: begin
-                case(memory_byte_addr)
-                    2'b00: rd_data = lb_00_res;
-                    2'b01: rd_data = lb_01_res;
-                    2'b10: rd_data = lb_10_res;
-                    2'b11: rd_data = lb_11_res;
-                    default: begin end
-                endcase
-            end
-            `ls_lh: begin
-                case(memory_byte_addr[1])
-                    1'b0: rd_data = lh_00_res;
-                    1'b1: rd_data = lh_10_res;
-                    default: begin end
-                endcase
-            end
-            `ls_lw: begin
-                rd_data = lw_res;
-            end
-            `ls_lbu: begin
-                case(memory_byte_addr)
-                    2'b00: rd_data = lbu_00_res;
-                    2'b01: rd_data = lbu_01_res;
-                    2'b10: rd_data = lbu_10_res;
-                    2'b11: rd_data = lbu_11_res;
-                    default: begin end
-                endcase
-            end
-            `ls_lhu: begin
-                case(memory_byte_addr[1])
-                    1'b0: rd_data = lhu_00_res;
-                    1'b1: rd_data = lhu_10_res;
-                    default: begin end
-                endcase
-            end
+        case({ld_ctrl, offset})
+            {`ysyx_25110270_RV32I_F3_LB,  2'b00}: rd_data = lb_00_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b01}: rd_data = lb_01_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b10}: rd_data = lb_10_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b11}: rd_data = lb_11_res;
+
+            {`ysyx_25110270_RV32I_F3_LH,  2'b00}: rd_data = lh_00_res;
+            {`ysyx_25110270_RV32I_F3_LH,  2'b10}: rd_data = lh_10_res;
+
+            {`ysyx_25110270_RV32I_F3_LW,  2'b00}: rd_data = lw_res;
+
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b00}: rd_data = lbu_00_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b01}: rd_data = lbu_01_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b10}: rd_data = lbu_10_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b11}: rd_data = lbu_11_res;
+
+            {`ysyx_25110270_RV32I_F3_LHU, 2'b00}: rd_data = lhu_00_res;
+            {`ysyx_25110270_RV32I_F3_LHU, 2'b10}: rd_data = lhu_10_res;
+
             default: begin end
         endcase
     end
@@ -169,40 +147,40 @@ module ysyx_25110270_lsu
     // 存储逻辑
     //------------------------------------------------------------------------
 
-    reg [`MemDataBus] wdata;
+    reg [31:0] wdata;
     reg [3:0] data_mask;
     always @(posedge clk) begin
         if(!rst_n) begin
             wdata     <= 0;
             data_mask <= 0;
         end else begin
-            case({I_ls_type, memory_byte_addr})
-                {`ls_sb, 2'b00}: begin
-                    wdata     <= sb_00_res;
+            case({I_ls_ctrl[1:0], offset})  // 00 sb, 01 sh, 10 sw
+                {2'b00, 2'b00}: begin
+                    wdata     <= {24'b0, I_store_data[7:0]};
                     data_mask <= 4'b0001;
                 end
-                {`ls_sb, 2'b01}: begin
-                    wdata     <= sb_01_res;
+                {2'b00, 2'b01}: begin
+                    wdata     <= {16'b0, I_store_data[7:0], 8'b0};
                     data_mask <= 4'b0010;
                 end
-                {`ls_sb, 2'b10}: begin
-                    wdata     <= sb_10_res;
+                {2'b00, 2'b10}: begin
+                    wdata     <= {8'b0, I_store_data[7:0], 16'b0};
                     data_mask <= 4'b0100;
                 end
-                {`ls_sb, 2'b11}: begin
-                    wdata     <= sb_11_res;
+                {2'b00, 2'b11}: begin
+                    wdata     <= {I_store_data[7:0], 24'b0};
                     data_mask <= 4'b1000;
                 end
-                {`ls_sh, 2'b00}: begin
-                    wdata     <= sh_00_res;
+                {2'b01, 2'b00}: begin
+                    wdata     <= {16'b0, I_store_data[15:0]};
                     data_mask <= 4'b0011;
                 end
-                {`ls_sh, 2'b10}: begin
-                    wdata     <= sh_10_res;
+                {2'b01, 2'b10}: begin
+                    wdata     <= {I_store_data[15:0], 16'b0};
                     data_mask <= 4'b1100;
                 end
-                {`ls_sw, 2'b00}: begin
-                    wdata     <= sw_res;
+                {2'b10, 2'b00}: begin
+                    wdata     <= I_store_data;
                     data_mask <= 4'b1111;
                 end
                 default: begin
@@ -213,21 +191,16 @@ module ysyx_25110270_lsu
         end
     end
     
-    reg [2:0] data_awsize;
-    reg [2:0] data_arsize;
+    reg [2:0] data_axsize;
     always @(posedge clk) begin
         if(!rst_n) begin
-            data_awsize <= 3'b000;
-            data_arsize <= 3'b000;
+            data_axsize <= 3'b000;
         end else begin
-            case(I_ls_type)
-                `ls_sb:             data_awsize <= 3'b000;
-                `ls_sh:             data_awsize <= 3'b001;
-                `ls_sw:             data_awsize <= 3'b010;
-                `ls_lb, `ls_lbu:    data_arsize <= 3'b000;
-                `ls_lh, `ls_lhu:    data_arsize <= 3'b001;
-                `ls_lw:             data_arsize <= 3'b010;
-                default:            data_awsize <= 3'b000;
+            case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
+                2'b00:   data_axsize <= 3'b000;
+                2'b01:   data_axsize <= 3'b001;
+                2'b10:   data_axsize <= 3'b010;
+                default: data_axsize <= 3'b000;
             endcase
         end
     end
@@ -238,7 +211,7 @@ module ysyx_25110270_lsu
             req_valid <= 1'b0;
         end else if(I_valid) begin
             req_valid <= 1'b1;
-        end else if(I_ls_valid & (dbus_arready | dbus_awready)) begin
+        end else if((I_ld_valid && dbus_arready) || (I_st_valid && dbus_awready))begin
             req_valid <= 1'b0;
         end
     end
@@ -257,7 +230,7 @@ module ysyx_25110270_lsu
         end
     end
 
-    wire ls_req = I_ls_valid & req_valid;
+    wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
     wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
 
     always @(posedge clk) begin
@@ -273,37 +246,13 @@ module ysyx_25110270_lsu
             nstate = IDLE;
         end else begin
             case(state)
-                IDLE:    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
-                MEM:     nstate = (dbus_bvalid | dbus_rvalid) ? WB : MEM;
+                IDLE:    nstate = (dbus_awready | dbus_arready) ? MEM : IDLE;
+                MEM:     nstate = (dbus_bvalid | dbus_rvalid)   ? WB  : MEM;
                 WB:      nstate = IDLE;
                 default: nstate = IDLE;
             endcase
         end
     end
-
-
-    reg data_bready;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            data_bready <= 1'b1;
-        end else if(dbus_bvalid && dbus_bready) begin
-            data_bready <= 1'b0;
-        end else begin
-            data_bready <= 1'b1;
-        end
-    end
-
-    reg data_rready;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            data_rready <= 1'b1;
-        end else if(dbus_rvalid && dbus_rready) begin
-            data_rready <= 1'b0;
-        end else begin
-            data_rready <= 1'b1;
-        end
-    end
-
 
     wire stallreq = ls_req | (state == MEM);
 
@@ -342,57 +291,61 @@ module ysyx_25110270_lsu
     assign O_rd_waddr = I_rd_waddr;
     assign O_rd_wdata = rd_data;
 
-    assign O_csr_we = I_csr_we;
-    assign O_csr_waddr = I_csr_waddr;
+    assign O_csr_valid = I_csr_valid;
+    assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = I_csr_wdata;
 
     assign O_except = I_except;
 
-    assign O_device_skip = I_ls_valid & 
+    assign O_device_skip = (I_ld_valid | I_st_valid) & 
     (
-        (I_memory_addr >= `SERIAL_BASE & I_memory_addr < (`SERIAL_BASE + `SERIAL_SIZE)) |
-        (I_memory_addr >= `CLINT_BASE  & I_memory_addr < (`CLINT_BASE  + `CLINT_SIZE )) |
-        (I_memory_addr >= `SPI_BASE    & I_memory_addr < (`SPI_BASE    + `SPI_SIZE   )) |
-        (I_memory_addr >= `GPIO_BASE   & I_memory_addr < (`GPIO_BASE   + `GPIO_SIZE  )) |
-        (I_memory_addr >= `PS2_BASE    & I_memory_addr < (`PS2_BASE    + `PS2_SIZE   )) |
-        (I_memory_addr >= `VGA_BASE    & I_memory_addr < (`VGA_BASE    + `VGA_SIZE   )) |
-        (I_memory_addr >= `CHIPL_BASE  /*& I_memory_addr < (`CHIPL_BASE  + `CHIPL_SIZE )*/)
+        (I_memory_addr >= `ysyx_25110270_SERIAL_BASE & I_memory_addr < (`ysyx_25110270_SERIAL_BASE + `ysyx_25110270_SERIAL_SIZE)) |
+        (I_memory_addr >= `ysyx_25110270_CLINT_BASE  & I_memory_addr < (`ysyx_25110270_CLINT_BASE  + `ysyx_25110270_CLINT_SIZE )) |
+        (I_memory_addr >= `ysyx_25110270_SPI_BASE    & I_memory_addr < (`ysyx_25110270_SPI_BASE    + `ysyx_25110270_SPI_SIZE   )) |
+        (I_memory_addr >= `ysyx_25110270_GPIO_BASE   & I_memory_addr < (`ysyx_25110270_GPIO_BASE   + `ysyx_25110270_GPIO_SIZE  )) |
+        (I_memory_addr >= `ysyx_25110270_PS2_BASE    & I_memory_addr < (`ysyx_25110270_PS2_BASE    + `ysyx_25110270_PS2_SIZE   )) |
+        (I_memory_addr >= `ysyx_25110270_VGA_BASE    & I_memory_addr < (`ysyx_25110270_VGA_BASE    + `ysyx_25110270_VGA_SIZE   )) |
+        (I_memory_addr >= `ysyx_25110270_CHIPL_BASE  /*& I_memory_addr < (`ysyx_25110270_CHIPL_BASE  + `ysyx_25110270_CHIPL_SIZE )*/)
     );
 
+
+    assign dbus_awvalid = data_avalid & I_st_valid;
+    assign dbus_wvalid = data_avalid & I_st_valid;
+    assign dbus_arvalid = data_avalid & I_ld_valid;
 
     assign dbus_awaddr = I_memory_addr;
     assign dbus_awid = 4'b0000;
     assign dbus_awlen = 8'b0000_0000;
-    assign dbus_awsize = data_awsize;
+    assign dbus_awsize = data_axsize;
     assign dbus_awburst = 2'b01;
 
     assign dbus_wdata = wdata;
     assign dbus_wstrb = data_mask;
     assign dbus_wlast = 1'b1;
 
-    assign dbus_bready = data_bready;
+    assign dbus_bready = 1'b1;
 
     assign dbus_araddr = I_memory_addr;
     assign dbus_arid = 4'b0000;
     assign dbus_arlen = 8'b0000_0000;
-    assign dbus_arsize = data_arsize;
+    assign dbus_arsize = data_axsize;
     assign dbus_arburst = 2'b01;
 
-    assign dbus_rready = data_rready;
+    assign dbus_rready = 1'b1;
 
 `ifdef DEBUG
-    wire not_in_mrom   = (I_memory_addr < `MromAddrBase ) | (I_memory_addr >= (`MromAddrBase  + `MromSize   ));
-    wire not_in_sram   = (I_memory_addr < `SramAddrBase ) | (I_memory_addr >= (`SramAddrBase  + `SramSize   ));
-    wire not_in_flash  = (I_memory_addr < `FlashAddrBase) | (I_memory_addr >= (`FlashAddrBase + `FlashSize  ));
-    wire not_in_psram  = (I_memory_addr < `PsramAddrBase) | (I_memory_addr >= (`PsramAddrBase + `PsramSize  ));
-    wire not_in_sdram  = (I_memory_addr < `SdramAddrBase) | (I_memory_addr >= (`SdramAddrBase + `SdramSize  ));
-    wire not_in_clint  = (I_memory_addr < `CLINT_BASE   ) | (I_memory_addr >= (`CLINT_BASE    + `CLINT_SIZE ));
-    wire not_in_serial = (I_memory_addr < `SERIAL_BASE  ) | (I_memory_addr >= (`SERIAL_BASE   + `SERIAL_SIZE));
-    wire not_in_spi    = (I_memory_addr < `SPI_BASE     ) | (I_memory_addr >= (`SPI_BASE      + `SPI_SIZE   ));
-    wire not_in_gpio   = (I_memory_addr < `GPIO_BASE    ) | (I_memory_addr >= (`GPIO_BASE     + `GPIO_SIZE  ));
-    wire not_in_ps2    = (I_memory_addr < `PS2_BASE     ) | (I_memory_addr >= (`PS2_BASE      + `PS2_SIZE   ));
-    wire not_in_vga    = (I_memory_addr < `VGA_BASE     ) | (I_memory_addr >= (`VGA_BASE      + `VGA_SIZE   ));
-    wire not_in_chipl  = (I_memory_addr < `CHIPL_BASE   )/* | (I_memory_addr >= (`CHIPL_BASE    + `CHIPL_SIZE ))*/;
+    wire not_in_mrom   = (I_memory_addr < `ysyx_25110270_MromAddrBase ) | (I_memory_addr >= (`ysyx_25110270_MromAddrBase  + `ysyx_25110270_MromSize   ));
+    wire not_in_sram   = (I_memory_addr < `ysyx_25110270_SramAddrBase ) | (I_memory_addr >= (`ysyx_25110270_SramAddrBase  + `ysyx_25110270_SramSize   ));
+    wire not_in_flash  = (I_memory_addr < `ysyx_25110270_FlashAddrBase) | (I_memory_addr >= (`ysyx_25110270_FlashAddrBase + `ysyx_25110270_FlashSize  ));
+    wire not_in_psram  = (I_memory_addr < `ysyx_25110270_PsramAddrBase) | (I_memory_addr >= (`ysyx_25110270_PsramAddrBase + `ysyx_25110270_PsramSize  ));
+    wire not_in_sdram  = (I_memory_addr < `ysyx_25110270_SdramAddrBase) | (I_memory_addr >= (`ysyx_25110270_SdramAddrBase + `ysyx_25110270_SdramSize  ));
+    wire not_in_clint  = (I_memory_addr < `ysyx_25110270_CLINT_BASE   ) | (I_memory_addr >= (`ysyx_25110270_CLINT_BASE    + `ysyx_25110270_CLINT_SIZE ));
+    wire not_in_serial = (I_memory_addr < `ysyx_25110270_SERIAL_BASE  ) | (I_memory_addr >= (`ysyx_25110270_SERIAL_BASE   + `ysyx_25110270_SERIAL_SIZE));
+    wire not_in_spi    = (I_memory_addr < `ysyx_25110270_SPI_BASE     ) | (I_memory_addr >= (`ysyx_25110270_SPI_BASE      + `ysyx_25110270_SPI_SIZE   ));
+    wire not_in_gpio   = (I_memory_addr < `ysyx_25110270_GPIO_BASE    ) | (I_memory_addr >= (`ysyx_25110270_GPIO_BASE     + `ysyx_25110270_GPIO_SIZE  ));
+    wire not_in_ps2    = (I_memory_addr < `ysyx_25110270_PS2_BASE     ) | (I_memory_addr >= (`ysyx_25110270_PS2_BASE      + `ysyx_25110270_PS2_SIZE   ));
+    wire not_in_vga    = (I_memory_addr < `ysyx_25110270_VGA_BASE     ) | (I_memory_addr >= (`ysyx_25110270_VGA_BASE      + `ysyx_25110270_VGA_SIZE   ));
+    wire not_in_chipl  = (I_memory_addr < `ysyx_25110270_CHIPL_BASE   )/* | (I_memory_addr >= (`ysyx_25110270_CHIPL_BASE    + `ysyx_25110270_CHIPL_SIZE ))*/;
 
     wire not_in_device =  not_in_mrom & not_in_sram & not_in_flash & 
                           not_in_psram & not_in_sdram & not_in_clint & 
@@ -443,50 +396,6 @@ module ysyx_25110270_lsu
         end
     end
 
-`endif
-
-`ifndef LFSR
-    assign dbus_awvalid = data_avalid & I_ls_type[`ls_diff_width-1];
-    assign dbus_wvalid = data_avalid & I_ls_type[`ls_diff_width-1];
-    assign dbus_arvalid = data_avalid & ~I_ls_type[`ls_diff_width-1];
-`else
-    reg avalid_r;
-    wire [`RAMDOM_WIDTH-1:0] drandom;
-    reg [`RAMDOM_WIDTH-1:0] drandom_r;
-    reg req_flag;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            avalid_r <= 1'b0;
-            drandom_r <= 0;
-            req_flag <= 1'b0;
-        end else if(req_flag) begin
-            drandom_r <= drandom_r - 1;
-            if(drandom_r == 0) begin
-                avalid_r <= 1'b1;
-                req_flag <= 1'b0;
-            end
-        end else if(state == IDLE && data_avalid && !avalid_r) begin
-            avalid_r <= 1'b0;
-            drandom_r <= drandom;
-            req_flag <= 1'b1;
-        end else if((dbus_awvalid && dbus_awready) || (dbus_arvalid && dbus_arready)) begin
-            avalid_r <= 1'b0;
-        end
-    end
-
-    assign dbus_awvalid = avalid_r & I_ls_type[`ls_diff_width-1];
-    assign dbus_wvalid = avalid_r & I_ls_type[`ls_diff_width-1];
-    assign dbus_arvalid = avalid_r & ~I_ls_type[`ls_diff_width-1];
-
-    lfsr #(
-        .WIDTH                  (`RAMDOM_WIDTH              )      
-    ) ilfsr_inst
-    (
-        .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
-        .I_seed                 (`SEED2                     ),
-        .O_random               (drandom                    )
-    );
 `endif
 
 endmodule

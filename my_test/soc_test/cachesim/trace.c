@@ -17,9 +17,10 @@ int process_binary_trace(const char *filename, CacheSim *cache) {
     int count = 0;
     
     while (fread(&entry, sizeof(uint32_t), 1, fp) == 1) {
-        cachesim_access(cache, entry, 0);
-        count++;
-        
+        if(entry < 0x0f000000 || entry >= 0x10000000) {
+            cachesim_access(cache, entry, 0);
+            count++;
+        }
         if (count % 1000000 == 0) {
             printf("Processed %d million accesses...\n", count / 1000000);
         }

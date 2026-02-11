@@ -43,7 +43,7 @@ void cachesim_destroy(CacheSim *cache);
 bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write);
 void cachesim_print_stats(CacheSim *cache);
 void cachesim_reset_stats(CacheSim *cache);
-uint64_t cachesim_calculate_miss_penalty(uint32_t block_size, bool is_dram);
+double cachesim_calculate_miss_penalty();
 double cachesim_estimate_tmt(CacheSim *cache, double clock_freq);
 
 int process_binary_trace(const char *filename, CacheSim *cache);

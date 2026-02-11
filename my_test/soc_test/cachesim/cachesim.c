@@ -204,23 +204,20 @@ bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write) {
     }
 }
 
-uint64_t cachesim_calculate_miss_penalty(uint32_t block_size, bool is_dram) {
-    
-    return 20;
+double cachesim_calculate_miss_penalty() {
+    return 92.08;
 }
 
 // 估算总缺失时间（TMT）
 double cachesim_estimate_tmt(CacheSim *cache, double clock_freq) {
     if (cache->access_count == 0) return 0.0;
     
-    double miss_rate = (double)cache->miss_count / cache->access_count;
-    uint64_t miss_penalty = cachesim_calculate_miss_penalty(
-        cache->config.block_size, true);  // 假设DRAM
+    // double miss_rate = (double)cache->miss_count / cache->access_count;
+    double miss_penalty = cachesim_calculate_miss_penalty();
     
-    double total_cycles = cache->access_count * (1 - miss_rate) * 1  // 命中周期
-                        + cache->miss_count * miss_penalty;          // 缺失周期
+    double total_cycles = cache->miss_count * miss_penalty;         
     
-    return total_cycles / clock_freq;  // 秒
+    return total_cycles / clock_freq;
 }
 
 // 打印统计信息
@@ -257,7 +254,7 @@ void cachesim_print_stats(CacheSim *cache) {
         printf("  Read hit rate:  %.2f%%\n", 
                100.0 * cache->read_hit / cache->read_count);
     }
-   
+    printf(" Total Miss Time (TMT): %.2f cycles\n", cachesim_estimate_tmt(cache, 1.0));
     
     printf("================================================\n");
 }

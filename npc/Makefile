@@ -53,9 +53,9 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
+	@gtkwave -o $(NPC_HOME)/build/waveform.vcd
 else
-	@gtkwave ${NPC_HOME}/build/waveform.fst
+	@gtkwave -o $(NPC_HOME)/build/waveform.fst
 endif
 
 BUILD_DIR = ./build
@@ -79,7 +79,7 @@ endif
 
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
+	make -C $(NPC_HOME)/../am-kernels/tests/cpu-tests ARCH=riscv32e-ysyxsoc run ALL=load-store
 
 
 $(shell mkdir -p $(BUILD_DIR))
