@@ -8,8 +8,7 @@ enum Inst_Type {
     IT_ALU_ALU = 0x01,
     IT_LS      = 0x02,
     IT_BR      = 0x04,
-    IT_CSR     = 0x08,
-    IT_FENCE_I = 0x10
+    IT_CSR     = 0x08
 };
 
 typedef struct {
@@ -24,16 +23,19 @@ typedef struct {
 } Inst_log;
 
 Inst_buf inst_buffer;
-Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log, fence_i_inst_log;
+Inst_log alu_inst_log, ls_inst_log, br_inst_log, csr_inst_log;
 uint64_t ifu_inst, dec_inst, exec_inst, ls_data_nr;
 
 uint64_t ls_delay_total;
 uint64_t icache_miss, icache_miss_penal;
 
-extern uint64_t g_cycle;
+uint64_t total_cycle;
+extern "C" void per_cyc_get(int mcycleh, int mcyclel) {
+    total_cycle = ((uint64_t)mcycleh << 32) | (uint64_t)mcyclel;
+}
 
 static inline uint64_t rdtime() {
-    return g_cycle;
+    return total_cycle;
 }
 
 extern "C" void ifetch_inst_get_nr_cal(int inst, int pc) {
@@ -85,73 +87,30 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
 
 extern "C" void wb_inst_cycle_cal(int pc) {
     uint64_t end = rdtime();
-    if(inst_buffer.pc != pc) {
-        printf("Error: PC mismatch in WB stage! Expected 0x%08x, got 0x%08x\n", inst_buffer.pc, pc);
-        assert(0);
-    }
-
-    uint64_t cycle = end - inst_buffer.begin + 1;
-    switch (inst_buffer.type) {
-        case IT_ALU_ALU: 
-            alu_inst_log.inst_nr++; 
-            alu_inst_log.cycle += cycle; 
-            // printf("alu, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("ALU Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
-        break;
-        case IT_LS:      
-            ls_inst_log.inst_nr++;  
-            ls_inst_log.cycle  += cycle; 
-            if(cycle > 10000) {
-                printf("LS Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
-        break;
-        case IT_BR:      
-            br_inst_log.inst_nr++;  
-            br_inst_log.cycle  += cycle; 
-            // printf("br, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("BR Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
-        break;
-        case IT_CSR:     
-            csr_inst_log.inst_nr++; 
-            csr_inst_log.cycle += cycle; 
-            // printf("csr, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("CSR Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
-        break;
-        case IT_FENCE_I: 
-            fence_i_inst_log.inst_nr++; 
-            fence_i_inst_log.cycle += cycle; 
-            // printf("fence_i, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("FENCE_I Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
-        break;
-        default: break;
-    }
+    if (inst_buffer.pc == pc) {
+        uint64_t cycle = end - inst_buffer.begin + 1;
+        switch (inst_buffer.type) {
+            case IT_ALU_ALU: alu_inst_log.inst_nr++; alu_inst_log.cycle += cycle; /*printf("alu, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
+            case IT_LS:      ls_inst_log.inst_nr++;  ls_inst_log.cycle  += cycle; break;
+            case IT_BR:      br_inst_log.inst_nr++;  br_inst_log.cycle  += cycle; /*printf("br, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
+            case IT_CSR:     csr_inst_log.inst_nr++; csr_inst_log.cycle += cycle; /*printf("csr, pc == 0x%08x\n", pc); */ assert(cycle == 5); break;
+            default:                                                              break;
+        }
             // printf("WB Cal: pc=0x%x, type=%s, cycle=%lu\n", pc, inst_buffer[i].type == IT_ALU_ALU ? "ALU_ALU" : 
             //                                                     inst_buffer[i].type == IT_LS      ? "LS"      :
             //                                                     inst_buffer[i].type == IT_BR      ? "BR"      :
             //                                                     inst_buffer[i].type == IT_CSR     ? "CSR"     : "UNKNOWN",
             //                                                 cycle);
+    }
 }
 
 void perf_cal() {
 
     printf("\n===== Performance Calulation =====\n");
-    printf("Total Cycle: %lu\n", g_cycle);
+    printf("Total Cycle: %lu\n", total_cycle);
     printf("Total Inst : %lu\n", g_nr_guest_inst);
-    if (g_cycle != 0) {
-        printf("IPC        : %.2f\n", (double)g_nr_guest_inst / (double)g_cycle);
+    if (total_cycle != 0) {
+        printf("IPC        : %.2f\n", (double)g_nr_guest_inst / (double)total_cycle);
     } else {
         printf("IPC        : INF\n");
     }
@@ -167,14 +126,12 @@ void perf_cal() {
     printf("L/S Inst     : %u(%.2f%%)\n", ls_inst_log.inst_nr,  (double)ls_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("Branch Inst  : %u(%.2f%%)\n", br_inst_log.inst_nr,  (double)br_inst_log.inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %u(%.2f%%)\n", csr_inst_log.inst_nr, (double)csr_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
-    printf("FENCE Inst   : %u(%.2f%%)\n", fence_i_inst_log.inst_nr, (double)fence_i_inst_log.inst_nr / (double)g_nr_guest_inst * 100);
 
     printf("\n===== Inst Exe Average Cycle =====\n");
     printf("ALU Inst(alu): %.2f\n", alu_inst_log.inst_nr ? (double)alu_inst_log.cycle / (double)alu_inst_log.inst_nr : 0);
     printf("L/S Inst     : %.2f\n", ls_inst_log.inst_nr  ? (double)ls_inst_log.cycle  / (double)ls_inst_log.inst_nr  : 0);
     printf("Branch Inst  : %.2f\n", br_inst_log.inst_nr  ? (double)br_inst_log.cycle  / (double)br_inst_log.inst_nr  : 0);
     printf("CSR Inst     : %.2f\n", csr_inst_log.inst_nr ? (double)csr_inst_log.cycle / (double)csr_inst_log.inst_nr : 0);
-    printf("FENCE Inst   : %.2f\n", fence_i_inst_log.inst_nr ? (double)fence_i_inst_log.cycle / (double)fence_i_inst_log.inst_nr : 0);
 
     double miss_per = (double)icache_miss / (double)(g_nr_guest_inst);
     double hit_per = (double)1 - miss_per;

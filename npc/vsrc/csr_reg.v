@@ -16,7 +16,7 @@ module ysyx_25110270_csr_reg
     input   wire    [`CSRAddrBus    ]   I_waddr,
     input   wire    [`CSRDataBus    ]   I_wdata,
 
-    input   wire    [`ExceptBus     ]   I_except,
+    input   wire    [`Except_Bus    ]   I_except,
     input   wire    [`InstAddrBus   ]   I_except_addr,
 
     input   wire    [`InstAddrBus   ]   I_next_inst_addr,

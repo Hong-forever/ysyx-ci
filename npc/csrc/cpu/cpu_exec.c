@@ -14,7 +14,6 @@ IFDEF(CONFIG_PERF_CAL, void perf_cal());
 
 uint64_t get_time();
 uint64_t g_timer = 0;
-uint64_t g_cycle = 0;
 
 extern TOP_NAME *top ;
 extern VerilatedContext *contextp;
@@ -191,8 +190,6 @@ void statistic() {
 static void exec_once()
 {
     single_cycle();
-
-    g_cycle++;
     
     if (!cpu_inst_valid) return;
 

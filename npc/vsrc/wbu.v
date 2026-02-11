@@ -35,7 +35,7 @@ module ysyx_25110270_wbu
     input   wire    [`CSRAddrBus    ]   I_csr_waddr,
     input   wire    [`CSRDataBus    ]   I_csr_wdata,
 
-    input   wire    [`ExceptBus     ]   I_except,
+    input   wire    [`Except_Bus    ]   I_except,
     input   wire    [`InstAddrBus   ]   I_except_addr,
 
     input   wire    [`InstAddrBus   ]   I_next_inst_addr,
@@ -172,11 +172,16 @@ module ysyx_25110270_wbu
 
 `ifdef PERF
     import "DPI-C" function void wb_inst_cycle_cal(input int pc);
+    import "DPI-C" function void per_cyc_get(input int mcycleh, input int mcyclel);
 
     always @(posedge clk) begin
         if(valid_r && (|I_inst) && (|I_inst_addr)) begin
             wb_inst_cycle_cal(I_inst_addr);
         end
+    end
+
+    always @(posedge clk) begin
+        per_cyc_get(csr_mcycleh, csr_mcyclel);
     end
 
 `endif

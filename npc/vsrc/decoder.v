@@ -55,7 +55,7 @@ module ysyx_25110270_decoder
     output  wire                        O_csr_re,
 
     // 异常
-    output  wire    [`ExceptBus     ]   O_except
+    output  wire    [`Except_Bus    ]   O_except
 );
     
     //------------------------------------------------------------------------
@@ -320,7 +320,7 @@ module ysyx_25110270_decoder
     //------------------------------------------------------------------------
     // 异常解码
     //------------------------------------------------------------------------
-    wire [`ExceptBus ] except;
+    wire [`Except_Bus] except;
     ysyx_25110270_dec_except dec_except
     (
         .I_inst                 (I_inst                     ),
@@ -371,9 +371,8 @@ module ysyx_25110270_decoder
     wire inst_is_br = (bru_ctrl != 0);
     wire inst_is_alu = (opcode == `RV32I_OP_TYPE_I) | (opcode == `RV32I_OP_AUIPC) | (opcode == `RV32I_OP_LUI) | (opcode == `RV32IM_OP_TYPE_R);
     wire inst_is_csr = (csr_en != 0);
-    wire inst_is_fence_i = except[`EXCPT_FENCE_I];
 
-    wire [4:0] inst_type = {inst_is_fence_i, inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
+    wire [3:0] inst_type = {inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
     
     reg valid;
     always @(posedge clk) begin
@@ -399,14 +398,15 @@ endmodule
 module ysyx_25110270_dec_except
 (
     input   wire    [`InstBus       ]   I_inst,
-    output  wire    [`ExceptBus     ]   O_except
+    // output  wire                        O_except_valid,
+    output  wire    [`Except_Bus    ]   O_except
 );
+    // assign O_except_valid = 1'b0;
 
     // 异常指令
-    assign O_except[`EXCPT_ECALL  ] = (I_inst == `RV_ECALL  );
-    assign O_except[`EXCPT_EBREAK ] = (I_inst == `RV_EBREAK );
-    assign O_except[`EXCPT_MRET   ] = (I_inst == `RV_MRET   );
-    assign O_except[`EXCPT_FENCE_I] = (I_inst == `RV_FENCE_I);
+    assign O_except[`EXCPT_ECALL ] = (I_inst == `RV_ECALL);
+    assign O_except[`EXCPT_EBREAK] = (I_inst == `RV_EBREAK);
+    assign O_except[`EXCPT_MRET  ] = (I_inst == `RV_MRET);
 
 endmodule
 

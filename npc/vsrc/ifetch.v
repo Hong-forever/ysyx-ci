@@ -20,8 +20,6 @@ module ysyx_25110270_ifetch
     input   wire                        I_flush,            // 指令冲刷
     input   wire    [31:0]              I_flush_addr,       // 冲刷跳转地址
 
-    input                               I_fence_i,           // 指令同步
-
     output  wire    [31:0]              O_inst,
     output  wire    [31:0]              O_inst_addr,
 
@@ -88,9 +86,9 @@ module ysyx_25110270_ifetch
         end
     end
 
-    wire noneed_cache = (pc >= `SramAddrBase) && (pc < (`SramAddrBase + `SramSize));
-
     wire inst_reqvalid_next = (state == IDLE) || I_valid;
+
+    wire noneed_cache = pc >= `SramAddrBase && pc < (`SramAddrBase + `SramSize);
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -107,7 +105,7 @@ module ysyx_25110270_ifetch
             inst_arvalid <= 1'b0;
         end else if(ibus_arvalid && ibus_arready) begin
             inst_arvalid <= 1'b0;
-        end else if(cache_miss & ~miss_reg || inst_reqvalid & noneed_cache) begin
+        end else if(cache_miss & ~miss_reg || noneed_cache & inst_reqvalid) begin
             inst_arvalid <= 1'b1;
         end
     end
@@ -117,7 +115,7 @@ module ysyx_25110270_ifetch
             inst <= 0;
         end else if(cache_valid) begin
             inst <= cache_data;
-        end else if(noneed_cache && ibus_rvalid) begin
+        end else if(ibus_rvalid) begin
             inst <= ibus_rdata;
         end
     end
@@ -127,7 +125,7 @@ module ysyx_25110270_ifetch
             inst_valid <= 0;
         end else if(I_ready & inst_valid) begin
             inst_valid <= 1'b0;
-        end else if(cache_valid || (noneed_cache && ibus_rvalid)) begin
+        end else if(cache_valid | ibus_rvalid) begin
             inst_valid <= 1'b1;
         end
     end
@@ -144,7 +142,7 @@ module ysyx_25110270_ifetch
                     nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
                 end
                 MISS: begin
-                    nstate = ibus_rvalid && ibus_rlast ? (noneed_cache ? EXE : IDLE) : MISS;
+                    nstate = ibus_rvalid ? EXE : MISS;
                 end
                 EXE: begin
                     nstate = I_valid ? IDLE : EXE;
@@ -160,9 +158,9 @@ module ysyx_25110270_ifetch
     #(
         .ADDR_WIDTH             (32                         ),
         .DATA_WIDTH             (32                         ),
-        .SET_NUM                (8                          ),
+        .SET_NUM                (16                         ),
         .N_WAYS                 (1                          ),
-        .BLOCK_SIZE             (8                          )
+        .BLOCK_SIZE             (4                          )
     ) icache
     (
         .clk                    (clk                        ),
@@ -170,13 +168,10 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .I_wr                   (ibus_rvalid                ),
         .I_wdata                (ibus_rdata                 ),
-        .I_wlast                (ibus_rlast                 ),
-        .I_valid                ((inst_reqvalid & !noneed_cache) | (cache_miss & ibus_rvalid)),
+        .I_valid                (inst_reqvalid & ~noneed_cache | (cache_miss & ibus_rvalid)),
         .O_data                 (cache_data                 ),
         .O_valid                (cache_valid                ),
-        .O_miss                 (cache_miss                 ),
-
-        .I_clear                (I_fence_i                  )
+        .O_miss                 (cache_miss                 )
     );
 
 `ifdef DEBUG
@@ -259,11 +254,11 @@ module ysyx_25110270_ifetch
     assign ibus_bready = 1'b0;
 
     assign ibus_arid = 0;
-    assign ibus_arlen = noneed_cache ? 8'b0000_0000 : 8'b0000_0001;
+    assign ibus_arlen = 8'b0000_0000;
     assign ibus_arsize = 3'b010;
     assign ibus_arburst = 2'b01;
 
-    assign ibus_araddr = noneed_cache ? pc : {pc[31:3], 3'b000};
+    assign ibus_araddr = pc;
 
     assign ibus_rready = inst_rready;
 
@@ -279,7 +274,7 @@ module ysyx_25110270_ifetch
 
     reg begin_flag_r;
     wire begin_flag = ibus_arvalid;
-    wire end_flag   = ibus_rvalid && ibus_rready && ibus_rlast;
+    wire end_flag   = ibus_rvalid && ibus_rready;
 
     always @(posedge clk) begin
         if(!rst_n) begin

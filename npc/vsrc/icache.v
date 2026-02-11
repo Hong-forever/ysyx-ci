@@ -9,7 +9,7 @@ module ysyx_25110270_icache
     parameter ADDR_WIDTH  = 32,
     parameter SET_NUM     = 16,     // direct mapped cache sets
     parameter N_WAYS      = 1,      // number of ways, 1, 2, 4, 8
-    parameter BLOCK_SIZE  = 8       // in bytes
+    parameter BLOCK_SIZE  = 4       // in bytes
 )
 (
     input                           clk,
@@ -17,13 +17,10 @@ module ysyx_25110270_icache
     input       [ADDR_WIDTH-1:0]    I_addr,
     input                           I_wr,
     input       [DATA_WIDTH-1:0]    I_wdata,
-    input                           I_wlast,
     input                           I_valid,
     output      [DATA_WIDTH-1:0]    O_data,
     output                          O_valid,
-    output                          O_miss,
-
-    input                           I_clear
+    output                          O_miss
 );
 
     parameter WORD_BYTES        = DATA_WIDTH/8;                 // 每个字的字节数
@@ -38,20 +35,18 @@ module ysyx_25110270_icache
 
     // 存储器定义
     reg [TAG_WIDTH-1:0] tag_mem [0:SET_NUM*N_WAYS-1];
-    reg [DATA_WIDTH-1:0] data_mem [0:SET_NUM*N_WAYS-1][0:WORDS_PER_BLOCK-1];
+    reg [DATA_WIDTH-1:0] data_mem [0:SET_NUM*N_WAYS*WORDS_PER_BLOCK-1];
     reg valid_mem [0:SET_NUM*N_WAYS-1];
 
     wire [TAG_WIDTH-1:0]               tag;      // 标签位
     wire [SET_WIDTH-1:0]               index;    // 组索引
-    wire [BLOCK_WIDTH-1:0]             offset;   // 块内字偏移
-
+    // wire [BLOCK_WIDTH-1:0]             offset;   // 组内偏移（字）
+    
     assign tag     = I_addr[ADDR_WIDTH-1 : SET_WIDTH + BLOCK_WIDTH + 2];
     assign index   = I_addr[SET_WIDTH + BLOCK_WIDTH + 1 : BLOCK_WIDTH + 2];
-    assign offset  = I_addr[BLOCK_WIDTH + 1 : 2];
-
+    // assign offset  = I_addr[BLOCK_WIDTH+1 : 2];
 
     reg [1:0] state, nstate;
-    reg [BLOCK_WIDTH-1:0] cnt;
 
     reg hit;
     reg miss;
@@ -74,7 +69,11 @@ module ysyx_25110270_icache
                 IDLE: begin
                     hit = 1'b0;
                     miss = 1'b0;
-                    nstate = I_valid ? READ : IDLE;
+                    if(I_valid) begin
+                        nstate = READ;
+                    end else begin
+                        nstate = IDLE;
+                    end
                 end
                 READ: begin
                     if((tag_mem[index] == tag) & valid_mem[index]) begin
@@ -90,7 +89,11 @@ module ysyx_25110270_icache
                 MISS: begin
                     hit = 1'b0;
                     miss = 1'b1;
-                    nstate = I_valid & I_wr & I_wlast ? IDLE : MISS;
+                    if(I_valid & I_wr) begin
+                        nstate = IDLE;
+                    end else begin
+                        nstate = MISS;
+                    end
                 end
                 default: begin
                     hit = 1'b0;
@@ -101,45 +104,22 @@ module ysyx_25110270_icache
         end
     end
 
-    reg clear_r;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            clear_r <= 1'b0;
-        end else begin
-            clear_r <= I_clear;
-        end
-    end
-
-    integer i, j;
+    integer i;
     always @(posedge clk) begin
         if(!rst_n) begin
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
+                data_mem[i] <= 0;
                 valid_mem[i] <= 0;
                 tag_mem[i] <= 0;
-                for(j=0; j < WORDS_PER_BLOCK; j = j + 1) begin
-                    data_mem[i][j] <= 0;
-                end
-            end
-            cnt <= 0;
-        end else if(I_clear && !clear_r) begin
-            for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
-                valid_mem[i] <= 0;
             end
         end else if(I_valid && I_wr) begin
-            data_mem[index][cnt] <= I_wdata;
+            data_mem[index] <= I_wdata; // 简化为写入同一数据
             tag_mem[index] <= tag;
             valid_mem[index] <= 1'b1;
-            cnt <= I_wlast ? 0 : cnt + 1;
         end
     end
 
-    generate
-        if(BLOCK_WIDTH > 0) begin
-            assign O_data = data_mem[index][offset];
-        end else begin
-            assign O_data = data_mem[index][0];
-        end
-    endgenerate
+    assign O_data = data_mem[index];
     assign O_valid = hit;
     assign O_miss = miss;
 
