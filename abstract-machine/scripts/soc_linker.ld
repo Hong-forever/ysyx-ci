@@ -35,7 +35,7 @@ SECTIONS {
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    _etext = ALIGN(4);
+    _etext = .;
   } > sdram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
