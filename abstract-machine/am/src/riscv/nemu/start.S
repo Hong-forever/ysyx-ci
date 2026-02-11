@@ -30,7 +30,7 @@ _start:
 _start_ssbl:
   la a0, _start_loadaddr
   la a1, _sload
-  la a2, _eload
+  la a2, _ebss
 
 .copy_loop:
   beq a1, a2, .copy_done
@@ -41,16 +41,7 @@ _start_ssbl:
   j .copy_loop
 
 .copy_done:
-  la a0, _sbss
-  la a1, _ebss
 
-.zero_loop:
-  beq a0, a1, .zero_done
-  sw zero, 0(a0)
-  addi a0, a0, 4
-  j .zero_loop
-
-.zero_done:
   la t0, _start_text
   jr t0
 
