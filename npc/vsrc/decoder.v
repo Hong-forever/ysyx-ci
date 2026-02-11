@@ -36,7 +36,7 @@ module ysyx_25110270_decoder
     
     output  wire                                    O_ld_valid,         //访存有效标志
     output  wire                                    O_st_valid,         //访存有效标志
-    output  wire                                    O_bru_valid,        //跳转有效标志
+    output  wire                                    O_br_valid,        //跳转有效标志
     output  wire                                    O_csr_valid,        //CSR指令有效标志
     output  wire                                    O_f7b5_en,          //funct7[5]使能，针对srai, sub, sra指令
     output  wire                                    O_sign,             //有符号位
@@ -111,7 +111,7 @@ module ysyx_25110270_decoder
         [10:9 ]:    alu_srca_sel
         [8    ]:    f7b5_en    ---> srai, sub, sra
         [7    ]:    csr_valid
-        [6    ]:    bru_valid
+        [6    ]:    br_valid
         [5    ]:    st_valid
         [4    ]:    ld_valid
         [3    ]:    sign
@@ -126,7 +126,7 @@ module ysyx_25110270_decoder
     localparam bit_sign      = 3;
     localparam bit_ld_valid  = 4;
     localparam bit_st_valid  = 5;
-    localparam bit_bru_valid = 6;
+    localparam bit_br_valid  = 6;
     localparam bit_csr_valid = 7;
     localparam bit_f7b5_en   = 8;
     localparam bit_alu_srca  = 9;
@@ -191,7 +191,7 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
                 basic_ctrl[bit_rs2_re       ] = 1'b1;
                 basic_ctrl[bit_sign         ] = ~(funct3[2] & funct3[1]);   // no bltu, bgeu
-                basic_ctrl[bit_bru_valid    ] = 1'b1;
+                basic_ctrl[bit_br_valid     ] = 1'b1;
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_RS1;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_RS2;
                 basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_PC;
@@ -201,7 +201,7 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_rd_we        ] = 1'b1;
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
                 basic_ctrl[bit_sign         ] = 1'b1;
-                basic_ctrl[bit_bru_valid    ] = 1'b1;
+                basic_ctrl[bit_br_valid     ] = 1'b1;
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_4;
                 basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_RS1;
@@ -211,7 +211,7 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_rd_we        ] = 1'b1;
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
                 basic_ctrl[bit_sign         ] = 1'b1;
-                basic_ctrl[bit_bru_valid    ] = 1'b1;                        // bru_valid + funct3 == 011 ---->  alu_add
+                basic_ctrl[bit_br_valid     ] = 1'b1;                        // br_valid + funct3 == 011 ---->  alu_add
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_4;
                 basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_PC;
@@ -284,7 +284,7 @@ module ysyx_25110270_decoder
     assign O_ld_valid = basic_ctrl[bit_ld_valid];
     assign O_st_valid = basic_ctrl[bit_st_valid];
     assign O_csr_valid = basic_ctrl[bit_csr_valid];
-    assign O_bru_valid = basic_ctrl[bit_bru_valid];
+    assign O_br_valid = basic_ctrl[bit_br_valid];
     assign O_f7b5_en = basic_ctrl[bit_f7b5_en];
     assign O_sign = basic_ctrl[bit_sign];
 
@@ -302,7 +302,7 @@ module ysyx_25110270_decoder
     import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
 
     wire inst_is_ls = basic_ctrl[bit_ld_valid] | basic_ctrl[bit_st_valid];
-    wire inst_is_br = basic_ctrl[bit_bru_valid];
+    wire inst_is_br = basic_ctrl[bit_br_valid];
     wire inst_is_alu = (opcode == `ysyx_25110270_RV32I_OP_TYPE_I) | (opcode == `ysyx_25110270_RV32I_OP_AUIPC) | (opcode == `ysyx_25110270_RV32I_OP_LUI) | (opcode == `ysyx_25110270_RV32IM_OP_TYPE_R);
     wire inst_is_csr = basic_ctrl[bit_csr_valid];
     wire inst_is_fence_i = except[`ysyx_25110270_EXCPT_FENCE_I];
