@@ -35,7 +35,7 @@ SECTIONS {
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-  } > sdram AT>flash : text
+  } > psram AT>flash : text
 
   _start_loadaddr = LOADADDR(.text);
 
@@ -43,7 +43,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _eload = ALIGN(4);
-  } > sdram AT>flash : data
+  } > psram AT>flash : data
 
 
   .bss (NOLOAD) : {
@@ -52,13 +52,13 @@ SECTIONS {
     *(.scommon)
     *(COMMON)
 	  _ezero = ALIGN(4);
-  } > sdram
+  } > psram
 
   .heap (NOLOAD) : {
     _heap_start = ALIGN(4);
-    . = ORIGIN(sdram) + LENGTH(sdram);
+    . = ORIGIN(psram) + LENGTH(psram);
     _heap_end = ALIGN(4);
-  } > sdram
+  } > psram
 
   .stack (NOLOAD) : {
     . = _essbl;
