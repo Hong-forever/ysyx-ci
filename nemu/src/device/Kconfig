@@ -24,7 +24,7 @@ config SERIAL_PORT
 
 config SERIAL_MMIO
   hex "MMIO address of the serial controller"
-  @REM default 0xa00003f8
+  # default 0xa00003f8
   default 0x10000000
 
 config SERIAL_INPUT_FIFO
@@ -44,7 +44,7 @@ config RTC_PORT
 
 config RTC_MMIO
   hex "MMIO address of the timer"
-  @REM default 0xa0000048
+  # default 0xa0000048
   default 0x02000000
 endif # HAS_TIMER
 
