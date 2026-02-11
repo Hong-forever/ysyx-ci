@@ -41,32 +41,32 @@ SECTIONS {
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    _sdata = ALIGN(4);
+    _sdata = ALIGN(8);
     *(.data*)
     *(.sdata*)
-    _edata = ALIGN(4);
+    _edata = ALIGN(8);
   } > sdram AT>flash : data
 
   _data_loadaddr = LOADADDR(.data);
-
+  
   .bss (NOLOAD) : {
-	  _sbss = ALIGN(4);
+	  _sbss = ALIGN(8);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-	  _ebss = ALIGN(4);
+	  _ebss = ALIGN(8);
   } > sdram
 
   .heap (NOLOAD) : {
-    _heap_start = ALIGN(4);
+    _heap_start = ALIGN(8);
     . = ORIGIN(sdram) + LENGTH(sdram);
-    _heap_end = ALIGN(4);
+    _heap_end = ALIGN(8);
   } > sdram
 
   .stack (NOLOAD) : {
-    . = _essbl;
     . = ALIGN(4);
+    . = _essbl;
     _stack_end = .;
     _stack_top = .;
     . = ORIGIN(sram) + LENGTH(sram);
