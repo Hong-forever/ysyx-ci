@@ -35,13 +35,13 @@ SECTIONS {
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    _etext = .;
+    _etext = ALIGN(4);
   } > sdram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    _sdata = ALIGN(8);
+    _sdata = ALIGN(4);
     *(.data*)
     *(.sdata*)
     _edata = ALIGN(4);
