@@ -44,13 +44,11 @@ paddr_t host_to_guest(uint8_t *haddr) {
 
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
-  // printf("pmem_read addr: 0x%08x, data: 0x%08x, len: %d\n", addr, ret, len);
   return ret;
 }
 
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
-  // printf("pmem_write addr: 0x%08x, data: 0x%08x, len: %d\n", addr, data, len);
   host_write(guest_to_host(addr), len, data);
 }
 
