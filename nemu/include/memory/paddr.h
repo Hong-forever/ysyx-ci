@@ -33,7 +33,7 @@
 #define PMEM_LEFT_SDRAM  ((paddr_t)CONFIG_SDRAM_BASE)
 #define PMEM_RIGHT_SDRAM ((paddr_t)CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1)
 
-#define RESET_VECTOR (PMEM_LEFT_SDRAM + CONFIG_PC_RESET_OFFSET)
+#define RESET_VECTOR (PMEM_LEFT_FLASH + CONFIG_PC_RESET_OFFSET)
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
