@@ -30,19 +30,16 @@ SECTIONS {
   _ssbl_loadaddr = LOADADDR(.ssbl);
   
   .text : {
-    _stext = ALIGN(4);
+    _sload = ALIGN(4);
     *(text_entry)
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    _etext = ALIGN(4);
   } > sdram AT>flash : text
 
-  _text_loadaddr = LOADADDR(.text);
+  _start_loadaddr = LOADADDR(.text);
 
   .data.extra : {
-
-    _sdata = ALIGN(4);
 
     /* section information for finsh shell */
     __fsymtab_start = .;
@@ -76,11 +73,9 @@ SECTIONS {
   .data : {
     *(.data*)
     *(.sdata*)
-    _edata = ALIGN(4);
+    _eload = ALIGN(4);
   } > sdram AT>flash : data
 
-  _data_loadaddr = LOADADDR(.data);
-  
   .bss.extra (NOLOAD): {
 
 	  _sbss = ALIGN(4);
