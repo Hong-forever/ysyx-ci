@@ -79,7 +79,7 @@ endif
 
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(NPC_HOME)/../am-kernels/tests/cpu-tests ARCH=riscv32e-ysyxsoc run ALL=load-store
+	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
 
 
 $(shell mkdir -p $(BUILD_DIR))
