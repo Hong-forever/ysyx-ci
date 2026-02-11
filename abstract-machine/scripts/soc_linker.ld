@@ -16,15 +16,15 @@ MEMORY {
 
 SECTIONS {
   .fsbl : {
-    _sfsbl = .;
+    _sfsbl = ALIGN(4);
     *(fsbl_entry)
-    _efsbl = .;
+    _efsbl = ALIGN(4);
   } > flash AT>flash : fsbl
 
   .ssbl : {
-    _sssbl = .;
+    _sssbl = ALIGN(4);
     *(ssbl_entry)
-    _essbl = .;
+    _essbl = ALIGN(4);
   } > sram AT>flash : ssbl
 
   _ssbl_loadaddr = LOADADDR(.ssbl);
@@ -68,7 +68,7 @@ SECTIONS {
     *(__am_apps.sdata*)
     __am_apps_data_end = .;
     . = ALIGN(8);
-  } > sdram AT>flash
+  } > sdram AT>flash : data
 
   .data : {
     *(.data*)
@@ -80,7 +80,6 @@ SECTIONS {
 
 	  _sbss = ALIGN(4);
 
-    . = ALIGN(8);
     __am_apps_bss_start = .;
     *(__am_apps.bss*)
     *(__am_apps.sbss*)
