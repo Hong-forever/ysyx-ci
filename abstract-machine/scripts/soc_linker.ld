@@ -30,43 +30,85 @@ SECTIONS {
   _ssbl_loadaddr = LOADADDR(.ssbl);
   
   .text : {
-    _stext = ALIGN(4);
+    _stext = ALIGN(8);
     *(text_entry)
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    _etext = ALIGN(4);
+    _etext = ALIGN(8);
   } > sdram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
 
+  .data.extra : {
+    _sdata = ALIGN(8);
+
+    /* section information for finsh shell */
+    __fsymtab_start = .;
+    KEEP(*(FSymTab))
+    __fsymtab_end = .;
+    . = ALIGN(8);
+    __vsymtab_start = .;
+    KEEP(*(VSymTab))
+    __vsymtab_end = .;
+    . = ALIGN(8);
+
+    /* section information for initial. */
+    . = ALIGN(8);
+    __rt_init_start = .;
+    KEEP(*(SORT(.rti_fn*)))
+    __rt_init_end = .;
+    . = ALIGN(8);
+
+    __rt_utest_tc_tab_start = .;
+    KEEP(*(UtestTcTab))
+    __rt_utest_tc_tab_end = .;
+
+    . = ALIGN(8);
+    __am_apps_data_start = .;
+    *(__am_apps.data*)
+    *(__am_apps.sdata*)
+    __am_apps_data_end = .;
+    . = ALIGN(8);
+  } > sdram AT>flash : data
+
   .data : {
-    _sdata = ALIGN(4);
     *(.data*)
     *(.sdata*)
-    _edata = ALIGN(4);
+    _edata = ALIGN(8);
   } > sdram AT>flash : data
 
   _data_loadaddr = LOADADDR(.data);
-  
+
+  .bss.extra (NOLOAD): {
+    . = ALIGN(8);
+	  _sbss = ALIGN(8);
+    
+    __am_apps_bss_start = .;
+    *(__am_apps.bss*)
+    *(__am_apps.sbss*)
+    *(__am_apps.scommon*)
+    __am_apps_bss_end = .;
+    . = ALIGN(8);
+  } > sdram
+
   .bss (NOLOAD) : {
-	  _sbss = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-	  _ebss = ALIGN(4);
+	  _ebss = ALIGN(8);
   } > sdram
 
   .heap (NOLOAD) : {
-    _heap_start = ALIGN(4);
+    _heap_start = ALIGN(8);
     . = ORIGIN(sdram) + LENGTH(sdram);
-    _heap_end = ALIGN(4);
+    _heap_end = ALIGN(8);
   } > sdram
 
   .stack (NOLOAD) : {
     . = _essbl;
-    . = ALIGN(4);
+    . = ALIGN(8);
     _stack_end = .;
     _stack_top = .;
     . = ORIGIN(sram) + LENGTH(sram);
