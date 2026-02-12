@@ -72,7 +72,7 @@ module ysyx_25110270_alu
     );
 
     assign O_alu_result = res;
-    assign O_eq = (I_alu_srca == I_alu_srcb);
+    assign O_eq = (res == 0);
     assign O_lt = adder_cout;
     
 endmodule
@@ -161,7 +161,6 @@ module ysyx_25110270_barrel_shift
     // assign lstage4 = I_shift_amt[4] ? {lstage3[WIDTH-17:0], 16'b0}   : lstage3;
 
     
-    // // 选择输入数据
     // wire fill_bit = I_shift_arith ? I_shift_src[WIDTH-1] : 1'b0;
     
     // assign rstage0 = I_shift_amt[0] ? {fill_bit, I_shift_src[WIDTH-1:1]}    : I_shift_src;
@@ -170,7 +169,6 @@ module ysyx_25110270_barrel_shift
     // assign rstage3 = I_shift_amt[3] ? {{8{fill_bit}}, rstage2[WIDTH-1:8]}   : rstage2;
     // assign rstage4 = I_shift_amt[4] ? {{16{fill_bit}}, rstage3[WIDTH-1:16]} : rstage3;
     
-    // 输出处理
     // assign O_shift_result  = I_shift_right ? rstage4 : lstage4;
 
 endmodule
