@@ -65,7 +65,7 @@ module ysyx_25110270_ifetch
     parameter CACHE = 2'b01;
     parameter EXE   = 2'b10;
 
-    reg [1:0] state;
+    reg [1:0] state, nstate;
 
     wire cache_valid, cache_miss;
 
@@ -110,14 +110,18 @@ module ysyx_25110270_ifetch
         if(!rst_n) begin
             state <= IDLE;
         end else begin
-            case(state)
-                IDLE:    state <= I_valid ? CACHE : IDLE;
-                CACHE:   state <= cache_valid ? EXE : CACHE;
-                EXE:     state <= I_valid ? IDLE : EXE;
-                default: state <= IDLE;
-            endcase
+            state <= nstate;
         end
     end    
+    
+    always @(*) begin
+        case(state)
+            IDLE:    nstate = CACHE;
+            CACHE:   nstate = cache_valid ? EXE : CACHE;
+            EXE:     nstate = I_valid ? IDLE : EXE;
+            default: nstate = IDLE;
+        endcase
+    end
 
     ysyx_25110270_icache 
     #(
