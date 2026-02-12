@@ -251,7 +251,7 @@ module ysyx_25110270_lsu
             nstate = IDLE;
         end else begin
             case(state)
-                IDLE:    nstate = (dbus_awready | dbus_arready) ? MEM : IDLE;
+                IDLE:    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
                 MEM:     nstate = (dbus_bvalid | dbus_rvalid)   ? WB  : MEM;
                 WB:      nstate = IDLE;
                 default: nstate = IDLE;

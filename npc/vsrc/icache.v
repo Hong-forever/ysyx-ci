@@ -95,7 +95,7 @@ module ysyx_25110270_icache
         case(state)
             IDLE:    nstate = I_valid ? LOOKUP : IDLE;
             LOOKUP:  nstate = hit ? IDLE : REQ;
-            REQ:     nstate = I_arready ? REFILL : REQ;
+            REQ:     nstate = (O_arvalid && I_arready) ? REFILL : REQ;
             REFILL:  nstate = (I_rvalid && I_rlast) ? IDLE : REFILL;
             default: nstate = IDLE;
         endcase
