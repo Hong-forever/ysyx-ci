@@ -63,14 +63,13 @@ module ysyx_25110270_ifetch
 
     parameter IDLE  = 2'b00;
     parameter CACHE = 2'b01;
-    parameter MISS  = 2'b10;
-    parameter EXE   = 2'b11;
+    parameter EXE   = 2'b10;
 
     reg [1:0] state, nstate;
 
     wire cache_valid, cache_miss;
 
-    reg inst_reqvalid;
+    reg req_valid;
 
     reg  [31:0] pc;
     reg  [31:0] inst;
@@ -78,13 +77,13 @@ module ysyx_25110270_ifetch
     wire [31:0] cache_data;
     wire [31:0] npc, pc_plus4;
 
-    wire inst_reqvalid_next = (state == IDLE) || (state == MISS) || I_valid;
+    wire req_valid_next = (~state[1] | I_valid) & ~cache_valid;
 
     always @(posedge clk) begin
         if(!rst_n) begin
-            inst_reqvalid <= 1'b0;
+            req_valid <= 1'b0;
         end else begin
-            inst_reqvalid <= inst_reqvalid_next;
+            req_valid <= req_valid_next;
         end
     end
 
@@ -116,17 +115,12 @@ module ysyx_25110270_ifetch
     end    
     
     always @(*) begin
-        if(!rst_n) begin
-            nstate = IDLE;
-        end else begin
-            case(state)
-                IDLE:    nstate = inst_reqvalid ? CACHE : IDLE;
-                CACHE:   nstate = cache_valid ? EXE : (cache_miss ? MISS : CACHE);
-                MISS:    nstate = cache_valid ? EXE : MISS;
-                EXE:     nstate = I_valid ? IDLE : EXE;
-                default: nstate = IDLE;
-            endcase
-        end
+        case(state)
+            IDLE:    nstate = CACHE;
+            CACHE:   nstate = cache_valid ? EXE : CACHE;
+            EXE:     nstate = I_valid ? IDLE : EXE;
+            default: nstate = IDLE;
+        endcase
     end
 
     ysyx_25110270_icache 
@@ -140,11 +134,15 @@ module ysyx_25110270_ifetch
     (
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
-        .I_addr                 (pc                         ),
-        .I_valid                (inst_reqvalid              ),
-        .O_data                 (cache_data                 ),
+
+        .I_valid                (req_valid                  ),
         .O_valid                (cache_valid                ),
+
+        .I_addr                 (pc                         ),
+        .O_data                 (cache_data                 ),
+
         .O_miss                 (cache_miss                 ),
+        .I_clear                (I_fence_i                  ),
 
         .O_arvalid              (ibus_arvalid               ),
         .I_arready              (ibus_arready               ),
@@ -156,41 +154,17 @@ module ysyx_25110270_ifetch
         .O_rready               (ibus_rready                ),
         .I_rdata                (ibus_rdata                 ),
         .I_rlast                (ibus_rlast                 ),
-        .I_rresp                (ibus_rresp                 ),
+        .I_rresp                (ibus_rresp                 )
 
-        .I_clear                (I_fence_i                  )
     );
 
-`ifdef DEBUG
     always @(posedge clk) begin
         if(!rst_n) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(ibus_arvalid && 
-            !(
-                (ibus_araddr >= `ysyx_25110270_MromAddrBase  && ibus_araddr <= (`ysyx_25110270_MromAddrBase + `ysyx_25110270_MromSize - 1))   || 
-                (ibus_araddr >= `ysyx_25110270_SramAddrBase  && ibus_araddr <= (`ysyx_25110270_SramAddrBase + `ysyx_25110270_SramSize - 1))   ||
-                (ibus_araddr >= `ysyx_25110270_FlashAddrBase && ibus_araddr <= (`ysyx_25110270_FlashAddrBase + `ysyx_25110270_FlashSize - 1)) ||
-                (ibus_araddr >= `ysyx_25110270_PsramAddrBase && ibus_araddr <= (`ysyx_25110270_PsramAddrBase + `ysyx_25110270_PsramSize - 1)) ||
-                (ibus_araddr >= `ysyx_25110270_SdramAddrBase && ibus_araddr <= (`ysyx_25110270_SdramAddrBase + `ysyx_25110270_SdramSize - 1))
-            )) begin
-            pc <= 0;
-            $error("IFETCH: PC address out of range at pc = 0x%08x", ibus_araddr);
-        end else if(ibus_rresp != 2'b00) begin
-            pc <= 0;
-            $error("IFETCH: IBUS read error at pc = 0x%08x", ibus_araddr);
-        end else if(state == EXE) begin
+        end else if(state[1]) begin     // exe
             pc <= npc;
         end
     end
-`else
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(state == EXE) begin
-            pc <= npc;
-        end
-    end
-`endif
 
     assign npc =    I_flush        ? I_flush_addr    :
                     I_bru_taken    ? I_bru_target    :
