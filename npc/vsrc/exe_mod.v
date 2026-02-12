@@ -15,7 +15,7 @@ module ysyx_25110270_alu
     input   wire    [2:0                        ]   I_alu_ctrl,
     output  wire    [31:0                       ]   O_alu_result,
 
-    output  wire                                    O_eq,
+    output  wire                                    O_neq,
     output  wire                                    O_lt
 );
 
@@ -72,7 +72,7 @@ module ysyx_25110270_alu
     );
 
     assign O_alu_result = res;
-    assign O_eq = (I_alu_srca == I_alu_srcb);
+    assign O_neq = |rv32i_add_res;  // adder结果不为0则不等
     assign O_lt = adder_cout;
     
 endmodule
@@ -83,7 +83,7 @@ endmodule
 
 module ysyx_25110270_bru
 (
-    input   wire                                    I_src_eq,
+    input   wire                                    I_src_neq,
     input   wire                                    I_src_lt,
     input   wire                                    I_br_valid,        // 是否为分支指令
     input   wire    [2:0]                           I_bru_ctrl,
@@ -94,8 +94,8 @@ module ysyx_25110270_bru
 
     always @(*) begin
         case(I_bru_ctrl)
-            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = I_src_eq;
-            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = ~I_src_eq;
+            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = ~I_src_neq;
+            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = I_src_neq;
             3'b011                     :  bru_taken = 1'b1;         // jal, jalr指令无条件跳转
             `ysyx_25110270_RV32I_F3_BLT:  bru_taken = I_src_lt;
             `ysyx_25110270_RV32I_F3_BLTU: bru_taken = I_src_lt;
