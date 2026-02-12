@@ -165,7 +165,7 @@ module ysyx_25110270_icache
     assign O_data  = odata_r;
     assign O_valid = ovalid_r;
 
-    assign O_ready = (state == IDLE);
+    assign O_ready = 1'b1;
     assign O_miss  = state[1] | state[2]; // LOOKUP miss or REQ/REFILL state
 
     assign O_arvalid = state[1]; // REQ state
