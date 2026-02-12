@@ -15,9 +15,7 @@ module ysyx_25110270_icache
     input                           clk,
     input                           rst_n,
     input                           I_valid,
-    output                          O_ready,
     output                          O_valid,
-    input                           I_ready,
     input       [ADDR_WIDTH-1:0]    I_addr,
     output      [DATA_WIDTH-1:0]    O_data,
     output                          O_miss,
@@ -147,25 +145,25 @@ module ysyx_25110270_icache
     reg [DATA_WIDTH-1:0] odata_r;
     reg ovalid_r;
 
-    always @(posedge clk) begin
+    always @(*) begin
         if(!rst_n) begin
-            odata_r  <= 0;
-            ovalid_r <= 1'b0;
+            odata_r  = 0;
+            ovalid_r = 1'b0;
         end else if(refill_hit) begin
-            odata_r  <= refill_data;
-            ovalid_r <= 1'b1;
+            odata_r  = refill_data;
+            ovalid_r = 1'b1;
         end else if(state[0] & hit) begin
-            odata_r <= data_mem[index][offset];
-            ovalid_r <= 1'b1;
-        end else if(I_ready) begin
-            ovalid_r <= 1'b0;
+            odata_r = data_mem[index][offset];
+            ovalid_r = 1'b1;
+        end else begin
+            odata_r  = 0;
+            ovalid_r = 1'b0;
         end
     end
 
     assign O_data  = odata_r;
     assign O_valid = ovalid_r;
 
-    assign O_ready = (state == IDLE);
     assign O_miss  = state[1] | state[2]; // LOOKUP miss or REQ/REFILL state
 
     assign O_arvalid = state[1]; // REQ state
