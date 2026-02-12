@@ -73,28 +73,28 @@ module ysyx_25110270_decoder
     //------------------------------------------------------------------------
     // 立即数生成
     //------------------------------------------------------------------------
-    // wire [31:0] rv32i_i_type_imm = {{20{I_inst[31]}}, I_inst[31:20]};
-    // wire [31:0] rv32i_s_type_imm = {{20{I_inst[31]}}, I_inst[31:25], I_inst[11:7]};
-    // wire [31:0] rv32i_u_type_imm = {I_inst[31:12], 12'b0};
-    // wire [31:0] rv32i_b_type_imm = {{20{I_inst[31]}}, I_inst[7], I_inst[30:25], I_inst[11:8], 1'b0};
-    // wire [31:0] rv32i_j_type_imm = {{12{I_inst[31]}}, I_inst[19:12], I_inst[20], I_inst[30:21], 1'b0};
-    // wire [31:0] rv_csr_type_imm  = {27'h0, I_inst[19:15]};
+    wire [31:0] rv32i_i_type_imm = {{20{I_inst[31]}}, I_inst[31:20]};
+    wire [31:0] rv32i_s_type_imm = {{20{I_inst[31]}}, I_inst[31:25], I_inst[11:7]};
+    wire [31:0] rv32i_u_type_imm = {I_inst[31:12], 12'b0};
+    wire [31:0] rv32i_b_type_imm = {{20{I_inst[31]}}, I_inst[7], I_inst[30:25], I_inst[11:8], 1'b0};
+    wire [31:0] rv32i_j_type_imm = {{12{I_inst[31]}}, I_inst[19:12], I_inst[20], I_inst[30:21], 1'b0};
+    wire [31:0] rv_csr_type_imm  = {27'h0, I_inst[19:15]};
 
     reg [31:0] imm;
     always @(*) begin
         case(opcode)
             `ysyx_25110270_RV32I_OP_TYPE_IL,
             `ysyx_25110270_RV32I_OP_TYPE_I,
-            `ysyx_25110270_RV32I_OP_JALR:       imm = {{20{I_inst[31]}}, I_inst[31:20]};
+            `ysyx_25110270_RV32I_OP_JALR:       imm = rv32i_i_type_imm;
 
-            `ysyx_25110270_RV32I_OP_TYPE_S:     imm = {{20{I_inst[31]}}, I_inst[31:25], I_inst[11:7]};
+            `ysyx_25110270_RV32I_OP_TYPE_S:     imm = rv32i_s_type_imm;
 
             `ysyx_25110270_RV32I_OP_AUIPC,
-            `ysyx_25110270_RV32I_OP_LUI:        imm = {I_inst[31:12], 12'b0};
+            `ysyx_25110270_RV32I_OP_LUI:        imm = rv32i_u_type_imm;
 
-            `ysyx_25110270_RV32I_OP_TYPE_B:     imm = {{20{I_inst[31]}}, I_inst[7], I_inst[30:25], I_inst[11:8], 1'b0};
-            `ysyx_25110270_RV32I_OP_JAL:        imm = {{12{I_inst[31]}}, I_inst[19:12], I_inst[20], I_inst[30:21], 1'b0};
-            `ysyx_25110270_RV_OP_CSR:           imm = {27'h0, I_inst[19:15]};
+            `ysyx_25110270_RV32I_OP_TYPE_B:     imm = rv32i_b_type_imm;
+            `ysyx_25110270_RV32I_OP_JAL:        imm = rv32i_j_type_imm;
+            `ysyx_25110270_RV_OP_CSR:           imm = rv_csr_type_imm;
             default:                            imm = 0;
         endcase
     end
