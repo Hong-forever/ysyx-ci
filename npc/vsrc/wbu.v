@@ -61,7 +61,6 @@ module ysyx_25110270_wbu
     wire [31:0] csr_marchid;
 
     reg inst_valid;
-    reg ready;
 
     always @(posedge clk) begin
         if(!rst_n) begin

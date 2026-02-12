@@ -61,11 +61,10 @@ module ysyx_25110270_ifetch
     // 变量定义
     //------------------------------------------------------------------------
 
-    parameter IDLE  = 2'b00;
-    parameter CACHE = 2'b01;
-    parameter EXE   = 2'b10;
+    parameter IDLE  = 1'b0;
+    parameter EXE   = 1'b1;
 
-    reg [1:0] state, nstate;
+    reg state;
 
     wire cache_valid, cache_miss;
 
@@ -77,7 +76,7 @@ module ysyx_25110270_ifetch
     wire [31:0] cache_data;
     wire [31:0] npc, pc_plus4;
 
-    wire req_valid_next = (~state[1] | I_valid) & ~cache_valid;
+    wire req_valid_next = (~state | I_valid) & ~cache_valid;
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -110,17 +109,12 @@ module ysyx_25110270_ifetch
         if(!rst_n) begin
             state <= IDLE;
         end else begin
-            state <= nstate;
+            case(state)
+                IDLE:    state <= EXE;
+                EXE:     state <= I_valid ? IDLE : EXE;
+                default: state <= IDLE;
+            endcase
         end
-    end    
-    
-    always @(*) begin
-        case(state)
-            IDLE:    nstate = CACHE;
-            CACHE:   nstate = cache_valid ? EXE : CACHE;
-            EXE:     nstate = I_valid ? IDLE : EXE;
-            default: nstate = IDLE;
-        endcase
     end
 
     ysyx_25110270_icache 
@@ -161,7 +155,7 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(!rst_n) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(state[1]) begin     // exe
+        end else if(state) begin     // exe
             pc <= npc;
         end
     end

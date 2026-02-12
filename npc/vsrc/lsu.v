@@ -89,23 +89,33 @@ module ysyx_25110270_lsu
         end
     end
 
-    // wire [31:0] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
-    // wire [31:0] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
-    // wire [31:0] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
-    // wire [31:0] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
+    wire [31:0] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
+    wire [31:0] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
+    wire [31:0] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
+    wire [31:0] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
 
-    // wire [31:0] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
-    // wire [31:0] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
+    wire [31:0] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
+    wire [31:0] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
 
-    // wire [31:0] lw_res = rdata;
+    wire [31:0] lw_res = rdata;
 
-    // wire [31:0] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
-    // wire [31:0] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
-    // wire [31:0] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
-    // wire [31:0] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
+    wire [31:0] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
+    wire [31:0] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
+    wire [31:0] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
+    wire [31:0] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
 
-    // wire [31:0] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
-    // wire [31:0] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
+    wire [31:0] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
+    wire [31:0] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
+
+    wire [31:0] sb_00_res = {24'b0, I_store_data[7:0]};
+    wire [31:0] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
+    wire [31:0] sb_10_res = {8'b0, I_store_data[7:0], 16'b0};
+    wire [31:0] sb_11_res = {I_store_data[7:0], 24'b0};
+
+    wire [31:0] sh_00_res = {16'b0, I_store_data[15:0]};
+    wire [31:0] sh_10_res = {I_store_data[15:0], 16'b0};
+
+    wire [31:0] sw_res = I_store_data;
 
 
     // 地址明辨
@@ -121,23 +131,23 @@ module ysyx_25110270_lsu
     always @(*) begin
         rd_data = I_rd_wdata;
         case({ld_ctrl, offset})
-            {`ysyx_25110270_RV32I_F3_LB,  2'b00}: rd_data = {{24{rdata[7]}},  rdata[7:0]};
-            {`ysyx_25110270_RV32I_F3_LB,  2'b01}: rd_data = {{24{rdata[15]}}, rdata[15:8]};
-            {`ysyx_25110270_RV32I_F3_LB,  2'b10}: rd_data = {{24{rdata[23]}}, rdata[23:16]};
-            {`ysyx_25110270_RV32I_F3_LB,  2'b11}: rd_data = {{24{rdata[31]}}, rdata[31:24]};
+            {`ysyx_25110270_RV32I_F3_LB,  2'b00}: rd_data = lb_00_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b01}: rd_data = lb_01_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b10}: rd_data = lb_10_res;
+            {`ysyx_25110270_RV32I_F3_LB,  2'b11}: rd_data = lb_11_res;
 
-            {`ysyx_25110270_RV32I_F3_LH,  2'b00}: rd_data = {{16{rdata[15]}}, rdata[15:0]};
-            {`ysyx_25110270_RV32I_F3_LH,  2'b10}: rd_data = {{16{rdata[31]}}, rdata[31:16]};
+            {`ysyx_25110270_RV32I_F3_LH,  2'b00}: rd_data = lh_00_res;
+            {`ysyx_25110270_RV32I_F3_LH,  2'b10}: rd_data = lh_10_res;
 
-            {`ysyx_25110270_RV32I_F3_LW,  2'b00}: rd_data = rdata;
+            {`ysyx_25110270_RV32I_F3_LW,  2'b00}: rd_data = lw_res;
 
-            {`ysyx_25110270_RV32I_F3_LBU, 2'b00}: rd_data = {{24{1'b0}}, rdata[7:0]};
-            {`ysyx_25110270_RV32I_F3_LBU, 2'b01}: rd_data = {{24{1'b0}}, rdata[15:8]};
-            {`ysyx_25110270_RV32I_F3_LBU, 2'b10}: rd_data = {{24{1'b0}}, rdata[23:16]};
-            {`ysyx_25110270_RV32I_F3_LBU, 2'b11}: rd_data = {{24{1'b0}}, rdata[31:24]};
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b00}: rd_data = lbu_00_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b01}: rd_data = lbu_01_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b10}: rd_data = lbu_10_res;
+            {`ysyx_25110270_RV32I_F3_LBU, 2'b11}: rd_data = lbu_11_res;
 
-            {`ysyx_25110270_RV32I_F3_LHU, 2'b00}: rd_data = {{16{1'b0}}, rdata[15:0]};
-            {`ysyx_25110270_RV32I_F3_LHU, 2'b10}: rd_data = {{16{1'b0}}, rdata[31:16]};
+            {`ysyx_25110270_RV32I_F3_LHU, 2'b00}: rd_data = lhu_00_res;
+            {`ysyx_25110270_RV32I_F3_LHU, 2'b10}: rd_data = lhu_10_res;
 
             default: begin end
         endcase
@@ -152,31 +162,31 @@ module ysyx_25110270_lsu
     always @(*) begin
         case({I_ls_ctrl[1:0], offset})  // 00 sb, 01 sh, 10 sw
             {2'b00, 2'b00}: begin
-                wdata     = {24'b0, I_store_data[7:0]};
+                wdata     = sb_00_res;
                 data_mask = 4'b0001;
             end
             {2'b00, 2'b01}: begin
-                wdata     = {16'b0, I_store_data[7:0], 8'b0};
+                wdata     = sb_01_res;
                 data_mask = 4'b0010;
             end
             {2'b00, 2'b10}: begin
-                wdata     = {8'b0, I_store_data[7:0], 16'b0};
+                wdata     = sb_10_res;
                 data_mask = 4'b0100;
             end
             {2'b00, 2'b11}: begin
-                wdata     = {I_store_data[7:0], 24'b0};
+                wdata     = sb_11_res;
                 data_mask = 4'b1000;
             end
             {2'b01, 2'b00}: begin
-                wdata     = {16'b0, I_store_data[15:0]};
+                wdata     = sh_00_res;
                 data_mask = 4'b0011;
             end
             {2'b01, 2'b10}: begin
-                wdata     = {I_store_data[15:0], 16'b0};
+                wdata     = sh_10_res;
                 data_mask = 4'b1100;
             end
             {2'b10, 2'b00}: begin
-                wdata     = I_store_data;
+                wdata     = sw_res;
                 data_mask = 4'b1111;
             end
             default: begin
@@ -211,19 +221,12 @@ module ysyx_25110270_lsu
         end
     end
 
-    parameter IDLE = 3'b001;
-    parameter MEM  = 3'b010;
-    parameter WB   = 3'b100;
+    parameter IDLE = 2'b00;
+    parameter MEM  = 2'b01;
+    parameter WB   = 2'b10;
 
     reg data_avalid;
-    reg [2:0] state, nstate;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            state <= IDLE;
-        end else begin
-            state <= nstate;
-        end
-    end
+    reg [2:0] state;
 
     wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
     wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
@@ -236,20 +239,20 @@ module ysyx_25110270_lsu
         end
     end
 
-    always @(*) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
-            nstate = IDLE;
+            state <= IDLE;
         end else begin
             case(state)
-                IDLE:    nstate = (dbus_awready | dbus_arready) ? MEM : IDLE;
-                MEM:     nstate = (dbus_bvalid | dbus_rvalid)   ? WB  : MEM;
-                WB:      nstate = IDLE;
-                default: nstate = IDLE;
+                IDLE:    state <= data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
+                MEM:     state <= (dbus_bvalid | dbus_rvalid) ? WB  : MEM;
+                WB:      state <= IDLE;
+                default: state <= IDLE;
             endcase
         end
     end
 
-    wire stallreq = ls_req | (state == MEM);
+    wire stallreq = ls_req | state[0];
 
     reg inst_valid;
     reg ready;

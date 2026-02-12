@@ -100,126 +100,66 @@ module ysyx_25110270_arbiter
     input   wire    [3:0]               M_rid
 );
 
-    parameter IDLE      = 2'b00;
-    parameter M0_ACCESS = 2'b01;
-    parameter M1_ACCESS = 2'b10;
+    wire m0_req = M0_awvalid | M0_arvalid;
+    wire m1_req = M1_awvalid | M1_arvalid;
 
-    wire m0_write_req = M0_awvalid & M0_wvalid;
-    wire m0_read_req = M0_arvalid;
-    wire m1_write_req = M1_awvalid & M1_wvalid;
-    wire m1_read_req = M1_arvalid;
+    wire m0_resp = (M0_awvalid & M0_bvalid) | (M0_arvalid & M0_rvalid);
+    wire m1_resp = (M1_awvalid & M1_bvalid) | (M1_arvalid & M1_rvalid);
 
-    wire m0_req = m0_write_req | m0_read_req;
-    wire m1_req = m1_write_req | m1_read_req;
-
-    wire m_resp = (M_awready & M_wready) | M_arready;
-
-    reg [1:0] state, nstate;                                
+    reg busy, sel_m0;
 
     always @(posedge clk) begin
         if(!rst_n) begin
-            state <= IDLE;
+            busy <= 0;
+            sel_m0 <= 0;
         end else begin
-            state <= nstate;
+            busy <= (m0_resp | m1_resp) ? 0 : (m0_req | m1_req) ? 1 : busy;
+            sel_m0 <= m0_req ? 1 : m1_req ? 0 : sel_m0;
         end
     end
 
-    always @(*) begin
-        if(!rst_n) begin
-            nstate = IDLE;
-        end else begin
-            case(state)
-                IDLE: begin
-                    if(m0_req && m_resp) begin
-                        nstate = M0_ACCESS;
-                    end else if(!m0_req && m1_req && m_resp) begin
-                        nstate = M1_ACCESS;
-                    end else begin
-                        nstate = IDLE;
-                    end
-                end
-                M0_ACCESS: begin
-                    if((M_rvalid && M0_rready && M_rlast) || (M_bvalid && M0_bready)) begin
-                        nstate = m1_req && m_resp ? M1_ACCESS : IDLE;
-                    end else begin
-                        nstate = M0_ACCESS;
-                    end
-                end
-                M1_ACCESS: begin
-                    if((M_rvalid && M1_rready && M_rlast) || (M_bvalid && M1_bready)) begin
-                        nstate = m0_req && m_resp ? M0_ACCESS : IDLE;
-                    end else begin
-                        nstate = M1_ACCESS;
-                    end
-                end
-                default: nstate = IDLE;
-            endcase
-        end
-    end
-
-    wire access_m0 = state == M0_ACCESS;
-    wire access_m1 = state == M1_ACCESS;
 
     // AXI信号连接
-    assign M_awvalid  = access_m0 ? M0_awvalid :
-                        access_m1 ? M1_awvalid : 0;
-    assign M_awaddr   = access_m0 ? M0_awaddr  :
-                        access_m1 ? M1_awaddr  : 0;
-    assign M_awid     = access_m0 ? M0_awid    :
-                        access_m1 ? M1_awid    : 0;
-    assign M_awlen    = access_m0 ? M0_awlen   :
-                        access_m1 ? M1_awlen   : 0;
-    assign M_awsize   = access_m0 ? M0_awsize  :
-                        access_m1 ? M1_awsize  : 0;
-    assign M_awburst  = access_m0 ? M0_awburst :
-                        access_m1 ? M1_awburst : 0;
-    assign M_wvalid   = access_m0 ? M0_wvalid  :
-                        access_m1 ? M1_wvalid  : 0;
-    assign M_wdata    = access_m0 ? M0_wdata   :
-                        access_m1 ? M1_wdata   : 0;
-    assign M_wstrb    = access_m0 ? M0_wstrb   :
-                        access_m1 ? M1_wstrb   : 0;
-    assign M_wlast    = access_m0 ? M0_wlast   :
-                        access_m1 ? M1_wlast   : 0;
-    assign M_bready   = access_m0 ? M0_bready  :
-                        access_m1 ? M1_bready  : 0;
-    assign M_arvalid  = access_m0 ? M0_arvalid :
-                        access_m1 ? M1_arvalid : 0;
-    assign M_araddr   = access_m0 ? M0_araddr  :
-                        access_m1 ? M1_araddr  : 0;
-    assign M_arid     = access_m0 ? M0_arid    :
-                        access_m1 ? M1_arid    : 0;
-    assign M_arlen    = access_m0 ? M0_arlen   :
-                        access_m1 ? M1_arlen   : 0;
-    assign M_arsize   = access_m0 ? M0_arsize  :
-                        access_m1 ? M1_arsize  : 0;
-    assign M_arburst  = access_m0 ? M0_arburst :
-                        access_m1 ? M1_arburst : 0;
-    assign M_rready   = access_m0 ? M0_rready  :
-                        access_m1 ? M1_rready  : 0;
+    assign M_awvalid  = sel_m0 ? M0_awvalid  : M1_awvalid;
+    assign M_awaddr   = sel_m0 ? M0_awaddr   : M1_awaddr;
+    assign M_awid     = sel_m0 ? M0_awid     : M1_awid;
+    assign M_awlen    = sel_m0 ? M0_awlen    : M1_awlen;
+    assign M_awsize   = sel_m0 ? M0_awsize   : M1_awsize;
+    assign M_awburst  = sel_m0 ? M0_awburst  : M1_awburst;
+    assign M_wvalid   = sel_m0 ? M0_wvalid   : M1_wvalid;
+    assign M_wdata    = sel_m0 ? M0_wdata    : M1_wdata;
+    assign M_wstrb    = sel_m0 ? M0_wstrb    : M1_wstrb;
+    assign M_wlast    = sel_m0 ? M0_wlast    : M1_wlast;
+    assign M_bready   = sel_m0 ? M0_bready   : M1_bready;
+    assign M_arvalid  = sel_m0 ? M0_arvalid  : M1_arvalid;
+    assign M_araddr   = sel_m0 ? M0_araddr   : M1_araddr;
+    assign M_arid     = sel_m0 ? M0_arid     : M1_arid;
+    assign M_arlen    = sel_m0 ? M0_arlen    : M1_arlen;
+    assign M_arsize   = sel_m0 ? M0_arsize   : M1_arsize;
+    assign M_arburst  = sel_m0 ? M0_arburst  : M1_arburst;
+    assign M_rready   = sel_m0 ? M0_rready   : M1_rready;
+    assign M0_awready = sel_m0 ? M_awready   : 0;
+    assign M0_wready  = sel_m0 ? M_wready    : 0;
+    assign M0_bvalid  = sel_m0 ? M_bvalid    : 0;
+    assign M0_bresp   = sel_m0 ? M_bresp     : 0;
+    assign M0_bid     = sel_m0 ? M_bid       : 0;
+    assign M0_arready = sel_m0 ? M_arready   : 0;
+    assign M0_rvalid  = sel_m0 ? M_rvalid    : 0;
+    assign M0_rdata   = sel_m0 ? M_rdata     : 0;
+    assign M0_rresp   = sel_m0 ? M_rresp     : 0;
+    assign M0_rlast   = sel_m0 ? M_rlast     : 0;
+    assign M0_rid     = sel_m0 ? M_rid       : 0;
+    assign M1_awready = sel_m0 ? 0           : M_awready;
+    assign M1_wready  = sel_m0 ? 0           : M_wready;
+    assign M1_bvalid  = sel_m0 ? 0           : M_bvalid;
+    assign M1_bresp   = sel_m0 ? 0           : M_bresp;
+    assign M1_bid     = sel_m0 ? 0           : M_bid;
+    assign M1_arready = sel_m0 ? 0           : M_arready;
+    assign M1_rvalid  = sel_m0 ? 0           : M_rvalid;
+    assign M1_rdata   = sel_m0 ? 0           : M_rdata;
+    assign M1_rresp   = sel_m0 ? 0           : M_rresp;
+    assign M1_rlast   = sel_m0 ? 0           : M_rlast;
+    assign M1_rid     = sel_m0 ? 0           : M_rid;
 
-    assign M0_awready = access_m0 ? M_awready  : 0;
-    assign M0_wready  = access_m0 ? M_wready   : 0;
-    assign M0_bvalid  = access_m0 ? M_bvalid   : 0;
-    assign M0_bresp   = access_m0 ? M_bresp    : 0;
-    assign M0_bid     = access_m0 ? M_bid      : 0;
-    assign M0_arready = access_m0 ? M_arready  : 0;
-    assign M0_rvalid  = access_m0 ? M_rvalid   : 0;
-    assign M0_rdata   = access_m0 ? M_rdata    : 0;
-    assign M0_rresp   = access_m0 ? M_rresp    : 0;
-    assign M0_rlast   = access_m0 ? M_rlast    : 0;
-    assign M0_rid     = access_m0 ? M_rid      : 0;
-
-    assign M1_awready = access_m1 ? M_awready  : 0;
-    assign M1_wready  = access_m1 ? M_wready   : 0;
-    assign M1_bvalid  = access_m1 ? M_bvalid   : 0;
-    assign M1_bresp   = access_m1 ? M_bresp    : 0;
-    assign M1_bid     = access_m1 ? M_bid      : 0;
-    assign M1_arready = access_m1 ? M_arready  : 0;
-    assign M1_rvalid  = access_m1 ? M_rvalid   : 0;
-    assign M1_rdata   = access_m1 ? M_rdata    : 0;
-    assign M1_rresp   = access_m1 ? M_rresp    : 0;
-    assign M1_rlast   = access_m1 ? M_rlast    : 0;
-    assign M1_rid     = access_m1 ? M_rid      : 0;
 
 endmodule
