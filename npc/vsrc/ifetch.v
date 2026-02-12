@@ -117,7 +117,7 @@ module ysyx_25110270_ifetch
     
     always @(*) begin
         case(state)
-            IDLE:    nstate = req_ready ? CACHE : IDLE;
+            IDLE:    nstate = CACHE;
             CACHE:   nstate = cache_valid ? EXE : CACHE;
             EXE:     nstate = I_valid ? IDLE : EXE;
             default: nstate = IDLE;

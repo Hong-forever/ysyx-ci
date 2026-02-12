@@ -141,7 +141,7 @@ module ysyx_25110270_icache
         end
     end
 
-    wire refill_hit = state[2] && I_rvalid && I_addr == miss_addr;
+    wire refill_hit = state[2] && I_rvalid && (I_addr[ADDR_WIDTH-1:2] == {miss_tag, miss_index, refill_offset});
     wire [DATA_WIDTH-1:0] refill_data = I_rdata;
 
     reg [DATA_WIDTH-1:0] odata_r;
@@ -165,7 +165,7 @@ module ysyx_25110270_icache
     assign O_data  = odata_r;
     assign O_valid = ovalid_r;
 
-    assign O_ready = state == IDLE;
+    assign O_ready = 1'b1;
     assign O_miss  = state[1] | state[2]; // LOOKUP miss or REQ/REFILL state
 
     assign O_arvalid = state[1]; // REQ state
