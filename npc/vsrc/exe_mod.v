@@ -11,50 +11,54 @@ module ysyx_25110270_alu
     input   wire    [31:0                       ]   I_alu_srca,
     input   wire    [31:0                       ]   I_alu_srcb,
     input   wire                                    I_sign,             // 有符号位
-    input   wire                                    I_f7b5_en,          // 指令funct7=
-    input   wire    [2:0                        ]   I_alu_ctrl,
-    output  wire    [31:0                       ]   O_alu_result,
+    input   wire                                    I_f7b5_en,          // 指令funct7
+    input   wire                                    I_br_valid,
+    input   wire    [2:0                        ]   I_op,
 
-    output  wire                                    O_eq,
-    output  wire                                    O_lt
+    output  wire    [31:0                       ]   O_alu_result,
+    output  wire                                    O_bru_taken
 );
 
     wire adder_sign = I_sign;
-    wire adder_sub = I_f7b5_en | (|I_alu_ctrl); // no add
+    wire adder_sub = (I_f7b5_en | I_op[2]) | (I_op[1] ^ I_op[0]);  //no 011 or no f7b5=1
 
     wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
     wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
 
     wire [31:0] rv32i_add_res;
     wire adder_cout;
+    wire eq, lt;
 
     assign {adder_cout, rv32i_add_res} = adder_s1 + adder_s2 + {{32{1'b0}}, adder_sub};
+    assign eq = (I_alu_srca == I_alu_srcb);
 
     wire [31:0] rv32i_shift_res;
     wire [31:0] rv32i_xor_res     = I_alu_srca ^ I_alu_srcb;
     wire [31:0] rv32i_or_res      = I_alu_srca | I_alu_srcb;
     wire [31:0] rv32i_and_res     = I_alu_srca & I_alu_srcb;
-    wire [31:0] rv32i_lui_res     = I_alu_srcb;
-    wire [31:0] rv32i_auipc_res   = I_alu_srcb + I_alu_srca;
+
+    wire jal_taken = I_br_valid & ~I_op[2] & I_op[1] & I_op[0];
 
 
     reg [31:0] res; 
     always @(*) begin
-        case(I_alu_ctrl)
-            `ysyx_25110270_RV32I_F3_ADD_SUB:
-                res = rv32i_add_res;
-            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:    // srl, sra, slli, srli, srai指令的结果都由桶式移位模块计算得到
-                res = rv32i_shift_res;
-            `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
-                res = {{32-1{1'b0}}, adder_cout};
-            `ysyx_25110270_RV32I_F3_XOR:
-                res = rv32i_xor_res;
-            `ysyx_25110270_RV32I_F3_OR: 
-                res = rv32i_or_res;
-            `ysyx_25110270_RV32I_F3_AND:
-                res = rv32i_and_res;
-            default:
-                res = 0;
+        case({I_br_valid, I_op})
+            {1'b0, 3'b000} : res = rv32i_add_res;                       // add, sub, addi, auipc, lui
+            {1'b0, 3'b001} : res = rv32i_shift_res;                     // sll, slli
+            {1'b0, 3'b010} : res = {31'b0, adder_cout};                 // slt, slti
+            {1'b0, 3'b011} : res = {31'b0, adder_cout};                 // sltu, sltiu
+            {1'b0, 3'b100} : res = rv32i_xor_res;                       // xor, xori
+            {1'b0, 3'b101} : res = rv32i_shift_res;                     // sra, srai, srl, srli
+            {1'b0, 3'b110} : res = rv32i_or_res;                        // or, ori
+            {1'b0, 3'b111} : res = rv32i_and_res;                       // and, andi
+            {1'b1, 3'b000} : res = {31'b0, eq};                         // beq
+            {1'b1, 3'b001} : res = {31'b0, ~eq};                        // bne
+            {1'b1, 3'b011} : res = rv32i_add_res;                       // jal, jalr
+            {1'b1, 3'b100} : res = {31'b0, lt};                         // blt
+            {1'b1, 3'b101} : res = {31'b0, ~lt};                        // bge
+            {1'b1, 3'b110} : res = {31'b0, lt};                         // bltu
+            {1'b1, 3'b111} : res = {31'b0, ~lt};                        // bgeu
+            default:         res = 0;
         endcase
     end
 
@@ -65,47 +69,15 @@ module ysyx_25110270_alu
     (
         .I_shift_src            (I_alu_srca                                 ),
         .I_shift_amt            (I_alu_srcb[4:0]                            ),
-        .I_shift_left           (I_alu_ctrl == `ysyx_25110270_RV32I_F3_SLL  ),  // sll, slli指令左移
+        .I_shift_right          (I_op[2]                                    ),  //右移
         .I_shift_arith          (I_f7b5_en                                  ),
 
         .O_shift_result         (rv32i_shift_res                            )
     );
 
+
     assign O_alu_result = res;
-    assign O_eq = (I_alu_srca == I_alu_srcb);
-    assign O_lt = adder_cout;
-    
-endmodule
-    
-//------------------------------------------------------------------------
-// 分支判断模块
-//------------------------------------------------------------------------
-
-module ysyx_25110270_bru
-(
-    input   wire                                    I_src_eq,
-    input   wire                                    I_src_lt,
-    input   wire                                    I_br_valid,        // 是否为分支指令
-    input   wire    [2:0]                           I_bru_ctrl,
-    
-    output  wire                                    O_bru_taken
-);
-    reg bru_taken;
-
-    always @(*) begin
-        case(I_bru_ctrl)
-            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = I_src_eq;
-            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = ~I_src_eq;
-            3'b011                     :  bru_taken = 1'b1;         // jal, jalr指令无条件跳转
-            `ysyx_25110270_RV32I_F3_BLT:  bru_taken = I_src_lt;
-            `ysyx_25110270_RV32I_F3_BLTU: bru_taken = I_src_lt;
-            `ysyx_25110270_RV32I_F3_BGE:  bru_taken = ~I_src_lt;
-            `ysyx_25110270_RV32I_F3_BGEU: bru_taken = ~I_src_lt;
-            default:                      bru_taken = 1'b0;
-        endcase
-    end
-
-    assign O_bru_taken = bru_taken & I_br_valid;
+    assign O_bru_taken = res[0] | jal_taken;  // 只有分支指令和jal、jalr指令才会有跳转
 
 
 endmodule
@@ -119,7 +91,7 @@ module ysyx_25110270_barrel_shift
 )(
     input   wire    [WIDTH-1:0      ]   I_shift_src,
     input   wire    [4:0            ]   I_shift_amt,
-    input   wire                        I_shift_left,      // 1: left shift   0: right shift
+    input   wire                        I_shift_right,     // 1: right shift   0: left shift
     input   wire                        I_shift_arith,     // 1: arithmetic    0: logical
 
     output  wire    [WIDTH-1:0      ]   O_shift_result
@@ -145,7 +117,7 @@ module ysyx_25110270_barrel_shift
     assign rstage4 = I_shift_amt[4] ? {{16{fill_bit}}, rstage3[WIDTH-1:16]} : rstage3;
     
     // 输出处理
-    assign O_shift_result  = I_shift_left ? lstage4 : rstage4;
+    assign O_shift_result  = I_shift_right ? rstage4 : lstage4;
 
 endmodule
 
