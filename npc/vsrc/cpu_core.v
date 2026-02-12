@@ -73,7 +73,6 @@ module ysyx_25110270_cpu_core
     wire                                O_dec_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   O_dec_rd_waddr;
     wire [2:0                       ]   O_dec_op;
-    wire [11:0                      ]   O_dec_csr_addr;
     wire [1:0                       ]   O_dec_alu_srca_sel;
     wire [1:0                       ]   O_dec_alu_srcb_sel;
     wire [1:0                       ]   O_dec_agu_src_sel;
@@ -672,7 +671,7 @@ module ysyx_25110270_cpu_core
         .I_st_valid             (O_dec_st_valid             ),
         .I_br_valid             (O_dec_br_valid             ),
         .I_csr_valid            (O_dec_csr_valid            ),
-        .I_csr_addr             (O_dec_csr_addr             ),
+        .I_csr_addr             (O_csr_addr                 ),
         .I_f7b5_en              (O_dec_f7b5_en              ),
         .I_sign                 (O_dec_sign                 ),
         .I_except               (O_dec_except               ),
