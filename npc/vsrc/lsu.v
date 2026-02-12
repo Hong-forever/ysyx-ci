@@ -297,6 +297,7 @@ module ysyx_25110270_lsu
 
     assign O_except = I_except;
 
+`ifdef DEBUG
     assign O_device_skip = (I_ld_valid | I_st_valid) & 
     (
         (I_memory_addr >= `ysyx_25110270_SERIAL_BASE & I_memory_addr < (`ysyx_25110270_SERIAL_BASE + `ysyx_25110270_SERIAL_SIZE)) |
@@ -307,6 +308,10 @@ module ysyx_25110270_lsu
         (I_memory_addr >= `ysyx_25110270_VGA_BASE    & I_memory_addr < (`ysyx_25110270_VGA_BASE    + `ysyx_25110270_VGA_SIZE   )) |
         (I_memory_addr >= `ysyx_25110270_CHIPL_BASE  /*& I_memory_addr < (`ysyx_25110270_CHIPL_BASE  + `ysyx_25110270_CHIPL_SIZE )*/)
     );
+`else
+    assign O_device_skip = 1'b0;
+
+`endif
 
 
     assign dbus_awvalid = data_avalid & I_st_valid;
