@@ -83,6 +83,8 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(!rst_n) begin
             req_valid <= 1'b0;
+        end else if(req_valid & req_ready) begin
+            req_valid <= 1'b0;
         end else begin
             req_valid <= req_valid_next;
         end
