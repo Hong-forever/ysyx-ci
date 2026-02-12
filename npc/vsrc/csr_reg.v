@@ -120,14 +120,16 @@ module ysyx_25110270_csr_reg
             rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MSTATUS:  rdata = mstatus;
-                `ysyx_25110270_CSR_MIE:      rdata = mie;
-                `ysyx_25110270_CSR_MTVEC:    rdata = mtvec;
-                `ysyx_25110270_CSR_MEPC:     rdata = mepc;
-                `ysyx_25110270_CSR_MCAUSE:   rdata = mcause;
-                `ysyx_25110270_CSR_CYCLE:    rdata = cycle[31:0];
-                `ysyx_25110270_CSR_CYCLEH:   rdata = cycle[63:32];
-                default:                     rdata = 0;
+                `ysyx_25110270_CSR_MSTATUS:   rdata = mstatus;
+                `ysyx_25110270_CSR_MIE:       rdata = mie;
+                `ysyx_25110270_CSR_MTVEC:     rdata = mtvec;
+                `ysyx_25110270_CSR_MEPC:      rdata = mepc;
+                `ysyx_25110270_CSR_MCAUSE:    rdata = mcause;
+                `ysyx_25110270_CSR_CYCLE:     rdata = cycle[31:0];
+                `ysyx_25110270_CSR_CYCLEH:    rdata = cycle[63:32];
+                `ysyx_25110270_CSR_MVENDORID: rdata = mvendorid;
+                `ysyx_25110270_CSR_MARCHID:   rdata = marchid;
+                default:                      rdata = 0;
             endcase
         end
     end
