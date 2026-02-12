@@ -11,7 +11,7 @@ module ysyx_25110270_alu
     input   wire    [31:0                       ]   I_alu_srca,
     input   wire    [31:0                       ]   I_alu_srcb,
     input   wire                                    I_sign,             // 有符号位
-    input   wire                                    I_f7b5_en,          // 指令funct7=
+    input   wire                                    I_f7b5_en,          // 指令funct7[5] = 1
     input   wire    [2:0                        ]   I_alu_ctrl,
     output  wire    [31:0                       ]   O_alu_result,
 
@@ -20,7 +20,7 @@ module ysyx_25110270_alu
 );
 
     wire adder_sign = I_sign;
-    wire adder_sub = I_f7b5_en;
+    wire adder_sub = I_f7b5_en | (|I_alu_ctrl); // no add
 
     wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
     wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
@@ -43,7 +43,7 @@ module ysyx_25110270_alu
         case(I_alu_ctrl)
             `ysyx_25110270_RV32I_F3_ADD_SUB:
                 res = rv32i_add_res;
-            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:    // srl, sra, slli, srli, srai指令的结果都由桶式移位模块计算得到
+            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:
                 res = rv32i_shift_res;
             `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
                 res = {{32-1{1'b0}}, adder_cout};
@@ -168,7 +168,7 @@ module ysyx_25110270_csr
     reg [31:0] csr_wdata;
     always @(*) begin
         case(I_csr_ctrl)
-            2'b00:      csr_wdata = rv_csrrw_res;   // rw, rwi
+            2'b01:      csr_wdata = rv_csrrw_res;   // rw, rwi
             2'b10:      csr_wdata = rv_csrrs_res;   // rs, rsi
             2'b11:      csr_wdata = rv_csrrc_res;   // rc, rci
             default:    csr_wdata = 0;

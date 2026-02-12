@@ -151,7 +151,7 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_rd_we        ] = 1'b1;
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
                 basic_ctrl[bit_sign         ] = (funct3 != `ysyx_25110270_RV32I_F3_SLTIU);  // no sltiu
-                basic_ctrl[bit_f7b5_en      ] = I_inst[30];
+                basic_ctrl[bit_f7b5_en      ] = I_inst[30] & (funct3 == `ysyx_25110270_RV32I_F3_SRI);  // only srai has funct7[5] = 1
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_RS1;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_IMM;
                 basic_ctrl[bit_op +: 3      ] = funct3;
