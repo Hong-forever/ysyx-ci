@@ -101,7 +101,7 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // alu运算
     //------------------------------------------------------------------------
-    wire src_neq, src_lt;
+    wire src_eq, src_lt;
     wire [31:0] alu_result;
 
     wire [2:0] alu_op = (~I_op[2] & I_op[1] & I_op[0] & I_br_valid) ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
@@ -116,7 +116,7 @@ module ysyx_25110270_exec
         .I_f7b5_en                  (I_f7b5_en              ),
         .I_alu_ctrl                 (alu_op                 ),
         .O_alu_result               (alu_result             ),
-        .O_neq                      (src_neq                ),
+        .O_eq                       (src_eq                 ),
         .O_lt                       (src_lt                 )
     );
 
@@ -132,7 +132,7 @@ module ysyx_25110270_exec
     wire bru_taken;
     ysyx_25110270_bru bru
     (
-        .I_src_neq                  (src_neq                ),
+        .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
         .I_br_valid                 (I_br_valid             ),
         .I_bru_ctrl                 (I_op                   ),

@@ -5,7 +5,7 @@ O = $(abspath $(BUILD_DIR)/sta_result)
 RTL_FILES = $(VSRCS-SYM)
 SDC_FILE = ${NPC_HOME}/scripts/sta/npc.sdc
 
-CLK_FREQ_MHZ = 500
+CLK_FREQ_MHZ = 1200
 CLK_PORT_NANE = clock
 
 msta:

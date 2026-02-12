@@ -191,7 +191,6 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
                 basic_ctrl[bit_rs2_re       ] = 1'b1;
                 basic_ctrl[bit_sign         ] = ~(funct3[2] & funct3[1]);   // no bltu, bgeu
-                basic_ctrl[bit_f7b5_en      ] = ~(|funct3);  // only beq has funct3 = 0, which needs special handling in alu
                 basic_ctrl[bit_br_valid     ] = 1'b1;
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_RS1;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_RS2;
