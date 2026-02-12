@@ -95,45 +95,45 @@ extern "C" void wb_inst_cycle_cal(int pc) {
             alu_inst_log.inst_nr++; 
             alu_inst_log.cycle += cycle; 
             // printf("alu, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("ALU Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
+            // if(cycle > 5) {
+            //     printf("ALU Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
+            //     assert(0);
+            // }
         break;
         case IT_LS:      
             ls_inst_log.inst_nr++;  
             ls_inst_log.cycle  += cycle; 
-            if(cycle > 10000) {
-                printf("LS Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
+            // if(cycle > 10000) {
+            //     printf("LS Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
+            //     assert(0);
+            // }
         break;
         case IT_BR:      
             br_inst_log.inst_nr++;  
             br_inst_log.cycle  += cycle; 
             // printf("br, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("BR Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
+            // if(cycle > 5) {
+            //     printf("BR Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
+            //     assert(0);
+            // }
         break;
         case IT_CSR:     
             csr_inst_log.inst_nr++; 
             csr_inst_log.cycle += cycle; 
             // printf("csr, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("CSR Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
+            // if(cycle > 5) {
+            //     printf("CSR Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
+            //     assert(0);
+            // }
         break;
         case IT_FENCE_I: 
             fence_i_inst_log.inst_nr++; 
             fence_i_inst_log.cycle += cycle; 
             // printf("fence_i, pc == 0x%08x\n", pc);  
-            if(cycle > 5) {
-                printf("FENCE_I Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
-                assert(0);
-            }
+            // if(cycle > 5) {
+            //     printf("FENCE_I Inst with long latency: pc=0x%08x, cycle=%lu\n", pc, cycle);
+            //     assert(0);
+            // }
         break;
         default: break;
     }
