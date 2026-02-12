@@ -103,8 +103,8 @@ module ysyx_25110270_arbiter
     wire m0_req = M0_awvalid | M0_arvalid;
     wire m1_req = M1_awvalid | M1_arvalid;
 
-    wire m0_resp = (M0_awvalid && M0_bvalid) || (M0_arvalid && M0_rvalid);
-    wire m1_resp = (M1_awvalid && M1_bvalid) || (M1_arvalid && M1_rvalid);
+    wire m0_resp = (M0_awvalid & M0_bvalid) | (M0_arvalid & M0_rvalid);
+    wire m1_resp = (M1_awvalid & M1_bvalid) | (M1_arvalid & M1_rvalid);
 
     reg busy, sel_m0;
 
