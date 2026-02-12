@@ -168,7 +168,7 @@ module ysyx_25110270_csr
     reg [31:0] csr_wdata;
     always @(*) begin
         case(I_csr_ctrl)
-            2'b00:      csr_wdata = rv_csrrw_res;   // rw, rwi
+            2'b01:      csr_wdata = rv_csrrw_res;   // rw, rwi
             2'b10:      csr_wdata = rv_csrrs_res;   // rs, rsi
             2'b11:      csr_wdata = rv_csrrc_res;   // rc, rci
             default:    csr_wdata = 0;
