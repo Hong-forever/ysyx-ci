@@ -2,9 +2,9 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-// `define DPIC
-// `define PERF
-// `define DEBUG
+`define DPIC
+`define PERF
+`define DEBUG
 // `define SOC //no verilog macro define here, define it in Makefile
 
 //------------------------------------------------------------------------
