@@ -103,7 +103,8 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     wire src_eq, src_lt;
     wire [31:0] alu_result;
-    wire bru_taken;
+
+    wire [2:0] alu_op = (~I_op[2] & I_op[1] & I_op[0] & I_br_valid) ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
 
     ysyx_25110270_alu alu
     (
@@ -113,10 +114,10 @@ module ysyx_25110270_exec
         .I_alu_srcb                 (alu_srcb               ),
         .I_sign                     (I_sign                 ),
         .I_f7b5_en                  (I_f7b5_en              ),
-        .I_br_valid                 (I_br_valid             ),
-        .I_op                       (I_op                   ),
+        .I_alu_ctrl                 (alu_op                 ),
         .O_alu_result               (alu_result             ),
-        .O_bru_taken                (bru_taken              )
+        .O_eq                       (src_eq                 ),
+        .O_lt                       (src_lt                 )
     );
 
     //------------------------------------------------------------------------
@@ -124,6 +125,19 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     wire [31:0] agu_result;
     assign agu_result = agu_src + I_imm;
+
+    //------------------------------------------------------------------------
+    // bru运算
+    //------------------------------------------------------------------------
+    wire bru_taken;
+    ysyx_25110270_bru bru
+    (
+        .I_src_eq                   (src_eq                 ),
+        .I_src_lt                   (src_lt                 ),
+        .I_br_valid                 (I_br_valid             ),
+        .I_bru_ctrl                 (I_op                   ),
+        .O_bru_taken                (bru_taken              )
+    );
 
     //------------------------------------------------------------------------
     // csr运算
