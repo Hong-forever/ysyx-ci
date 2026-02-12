@@ -221,19 +221,12 @@ module ysyx_25110270_lsu
         end
     end
 
-    parameter IDLE = 3'b001;
-    parameter MEM  = 3'b010;
-    parameter WB   = 3'b100;
+    parameter IDLE = 2'b00;
+    parameter MEM  = 2'b01;
+    parameter WB   = 2'b10;
 
     reg data_avalid;
-    reg [2:0] state, nstate;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            state <= IDLE;
-        end else begin
-            state <= nstate;
-        end
-    end
+    reg [2:0] state;
 
     wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
     wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
@@ -246,20 +239,20 @@ module ysyx_25110270_lsu
         end
     end
 
-    always @(*) begin
+    always @(posedge clk) begin
         if(!rst_n) begin
-            nstate = IDLE;
+            state <= IDLE;
         end else begin
             case(state)
-                IDLE:    nstate = data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
-                MEM:     nstate = (dbus_bvalid | dbus_rvalid)   ? WB  : MEM;
-                WB:      nstate = IDLE;
-                default: nstate = IDLE;
+                IDLE:    state <= data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
+                MEM:     state <= (dbus_bvalid | dbus_rvalid) ? WB  : MEM;
+                WB:      state <= IDLE;
+                default: state <= IDLE;
             endcase
         end
     end
 
-    wire stallreq = ls_req | (state == MEM);
+    wire stallreq = ls_req | state[0];
 
     reg inst_valid;
     reg ready;

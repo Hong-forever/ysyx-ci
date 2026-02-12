@@ -60,7 +60,7 @@ module ysyx_25110270_icache
     assign offset  = I_addr[BLOCK_WIDTH + 1 : 2];
 
 
-    reg [2:0] state, nstate;
+    reg [2:0] state;
     reg [BLOCK_WIDTH-1:0] cnt;
 
     reg [ADDR_WIDTH-1:0]  miss_addr;
@@ -87,18 +87,14 @@ module ysyx_25110270_icache
         if(!rst_n) begin
             state <= IDLE;
         end else begin
-            state <= nstate;
+            case(state)
+                IDLE:    state <= I_valid ? LOOKUP : IDLE;
+                LOOKUP:  state <= hit ? IDLE : REQ;
+                REQ:     state <= (O_arvalid && I_arready) ? REFILL : REQ;
+                REFILL:  state <= (I_rvalid && I_rlast) ? IDLE : REFILL;
+                default: state <= IDLE;
+            endcase
         end
-    end
-
-    always @(*) begin
-        case(state)
-            IDLE:    nstate = I_valid ? LOOKUP : IDLE;
-            LOOKUP:  nstate = hit ? IDLE : REQ;
-            REQ:     nstate = (O_arvalid && I_arready) ? REFILL : REQ;
-            REFILL:  nstate = (I_rvalid && I_rlast) ? IDLE : REFILL;
-            default: nstate = IDLE;
-        endcase
     end
 
     reg clear_r;
