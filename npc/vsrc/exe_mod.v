@@ -72,7 +72,7 @@ module ysyx_25110270_alu
     );
 
     assign O_alu_result = res;
-    assign O_eq = (res == 0);
+    assign O_eq = (I_alu_srca == I_alu_srcb);
     assign O_lt = adder_cout;
     
 endmodule
