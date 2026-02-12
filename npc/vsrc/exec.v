@@ -104,7 +104,7 @@ module ysyx_25110270_exec
     wire src_eq, src_lt;
     wire [31:0] alu_result;
 
-    wire [2:0] alu_op = I_br_valid&(I_op == 3'b011) ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
+    wire [2:0] alu_op = (~I_op[2] & I_op[1] & I_op[0] & I_br_valid) ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
 
     ysyx_25110270_alu alu
     (
