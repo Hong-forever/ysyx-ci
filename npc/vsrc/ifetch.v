@@ -78,7 +78,7 @@ module ysyx_25110270_ifetch
     wire [31:0] cache_data;
     wire [31:0] npc, pc_plus4;
 
-    wire req_valid_next = ~state[1] | I_valid;
+    wire req_valid_next = ~(state[1] | state[0]) | I_valid;
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -117,7 +117,7 @@ module ysyx_25110270_ifetch
     
     always @(*) begin
         case(state)
-            IDLE:    nstate = CACHE;
+            IDLE:    nstate = req_ready ? CACHE : IDLE;
             CACHE:   nstate = cache_valid ? EXE : CACHE;
             EXE:     nstate = I_valid ? IDLE : EXE;
             default: nstate = IDLE;
