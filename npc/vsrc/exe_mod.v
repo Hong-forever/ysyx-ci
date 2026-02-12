@@ -20,7 +20,7 @@ module ysyx_25110270_alu
 );
 
     wire adder_sign = I_sign;
-    wire adder_sub = ~(I_f7b5_en | (|I_alu_ctrl)); // no add
+    wire adder_sub = I_f7b5_en | (|I_alu_ctrl); // no add
 
     wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
     wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
