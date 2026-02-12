@@ -77,7 +77,7 @@ module ysyx_25110270_ifetch
     wire [31:0] cache_data;
     wire [31:0] npc, pc_plus4;
 
-    wire req_valid_next = ~state[1] | I_valid & ~cache_valid;
+    wire req_valid_next = (~state[1] | I_valid) & ~cache_valid;
 
     always @(posedge clk) begin
         if(!rst_n) begin
