@@ -175,7 +175,7 @@ module ysyx_25110270_icache
     assign O_arvalid = (state == REQ);
     assign O_araddr  = miss_addr;
     assign O_arlen   = WORDS_PER_BLOCK[7:0] - 8'b1;
-    assign O_arsize  = $clog2(WORD_BYTES)[2:0];
+    assign O_arsize  = 3'b010; // 4 bytes
     assign O_arburst = 2'b10; // WRAP
     assign O_rready  = 1'b1;
 
