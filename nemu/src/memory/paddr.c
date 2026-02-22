@@ -18,6 +18,8 @@
 #include <device/mmio.h>
 #include <isa.h>
 
+extern bool dcache;
+
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
@@ -72,8 +74,39 @@ void init_mem() {
 #define MTRACE_BASE 0x80000140
 #define MTRACE_SIZE 3
 
+// static void mtrace(paddr_t addr, word_t data, int op) {
+
+//     if(addr > MTRACE_BASE && addr < MTRACE_BASE+4*MTRACE_SIZE) printf("MTRACE===>>>  addr(0x%08x): data(0x%08x) op(%s)\n", addr, data, op==0? "read" : op==1? "sb  " : op==2? "sh  " : "sw  ");
+// }
+
 static void mtrace(paddr_t addr, word_t data, int op) {
-    if(addr > MTRACE_BASE && addr < MTRACE_BASE+4*MTRACE_SIZE) printf("MTRACE===>>>  addr(0x%08x): data(0x%08x) op(%s)\n", addr, data, op==0? "read" : op==1? "sb  " : op==2? "sh  " : "sw  ");
+
+    if(!dcache) return;
+
+    static FILE *mtrace_fp = NULL;
+        
+    if (mtrace_fp == NULL) {
+        mtrace_fp = fopen("/tmp/dcachesim.bin", "wb");
+        if (mtrace_fp == NULL) {
+            perror("Failed to open mtrace file");
+        }
+    }
+
+    // if(op != 0) printf("op is %x\n", op);
+
+    uint64_t entry = ((uint64_t)op << 32) | (addr & 0xffffffff);
+    
+    if (mtrace_fp != NULL) {
+        // 写入PC值（十六进制
+        fwrite(&entry, sizeof(uint64_t), 1, mtrace_fp);
+        
+        // 定期flush防止数据丢失
+        static int count = 0;
+        if (++count % 10000 == 0) {
+            fflush(mtrace_fp);
+        }
+    }
+    dcache = false;
 }
 
 #endif
@@ -94,6 +127,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
       if(in_mrom(addr) || in_flash(addr)) {
         panic("can not write to mrom or flash address " FMT_PADDR " at pc = " FMT_WORD, addr, cpu.pc);
       }
+      // printf("len is %d\n", len);
       pmem_write(addr, len, data); 
       IFDEF(CONFIG_MTRACE, mtrace(addr, len==1? data&0x000000ff : len==2? data&0x0000ffff : data&0xffffffff, len));
       return; 

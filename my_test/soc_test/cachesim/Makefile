@@ -25,6 +25,7 @@ clean:
 	rm -rf build
 
 run: $(TARGET)
-	./$(TARGET) --trace /home/hhh/Templates/cachesim.bin --size 64 --ways 1 --block 4 --policy lru --icache
+# 	./$(TARGET) --trace /home/hhh/Templates/cachesim.bin --size 64 --ways 1 --block 4 --policy lru --icache
+	./$(TARGET) --trace /home/hhh/Templates/dcachesim.bin --size 64 --ways 1 --block 8 --policy lru -y dcache --write-back --write-allocate
 
 .PHONY: all clean run
