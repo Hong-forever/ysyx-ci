@@ -94,7 +94,7 @@ module ysyx_25110270_icache
                 IDLE:    state <= I_valid ? LOOKUP : IDLE;
                 LOOKUP:  state <= hit ? IDLE : REQ;
                 REQ:     state <= (O_arvalid && I_arready) ? REFILL : REQ;
-                REFILL:  state <= (I_rvalid && I_rlast) ? (refill_hit ? IDLE : LOOKUP) : REFILL;
+                REFILL:  state <= (I_rvalid && I_rlast) ? IDLE : REFILL;
                 default: state <= IDLE;
             endcase
         end
