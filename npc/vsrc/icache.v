@@ -70,6 +70,9 @@ module ysyx_25110270_icache
 
     wire [BLOCK_WIDTH-1:0] refill_offset = miss_offset + cnt;
 
+    wire refill_hit = state[2] && I_rvalid && (I_addr[ADDR_WIDTH-1:2] == {miss_tag, miss_index, refill_offset});
+    wire [DATA_WIDTH-1:0] refill_data = I_rdata;
+
     reg way_hit;
     generate
         if (N_WAYS == 1) begin
@@ -91,7 +94,7 @@ module ysyx_25110270_icache
                 IDLE:    state <= I_valid ? LOOKUP : IDLE;
                 LOOKUP:  state <= hit ? IDLE : REQ;
                 REQ:     state <= (O_arvalid && I_arready) ? REFILL : REQ;
-                REFILL:  state <= (I_rvalid && I_rlast) ? IDLE : REFILL;
+                REFILL:  state <= (I_rvalid && I_rlast) ? (refill_hit ? IDLE : LOOKUP) : REFILL;
                 default: state <= IDLE;
             endcase
         end
@@ -135,8 +138,6 @@ module ysyx_25110270_icache
         end
     end
 
-    wire refill_hit = state[2] && I_rvalid && (I_addr[ADDR_WIDTH-1:2] == {miss_tag, miss_index, refill_offset});
-    wire [DATA_WIDTH-1:0] refill_data = I_rdata;
 
     reg [DATA_WIDTH-1:0] odata_r;
     reg ovalid_r;
