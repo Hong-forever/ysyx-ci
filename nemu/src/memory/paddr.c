@@ -86,7 +86,7 @@ static void mtrace(paddr_t addr, word_t data, int op) {
     static FILE *mtrace_fp = NULL;
         
     if (mtrace_fp == NULL) {
-        mtrace_fp = fopen("/tmp/dcachesim.hex", "wb+");
+        mtrace_fp = fopen("/tmp/dcachesim.hex", "wb");
         if (mtrace_fp == NULL) {
             perror("Failed to open mtrace file");
         }
@@ -127,6 +127,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
       if(in_mrom(addr) || in_flash(addr)) {
         panic("can not write to mrom or flash address " FMT_PADDR " at pc = " FMT_WORD, addr, cpu.pc);
       }
+      printf("len is %d\n", len);
       pmem_write(addr, len, data); 
       IFDEF(CONFIG_MTRACE, mtrace(addr, len==1? data&0x000000ff : len==2? data&0x0000ffff : data&0xffffffff, len));
       return; 
