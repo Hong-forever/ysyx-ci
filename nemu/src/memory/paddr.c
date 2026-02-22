@@ -92,6 +92,8 @@ static void mtrace(paddr_t addr, word_t data, int op) {
         }
     }
 
+    if(op != 0) printf("op is %x\n", op);
+
     uint64_t entry = ((uint64_t)op << 32) | (addr & 0xffffffff);
     
     if (mtrace_fp != NULL) {
