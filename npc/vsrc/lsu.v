@@ -197,13 +197,17 @@ module ysyx_25110270_lsu
     end
     
     reg [2:0] data_axsize;
-    always @(*) begin
-        case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
-            2'b00:   data_axsize = 3'b000;
-            2'b01:   data_axsize = 3'b001;
-            2'b10:   data_axsize = 3'b010;
-            default: data_axsize = 3'b000;
-        endcase
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            data_axsize <= 3'b000;
+        end else begin
+            case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
+                2'b00:   data_axsize <= 3'b000;
+                2'b01:   data_axsize <= 3'b001;
+                2'b10:   data_axsize <= 3'b010;
+                default: data_axsize <= 3'b000;
+            endcase
+        end
     end
 
     reg req_valid;
@@ -217,11 +221,12 @@ module ysyx_25110270_lsu
         end
     end
 
-    parameter IDLE = 1'b0;
-    parameter WB   = 1'b1;
+    parameter IDLE = 2'b00;
+    parameter MEM  = 2'b01;
+    parameter WB   = 2'b10;
 
     reg data_avalid;
-    reg state;
+    reg [2:0] state;
 
     wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
     wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
@@ -239,14 +244,15 @@ module ysyx_25110270_lsu
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= (dbus_bvalid | dbus_rvalid) ? WB : IDLE;
+                IDLE:    state <= data_avalid & (dbus_awready | dbus_arready) ? MEM : IDLE;
+                MEM:     state <= (dbus_bvalid | dbus_rvalid) ? WB  : MEM;
                 WB:      state <= IDLE;
                 default: state <= IDLE;
             endcase
         end
     end
 
-    wire stallreq = ls_req;
+    wire stallreq = ls_req | state[0];
 
     reg inst_valid;
     reg ready;
