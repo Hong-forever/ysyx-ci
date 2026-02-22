@@ -26,6 +26,6 @@ clean:
 
 run: $(TARGET)
 # 	./$(TARGET) --trace /home/hhh/Templates/cachesim.bin --size 64 --ways 1 --block 4 --policy lru --icache
-	./$(TARGET) --trace /home/hhh/Templates/dcachesim.bin --size 64 --ways 1 --block 4 --policy lru -y dcache --write-back --write-allocate
+	./$(TARGET) --trace /tmp/dcachesim.bin --size 64 --ways 1 --block 4 --policy lru -y dcache --write-back --write-allocate
 
 .PHONY: all clean run
