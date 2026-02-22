@@ -177,27 +177,38 @@ module ysyx_25110270_wbu
         input int mvendorid, input int marchid
     );
 
-    reg [31:0] inst_r1;
-    reg [31:0] inst_addr_r1;
+    reg [31:0] inst_r1, inst_r2;
+    reg [31:0] inst_addr_r1, inst_addr_r2;
     reg [31:0] pc;
     reg skip_r;
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_r1         <= 0;
             inst_addr_r1    <= 0;
+            inst_r2         <= 0;
+            inst_addr_r2    <= 0;
+            pc              <= 0;
             skip_r          <= 1'b0;
         end else begin
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
+            inst_r2         <= inst_r1;
+            inst_addr_r2    <= inst_addr_r1;
+            pc              <= O_flush ? O_flush_addr :
+                               (I_ls_addr == 0 ? 
+                               (I_ex_addr == 0 ? 
+                               (I_dec_addr == 0 ? I_if_addr : I_dec_addr) 
+                               : I_ex_addr) 
+                               : I_ls_addr);
             skip_r          <= I_device_skip;
         end
     end
 
     always @(posedge clk) begin
-        if(valid_r2) begin
+        if(valid_r2 && (|inst_r1) && (|inst_addr_r1)) begin
             cpu_value
             (
-                skip_r, 1, inst_r1, inst_addr_r1, I_if_addr, 
+                skip_r, 1, inst_r1, inst_addr_r1, pc, 
                 gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7,
                 gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15,
 
