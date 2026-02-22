@@ -18,6 +18,8 @@
 #include <device/mmio.h>
 #include <isa.h>
 
+extern bool dcache;
+
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
@@ -79,6 +81,8 @@ void init_mem() {
 
 static void mtrace(paddr_t addr, word_t data, int op) {
 
+    if(!dcache) return;
+
     static FILE *mtrace_fp = NULL;
         
     if (mtrace_fp == NULL) {
@@ -91,7 +95,7 @@ static void mtrace(paddr_t addr, word_t data, int op) {
     uint64_t entry = ((uint64_t)op << 32) | (addr & 0xffffffff);
     
     if (mtrace_fp != NULL) {
-        // 写入PC值（十六进制）
+        // 写入PC值（十六进制
         fwrite(&entry, sizeof(uint64_t), 1, mtrace_fp);
         
         // 定期flush防止数据丢失
@@ -100,6 +104,7 @@ static void mtrace(paddr_t addr, word_t data, int op) {
             fflush(mtrace_fp);
         }
     }
+    dcache = false;
 }
 
 #endif
