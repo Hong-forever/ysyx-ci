@@ -81,7 +81,6 @@ void init_mem() {
 
 static void mtrace(paddr_t addr, word_t data, int op) {
 
-    printf("mm op is %x, dcache is %d\n", op, dcache);
     if(!dcache) return;
 
     static FILE *mtrace_fp = NULL;
@@ -92,8 +91,6 @@ static void mtrace(paddr_t addr, word_t data, int op) {
             perror("Failed to open mtrace file");
         }
     }
-
-    if(op != 0) printf("op is %x\n", op);
 
     uint64_t entry = ((uint64_t)op << 32) | (addr & 0xffffffff);
     
