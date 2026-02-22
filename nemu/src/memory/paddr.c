@@ -81,9 +81,8 @@ void init_mem() {
 
 static void mtrace(paddr_t addr, word_t data, int op) {
 
-    printf("mm op is %x\n", op);
+    printf("mm op is %x, dcache is %d\n", op, dcache);
     if(!dcache) return;
-    printf("mm2 op is %x\n", op);
 
     static FILE *mtrace_fp = NULL;
         
