@@ -72,7 +72,7 @@ module ysyx_25110270_ifetch
     wire [31:0] inst;
     wire [31:0] npc, pc_plus4;
 
-    wire req_valid_next = (~state | I_ready) & ~resp_valid;
+    wire req_valid_next = ~state;
 
     always @(posedge clk) begin
         if(!rst_n) begin
