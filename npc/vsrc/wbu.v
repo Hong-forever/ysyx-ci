@@ -123,14 +123,12 @@ module ysyx_25110270_wbu
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
 
-    reg valid_r, valid_r2;
+    reg valid_r;
     always @(posedge clk) begin
         if(!rst_n) begin
             valid_r <= 1'b0;
-            valid_r2 <= 1'b0;
         end else begin
             valid_r <= I_valid;
-            valid_r2 <= valid_r;
         end
     end
 
@@ -157,23 +155,19 @@ module ysyx_25110270_wbu
         input int mvendorid, input int marchid
     );
 
-    reg [31:0] inst_r1, inst_r2;
-    reg [31:0] inst_addr_r1, inst_addr_r2;
+    reg [31:0] inst_r1;
+    reg [31:0] inst_addr_r1;
     reg [31:0] pc;
     reg skip_r;
     always @(posedge clk) begin
         if(!rst_n) begin
             inst_r1         <= 0;
             inst_addr_r1    <= 0;
-            inst_r2         <= 0;
-            inst_addr_r2    <= 0;
             pc              <= 0;
             skip_r          <= 1'b0;
         end else begin
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
-            inst_r2         <= inst_r1;
-            inst_addr_r2    <= inst_addr_r1;
             pc              <= O_flush ? O_flush_addr :
                                (I_ls_addr == 0 ? 
                                (I_ex_addr == 0 ? 
@@ -185,7 +179,7 @@ module ysyx_25110270_wbu
     end
 
     always @(posedge clk) begin
-        if(valid_r2 && (|inst_r1) && (|inst_addr_r1)) begin
+        if(valid_r && (|inst_r1) && (|inst_addr_r1)) begin
             cpu_value
             (
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 
