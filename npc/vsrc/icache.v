@@ -70,11 +70,6 @@ module ysyx_25110270_icache
 
     wire [BLOCK_WIDTH-1:0] refill_offset = miss_offset + cnt;
 
-    wire refill_hit = state[2] && I_rvalid && (I_addr[ADDR_WIDTH-1:2] == {miss_tag, miss_index, refill_offset});
-    wire [DATA_WIDTH-1:0] refill_data = I_rdata;
-
-    wire noneed_cache = (I_addr >= `ysyx_25110270_SramAddrBase) && (I_addr < `ysyx_25110270_SramAddrBase + `ysyx_25110270_SramSize); //sram地址范围不经过icache
-
     reg way_hit;
     generate
         if (N_WAYS == 1) begin
@@ -93,9 +88,9 @@ module ysyx_25110270_icache
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= I_valid ? (noneed_cache ? REQ : LOOKUP) : IDLE;
+                IDLE:    state <= I_valid ? LOOKUP : IDLE;
                 LOOKUP:  state <= hit ? IDLE : REQ;
-                REQ:     state <= (O_arvalid && I_arready) ? (noneed_cache ? IDLE : REFILL) : REQ;
+                REQ:     state <= (O_arvalid && I_arready) ? REFILL : REQ;
                 REFILL:  state <= (I_rvalid && I_rlast) ? IDLE : REFILL;
                 default: state <= IDLE;
             endcase
@@ -128,7 +123,7 @@ module ysyx_25110270_icache
                 valid_mem[i] <= 0;
             end
         end else begin
-            if(state[0] & ~hit & ~noneed_cache) begin
+            if(state[0] & ~hit) begin
                 miss_addr <= I_addr;
                 cnt <= 0;
             end else if(state[2] && I_rvalid) begin
@@ -140,6 +135,8 @@ module ysyx_25110270_icache
         end
     end
 
+    wire refill_hit = state[2] && I_rvalid && (I_addr[ADDR_WIDTH-1:2] == {miss_tag, miss_index, refill_offset});
+    wire [DATA_WIDTH-1:0] refill_data = I_rdata;
 
     reg [DATA_WIDTH-1:0] odata_r;
     reg ovalid_r;
@@ -154,9 +151,6 @@ module ysyx_25110270_icache
         end else if(state[0] & hit) begin
             odata_r = data_mem[index][offset];
             ovalid_r = 1'b1;
-        end else if(noneed_cache & I_rvalid) begin
-            odata_r = I_rdata;
-            ovalid_r = 1'b1;
         end else begin
             odata_r  = 0;
             ovalid_r = 1'b0;
@@ -169,10 +163,10 @@ module ysyx_25110270_icache
     assign O_miss  = state[1] | state[2]; // LOOKUP miss or REQ/REFILL state
 
     assign O_arvalid = state[1]; // REQ state
-    assign O_araddr  = noneed_cache ? I_addr : miss_addr;
-    assign O_arlen   = noneed_cache ? 8'b0 : WORDS_PER_BLOCK[7:0] - 8'b1;
+    assign O_araddr  = miss_addr;
+    assign O_arlen   = WORDS_PER_BLOCK[7:0] - 8'b1;
     assign O_arsize  = 3'b010; // 4 bytes
-    assign O_arburst = noneed_cache ? 2'b00 : 2'b10; // WRAP
+    assign O_arburst = 2'b10; // WRAP
     assign O_rready  = 1'b1;
 
 endmodule
