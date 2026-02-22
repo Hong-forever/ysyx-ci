@@ -57,11 +57,13 @@ module ysyx_25110270_regfile
     //读寄存器
     assign O_rs1_rdata = 
                 I_rs1_raddr == 0 ? 0 :
-                (I_rd_we && I_rd_waddr == I_rs1_raddr) ? I_rd_wdata : regs[I_rs1_raddr];
+                // (I_rd_we && I_rd_waddr == I_rs1_raddr) ? I_rd_wdata : regs[I_rs1_raddr];
+                regs[I_rs1_raddr];
 
     assign O_rs2_rdata = 
                 I_rs2_raddr == 0 ? 0 :
-                (I_rd_we && I_rd_waddr == I_rs2_raddr) ? I_rd_wdata : regs[I_rs2_raddr];
+                // (I_rd_we && I_rd_waddr == I_rs2_raddr) ? I_rd_wdata : regs[I_rs2_raddr];
+                regs[I_rs2_raddr];
 
     assign O_gpr0  = 0;
     assign O_gpr1  = regs[1];

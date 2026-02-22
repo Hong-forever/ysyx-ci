@@ -13,9 +13,6 @@ module ysyx_25110270_wbu
     input   wire    [31:0                       ]   I_inst_addr,
     
     input   wire                                    I_valid,
-    output  wire                                    O_ready,
-    output  wire                                    O_valid,
-    input   wire                                    I_ready,
 
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs1_raddr,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
@@ -60,22 +57,6 @@ module ysyx_25110270_wbu
     wire [31:0] csr_mvendorid;
     wire [31:0] csr_marchid;
 
-    reg inst_valid;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if(I_valid) begin
-            inst_valid <= 1'b1;
-        end
-    end
-
-
-    assign O_valid = inst_valid;
-    assign O_ready = 1'b1;
-
     ysyx_25110270_regfile u_regfile
     (
         .clk                    (clk                        ),
@@ -87,7 +68,7 @@ module ysyx_25110270_wbu
         .O_rs1_rdata            (O_rs1_rdata                ),
         .O_rs2_rdata            (O_rs2_rdata                ),
 
-        .I_rd_we                (I_rd_we & inst_valid       ),
+        .I_rd_we                (I_rd_we                    ),
         .I_rd_waddr             (I_rd_waddr                 ),
         .I_rd_wdata             (I_rd_wdata                 ),
 
@@ -117,7 +98,7 @@ module ysyx_25110270_wbu
         .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
 
-        .I_we                   (I_csr_valid & inst_valid   ),
+        .I_we                   (I_csr_valid                ),
         .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 

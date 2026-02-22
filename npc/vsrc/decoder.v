@@ -13,9 +13,9 @@ module ysyx_25110270_decoder
     input   wire    [31:0                       ]   I_inst_addr,
     
     input   wire                                    I_valid,
+    input   wire                                    I_ready,
     output  wire                                    O_ready,
     output  wire                                    O_valid,
-    input   wire                                    I_ready,
 
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
@@ -36,17 +36,15 @@ module ysyx_25110270_decoder
     
     output  wire                                    O_ld_valid,         //访存有效标志
     output  wire                                    O_st_valid,         //访存有效标志
-    output  wire                                    O_br_valid,        //跳转有效标志
+    output  wire                                    O_br_valid,         //跳转有效标志
     output  wire                                    O_csr_valid,        //CSR指令有效标志
     output  wire                                    O_f7b5_en,          //funct7[5]使能，针对srai, sub, sra指令
     output  wire                                    O_sign,             //有符号位
+    output  wire    [`ysyx_25110270_ExceptBus   ]   O_except,
 
     //forward
     output  wire                                    O_rs1_re,
-    output  wire                                    O_rs2_re,
-
-    // 异常
-    output  wire    [`ysyx_25110270_ExceptBus   ]   O_except
+    output  wire                                    O_rs2_re
 );
     
     //------------------------------------------------------------------------
@@ -228,29 +226,6 @@ module ysyx_25110270_decoder
         endcase
     end
 
-    reg inst_valid;
-    reg ready;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if(I_valid) begin
-            inst_valid <= 1'b1;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            ready <= 1'b1;
-        end else if(I_valid) begin
-            ready <= 1'b0;
-        end else begin
-            ready <= 1'b1;
-        end
-    end
-
     //------------------------------------------------------------------------
     // 异常解码
     //------------------------------------------------------------------------
@@ -269,8 +244,8 @@ module ysyx_25110270_decoder
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
     
-    assign O_ready = ready;
-    assign O_valid = inst_valid;
+    assign O_ready = I_ready;
+    assign O_valid = O_ready;
 
     assign O_rs1_raddr = rs1;
     assign O_rs2_raddr = rs2;

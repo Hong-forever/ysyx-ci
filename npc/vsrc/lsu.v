@@ -15,7 +15,6 @@ module ysyx_25110270_lsu
     input   wire                                    I_valid,
     output  wire                                    O_ready,
     output  wire                                    O_valid,
-    input   wire                                    I_ready,
 
     input   wire                                    I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
@@ -248,36 +247,14 @@ module ysyx_25110270_lsu
 
     wire stallreq = ls_req;
 
-    reg inst_valid;
-    reg ready;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if((I_valid && ~I_is_ldst) || (dbus_bvalid || dbus_rvalid)) begin
-            inst_valid <= 1'b1;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            ready <= 1'b1;
-        end else if(I_valid) begin
-            ready <= 1'b0;
-        end else if(~stallreq) begin
-            ready <= 1'b1;
-        end
-    end
-
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
-    assign O_valid = inst_valid;
-    assign O_ready = ready;
+
+    assign O_ready = ~stallreq;
+    assign O_valid = O_ready;
 
     assign O_rd_we = I_rd_we;
     assign O_rd_waddr = I_rd_waddr;

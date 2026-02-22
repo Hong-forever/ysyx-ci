@@ -116,9 +116,9 @@ module ysyx_25110270_csr_reg
     //idu模块读CSR寄存器
     reg [31:0] rdata;
     always @(*) begin
-        if(I_we && I_raddr == I_waddr) begin
-            rdata = I_wdata;
-        end else begin
+        // if(I_we && I_raddr == I_waddr) begin
+        //     rdata = I_wdata;
+        // end else begin
             case(I_raddr)
                 `ysyx_25110270_CSR_MSTATUS:   rdata = mstatus;
                 `ysyx_25110270_CSR_MIE:       rdata = mie;
@@ -131,7 +131,7 @@ module ysyx_25110270_csr_reg
                 `ysyx_25110270_CSR_MARCHID:   rdata = marchid;
                 default:                      rdata = 0;
             endcase
-        end
+        // end
     end
 
 
