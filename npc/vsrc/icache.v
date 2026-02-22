@@ -93,7 +93,7 @@ module ysyx_25110270_icache
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= I_valid ? LOOKUP : IDLE;
+                IDLE:    state <= I_valid ? (noneed_cache ? REQ : LOOKUP) : IDLE;
                 LOOKUP:  state <= hit ? IDLE : REQ;
                 REQ:     state <= (O_arvalid && I_arready) ? (noneed_cache ? IDLE : REFILL) : REQ;
                 REFILL:  state <= (I_rvalid && I_rlast) ? IDLE : REFILL;
