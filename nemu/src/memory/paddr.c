@@ -92,7 +92,7 @@ static void mtrace(paddr_t addr, word_t data, int op) {
         }
     }
 
-    if(op != 0) printf("op is %x\n", op);
+    // if(op != 0) printf("op is %x\n", op);
 
     uint64_t entry = ((uint64_t)op << 32) | (addr & 0xffffffff);
     
@@ -127,7 +127,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
       if(in_mrom(addr) || in_flash(addr)) {
         panic("can not write to mrom or flash address " FMT_PADDR " at pc = " FMT_WORD, addr, cpu.pc);
       }
-      printf("len is %d\n", len);
+      // printf("len is %d\n", len);
       pmem_write(addr, len, data); 
       IFDEF(CONFIG_MTRACE, mtrace(addr, len==1? data&0x000000ff : len==2? data&0x0000ffff : data&0xffffffff, len));
       return; 
