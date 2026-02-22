@@ -84,10 +84,10 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
 
 extern "C" void wb_inst_cycle_cal(int pc) {
     uint64_t end = rdtime();
-    // if(inst_buffer.pc != pc) {
-    //     printf("Error: PC mismatch in WB stage! Expected 0x%08x, got 0x%08x\n", inst_buffer.pc, pc);
-    //     assert(0);
-    // }
+    if(inst_buffer.pc != pc) {
+        printf("Error: PC mismatch in WB stage! Expected 0x%08x, got 0x%08x\n", inst_buffer.pc, pc);
+        assert(0);
+    }
 
     uint64_t cycle = end - inst_buffer.begin + 1;
     switch (inst_buffer.type) {
