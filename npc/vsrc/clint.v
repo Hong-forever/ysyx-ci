@@ -45,7 +45,7 @@ module ysyx_25110270_clint
     reg [2*DATA_WIDTH-1:0] mtime;
 
     reg [31:0] rdata;
-    reg               rdata_valid;
+    reg rdata_valid;
     always @(posedge clk) begin
         if(!rst_n) begin
             rdata <= 0;
