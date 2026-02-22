@@ -110,7 +110,7 @@ module ysyx_25110270_ifetch
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= EXE;
+                IDLE:    state <= cache_valid ? EXE : IDLE;
                 EXE:     state <= I_valid ? IDLE : EXE;
                 default: state <= IDLE;
             endcase
