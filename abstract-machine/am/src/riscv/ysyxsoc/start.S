@@ -63,6 +63,7 @@ _start_ssbl:
 _start_text:
   mv s0, zero
   la sp, _stack_pointer
+  fence.i
   call _trm_init
 
 .size _start_text, . - _start_text
