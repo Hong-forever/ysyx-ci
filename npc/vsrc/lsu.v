@@ -79,23 +79,32 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     // 存取结果
     //------------------------------------------------------------------------
-    wire [31:0] lb_00_res = {{24{dbus_rdata[7]}},  dbus_rdata[7:0]};
-    wire [31:0] lb_01_res = {{24{dbus_rdata[15]}}, dbus_rdata[15:8]};
-    wire [31:0] lb_10_res = {{24{dbus_rdata[23]}}, dbus_rdata[23:16]};
-    wire [31:0] lb_11_res = {{24{dbus_rdata[31]}}, dbus_rdata[31:24]};
+    reg [31:0] rdata;
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            rdata <= 0;
+        end else if(dbus_rvalid) begin
+            rdata <= dbus_rdata;
+        end
+    end
 
-    wire [31:0] lh_00_res = {{16{dbus_rdata[15]}}, dbus_rdata[15:0]};
-    wire [31:0] lh_10_res = {{16{dbus_rdata[31]}}, dbus_rdata[31:16]};
+    wire [31:0] lb_00_res = {{24{rdata[7]}},  rdata[7:0]};
+    wire [31:0] lb_01_res = {{24{rdata[15]}}, rdata[15:8]};
+    wire [31:0] lb_10_res = {{24{rdata[23]}}, rdata[23:16]};
+    wire [31:0] lb_11_res = {{24{rdata[31]}}, rdata[31:24]};
 
-    wire [31:0] lw_res = dbus_rdata;
+    wire [31:0] lh_00_res = {{16{rdata[15]}}, rdata[15:0]};
+    wire [31:0] lh_10_res = {{16{rdata[31]}}, rdata[31:16]};
 
-    wire [31:0] lbu_00_res = {{24{1'b0}}, dbus_rdata[7:0]};
-    wire [31:0] lbu_01_res = {{24{1'b0}}, dbus_rdata[15:8]};
-    wire [31:0] lbu_10_res = {{24{1'b0}}, dbus_rdata[23:16]};
-    wire [31:0] lbu_11_res = {{24{1'b0}}, dbus_rdata[31:24]};
+    wire [31:0] lw_res = rdata;
 
-    wire [31:0] lhu_00_res = {{16{1'b0}}, dbus_rdata[15:0]};
-    wire [31:0] lhu_10_res = {{16{1'b0}}, dbus_rdata[31:16]};
+    wire [31:0] lbu_00_res = {{24{1'b0}}, rdata[7:0]};
+    wire [31:0] lbu_01_res = {{24{1'b0}}, rdata[15:8]};
+    wire [31:0] lbu_10_res = {{24{1'b0}}, rdata[23:16]};
+    wire [31:0] lbu_11_res = {{24{1'b0}}, rdata[31:24]};
+
+    wire [31:0] lhu_00_res = {{16{1'b0}}, rdata[15:0]};
+    wire [31:0] lhu_10_res = {{16{1'b0}}, rdata[31:16]};
 
     wire [31:0] sb_00_res = {24'b0, I_store_data[7:0]};
     wire [31:0] sb_01_res = {16'b0, I_store_data[7:0], 8'b0};
@@ -196,13 +205,24 @@ module ysyx_25110270_lsu
         endcase
     end
 
+    reg req_valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            req_valid <= 1'b0;
+        end else if(I_valid) begin
+            req_valid <= 1'b1;
+        end else if((I_ld_valid && dbus_rvalid) || (I_st_valid && dbus_bvalid))begin
+            req_valid <= 1'b0;
+        end
+    end
+
     parameter IDLE = 1'b0;
     parameter WB   = 1'b1;
 
     reg data_avalid;
     reg state;
 
-    wire ls_req = (I_ld_valid | I_st_valid) & ~(dbus_rvalid & dbus_rlast) & ~dbus_bvalid;
+    wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
     wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
 
     always @(posedge clk) begin
@@ -218,7 +238,7 @@ module ysyx_25110270_lsu
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= (dbus_bvalid | (dbus_rvalid & dbus_rlast)) ? WB : IDLE;
+                IDLE:    state <= (dbus_bvalid | dbus_rvalid) ? WB : IDLE;
                 WB:      state <= IDLE;
                 default: state <= IDLE;
             endcase
