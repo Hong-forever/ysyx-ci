@@ -41,15 +41,15 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
 extern "C" void wb_inst_cycle_cal(uint32_t pc, uint32_t inst) {
 
         switch (inst & 0x7f) {
-            case 0x19: 
-            case 0x23: 
-            case 0x51: 
-            case 0x55: alu_inst_nr++;  break;
-            case 0x99:
-            case 0x103:
-            case 0x111: br_inst_nr++;  break;
+            case 0x13: 
+            case 0x17: 
+            case 0x33: 
+            case 0x37: alu_inst_nr++;  break;
+            case 0x63:
+            case 0x67:
+            case 0x6f: br_inst_nr++;  break;
             case 0x03: 
-            case 0x35: ls_inst_nr++;  break;
+            case 0x23: ls_inst_nr++;  break;
             case 0x73: csr_inst_nr++; break;
             case 0x0f: fence_i_inst_nr++; break;
             default: break;
