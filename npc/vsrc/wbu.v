@@ -209,12 +209,11 @@ module ysyx_25110270_wbu
 
 `ifdef PERF
 
-    
-    import "DPI-C" function void wb_inst_cycle_cal(input int pc);
+    import "DPI-C" function void wb_inst_cycle_cal(input int pc, input int inst);
 
     always @(posedge clk) begin
-        if(valid_r && (|I_inst) && (|I_inst_addr)) begin
-            wb_inst_cycle_cal(I_inst_addr);
+        if(valid_r) begin
+            wb_inst_cycle_cal(I_inst_addr, I_inst);
         end
     end
 

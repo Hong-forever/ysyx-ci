@@ -182,7 +182,7 @@ module ysyx_25110270_exec
 
 
 `ifdef PERF
-    import "DPI-C" function void exec_inst_cal();
+    import "DPI-C" function void exec_inst_cal(input int pc, input int inst);
 
     reg valid;
     always @(posedge clk) begin
@@ -194,8 +194,8 @@ module ysyx_25110270_exec
     end
 
     always @(posedge clk) begin
-        if(valid && (|I_inst) && (|I_inst_addr)) begin
-            exec_inst_cal();
+        if(valid) begin
+            exec_inst_cal(I_inst_addr, I_inst);
         end
     end
 
