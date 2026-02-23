@@ -13,16 +13,22 @@ module ysyx_25110270_pipeline_if_dec
     input   wire    [31:0           ]   I_inst_addr,        // 指令地址
 
     output  reg     [31:0           ]   O_inst,             // 指令内容
-    output  reg     [31:0           ]   O_inst_addr         // 指令地址
+    output  reg     [31:0           ]   O_inst_addr,        // 指令地址
+
+    input   wire                        I_enable,
+    input   wire                        I_flush
 
 );
     always @(posedge clk) begin
         if (!rst_n) begin
-            O_inst          <= 0;
-            O_inst_addr     <= 0;
-        end else begin
-            O_inst          <= I_inst;
-            O_inst_addr     <= I_inst_addr;
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+        end else if(I_flush) begin
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+        end else if(I_enable) begin
+            O_inst          <= I_inst                   ;
+            O_inst_addr     <= I_inst_addr              ;
         end
     end
 
@@ -81,7 +87,10 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg                                     O_f7b5_en,          // 指令funct7[5]有效标志
     output  reg                                     O_sign,             // 有符号位
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except            // 异常
+    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
+
+    input   wire                                    I_enable,
+    input   wire                                    I_flush
 );
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -106,7 +115,29 @@ module ysyx_25110270_pipeline_dec_ex
             O_f7b5_en       <= 0                        ;
             O_sign          <= 0                        ;
             O_except        <= 0                        ;
-        end else begin
+        end else if(I_flush) begin
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+            O_rs1_rdata     <= 0                        ;
+            O_rs2_rdata     <= 0                        ;
+            O_csr_rdata     <= 0                        ;
+            O_imm           <= 0                        ;
+            O_rd_we         <= 0                        ;
+            O_rd_waddr      <= 0                        ;
+            O_op            <= 0                        ;
+            O_alu_srca_sel  <= 0                        ;
+            O_alu_srcb_sel  <= 0                        ;
+            O_agu_src_sel   <= 0                        ;
+            O_csr_src_sel   <= 0                        ;
+            O_ld_valid      <= 0                        ;
+            O_st_valid      <= 0                        ;
+            O_br_valid      <= 0                        ;
+            O_csr_valid     <= 0                        ;
+            O_csr_addr      <= 0                        ;
+            O_f7b5_en       <= 0                        ;
+            O_sign          <= 0                        ;
+            O_except        <= 0                        ;
+        end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
             O_rs1_rdata     <= I_rs1_rdata              ;
@@ -171,8 +202,10 @@ module ysyx_25110270_pipeline_ex_ls
     output  reg                                     O_csr_valid,        // 写CSR寄存器标志
     output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except            // 异常
+    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
+    input   wire                                    I_enable,
+    input   wire                                    I_flush
 );
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -190,7 +223,22 @@ module ysyx_25110270_pipeline_ex_ls
             O_csr_addr      <= 0                        ;
             O_csr_wdata     <= 0                        ;
             O_except        <= 0                        ;
-        end else begin
+        end else if(I_flush) begin
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+            O_rd_we         <= 0                        ;
+            O_rd_waddr      <= 0                        ;
+            O_rd_wdata      <= 0                        ;
+            O_memory_addr   <= 0                        ;
+            O_store_data    <= 0                        ;
+            O_ld_valid      <= 0                        ;
+            O_st_valid      <= 0                        ;
+            O_ls_ctrl       <= 0                        ;
+            O_csr_valid     <= 0                        ;
+            O_csr_addr      <= 0                        ;
+            O_csr_wdata     <= 0                        ;
+            O_except        <= 0                        ;
+        end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
             O_rd_we         <= I_rd_we                  ;
@@ -242,8 +290,10 @@ module ysyx_25110270_pipeline_ls_wb
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
-    output  wire                                    O_device_skip
+    output  wire                                    O_device_skip,
 
+    input   wire                                    I_enable,
+    input   wire                                    I_flush
 );
 
     always @(posedge clk) begin
@@ -258,7 +308,18 @@ module ysyx_25110270_pipeline_ls_wb
             O_csr_wdata     <= 0                        ;
             O_except        <= 0                        ;
             O_device_skip   <= 0                        ;
-        end else begin
+        end else if(I_flush) begin
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+            O_rd_we         <= 0                        ;
+            O_rd_waddr      <= 0                        ;
+            O_rd_wdata      <= 0                        ;
+            O_csr_valid     <= 0                        ;
+            O_csr_addr      <= 0                        ;
+            O_csr_wdata     <= 0                        ;
+            O_except        <= 0                        ;
+            O_device_skip   <= 0                        ;
+        end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
             O_rd_we         <= I_rd_we                  ;

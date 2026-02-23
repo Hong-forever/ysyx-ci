@@ -18,7 +18,6 @@ module ysyx_25110270_icache
     output                          O_valid,
     input       [ADDR_WIDTH-1:0]    I_addr,
     output      [DATA_WIDTH-1:0]    O_data,
-    output                          O_miss,
     input                           I_clear,
 
     output                          O_arvalid,
@@ -159,8 +158,6 @@ module ysyx_25110270_icache
 
     assign O_data  = odata_r;
     assign O_valid = ovalid_r;
-
-    assign O_miss  = state[1] | state[2]; // LOOKUP miss or REQ/REFILL state
 
     assign O_arvalid = state[1]; // REQ state
     assign O_araddr  = miss_addr;

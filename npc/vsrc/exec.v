@@ -11,10 +11,9 @@ module ysyx_25110270_exec
     input   wire    [31:0                           ]   I_inst,
     input   wire    [31:0                           ]   I_inst_addr,
 
-    input   wire                                        I_valid,
+    input   wire                                        I_ready,
     output  wire                                        O_ready,
     output  wire                                        O_valid,
-    input   wire                                        I_ready,
 
     input   wire                                        I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus      ]   I_rd_waddr,
@@ -151,48 +150,15 @@ module ysyx_25110270_exec
         .O_csr_wdata                (csr_wdata              )
     );
 
-    reg inst_valid;
-    reg ready;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if(I_valid) begin
-            inst_valid <= 1'b1;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            ready <= 1'b1;
-        end else if(I_valid) begin
-            ready <= 1'b0;
-        end else begin
-            ready <= 1'b1;
-        end
-    end
-
-    reg bru_taken_r;
-    reg [31:0] agu_result_r;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            bru_taken_r <= 0;
-            agu_result_r <= 0;
-        end else if(inst_valid) begin
-            bru_taken_r <= bru_taken;
-            agu_result_r <= agu_result;
-        end
-    end
 
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
-    assign O_valid = inst_valid;
-    assign O_ready = ready;
+
+    assign O_ready = I_ready;
+    assign O_valid = O_ready;
 
     assign O_rd_we = I_rd_we;
     assign O_rd_waddr = I_rd_waddr;
@@ -208,23 +174,10 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_bru_taken = bru_taken_r;
-    assign O_bru_target = agu_result_r;
+    assign O_bru_taken = bru_taken;
+    assign O_bru_target = agu_result;
 
     assign O_except = I_except;
-
-
-`ifdef PERF
-    import "DPI-C" function void exec_inst_cal();
-
-    always @(posedge clk) begin
-        if(inst_valid && (|I_inst) && (|I_inst_addr)) begin
-            exec_inst_cal();
-        end
-    end
-
-`endif
-
 
 `ifdef DPIC
     import "DPI-C" function void ftrace_exec(input int pc, input int dnpc, input int rs1, input int rd, input int imm, input int op); //op=1 jal, op=2 jalr
