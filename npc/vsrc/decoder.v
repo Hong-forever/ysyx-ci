@@ -16,8 +16,6 @@ module ysyx_25110270_decoder
     output  wire                                    O_ready,
     output  wire                                    O_valid,
 
-    input   wire                                    perf_valid,
-
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
     output  wire    [11:0                       ]   O_csr_addr,         //CSR寄存器地址
@@ -273,33 +271,6 @@ module ysyx_25110270_decoder
     assign O_alu_srcb_sel = basic_ctrl[bit_alu_srcb +: 2];
     assign O_agu_src_sel  = basic_ctrl[bit_agu_src +: 2];
     assign O_csr_src_sel  = basic_ctrl[bit_csr_src];
-
-`ifdef PERF
-    import "DPI-C" function void decoder_inst_type_cal(input int inst_type, input int pc);
-
-    wire inst_is_ls = basic_ctrl[bit_ld_valid] | basic_ctrl[bit_st_valid];
-    wire inst_is_br = basic_ctrl[bit_br_valid];
-    wire inst_is_alu = (opcode == `ysyx_25110270_RV32I_OP_TYPE_I) | (opcode == `ysyx_25110270_RV32I_OP_AUIPC) | (opcode == `ysyx_25110270_RV32I_OP_LUI) | (opcode == `ysyx_25110270_RV32IM_OP_TYPE_R);
-    wire inst_is_csr = basic_ctrl[bit_csr_valid];
-    wire inst_is_fence_i = except[`ysyx_25110270_EXCPT_FENCE_I];
-
-    wire [4:0] inst_type = {inst_is_fence_i, inst_is_csr, inst_is_br, inst_is_ls, inst_is_alu};
-    
-    reg valid;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 1'b0;
-        end else begin
-            valid <= perf_valid;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(valid && (|inst_type)) begin
-            decoder_inst_type_cal(inst_type, I_inst_addr);
-        end
-    end
-`endif
 
 endmodule
 

@@ -15,8 +15,6 @@ module ysyx_25110270_exec
     output  wire                                        O_ready,
     output  wire                                        O_valid,
 
-    input   wire                                        perf_valid,
-
     input   wire                                        I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus      ]   I_rd_waddr,
     input   wire    [31:0                           ]   I_imm,
@@ -180,28 +178,6 @@ module ysyx_25110270_exec
     assign O_bru_target = agu_result;
 
     assign O_except = I_except;
-
-
-`ifdef PERF
-    import "DPI-C" function void exec_inst_cal(input int pc, input int inst);
-
-    reg valid;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 1'b0;
-        end else begin
-            valid <= perf_valid;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(valid) begin
-            exec_inst_cal(I_inst_addr, I_inst);
-        end
-    end
-
-`endif
-
 
 `ifdef DPIC
     import "DPI-C" function void ftrace_exec(input int pc, input int dnpc, input int rs1, input int rd, input int imm, input int op); //op=1 jal, op=2 jalr

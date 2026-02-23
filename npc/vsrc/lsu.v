@@ -339,13 +339,6 @@ module ysyx_25110270_lsu
 `endif
 
 `ifdef PERF
-    import "DPI-C" function void ls_data_cal();
-
-    always @(posedge clk) begin
-        if(dbus_bvalid & dbus_bready | dbus_rvalid & dbus_rready) begin
-            ls_data_cal();
-        end
-    end
     
     import "DPI-C" function void ls_delay_cal(input int begin_flag, input int end_flag);
 

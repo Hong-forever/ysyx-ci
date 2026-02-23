@@ -139,14 +139,7 @@ module ysyx_25110270_ifetch
     assign ibus_arid = 0;
 
 `ifdef PERF
-    import "DPI-C" function void ifetch_inst_get_nr_cal(input int pc);
     import "DPI-C" function void iamat_cal(input int begin_flag, input int end_flag);
-
-    always @(posedge clk) begin
-        if(O_valid && (|inst) && (|pc)) begin
-            ifetch_inst_get_nr_cal(pc);
-        end
-    end
 
     reg begin_flag_r;
     wire begin_flag = ibus_arvalid;

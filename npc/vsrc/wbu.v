@@ -14,8 +14,6 @@ module ysyx_25110270_wbu
     
     input   wire                                    I_valid,
 
-    input   wire                                    perf_valid,
-
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs1_raddr,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
     output  wire    [31:0                       ]   O_rs1_rdata,
@@ -203,28 +201,19 @@ module ysyx_25110270_wbu
 
 `ifdef DEBUG
     always @(posedge clk) begin
-        if(valid_r & I_inst == 0 && I_inst_addr != 0) begin
-            $error("Error: inst is 0 at addr %h!", I_inst_addr);
+        if(valid_r & inst_r1 == 0 && inst_addr_r1 != 0) begin
+            $error("Error: inst is 0 at addr %h!", inst_addr_r1);
         end
     end
 `endif
 
 `ifdef PERF
 
-    reg valid;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid <= 1'b0;
-        end else begin
-            valid <= perf_valid;
-        end
-    end
-
     import "DPI-C" function void wb_inst_cycle_cal(input int pc, input int inst);
 
     always @(posedge clk) begin
-        if(valid) begin
-            wb_inst_cycle_cal(I_inst_addr, I_inst);
+        if(valid_r && (|inst_r1) && (|inst_addr_r1)) begin
+            wb_inst_cycle_cal(inst_addr_r1, inst_r1);
         end
     end
 
