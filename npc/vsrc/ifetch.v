@@ -60,7 +60,7 @@ module ysyx_25110270_ifetch
     //------------------------------------------------------------------------
 
     parameter IDLE  = 1'b0;
-    parameter EXE   = 1'b1;
+    parameter WAIT  = 1'b1;
 
     reg state;
 
@@ -72,7 +72,7 @@ module ysyx_25110270_ifetch
     wire [31:0] inst;
     wire [31:0] npc, pc_plus4;
 
-    wire req_valid_next = ~(state | resp_valid);
+    wire req_valid_next = ~state | (state & ~O_valid);
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -87,8 +87,8 @@ module ysyx_25110270_ifetch
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= resp_valid ? EXE : IDLE;
-                EXE:     state <= I_ready ? IDLE : EXE;
+                IDLE:    state <= WAIT;
+                WAIT:    state <= O_valid ? IDLE : WAIT;
                 default: state <= IDLE;
             endcase
         end
@@ -131,7 +131,7 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(!rst_n) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(state) begin     // exe
+        end else if(O_valid) begin     // WAIT
             pc <= npc;
         end
     end
