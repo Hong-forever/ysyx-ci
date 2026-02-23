@@ -48,7 +48,7 @@ module ysyx_25110270_regfile
                 regs[i] <= 0;
             end
         end else begin
-            if(I_rd_we && (|I_rd_waddr)) begin
+            if(I_rd_we && (I_rd_waddr != 0)) begin
                 regs[I_rd_waddr] <= I_rd_wdata;
             end
         end
