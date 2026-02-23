@@ -134,7 +134,7 @@ module ysyx_25110270_icache
         end
     end
 
-    wire refill_hit = state[2] && I_rvalid && I_addr[BLOCK_WIDTH+1:2] == refill_offset;
+    wire refill_hit = state[2] && I_rvalid && (I_addr[ADDR_WIDTH-1:2] == {miss_tag, miss_index, refill_offset});
     wire [DATA_WIDTH-1:0] refill_data = I_rdata;
 
     reg [DATA_WIDTH-1:0] odata_r;
