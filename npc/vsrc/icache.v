@@ -62,18 +62,15 @@ module ysyx_25110270_icache
     reg [2:0] state;
     reg [BLOCK_WIDTH-1:0] cnt;
 
-    reg way_hit;
+    wire hit;
     generate
         if (N_WAYS == 1) begin
-            always @(posedge clk) begin
-                way_hit <= (tag_mem[index] == tag) & valid_mem[index];
-            end
+            assign hit = (tag_mem[index] == tag) & valid_mem[index];
         end else begin
             // 多路情况，暂不实现
         end
     endgenerate
 
-    wire hit = way_hit;
 
     always @(posedge clk) begin
         if(rst) begin
