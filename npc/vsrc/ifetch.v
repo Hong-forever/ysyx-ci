@@ -62,37 +62,12 @@ module ysyx_25110270_ifetch
     parameter IDLE  = 1'b0;
     parameter WAIT  = 1'b1;
 
-    reg state;
-
     wire resp_valid;
-
-    reg req_valid;
 
     reg  [31:0] pc;
     wire [31:0] inst;
     wire [31:0] npc, pc_plus4;
 
-    wire req_valid_next = ~state | (state & ~O_valid);
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            req_valid <= 1'b0;
-        end else begin
-            req_valid <= req_valid_next;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            state <= IDLE;
-        end else begin
-            case(state)
-                IDLE:    state <= WAIT;
-                WAIT:    state <= O_valid ? IDLE : WAIT;
-                default: state <= IDLE;
-            endcase
-        end
-    end
 
     ysyx_25110270_icache 
     #(
@@ -106,7 +81,7 @@ module ysyx_25110270_ifetch
         .clk                    (clk                        ),
         .rst_n                  (rst_n                      ),
 
-        .I_valid                (req_valid                  ),
+        .I_valid                (I_ready                    ),
         .O_valid                (resp_valid                 ),
 
         .I_addr                 (pc                         ),
@@ -131,7 +106,7 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(!rst_n) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(O_valid) begin     // WAIT
+        end else if(resp_valid) begin     // WAIT
             pc <= npc;
         end
     end
@@ -145,7 +120,7 @@ module ysyx_25110270_ifetch
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = resp_valid & I_ready;
+    assign O_valid = resp_valid;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr  = 0;
