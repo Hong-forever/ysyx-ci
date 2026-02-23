@@ -388,6 +388,8 @@ module ysyx_25110270_cpu_core
         .I_wb_csr_we            (I_wb_csr_valid             ),
         .I_wb_csr_waddr         (I_wb_csr_addr              ),
 
+        .I_bru_taken            (O_ex_bru_taken             ),
+
         .O_stallreq             (stallreq_dec               )
     );
 

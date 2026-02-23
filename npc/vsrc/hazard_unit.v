@@ -32,6 +32,8 @@ module ysyx_25110270_hazard_unit
     input   wire                                    I_wb_csr_we,
     input   wire    [11:0                       ]   I_wb_csr_waddr,
 
+    input   wire                                    I_bru_taken,
+
     output  wire                                    O_stallreq
 );
 
@@ -53,6 +55,6 @@ module ysyx_25110270_hazard_unit
                         (I_ex_csr_we & (I_ex_csr_waddr == I_csr_raddr)) ? 1'b1 : 1'b0 :
                         1'b0;
 
-    assign O_stallreq = stallreq_rs1 | stallreq_rs2 | stallreq_csr;
+    assign O_stallreq = (stallreq_rs1 | stallreq_rs2 | stallreq_csr) & ~I_bru_taken;
 
 endmodule
