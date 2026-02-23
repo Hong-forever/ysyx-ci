@@ -7,7 +7,7 @@
 module ysyx_25110270_ifetch
 (
     input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                        rst,
 
     input   wire                        I_bru_taken,        //跳转指令
     input   wire    [31:0]              I_bru_target,
@@ -79,7 +79,7 @@ module ysyx_25110270_ifetch
     ) icache
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_valid                (I_ready                    ),
         .O_valid                (resp_valid                 ),
@@ -104,7 +104,7 @@ module ysyx_25110270_ifetch
     );
 
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
         end else if(resp_valid) begin     // WAIT
             if(I_flush) begin
@@ -147,7 +147,7 @@ module ysyx_25110270_ifetch
     wire end_flag   = ibus_rvalid && ibus_rready && ibus_rlast;
 
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             begin_flag_r <= 1'b0;
         end else begin
             begin_flag_r <= begin_flag;

@@ -6,7 +6,7 @@
 module ysyx_25110270_alu
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_alu_srca,
     input   wire    [31:0                       ]   I_alu_srcb,

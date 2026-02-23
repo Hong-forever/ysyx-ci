@@ -7,7 +7,7 @@
 module ysyx_25110270_decoder 
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,
     input   wire    [31:0                       ]   I_inst_addr,

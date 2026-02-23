@@ -67,7 +67,7 @@ module ysyx_25110270
 );
 
     wire clk = clock;
-    wire rst_n = ~reset;
+    wire rst = reset;
 
     //cpu core
     wire        cpu_awvalid;
@@ -134,7 +134,7 @@ module ysyx_25110270
     ysyx_25110270_cpu_core cpu_core
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .io_interrupt           (io_interrupt               ),
 
@@ -173,7 +173,7 @@ module ysyx_25110270
     ysyx_25110270_xbar xbar 
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .S_awvalid              (cpu_awvalid                ),
         .S_awready              (cpu_awready                ),
@@ -269,7 +269,7 @@ module ysyx_25110270
     ysyx_25110270_clint clint
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .awvalid_i              (clint_awvalid              ),
         .awready_o              (clint_awready              ),

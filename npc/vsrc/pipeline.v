@@ -7,7 +7,7 @@
 module ysyx_25110270_pipeline_if_dec
 (
     input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                        rst,
 
     input   wire    [31:0           ]   I_inst,             // 指令内容
     input   wire    [31:0           ]   I_inst_addr,        // 指令地址
@@ -20,7 +20,7 @@ module ysyx_25110270_pipeline_if_dec
 
 );
     always @(posedge clk) begin
-        if (!rst_n) begin
+        if(rst) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
         end else if(I_flush) begin
@@ -43,7 +43,7 @@ endmodule
 module ysyx_25110270_pipeline_dec_ex
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,             // 指令内容
     input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
@@ -93,7 +93,7 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    I_flush
 );
     always @(posedge clk) begin
-        if (!rst_n) begin
+        if(rst) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
             O_rs1_rdata     <= 0                        ;
@@ -172,7 +172,7 @@ endmodule
 module ysyx_25110270_pipeline_ex_ls
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,             // 指令内容
     input   wire    [31:0                       ]   I_inst_addr,
@@ -208,7 +208,7 @@ module ysyx_25110270_pipeline_ex_ls
     input   wire                                    I_flush
 );
     always @(posedge clk) begin
-        if (!rst_n) begin
+        if(rst) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;
@@ -266,7 +266,7 @@ endmodule
 module ysyx_25110270_pipeline_ls_wb
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,             // 指令内容
     input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
@@ -297,7 +297,7 @@ module ysyx_25110270_pipeline_ls_wb
 );
 
     always @(posedge clk) begin
-        if (!rst_n) begin
+        if(rst) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;

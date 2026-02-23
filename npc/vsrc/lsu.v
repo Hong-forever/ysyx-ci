@@ -7,7 +7,7 @@
 module ysyx_25110270_lsu
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,             //指令内容
     input   wire    [31:0                       ]   I_inst_addr,
@@ -81,7 +81,7 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     reg [31:0] rdata;
     always @(posedge clk) begin
-        if (!rst_n) begin
+        if(rst) begin
             rdata <= 0;
         end else if(dbus_rvalid) begin
             rdata <= dbus_rdata;
@@ -207,7 +207,7 @@ module ysyx_25110270_lsu
 
     reg req_valid;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             req_valid <= 1'b0;
         end else if(I_valid) begin
             req_valid <= 1'b1;
@@ -218,7 +218,7 @@ module ysyx_25110270_lsu
 
     reg data_avalid;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             data_avalid <= 0;
         end else if(I_ld_valid && dbus_arready || I_st_valid && dbus_awready) begin
             data_avalid <= 0;
@@ -232,7 +232,7 @@ module ysyx_25110270_lsu
 
     reg state;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             state <= IDLE;
         end else begin
             case(state)
@@ -347,7 +347,7 @@ module ysyx_25110270_lsu
     wire end_flag   = (dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready);
 
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             begin_flag_r <= 1'b0;
         end else begin
             begin_flag_r <= begin_flag;

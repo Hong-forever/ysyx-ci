@@ -7,7 +7,7 @@
 module ysyx_25110270_wbu
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,
     input   wire    [31:0                       ]   I_inst_addr,
@@ -60,7 +60,7 @@ module ysyx_25110270_wbu
     ysyx_25110270_regfile u_regfile
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_rs1_raddr            (I_rs1_raddr                ),
         .I_rs2_raddr            (I_rs2_raddr                ),
@@ -93,7 +93,7 @@ module ysyx_25110270_wbu
     ysyx_25110270_csr_reg u_csr_reg
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
@@ -125,7 +125,7 @@ module ysyx_25110270_wbu
 
     reg valid_r;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             valid_r <= 1'b0;
         end else begin
             valid_r <= I_valid;
@@ -160,7 +160,7 @@ module ysyx_25110270_wbu
     reg [31:0] pc;
     reg skip_r;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             inst_r1         <= 0;
             inst_addr_r1    <= 0;
             pc              <= 0;

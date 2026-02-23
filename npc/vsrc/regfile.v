@@ -7,7 +7,7 @@
 module ysyx_25110270_regfile
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs1_raddr,      //读寄存器1地址
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,      //读寄存器2地址
@@ -43,7 +43,7 @@ module ysyx_25110270_regfile
     integer i;
     //写寄存器
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             for(i = 1; i < `ysyx_25110270_RegNum; i = i + 1) begin
                 regs[i] <= 0;
             end
