@@ -20,10 +20,7 @@ module ysyx_25110270_pipeline_if_dec
 
 );
     always @(posedge clk) begin
-        if(rst) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-        end else if(I_flush) begin
+        if(rst | I_flush) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
         end else if(I_enable) begin
@@ -93,29 +90,7 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    I_flush
 );
     always @(posedge clk) begin
-        if(rst) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-            O_rs1_rdata     <= 0                        ;
-            O_rs2_rdata     <= 0                        ;
-            O_csr_rdata     <= 0                        ;
-            O_imm           <= 0                        ;
-            O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_op            <= 0                        ;
-            O_alu_srca_sel  <= 0                        ;
-            O_alu_srcb_sel  <= 0                        ;
-            O_agu_src_sel   <= 0                        ;
-            O_csr_src_sel   <= 0                        ;
-            O_ld_valid      <= 0                        ;
-            O_st_valid      <= 0                        ;
-            O_br_valid      <= 0                        ;
-            O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_f7b5_en       <= 0                        ;
-            O_sign          <= 0                        ;
-            O_except        <= 0                        ;
-        end else if(I_flush) begin
+        if(rst | I_flush) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
             O_rs1_rdata     <= 0                        ;
@@ -208,7 +183,7 @@ module ysyx_25110270_pipeline_ex_ls
     input   wire                                    I_flush
 );
     always @(posedge clk) begin
-        if(rst) begin
+        if(rst | I_flush) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;
@@ -222,22 +197,7 @@ module ysyx_25110270_pipeline_ex_ls
             O_csr_valid     <= 0                        ;
             O_csr_addr      <= 0                        ;
             O_csr_wdata     <= 0                        ;
-            O_except        <= 0                        ;
-        end else if(I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-            O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_rd_wdata      <= 0                        ;
-            O_memory_addr   <= 0                        ;
-            O_store_data    <= 0                        ;
-            O_ld_valid      <= 0                        ;
-            O_st_valid      <= 0                        ;
-            O_ls_ctrl       <= 0                        ;
-            O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_csr_wdata     <= 0                        ;
-            O_except        <= 0                        ;
+            O_except        <= 0                        ;;
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
