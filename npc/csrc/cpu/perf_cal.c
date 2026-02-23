@@ -91,6 +91,7 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
 extern "C" void wb_inst_cycle_cal(uint32_t pc, uint32_t inst) {
     static uint8_t flag = 0;
     if(pc != 0 && inst != 0 ) {
+        printf("WB Cal: PC=0x%08x, inst=0x%08x\n", pc, inst);
         flag = 1;
         act_wb_inst++;
         if(pc != inst_buffer[wb_inst % 5].pc) {
