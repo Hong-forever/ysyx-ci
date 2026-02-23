@@ -102,8 +102,6 @@ module ysyx_25110270_icache
     always @(posedge clk) begin
         if(!rst_n) begin
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
-                valid_mem[i] <= 0;
-                tag_mem[i] <= 0;
                 for(j=0; j < WORDS_PER_BLOCK; j = j + 1) begin
                     data_mem[i][j] <= 0;
                 end

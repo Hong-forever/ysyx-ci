@@ -43,14 +43,8 @@ module ysyx_25110270_regfile
     integer i;
     //写寄存器
     always @(posedge clk) begin
-        if(!rst_n) begin
-            for(i = 1; i < `ysyx_25110270_RegNum; i = i + 1) begin
-                regs[i] <= 0;
-            end
-        end else begin
-            if(I_rd_we && (|I_rd_waddr)) begin
-                regs[I_rd_waddr] <= I_rd_wdata;
-            end
+        if(I_rd_we && (|I_rd_waddr)) begin
+            regs[I_rd_waddr] <= I_rd_wdata;
         end
     end
 
