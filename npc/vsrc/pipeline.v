@@ -297,7 +297,7 @@ module ysyx_25110270_pipeline_ls_wb
 );
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(rst || I_flush) begin
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;
@@ -318,7 +318,7 @@ module ysyx_25110270_pipeline_ls_wb
             O_csr_addr      <= 0                        ;
             O_csr_wdata     <= 0                        ;
             O_except        <= 0                        ;
-            O_device_skip   <= 0                        ;
+            O_device_skip   <= 0                        ; 
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;

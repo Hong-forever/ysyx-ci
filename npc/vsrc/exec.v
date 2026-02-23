@@ -107,8 +107,6 @@ module ysyx_25110270_exec
 
     ysyx_25110270_alu alu
     (
-        .clk                        (clk                    ),
-        .rst                        (rst                    ),
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
         .I_sign                     (I_sign                 ),
