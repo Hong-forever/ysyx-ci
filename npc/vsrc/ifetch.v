@@ -120,7 +120,7 @@ module ysyx_25110270_ifetch
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = resp_valid;
+    assign O_valid = resp_valid & I_ready;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr  = 0;
