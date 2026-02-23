@@ -66,7 +66,7 @@ module ysyx_25110270_ifetch
 
     reg  [31:0] pc;
     wire [31:0] inst;
-    wire [31:0] npc, pc_plus4;
+    wire [31:0] pc_plus4;
 
 
     ysyx_25110270_icache 
@@ -107,15 +107,16 @@ module ysyx_25110270_ifetch
         if(!rst_n) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
         end else if(resp_valid) begin     // WAIT
-            pc <= npc;
+            if(I_flush) begin
+                pc <= I_flush_addr;
+            end else if(I_bru_taken) begin
+                pc <= I_bru_target;
+            end else begin
+                pc <= pc_plus4;
+            end
         end
     end
 
-    assign npc =    I_flush        ? I_flush_addr    :
-                    I_bru_taken    ? I_bru_target    :
-                    I_ready        ? pc_plus4        :
-                    pc;
-    
     assign pc_plus4 = pc + 32'h4;
 
     assign O_inst = inst;
