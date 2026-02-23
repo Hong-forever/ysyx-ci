@@ -6,7 +6,7 @@
 module ysyx_25110270_exec
 (
     input   wire                                        clk,
-    input   wire                                        rst_n,
+    input   wire                                        rst,
 
     input   wire    [31:0                           ]   I_inst,
     input   wire    [31:0                           ]   I_inst_addr,
@@ -107,8 +107,6 @@ module ysyx_25110270_exec
 
     ysyx_25110270_alu alu
     (
-        .clk                        (clk                    ),
-        .rst_n                      (rst_n                  ),
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
         .I_sign                     (I_sign                 ),

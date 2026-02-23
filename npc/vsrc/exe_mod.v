@@ -5,9 +5,6 @@
 //------------------------------------------------------------------------
 module ysyx_25110270_alu
 (
-    input   wire                                    clk,
-    input   wire                                    rst_n,
-
     input   wire    [31:0                       ]   I_alu_srca,
     input   wire    [31:0                       ]   I_alu_srcb,
     input   wire                                    I_sign,             // 有符号位

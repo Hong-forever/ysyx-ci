@@ -8,7 +8,7 @@ module ysyx_25110270_clint
     parameter DATA_WIDTH = 32                   //数据总线宽度
 )(
     input   wire                        clk,        //时钟输入
-    input   wire                        rst_n,      //复位输入
+    input   wire                        rst,      //复位输入
 
     // AXI接口
     input   wire                        awvalid_i,
@@ -47,7 +47,7 @@ module ysyx_25110270_clint
     reg [31:0] rdata;
     reg rdata_valid;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             rdata <= 0;
             rdata_valid <= 1'b0;
         end else begin
@@ -63,7 +63,7 @@ module ysyx_25110270_clint
 
     reg wdata_valid;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             wdata_valid <= 1'b0;
             mtime <= 64'b0;
         end else begin

@@ -7,7 +7,7 @@
 module ysyx_25110270_cpu_core
 (
     input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                        rst,
 
     input   wire                        io_interrupt,
 
@@ -272,7 +272,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_ifetch u_ifetch
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_bru_taken            (O_ex_bru_taken             ),
         .I_bru_target           (O_ex_bru_target            ),
@@ -323,7 +323,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_decoder u_decoder
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (I_dec_inst                 ),
         .I_inst_addr            (I_dec_inst_addr            ),
@@ -395,7 +395,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_exec u_exec
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (I_ex_inst                  ),
         .I_inst_addr            (I_ex_inst_addr             ),
@@ -450,7 +450,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_lsu u_lsu
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (I_ls_inst                  ),
         .I_inst_addr            (I_ls_inst_addr             ),
@@ -521,7 +521,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_wbu u_wbu
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (I_wb_inst                  ),
         .I_inst_addr            (I_wb_inst_addr             ),
@@ -561,7 +561,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_arbiter arbiter_inst 
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .M0_awvalid             (ibus_awvalid               ),
         .M0_awready             (ibus_awready               ),
@@ -667,7 +667,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_pipeline_if_dec u_pipeline_if_dec
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (O_if_inst                  ),
         .I_inst_addr            (O_if_inst_addr             ),
@@ -687,7 +687,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_pipeline_dec_ex u_pipeline_dec_ex
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (O_dec_inst                 ),
         .I_inst_addr            (O_dec_inst_addr            ),
@@ -743,7 +743,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_pipeline_ex_ls u_pipeline_ex_ls
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (O_ex_inst                  ),
         .I_inst_addr            (O_ex_inst_addr             ),
@@ -785,7 +785,7 @@ module ysyx_25110270_cpu_core
     ysyx_25110270_pipeline_ls_wb u_pipeline_ls_wb
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_inst                 (O_ls_inst                  ),
         .I_inst_addr            (O_ls_inst_addr             ),

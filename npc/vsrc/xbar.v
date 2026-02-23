@@ -8,7 +8,7 @@ module ysyx_25110270_xbar
     parameter M0_SIZE = 32'h0001_0000
 )(
     input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                        rst,
 
     input   wire                        S_awvalid,
     output  wire                        S_awready,

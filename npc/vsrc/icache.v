@@ -13,7 +13,7 @@ module ysyx_25110270_icache
 )
 (
     input                           clk,
-    input                           rst_n,
+    input                           rst,
     input                           I_valid,
     output                          O_valid,
     input       [ADDR_WIDTH-1:0]    I_addr,
@@ -76,7 +76,7 @@ module ysyx_25110270_icache
     wire hit = way_hit;
 
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             state <= IDLE;
         end else begin
             case(state)
@@ -91,7 +91,7 @@ module ysyx_25110270_icache
 
     reg clear_r;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             clear_r <= 1'b0;
         end else begin
             clear_r <= I_clear;
@@ -100,7 +100,7 @@ module ysyx_25110270_icache
 
     integer i, j;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
                 valid_mem[i] <= 0;
             end
@@ -110,9 +110,7 @@ module ysyx_25110270_icache
                 valid_mem[i] <= 0;
             end
         end else begin
-            if(state[0] & ~hit) begin
-                cnt <= 0;
-            end else if(state[2] && I_rvalid) begin
+            if(state[2] && I_rvalid) begin
                 data_mem[index][cnt] <= I_rdata;
                 cnt <= I_rlast ? 0 : cnt + 1;
                 tag_mem[index] <= tag;
@@ -125,7 +123,7 @@ module ysyx_25110270_icache
     reg ovalid_r;
 
     always @(*) begin
-        if(!rst_n) begin
+        if(rst) begin
             odata_r  = 0;
             ovalid_r = 1'b0;
         end else if(state[0] & hit) begin

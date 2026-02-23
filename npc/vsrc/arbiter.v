@@ -7,7 +7,7 @@
 module ysyx_25110270_arbiter
 (
     input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                        rst,
 
     input   wire                        M0_awvalid,
     output  wire                        M0_awready,
@@ -113,7 +113,7 @@ module ysyx_25110270_arbiter
     reg [1:0] state;
 
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             state <= IDLE;
         end else begin
             case(state)
