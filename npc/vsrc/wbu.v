@@ -14,6 +14,8 @@ module ysyx_25110270_wbu
     
     input   wire                                    I_valid,
 
+    input   wire                                    perf_valid,
+
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs1_raddr,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
     output  wire    [31:0                       ]   O_rs1_rdata,
@@ -209,10 +211,19 @@ module ysyx_25110270_wbu
 
 `ifdef PERF
 
+    reg valid;
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= perf_valid;
+        end
+    end
+
     import "DPI-C" function void wb_inst_cycle_cal(input int pc, input int inst);
 
     always @(posedge clk) begin
-        if(valid_r) begin
+        if(valid) begin
             wb_inst_cycle_cal(I_inst_addr, I_inst);
         end
     end

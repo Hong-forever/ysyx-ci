@@ -11,10 +11,11 @@ module ysyx_25110270_exec
     input   wire    [31:0                           ]   I_inst,
     input   wire    [31:0                           ]   I_inst_addr,
 
-    input   wire                                        I_valid,
     input   wire                                        I_ready,
     output  wire                                        O_ready,
     output  wire                                        O_valid,
+
+    input   wire                                        perf_valid,
 
     input   wire                                        I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus      ]   I_rd_waddr,
@@ -189,7 +190,7 @@ module ysyx_25110270_exec
         if(!rst_n) begin
             valid <= 1'b0;
         end else begin
-            valid <= I_valid;
+            valid <= perf_valid;
         end
     end
 

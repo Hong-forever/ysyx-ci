@@ -12,10 +12,11 @@ module ysyx_25110270_decoder
     input   wire    [31:0                       ]   I_inst,
     input   wire    [31:0                       ]   I_inst_addr,
     
-    input   wire                                    I_valid,
     input   wire                                    I_ready,
     output  wire                                    O_ready,
     output  wire                                    O_valid,
+
+    input   wire                                    perf_valid,
 
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
@@ -289,7 +290,7 @@ module ysyx_25110270_decoder
         if(!rst_n) begin
             valid <= 1'b0;
         end else begin
-            valid <= I_valid;
+            valid <= perf_valid;
         end
     end
 
