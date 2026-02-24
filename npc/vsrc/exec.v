@@ -25,19 +25,26 @@ module ysyx_25110270_exec
 
     input   wire                                        I_ld_valid,         //访存有效标志
     input   wire                                        I_st_valid,         //访存有效标志
-    input   wire                                        I_br_valid,        //跳转指令标志
+    input   wire                                        I_br_valid,         //跳转指令标志
     input   wire                                        I_csr_valid,        //CSR指令标志
     input   wire                                        I_f7b5_en,          //指令funct7=0x7b或0x5时有效
     input   wire                                        I_sign,             //有符号位
     input   wire    [2:0                            ]   I_op,
-
     input   wire    [11:0                           ]   I_csr_addr,
+    input   wire    [`ysyx_25110270_ExceptBus       ]   I_except,             //异常
+
+    input   wire    [1:0                            ]   I_fwd_ctrl_rs1,
+    input   wire    [1:0                            ]   I_fwd_ctrl_rs2,
+    input   wire    [1:0                            ]   I_fwd_ctrl_csr,
 
     input   wire    [31:0                           ]   I_rs1_rdata,
     input   wire    [31:0                           ]   I_rs2_rdata,
     input   wire    [31:0                           ]   I_csr_rdata,
 
-    input   wire    [`ysyx_25110270_ExceptBus       ]   I_except,           //异常
+    input   wire    [31:0                           ]   I_fwd_old_rs_data,      //转发的旧数据
+    input   wire    [31:0                           ]   I_fwd_old2_rs_data,     //转发的旧数据
+    input   wire    [31:0                           ]   I_fwd_old_csr_data,     //转发的旧数据
+    input   wire    [31:0                           ]   I_fwd_old2_csr_data,    //转发的旧数据
 
     output  wire    [31:0                           ]   O_inst,
     output  wire    [31:0                           ]   O_inst_addr,
@@ -62,6 +69,40 @@ module ysyx_25110270_exec
     output  wire    [31:0                           ]   O_bru_target
 
 );
+    //------------------------------------------------------------------------
+    // fwd选择
+    //------------------------------------------------------------------------
+    reg [31:0] final_rs1_rdata, final_rs2_rdata, final_csr_rdata;
+
+    always @(*) begin
+        case(I_fwd_ctrl_rs1)
+            `ysyx_25110270_FWDSRC_NOP   : final_rs1_rdata = 0;
+            `ysyx_25110270_FWDSRC_NFW   : final_rs1_rdata = I_rs1_rdata;
+            `ysyx_25110270_FWDSRC_EX    : final_rs1_rdata = I_fwd_old_rs_data;
+            `ysyx_25110270_FWDSRC_LS    : final_rs1_rdata = I_fwd_old2_rs_data;
+            default                     : final_rs1_rdata = 0;
+        endcase
+    end
+
+    always @(*) begin
+        case(I_fwd_ctrl_rs2)
+            `ysyx_25110270_FWDSRC_NOP   : final_rs2_rdata = 0;
+            `ysyx_25110270_FWDSRC_NFW   : final_rs2_rdata = I_rs2_rdata;
+            `ysyx_25110270_FWDSRC_EX    : final_rs2_rdata = I_fwd_old_rs_data;
+            `ysyx_25110270_FWDSRC_LS    : final_rs2_rdata = I_fwd_old2_rs_data;
+            default                     : final_rs2_rdata = 0;
+        endcase
+    end
+
+    always @(*) begin
+        case(I_fwd_ctrl_csr)
+            `ysyx_25110270_FWDSRC_NOP   : final_csr_rdata = 0;
+            `ysyx_25110270_FWDSRC_NFW   : final_csr_rdata = I_csr_rdata;
+            `ysyx_25110270_FWDSRC_EX    : final_csr_rdata = I_fwd_old_csr_data;
+            `ysyx_25110270_FWDSRC_LS    : final_csr_rdata = I_fwd_old2_csr_data;
+            default                     : final_csr_rdata = 0;
+        endcase
+    end
 
     //------------------------------------------------------------------------
     // src选择
@@ -72,7 +113,7 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_alu_srca_sel)
-            `ysyx_25110270_ALUSRCA_RS1: alu_srca = I_rs1_rdata;
+            `ysyx_25110270_ALUSRCA_RS1: alu_srca = final_rs1_rdata;
             `ysyx_25110270_ALUSRCA_PC:  alu_srca = I_inst_addr;
             default:                    alu_srca = 0;
         endcase
@@ -80,7 +121,7 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_alu_srcb_sel)
-            `ysyx_25110270_ALUSRCB_RS2: alu_srcb = I_rs2_rdata;
+            `ysyx_25110270_ALUSRCB_RS2: alu_srcb = final_rs2_rdata;
             `ysyx_25110270_ALUSRCB_IMM: alu_srcb = I_imm;
             `ysyx_25110270_ALUSRCB_4:   alu_srcb = 4;
             default:                    alu_srcb = 0;
@@ -89,13 +130,13 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_agu_src_sel)
-            `ysyx_25110270_AGUSRC_RS1:  agu_src = I_rs1_rdata;
+            `ysyx_25110270_AGUSRC_RS1:  agu_src = final_rs1_rdata;
             `ysyx_25110270_AGUSRC_PC:   agu_src = I_inst_addr;
             default:                    agu_src = 0;
         endcase
     end
 
-    wire [31:0] csr_src = I_csr_src_sel ? I_imm : I_rs1_rdata;
+    wire [31:0] csr_src = I_csr_src_sel ? I_imm : final_csr_rdata;
 
     //------------------------------------------------------------------------
     // alu运算
@@ -160,9 +201,9 @@ module ysyx_25110270_exec
 
     assign O_rd_we = I_rd_we;
     assign O_rd_waddr = I_rd_waddr;
-    assign O_rd_wdata = I_csr_valid ? I_csr_rdata : alu_result;
+    assign O_rd_wdata = I_csr_valid ? final_csr_rdata : alu_result;
     assign O_memory_addr = agu_result;
-    assign O_store_data = I_rs2_rdata;
+    assign O_store_data = final_rs2_rdata;
 
     assign O_ld_valid = I_ld_valid;
     assign O_st_valid = I_st_valid;
