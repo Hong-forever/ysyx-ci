@@ -64,6 +64,10 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    I_sign,             // 有符号位
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
 
+    input   wire    [1:0                        ]   I_fwd_ctrl_rs1,
+    input   wire    [1:0                        ]   I_fwd_ctrl_rs2,
+    input   wire    [1:0                        ]   I_fwd_ctrl_csr,
+
     output  reg     [31:0                       ]   O_inst,             // 指令内容
     output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
     output  reg     [31:0                       ]   O_rs1_rdata,        // 通用寄存器1读数据
@@ -85,6 +89,10 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg                                     O_f7b5_en,          // 指令funct7[5]有效标志
     output  reg                                     O_sign,             // 有符号位
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
+
+    output  reg     [1:0                        ]   O_fwd_ctrl_rs1,
+    output  reg     [1:0                        ]   O_fwd_ctrl_rs2,
+    output  reg     [1:0                        ]   O_fwd_ctrl_csr,
 
     input   wire                                    I_enable,
     input   wire                                    I_flush
@@ -112,6 +120,9 @@ module ysyx_25110270_pipeline_dec_ex
             O_f7b5_en       <= 0                        ;
             O_sign          <= 0                        ;
             O_except        <= 0                        ;
+            O_fwd_ctrl_rs1  <= 0                        ;
+            O_fwd_ctrl_rs2  <= 0                        ;
+            O_fwd_ctrl_csr  <= 0                        ;
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -133,7 +144,10 @@ module ysyx_25110270_pipeline_dec_ex
             O_csr_addr      <= I_csr_addr               ;
             O_f7b5_en       <= I_f7b5_en                ;
             O_sign          <= I_sign                   ;
-            O_except        <= I_except                 ;        
+            O_except        <= I_except                 ;
+            O_fwd_ctrl_rs1  <= I_fwd_ctrl_rs1           ;   
+            O_fwd_ctrl_rs2  <= I_fwd_ctrl_rs2           ;   
+            O_fwd_ctrl_csr  <= I_fwd_ctrl_csr           ;   
         end
     end
 
