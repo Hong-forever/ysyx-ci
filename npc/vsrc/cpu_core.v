@@ -130,12 +130,6 @@ module ysyx_25110270_cpu_core
 
     wire                                stallreq_dec;
 
-    wire [31:0                      ]   fwd_old_rs_data;
-    wire [31:0                      ]   fwd_old2_rs_data;
-    wire [31:0                      ]   fwd_old_csr_data;
-    wire [31:0                      ]   fwd_old2_csr_data;
-
-
     //-------------------------------------------------------------
     // exec
     //-------------------------------------------------------------
@@ -438,10 +432,10 @@ module ysyx_25110270_cpu_core
         .I_rs2_rdata            (I_ex_rs2_rdata             ),
         .I_csr_rdata            (I_ex_csr_rdata             ),
 
-        .I_fwd_old_rs_data      (fwd_old_rs_data            ),
-        .I_fwd_old2_rs_data     (fwd_old2_rs_data           ),
-        .I_fwd_old_csr_data     (fwd_old_csr_data           ),
-        .I_fwd_old2_csr_data    (fwd_old2_csr_data          ),
+        .I_fwd_old_rs_data      (I_ls_rd_wdata              ),
+        .I_fwd_old2_rs_data     (I_wb_rd_wdata              ),
+        .I_fwd_old_csr_data     (I_ls_csr_wdata             ),
+        .I_fwd_old2_csr_data    (I_wb_csr_wdata             ),
 
         .O_inst                 (O_ex_inst                  ),
         .O_inst_addr            (O_ex_inst_addr             ),
@@ -755,8 +749,8 @@ module ysyx_25110270_cpu_core
         .O_fwd_ctrl_rs2         (ex_fwd_ctrl_rs2            ),
         .O_fwd_ctrl_csr         (ex_fwd_ctrl_csr            ),
 
-        .I_enable               (dec_enable                 ),
-        .I_flush                (dec_flush                  )
+        .I_enable               (dec_enable                  ),
+        .I_flush                (dec_flush                   )
     );
 
     wire ex_enable = (O_ex_valid & cpu_execute) | dec_buble;
@@ -796,8 +790,6 @@ module ysyx_25110270_cpu_core
         .O_csr_addr             (I_ls_csr_addr              ),
         .O_csr_wdata            (I_ls_csr_wdata             ),
         .O_except               (I_ls_except                ),
-        .O_fwd_rs_data          (fwd_old_rs_data            ),
-        .O_fwd_csr_data         (fwd_old_csr_data           ),
 
         .I_enable               (ex_enable                  ),
         .I_flush                (ex_flush                   )
@@ -832,8 +824,6 @@ module ysyx_25110270_cpu_core
         .O_csr_addr             (I_wb_csr_addr              ),
         .O_csr_wdata            (I_wb_csr_wdata             ),
         .O_except               (I_wb_except                ),
-        .O_fwd_rs_data          (fwd_old2_rs_data           ),
-        .O_fwd_csr_data         (fwd_old2_csr_data          ),
 
         .O_device_skip          (wbu_device_skip            ),
 
