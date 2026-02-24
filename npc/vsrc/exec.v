@@ -136,7 +136,7 @@ module ysyx_25110270_exec
         endcase
     end
 
-    wire [31:0] csr_src = I_csr_src_sel ? I_imm : final_csr_rdata;
+    wire [31:0] csr_src = I_csr_src_sel ? I_imm : final_rs1_rdata;
 
     //------------------------------------------------------------------------
     // alu运算
