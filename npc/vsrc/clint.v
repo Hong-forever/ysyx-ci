@@ -44,18 +44,14 @@ module ysyx_25110270_clint
 
     reg [2*DATA_WIDTH-1:0] mtime;
 
-    reg [31:0] rdata;
     reg rdata_valid;
     always @(posedge clk) begin
         if(rst) begin
-            rdata <= 0;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
-                rdata <= 0;
                 rdata_valid <= 1'b0;
             end else if(arvalid_i) begin
-                rdata <= araddr_i[2] ? mtime[63:32] : mtime[31:0];
                 rdata_valid <= 1'b1;
             end
         end
@@ -76,7 +72,7 @@ module ysyx_25110270_clint
     assign bid_o     = 4'b0000;
     assign arready_o = 1'b1;
     assign rvalid_o  = rdata_valid;
-    assign rdata_o   = rdata;
+    assign rdata_o   = araddr_i[2] ? mtime[63:32] : mtime[31:0];
     assign rresp_o   = 2'b00;
     assign rlast_o   = 1'b1;
     assign rid_o     = 4'b0000;

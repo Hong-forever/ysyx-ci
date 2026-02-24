@@ -59,7 +59,6 @@ module ysyx_25110270_icache
 
 
     reg [2:0] state;
-    reg [BLOCK_WIDTH-1:0] cnt;
 
     wire hit;
     generate
@@ -99,15 +98,13 @@ module ysyx_25110270_icache
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
                 valid_mem[i] <= 0;
             end
-            cnt <= 0;
         end else if(I_clear && !clear_r) begin
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
                 valid_mem[i] <= 0;
             end
         end else begin
             if(state[1] && I_rvalid) begin
-                data_mem[index][cnt] <= I_rdata;
-                cnt <= I_rlast ? 0 : cnt + 1;
+                data_mem[index][I_rlast] <= I_rdata;
                 tag_mem[index] <= tag;
                 valid_mem[index] <= I_rlast;
             end
@@ -117,16 +114,27 @@ module ysyx_25110270_icache
     reg [DATA_WIDTH-1:0] odata_r;
     reg ovalid_r;
 
-    always @(*) begin
+    // always @(*) begin
+    //     if(rst) begin
+    //         ovalid_r = 1'b0;
+    //         odata_r = 0;
+    //     end else if(I_valid && hit) begin
+    //         ovalid_r = 1'b1;
+    //         odata_r = data_mem[index][offset];
+    //     end else begin
+    //         ovalid_r = 1'b0;
+    //         odata_r = 0;
+    //     end
+    // end
+
+    always @(posedge clk) begin
         if(rst) begin
-            odata_r  = 0;
-            ovalid_r = 1'b0;
-        end else if(I_valid & hit) begin
-            odata_r = data_mem[index][offset];
-            ovalid_r = 1'b1;
+            ovalid_r <= 1'b0;
+        end else if(I_valid & hit & !ovalid_r) begin
+            odata_r <= data_mem[index][offset];
+            ovalid_r <= 1'b1;
         end else begin
-            odata_r  = 0;
-            ovalid_r = 1'b0;
+            ovalid_r <= 1'b0;
         end
     end
 

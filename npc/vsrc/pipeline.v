@@ -99,30 +99,13 @@ module ysyx_25110270_pipeline_dec_ex
 );
     always @(posedge clk) begin
         if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-            O_rs1_rdata     <= 0                        ;
-            O_rs2_rdata     <= 0                        ;
-            O_csr_rdata     <= 0                        ;
-            O_imm           <= 0                        ;
             O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_op            <= 0                        ;
-            O_alu_srca_sel  <= 0                        ;
-            O_alu_srcb_sel  <= 0                        ;
-            O_agu_src_sel   <= 0                        ;
-            O_csr_src_sel   <= 0                        ;
             O_ld_valid      <= 0                        ;
             O_st_valid      <= 0                        ;
             O_br_valid      <= 0                        ;
             O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_f7b5_en       <= 0                        ;
-            O_sign          <= 0                        ;
             O_except        <= 0                        ;
-            O_fwd_ctrl_rs1  <= 0                        ;
-            O_fwd_ctrl_rs2  <= 0                        ;
-            O_fwd_ctrl_csr  <= 0                        ;
+            O_inst_addr     <= 0                        ; //dpic debug
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -198,20 +181,12 @@ module ysyx_25110270_pipeline_ex_ls
 );
     always @(posedge clk) begin
         if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_rd_wdata      <= 0                        ;
-            O_memory_addr   <= 0                        ;
-            O_store_data    <= 0                        ;
             O_ld_valid      <= 0                        ;
             O_st_valid      <= 0                        ;
-            O_ls_ctrl       <= 0                        ;
             O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_csr_wdata     <= 0                        ;
-            O_except        <= 0                        ;;
+            O_except        <= 0                        ;
+            O_inst_addr     <= 0                        ; //dpic debug
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -272,16 +247,10 @@ module ysyx_25110270_pipeline_ls_wb
 
     always @(posedge clk) begin
         if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_rd_wdata      <= 0                        ;
             O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_csr_wdata     <= 0                        ;
             O_except        <= 0                        ;
-            O_device_skip   <= 0                        ;
+            O_inst_addr     <= 0                        ; //dpic debug
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
