@@ -203,7 +203,7 @@ module ysyx_25110270_exec
     assign O_rd_waddr = I_rd_waddr;
     assign O_rd_wdata = I_csr_valid ? final_csr_rdata : alu_result;
     assign O_memory_addr = agu_result;
-    assign O_store_data = I_rs2_rdata;
+    assign O_store_data = final_rs2_rdata;
 
     assign O_ld_valid = I_ld_valid;
     assign O_st_valid = I_st_valid;
