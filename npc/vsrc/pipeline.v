@@ -105,6 +105,7 @@ module ysyx_25110270_pipeline_dec_ex
             O_br_valid      <= 0                        ;
             O_csr_valid     <= 0                        ;
             O_except        <= 0                        ;
+            O_inst_addr     <= 0                        ; //dpic debug
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -185,6 +186,7 @@ module ysyx_25110270_pipeline_ex_ls
             O_st_valid      <= 0                        ;
             O_csr_valid     <= 0                        ;
             O_except        <= 0                        ;
+            O_inst_addr     <= 0                        ; //dpic debug
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
