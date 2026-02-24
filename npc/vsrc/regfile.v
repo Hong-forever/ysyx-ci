@@ -56,7 +56,9 @@ module ysyx_25110270_regfile
 
     reg [31:0] rs1_rdata, rs2_rdata;
     always @(*) begin
-        if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
+        if(I_rs1_raddr == 0) begin
+            rs1_rdata = 0;
+        end else if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
             rs1_rdata = I_rd_wdata;
         end else begin
             rs1_rdata = regs[I_rs1_raddr];
@@ -64,7 +66,9 @@ module ysyx_25110270_regfile
     end
 
     always @(*) begin
-        if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
+        if(I_rs2_raddr == 0) begin
+            rs2_rdata = 0;
+        end else if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
             rs2_rdata = I_rd_wdata;
         end else begin
             rs2_rdata = regs[I_rs2_raddr];
