@@ -1,22 +1,8 @@
-.DEFAULT_GOAL := all
 
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
-
-USE_NVBOARD = 0
-
-# ifeq ($(USE_NVBOARD),1)
-# WAVE_ENABLE = 0
-# else
-WAVE_ENABLE = 0
-# endif
-# 1: vcd, 2: fst
-WAVE_FORMAT = 1
-
-GUEST_ISA = riscv32
-
-ifeq ($(USE_NVBOARD),1)
+ifneq ($(CONFIG_USE_NVBOARD),)
 NXDC_FILES = constr/top.nxdc
 
 # rules for NVBoard
@@ -24,7 +10,9 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 endif
 
-TOPNAME = ysyxSoCFull
+TOPNAME = top
+
+GUEST_ISA ?= riscv32
 
 remove_quote = $(patsubst "%",%,$(1))
 
@@ -32,18 +20,15 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
-				-O3 --x-assign fast --x-initial fast -j 8
-VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
+VERILATOR_CFLAGS += -MMD --build -cc  \
+				-O3 --x-assign fast --x-initial fast -j 4
 
-ifeq ($(SOC),1)
-VERILATOR_CFLAGS += -DSOC=1
-endif
 VERILATOR_CFLAGS += -I./vsrc
-VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
-VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
+WAVE_ENABLE ?= 0
+# 1: vcd, 2: fst
+WAVE_FORMAT ?= 1
 
 ifeq ($(WAVE_FORMAT),1)
 VERILATOR_CFLAGS += --trace-vcd
@@ -53,9 +38,9 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave -o $(NPC_HOME)/build/waveform.vcd
+	@gtkwave ${NPC_HOME}/build/waveform.vcd
 else
-	@gtkwave -o $(NPC_HOME)/build/waveform.fst
+	@gtkwave ${NPC_HOME}/build/waveform.fst
 endif
 
 BUILD_DIR = ./build
@@ -64,12 +49,12 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(NPC_HOME)/scripts/difftest.mk
 
-IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+NPC_EXEC := $(BIN) $(IMG)
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-sim: $(BIN) $(IMG)
+sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
@@ -77,14 +62,9 @@ else
 	$(BIN) $(ARGS) $(IMG)
 endif
 
-perf: 
-	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
-
-
 $(shell mkdir -p $(BUILD_DIR))
 
-ifeq ($(USE_NVBOARD),1)
+ifneq ($(CONFIG_USE_NVBOARD),)
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -98,13 +78,8 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
-VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "*.v")
-
-VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
-VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
-
-ifeq ($(USE_NVBOARD),1)
-CSRCS-y += $(SRC_AUTO_BIND)
+ifneq ($(CONFIG_USE_NVBOARD),)
+CSRCS-BLACKLIST-y += $(SRC_AUTO_BIND)
 endif
 
 VSRCS-BLACKLIST-y += $(VSRCS-BLACKLIST)
@@ -112,26 +87,15 @@ CSRCS-BLACKLIST-y += $(CSRCS-BLACKLIST)
 VSRCS := $(filter-out $(VSRCS-BLACKLIST-y),$(VSRCS-y))
 CSRCS := $(filter-out $(CSRCS-BLACKLIST-y),$(CSRCS-y))
 
-
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
-ifeq ($(USE_NVBOARD),1)
-CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
-endif
 CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
-CXXFLAGS += -mcmodel=medium
-CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
-ifeq ($(USE_NVBOARD),1)
-CXXFLAGS += -DCONFIG_USE_NVBOARD=1
-endif
+CXXFLAGS += -DTOP_NAME="V$(TOPNAME)" 
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
-ifeq ($(SOC),1)
-CXXFLAGS += -DSOC=1
-endif
 
 # CXXFLAGS += -fpermissive
 
@@ -144,6 +108,7 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
+all: run
 
 ifeq ($(WAVE_ENABLE),1)
 run: sim view_wave
@@ -151,10 +116,10 @@ else
 run: sim
 endif
 
-all: run
+
 
 include $(NPC_HOME)/scripts/config.mk
-include $(NPC_HOME)/scripts/yosys_sta.mk
+include $(NPC_HOME)/scripts/sta/yosys_sta.mk
 
 
 clean: 

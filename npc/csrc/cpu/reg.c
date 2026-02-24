@@ -19,7 +19,10 @@ extern "C" void cpu_value(int diff_skip, int valid, int inst, int inst_addr, int
                           int gpr4, int gpr5, int gpr6, int gpr7,
                           int gpr8, int gpr9, int gpr10, int gpr11,
                           int gpr12, int gpr13, int gpr14, int gpr15,
-
+                          int gpr16, int gpr17, int gpr18, int gpr19,
+                          int gpr20, int gpr21, int gpr22, int gpr23,
+                          int gpr24, int gpr25, int gpr26, int gpr27,
+                          int gpr28, int gpr29, int gpr30, int gpr31,
                           int mepc, int mtvec, int mstatus,
                           int mcause, int mcyclel, int mcycleh,
                           int mvendorid, int marchid)
@@ -51,6 +54,22 @@ extern "C" void cpu_value(int diff_skip, int valid, int inst, int inst_addr, int
     cpu.gpr[13] = gpr13;
     cpu.gpr[14] = gpr14;
     cpu.gpr[15] = gpr15;
+    cpu.gpr[16] = gpr16;
+    cpu.gpr[17] = gpr17;
+    cpu.gpr[18] = gpr18;
+    cpu.gpr[19] = gpr19;
+    cpu.gpr[20] = gpr20;
+    cpu.gpr[21] = gpr21;
+    cpu.gpr[22] = gpr22;
+    cpu.gpr[23] = gpr23;
+    cpu.gpr[24] = gpr24;
+    cpu.gpr[25] = gpr25;
+    cpu.gpr[26] = gpr26;
+    cpu.gpr[27] = gpr27;
+    cpu.gpr[28] = gpr28;
+    cpu.gpr[29] = gpr29;
+    cpu.gpr[30] = gpr30;
+    cpu.gpr[31] = gpr31;
 
     cpu.csr.mepc = mepc;
     cpu.csr.mtvec = mtvec;
@@ -75,7 +94,7 @@ extern "C" void cpu_value(int diff_skip, int valid, int inst, int inst_addr, int
 void reg_display()
 {
     printf("[NPC:  PC]  : 0x%08x\n", cpu.pc);
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 32; i++) {
         printf("gpr[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
 
@@ -92,7 +111,7 @@ word_t reg_str2val(const char *s, bool *success)
     if (s[0] == '$')
         s++;
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 32; i++) {
         if (strcmp(s, regs[i]) == 0) {
             return cpu.gpr[i];
         }
@@ -135,7 +154,7 @@ bool difftest_checkregs(CPU_state *ref_r, paddr_t pc)
 
     CHECKDIFF(pc, "pc");
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 32; i++) {
         CHECKDIFF(gpr[i], "gpr[%02d]-%s", i, regs[i]);
     }
 

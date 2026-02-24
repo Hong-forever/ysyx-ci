@@ -4,63 +4,69 @@
 // 写回单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_wbu
+module wbu
 (
-    input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                        clk,
+    input   wire                        rst_n,
 
-    input   wire    [31:0                       ]   I_inst,
-    input   wire    [31:0                       ]   I_inst_addr,
+    input   wire    [`InstBus       ]   I_inst,
+    input   wire    [`InstAddrBus   ]   I_inst_addr,
     
-    input   wire                                    I_valid,
+    output  wire                        O_ready,
 
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs1_raddr,
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
-    output  wire    [31:0                       ]   O_rs1_rdata,
-    output  wire    [31:0                       ]   O_rs2_rdata,
-    input   wire    [11:0                       ]   I_csr_raddr,
-    output  wire    [31:0                       ]   O_csr_rdata,
+    // regfile
+    input   wire    [`RegAddrBus    ]   I_rs1_raddr,
+    input   wire    [`RegAddrBus    ]   I_rs2_raddr,
+    output  wire    [`RegDataBus    ]   O_rs1_rdata,
+    output  wire    [`RegDataBus    ]   O_rs2_rdata,
 
-    input   wire                                    I_rd_we,
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
-    input   wire    [31:0                       ]   I_rd_wdata,
+    input   wire                        I_rd_we,
+    input   wire    [`RegAddrBus    ]   I_rd_waddr,
+    input   wire    [`RegDataBus    ]   I_rd_wdata,
 
-    input   wire                                    I_csr_valid,
-    input   wire    [11:0                       ]   I_csr_waddr,
-    input   wire    [31:0                       ]   I_csr_wdata,
+    // csr reg
+    input   wire    [`CSRAddrBus    ]   I_csr_raddr,
+    output  wire    [`CSRDataBus    ]   O_csr_rdata,
 
-    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
-    input   wire    [31:0                       ]   I_except_addr,
+    input   wire                        I_csr_we,
+    input   wire    [`CSRAddrBus    ]   I_csr_waddr,
+    input   wire    [`CSRDataBus    ]   I_csr_wdata,
 
-    input   wire    [31:0                       ]   I_next_inst_addr,
+    input   wire    [`Except_Bus    ]   I_except,
+    input   wire    [`InstAddrBus   ]   I_except_addr,
 
-    output  wire                                    O_flush,
-    output  wire    [31:0                       ]   O_flush_addr,
+    input   wire    [`InstAddrBus   ]   I_next_inst_addr,
 
-    input   wire    [31:0                       ]   I_if_addr,
-    input   wire    [31:0                       ]   I_dec_addr,
-    input   wire    [31:0                       ]   I_ex_addr,
-    input   wire    [31:0                       ]   I_ls_addr,
+    output  wire                        O_flush,
+    output  wire    [`InstAddrBus   ]   O_flush_addr,
 
-    input   wire                                    I_device_skip
+    input   wire    [`InstAddrBus   ]   I_if_addr,
+    input   wire    [`InstAddrBus   ]   I_dec_addr,
+    input   wire    [`InstAddrBus   ]   I_ex_addr,
+    input   wire    [`InstAddrBus   ]   I_ls_addr,
+
+    input   wire                        I_device_skip
 );
     // registers for DPI
-    wire [31:0] gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7, gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15, gpr16, gpr17, gpr18, gpr19, gpr20, gpr21, gpr22, gpr23, gpr24, gpr25, gpr26, gpr27, gpr28, gpr29, gpr30, gpr31;   //寄存器组
+    wire [`RegDataBus] gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7, gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15, gpr16, gpr17, gpr18, gpr19, gpr20, gpr21, gpr22, gpr23, gpr24, gpr25, gpr26, gpr27, gpr28, gpr29, gpr30, gpr31;   //寄存器组
 
     // csr reg output for dpi
-    wire [31:0] csr_mtvec;
-    wire [31:0] csr_mepc;
-    wire [31:0] csr_mstatus;
-    wire [31:0] csr_mcause;
-    wire [31:0] csr_mcyclel;
-    wire [31:0] csr_mcycleh;
-    wire [31:0] csr_mvendorid;
-    wire [31:0] csr_marchid;
+    wire [`CSRDataBus] csr_mtvec;
+    wire [`CSRDataBus] csr_mepc;
+    wire [`CSRDataBus] csr_mstatus;
+    wire [`CSRDataBus] csr_mcause;
+    wire [`CSRDataBus] csr_mcyclel;
+    wire [`CSRDataBus] csr_mcycleh;
+    wire [`CSRDataBus] csr_mvendorid;
+    wire [`CSRDataBus] csr_marchid;
 
-    ysyx_25110270_regfile u_regfile
+    regfile u_regfile
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
+
+        .I_inst                 (I_inst                     ),
+        .I_inst_addr            (I_inst_addr                ),
 
         .I_rs1_raddr            (I_rs1_raddr                ),
         .I_rs2_raddr            (I_rs2_raddr                ),
@@ -87,18 +93,34 @@ module ysyx_25110270_wbu
         .O_gpr12                (gpr12                      ),
         .O_gpr13                (gpr13                      ),
         .O_gpr14                (gpr14                      ),
-        .O_gpr15                (gpr15                      )
+        .O_gpr15                (gpr15                      ),
+        .O_gpr16                (gpr16                      ),
+        .O_gpr17                (gpr17                      ),
+        .O_gpr18                (gpr18                      ),
+        .O_gpr19                (gpr19                      ),
+        .O_gpr20                (gpr20                      ),
+        .O_gpr21                (gpr21                      ),
+        .O_gpr22                (gpr22                      ),
+        .O_gpr23                (gpr23                      ),
+        .O_gpr24                (gpr24                      ),
+        .O_gpr25                (gpr25                      ),
+        .O_gpr26                (gpr26                      ),
+        .O_gpr27                (gpr27                      ),
+        .O_gpr28                (gpr28                      ),
+        .O_gpr29                (gpr29                      ),
+        .O_gpr30                (gpr30                      ),
+        .O_gpr31                (gpr31                      )
     );
 
-    ysyx_25110270_csr_reg u_csr_reg
+    csr_reg u_csr_reg
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
 
-        .I_we                   (I_csr_valid                ),
+        .I_we                   (I_csr_we                   ),
         .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 
@@ -120,27 +142,10 @@ module ysyx_25110270_wbu
         .O_csr_marchid          (csr_marchid                )  //marchid寄存器
     );
 
+    assign O_ready = 1'b1;
+
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
-
-    reg valid_r;
-    always @(posedge clk) begin
-        if(rst) begin
-            valid_r <= 1'b0;
-        end else begin
-            valid_r <= I_valid;
-        end
-    end
-
-    `ifdef SOC
-        initial begin
-            $display("VERILOG enabled SOC! Reset vector: 0x%h", `ysyx_25110270_RESET_VECTOR);
-        end
-    `else 
-        initial begin
-            $display("VERILOG enabled NPC! Reset vector: 0x%h", `ysyx_25110270_RESET_VECTOR);
-        end
-    `endif
 
     import "DPI-C" function void trap(input int reg_data, input int halt_pc);
 
@@ -148,43 +153,54 @@ module ysyx_25110270_wbu
         input int gpr0, input int gpr1, input int gpr2, input int gpr3, 
         input int gpr4, input int gpr5, input int gpr6, input int gpr7, 
         input int gpr8, input int gpr9, input int gpr10, input int gpr11, 
-        input int gpr12, input int gpr13, input int gpr14, input int gpr15,
+        input int gpr12, input int gpr13, input int gpr14, input int gpr15, 
+        input int gpr16, input int gpr17, input int gpr18, input int gpr19, 
+        input int gpr20, input int gpr21, input int gpr22, input int gpr23,
+        input int gpr24, input int gpr25, input int gpr26, input int gpr27, 
+        input int gpr28, input int gpr29, input int gpr30, input int gpr31,
 
         input int mepc, input int mtvec, input int mstatus, 
         input int mcause, input int mcyclel, input int mcycleh, 
         input int mvendorid, input int marchid
     );
 
-    reg [31:0] inst_r1;
-    reg [31:0] inst_addr_r1;
-    reg [31:0] pc;
+    reg [`InstBus] inst_r1, inst_r2;
+    reg [`InstAddrBus] inst_addr_r1, inst_addr_r2;
+    reg [`InstAddrBus] pc;
     reg skip_r;
-    always @(posedge clk) begin
-        if(rst) begin
-            inst_r1         <= 0;
-            inst_addr_r1    <= 0;
-            pc              <= 0;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            inst_r1         <= `Zero;
+            inst_addr_r1    <= `Zero;
+            inst_r2         <= `Zero;
+            inst_addr_r2    <= `Zero;
+            pc              <= `Zero;
             skip_r          <= 1'b0;
         end else begin
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
+            inst_r2         <= inst_r1;
+            inst_addr_r2    <= inst_addr_r1;
             pc              <= O_flush ? O_flush_addr :
-                               (I_ls_addr == 0 ? 
-                               (I_ex_addr == 0 ? 
-                               (I_dec_addr == 0 ? I_if_addr : I_dec_addr) 
+                               (I_ls_addr == `Zero ? 
+                               (I_ex_addr == `Zero ? 
+                               (I_dec_addr == `Zero ? I_if_addr : I_dec_addr) 
                                : I_ex_addr) 
                                : I_ls_addr);
             skip_r          <= I_device_skip;
         end
     end
 
-    always @(posedge clk) begin
-        if(valid_r && (|inst_r1) && (|inst_addr_r1)) begin
+    always @(*) begin
+
+        if((inst_r1 != `Zero && inst_addr_r1 != `Zero) && (inst_r2 != inst_r1 || inst_addr_r2 != inst_addr_r1) ) begin
             cpu_value
             (
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 
                 gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7,
                 gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15,
+                gpr16, gpr17, gpr18, gpr19, gpr20, gpr21, gpr22, gpr23,
+                gpr24, gpr25, gpr26, gpr27, gpr28, gpr29, gpr30, gpr31,
 
                 csr_mepc, csr_mtvec, csr_mstatus, 
                 csr_mcause, csr_mcyclel, csr_mcycleh,
@@ -192,31 +208,11 @@ module ysyx_25110270_wbu
             );
         end
 
-        if(inst_r1 == `ysyx_25110270_RV_EBREAK) begin
+        if(inst_r1 == `RV_EBREAK) begin
             trap(gpr10, inst_addr_r1); // a0
         end
 
     end
-`endif
-
-`ifdef DEBUG
-    always @(posedge clk) begin
-        if(valid_r & inst_r1 == 0 && inst_addr_r1 != 0) begin
-            $error("Error: inst is 0 at addr %h!", inst_addr_r1);
-        end
-    end
-`endif
-
-`ifdef PERF
-
-    import "DPI-C" function void wb_inst_cycle_cal(input int pc, input int inst);
-
-    always @(posedge clk) begin
-        if(valid_r && (|inst_r1) && (|inst_addr_r1)) begin
-            wb_inst_cycle_cal(inst_addr_r1, inst_r1);
-        end
-    end
-
 `endif
 
 endmodule

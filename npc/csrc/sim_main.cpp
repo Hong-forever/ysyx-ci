@@ -1,14 +1,12 @@
 #include "common.h"
-#include "utils.h"
 
 
-void cpu_reset(int n);
+void reset(int n);
 void init_monitor(int argc, char *argv[]);
 void engine_start();
 void cleanup_ftrace();
 int is_exit_status_bad();
 
-IFDEF(CONFIG_USE_NVBOARD, void nvboard_bind_all_pins(TOP_NAME *top));
 IFDEF(CONFIG_USE_NVBOARD, void nvboard());
 
 VerilatedContext *contextp = new VerilatedContext;
@@ -38,19 +36,7 @@ int main(int argc, char *argv[])
 
     init_monitor(argc, argv);
 
-#if WAVE_ENABLE == 1
-    printf("Waveform generation " COLOR_GREEN "%s" COLOR_END "\n", "ON");
-#else
-    printf("Waveform generation " COLOR_RED "%s" COLOR_END "\n", "OFF");
-#endif
-
-#ifdef SOC
-    printf("SIMULATOR is running in SOC mode! Reset vector: 0x%08x\n", RESET_VECTOR);
-#else
-    printf("SIMULATOR is running in NPC mode! Reset vector: 0x%08x\n", RESET_VECTOR);
-#endif
-
-    cpu_reset(20);
+    reset(10);
 
     engine_start();
     

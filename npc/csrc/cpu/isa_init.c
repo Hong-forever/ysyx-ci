@@ -13,5 +13,6 @@ uint8_t *guest_to_host(paddr_t paddr);
 void init_isa()
 {
     /* Load built-in image. */
+    // printf("%x\n", RESET_VECTOR);
     memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 }

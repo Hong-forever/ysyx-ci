@@ -49,6 +49,9 @@ void *malloc(size_t size) {
     addr += size;
 
     return ret;
+
+
+    return NULL;
 }
 
 void free(void *ptr) {

@@ -17,16 +17,12 @@ extern char _pmem_start;
 })
 
 #define SERIAL_PORT     0x10000000
-#define RTC_PORT        0x02000000
-#define KBD_PORT        0x10011000
-#define VGA_PORT        0x21000000
+#define RTC_PORT        0x20000000
 
-#define CSR_MVENDORID   0xF11
-#define CSR_MARCHID     0xF12
+#define CSR_MVENDORID 0xF11
+#define CSR_MARCHID   0xF12
 
-#define YSYX_LOGO       0x79737978 //ysyx的logo
-#define YSYX_STU_NUM    0x25110270 //我的学号-25110270
-
-#define VERSION         "NPC"
+#define YSYX_LOGO      0x79737978 //ysyx的logo
+#define YSYX_STU_NUM   0x25110270 //我的学号-25110270
 
 #endif

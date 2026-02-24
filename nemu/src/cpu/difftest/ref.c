@@ -25,7 +25,7 @@ typedef struct {
     word_t mtvec;
 } CPU_DIFF_REF_CSR_STATE;
 typedef struct {
-    word_t gpr[16];
+    word_t gpr[32];
     word_t pc;
     CPU_DIFF_REF_CSR_STATE csr;
 } CPU_DIFF_REF_STATE;
@@ -45,7 +45,7 @@ __EXPORT void difftest_regcpy(void *dut, bool direction)
     if (direction == DIFFTEST_TO_REF) {
         // printf("difftest_regcpy to ref: pc=0x%08x, dutpc = 0x%08x\n", cpu.pc, ((CPU_DIFF_REF_STATE *)dut)->pc);
         cpu.pc = ((CPU_DIFF_REF_STATE *)dut)->pc;
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 32; i++) {
             cpu.gpr[i] = ((CPU_DIFF_REF_STATE *)dut)->gpr[i];
         }
         cpu.csr.mstatus = ((CPU_DIFF_REF_STATE *)dut)->csr.mstatus;
@@ -55,7 +55,7 @@ __EXPORT void difftest_regcpy(void *dut, bool direction)
     } else if (direction == DIFFTEST_TO_DUT) {
         // printf("difftest_regcpy to dut: pc=0x%08x\n", cpu.pc);
         ((CPU_DIFF_REF_STATE *)dut)->pc = cpu.pc;
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 32; i++) {
             ((CPU_DIFF_REF_STATE *)dut)->gpr[i] = cpu.gpr[i];
         }
         ((CPU_DIFF_REF_STATE *)dut)->csr.mstatus = cpu.csr.mstatus;

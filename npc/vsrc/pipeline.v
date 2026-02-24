@@ -4,28 +4,30 @@
 // 取指译码流水线单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_pipeline_if_dec
+module pipeline_if_dec
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
-    input   wire    [31:0           ]   I_inst,             // 指令内容
-    input   wire    [31:0           ]   I_inst_addr,        // 指令地址
+    input   wire    [`InstBus       ]   I_inst,             // 指令内容
+    input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
 
-    output  reg     [31:0           ]   O_inst,             // 指令内容
-    output  reg     [31:0           ]   O_inst_addr,        // 指令地址
+    output  reg     [`InstBus       ]   O_inst,             // 指令内容
+    output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
 
     input   wire                        I_enable,
-    input   wire                        I_flush
-
+    input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk) begin
-        if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-        end else if(I_enable) begin
-            O_inst          <= I_inst                   ;
-            O_inst_addr     <= I_inst_addr              ;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+        end else if (I_flush) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+        end else if (I_enable) begin
+            O_inst          <= I_inst;
+            O_inst_addr     <= I_inst_addr;
         end
     end
 
@@ -37,117 +39,156 @@ endmodule
 // 译码执行流水线单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_pipeline_dec_ex
+module pipeline_dec_ex
 (
-    input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                        clk,
+    input   wire                        rst_n,
 
-    input   wire    [31:0                       ]   I_inst,             // 指令内容
-    input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
-    input   wire    [31:0                       ]   I_rs1_rdata,        // 通用寄存器1读数据
-    input   wire    [31:0                       ]   I_rs2_rdata,        // 通用寄存器2读数据
-    input   wire    [31:0                       ]   I_csr_rdata,        // CSR寄存器读数据
-    input   wire    [31:0                       ]   I_imm,              // 立即数
-    input   wire                                    I_rd_we,            // 写通用寄存器标志
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,         // 写通用寄存器地址
-    input   wire    [2:0                        ]   I_op,               // 指令类型
-    input   wire    [1:0                        ]   I_alu_srca_sel,
-    input   wire    [1:0                        ]   I_alu_srcb_sel,
-    input   wire    [1:0                        ]   I_agu_src_sel,
-    input   wire                                    I_csr_src_sel,
-    input   wire                                    I_ld_valid,         // 访存有效标志
-    input   wire                                    I_st_valid,         // 访存有效标志
-    input   wire                                    I_br_valid,         // 分支有效标志
-    input   wire                                    I_csr_valid,        // 写CSR寄存器标志
-    input   wire    [11:0                       ]   I_csr_addr,         // 写CSR寄存器地址
-    input   wire                                    I_f7b5_en,          // 指令funct7[5]有效标志
-    input   wire                                    I_sign,             // 有符号位
-    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
+    input   wire    [`InstBus       ]   I_inst,             // 指令内容
+    input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
+    input   wire    [`RegDataBus    ]   I_rs1_rdata,        // 通用寄存器1读数据
+    input   wire    [`RegDataBus    ]   I_rs2_rdata,        // 通用寄存器2读数据
+    input   wire    [`RegDataBus    ]   I_imm,              // 立即数
+    input   wire                        I_rd_we,            // 写通用寄存器标志
+    input   wire    [`RegAddrBus    ]   I_rd_waddr,         // 写通用寄存器地址
+    input   wire                        I_csr_we,           // 写CSR寄存器标志
+    input   wire    [`CSRAddrBus    ]   I_csr_waddr,        // 写CSR寄存器地址
+    input   wire    [`CSRDataBus    ]   I_csr_rdata,        // CSR寄存器读数据
+    input   wire    [`CSRCTL_WIDTH-1:0] I_CSRCtrl,
+    input   wire    [`ALUCTL_WIDTH-1:0] I_ALUCtrl,          // ALU控制信号
+    input   wire    [`BRUCTL_WIDTH-1:0] I_BRUCtrl,          // BRU控制信号
+    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_rs1,
+    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_rs2,
+    input   wire    [`FWDSrc_sel_width-1:0] I_FWDCtrl_csr,
+    input   wire    [`ALUSrcA_sel_width-1:0] I_ALUSrcA_sel,
+    input   wire    [`ALUSrcB_sel_width-1:0] I_ALUSrcB_sel,
+    input   wire    [`AGUSrc_sel_width-1:0]  I_AGUSrc_sel,
+    input   wire    [`CSRSrc_sel_width-1:0]  I_CSRSrc_sel,
+    input   wire                        I_ls_valid,         // 访存有效标志
+    input   wire    [`ls_diff_bus   ]   I_ls_type,          // 访存有效标志
+    input   wire                        I_csr_re,
+    input   wire    [`Except_Bus    ]   I_except,           // 异常
 
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs1,
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs2,
-    input   wire    [1:0                        ]   I_fwd_ctrl_csr,
+    output  reg     [`InstBus       ]   O_inst,             // 指令内容
+    output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg     [`RegDataBus    ]   O_rs1_rdata,        // 通用寄存器1读数据
+    output  reg     [`RegDataBus    ]   O_rs2_rdata,        // 通用寄存器2读数据
+    output  reg     [`RegDataBus    ]   O_imm,              // 立即数
+    output  reg                         O_rd_we,            // 写通用寄存器标志
+    output  reg     [`RegAddrBus    ]   O_rd_waddr,         // 写通用寄存器地址
+    output  reg                         O_csr_we,           // 写CSR寄存器标志
+    output  reg     [`CSRAddrBus    ]   O_csr_waddr,        // 写CSR寄存器地址
+    output  reg     [`CSRDataBus    ]   O_csr_rdata,        // CSR寄存器读数据
+    output  reg     [`CSRCTL_WIDTH-1:0] O_CSRCtrl,
+    output  reg     [`ALUCTL_WIDTH-1:0] O_ALUCtrl,          // ALU控制信号
+    output  reg     [`BRUCTL_WIDTH-1:0] O_BRUCtrl,          // BRU控制信号
+    output  reg     [`FWDSrc_sel_width-1:0] O_FWDCtrl_rs1,
+    output  reg     [`FWDSrc_sel_width-1:0] O_FWDCtrl_rs2,
+    output  reg     [`FWDSrc_sel_width-1:0] O_FWDCtrl_csr,
+    output  reg                         O_fwd_rd_we,            // 写通用寄存器标志
+    output  reg     [`RegAddrBus    ]   O_fwd_rd_waddr,         // 写通用寄存器地址
+    output  reg                         O_fwd_csr_we,           // 写CSR寄存器标志
+    output  reg     [`CSRAddrBus    ]   O_fwd_csr_waddr,        // 写CSR寄存器地址
+    output  reg     [`ALUSrcA_sel_width-1:0] O_ALUSrcA_sel,
+    output  reg     [`ALUSrcB_sel_width-1:0] O_ALUSrcB_sel,
+    output  reg     [`AGUSrc_sel_width-1:0]  O_AGUSrc_sel,
+    output  reg     [`CSRSrc_sel_width-1:0]  O_CSRSrc_sel,
+    output  reg                         O_ls_valid,         // 访存有效标志
+    output  reg     [`ls_diff_bus   ]   O_ls_type,          // 访存有效标志
+    output  reg                         O_csr_re,
+    output  reg     [`Except_Bus    ]   O_except,           // 异常
 
-    output  reg     [31:0                       ]   O_inst,             // 指令内容
-    output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
-    output  reg     [31:0                       ]   O_rs1_rdata,        // 通用寄存器1读数据
-    output  reg     [31:0                       ]   O_rs2_rdata,        // 通用寄存器2读数据
-    output  reg     [31:0                       ]   O_csr_rdata,        // CSR寄存器读数据
-    output  reg     [31:0                       ]   O_imm,              // 立即数
-    output  reg                                     O_rd_we,            // 写通用寄存器标志
-    output  reg     [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,         // 写通用寄存器地址
-    output  reg     [2:0                        ]   O_op,               // 指令类型
-    output  reg     [1:0                        ]   O_alu_srca_sel,
-    output  reg     [1:0                        ]   O_alu_srcb_sel,
-    output  reg     [1:0                        ]   O_agu_src_sel,
-    output  reg                                     O_csr_src_sel,
-    output  reg                                     O_ld_valid,         // 访存有效标志
-    output  reg                                     O_st_valid,         // 访存有效标志
-    output  reg                                     O_br_valid,         // 分支有效标志
-    output  reg                                     O_csr_valid,        // 写CSR寄存器标志
-    output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
-    output  reg                                     O_f7b5_en,          // 指令funct7[5]有效标志
-    output  reg                                     O_sign,             // 有符号位
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
-
-    output  reg     [1:0                        ]   O_fwd_ctrl_rs1,
-    output  reg     [1:0                        ]   O_fwd_ctrl_rs2,
-    output  reg     [1:0                        ]   O_fwd_ctrl_csr,
-
-    input   wire                                    I_enable,
-    input   wire                                    I_flush
+    input   wire                        I_enable,
+    input   wire                        I_flush             // 指令冲刷
 );
-    always @(posedge clk) begin
-        if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-            O_rs1_rdata     <= 0                        ;
-            O_rs2_rdata     <= 0                        ;
-            O_csr_rdata     <= 0                        ;
-            O_imm           <= 0                        ;
-            O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_op            <= 0                        ;
-            O_alu_srca_sel  <= 0                        ;
-            O_alu_srcb_sel  <= 0                        ;
-            O_agu_src_sel   <= 0                        ;
-            O_csr_src_sel   <= 0                        ;
-            O_ld_valid      <= 0                        ;
-            O_st_valid      <= 0                        ;
-            O_br_valid      <= 0                        ;
-            O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_f7b5_en       <= 0                        ;
-            O_sign          <= 0                        ;
-            O_except        <= 0                        ;
-            O_fwd_ctrl_rs1  <= 0                        ;
-            O_fwd_ctrl_rs2  <= 0                        ;
-            O_fwd_ctrl_csr  <= 0                        ;
-        end else if(I_enable) begin
-            O_inst          <= I_inst                   ;
-            O_inst_addr     <= I_inst_addr              ;
-            O_rs1_rdata     <= I_rs1_rdata              ;
-            O_rs2_rdata     <= I_rs2_rdata              ;
-            O_csr_rdata     <= I_csr_rdata              ;
-            O_imm           <= I_imm                    ;
-            O_rd_we         <= I_rd_we                  ;
-            O_rd_waddr      <= I_rd_waddr               ;
-            O_op            <= I_op                     ;
-            O_alu_srca_sel  <= I_alu_srca_sel           ;
-            O_alu_srcb_sel  <= I_alu_srcb_sel           ;
-            O_agu_src_sel   <= I_agu_src_sel            ;
-            O_csr_src_sel   <= I_csr_src_sel            ;
-            O_ld_valid      <= I_ld_valid               ;
-            O_st_valid      <= I_st_valid               ;
-            O_br_valid      <= I_br_valid               ;
-            O_csr_valid     <= I_csr_valid              ;
-            O_csr_addr      <= I_csr_addr               ;
-            O_f7b5_en       <= I_f7b5_en                ;
-            O_sign          <= I_sign                   ;
-            O_except        <= I_except                 ;
-            O_fwd_ctrl_rs1  <= I_fwd_ctrl_rs1           ;   
-            O_fwd_ctrl_rs2  <= I_fwd_ctrl_rs2           ;   
-            O_fwd_ctrl_csr  <= I_fwd_ctrl_csr           ;   
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_rs1_rdata     <= 'b0;
+            O_rs2_rdata     <= 'b0;
+            O_rd_we         <= 'b0;
+            O_imm           <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_rdata     <= 'b0;
+            O_CSRCtrl       <= 'b0;
+            O_ALUCtrl       <= 'b0;
+            O_BRUCtrl       <= 'b0;
+            O_FWDCtrl_rs1   <= 'b0;
+            O_FWDCtrl_rs2   <= 'b0;
+            O_FWDCtrl_csr   <= 'b0;
+            O_fwd_rd_we     <= 'b0;
+            O_fwd_rd_waddr  <= 'b0;
+            O_fwd_csr_we    <= 'b0;
+            O_fwd_csr_waddr <= 'b0;
+            O_ALUSrcA_sel   <= 'b0;
+            O_ALUSrcB_sel   <= 'b0;
+            O_AGUSrc_sel    <= 'b0;
+            O_CSRSrc_sel    <= 'b0;
+            O_ls_valid      <= 'b0;
+            O_ls_type       <= 'b0;
+            O_csr_re        <= 'b0;
+            O_except        <= 'b0;
+        end else if (I_flush) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_rs1_rdata     <= 'b0;
+            O_rs2_rdata     <= 'b0;
+            O_rd_we         <= 'b0;
+            O_imm           <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_rdata     <= 'b0;
+            O_CSRCtrl       <= 'b0;
+            O_ALUCtrl       <= 'b0;
+            O_BRUCtrl       <= 'b0;
+            O_FWDCtrl_rs1   <= 'b0;
+            O_FWDCtrl_rs2   <= 'b0;
+            O_FWDCtrl_csr   <= 'b0;
+            O_fwd_rd_we     <= 'b0;
+            O_fwd_rd_waddr  <= 'b0;
+            O_fwd_csr_we    <= 'b0;
+            O_fwd_csr_waddr <= 'b0;
+            O_ALUSrcA_sel   <= 'b0;
+            O_ALUSrcB_sel   <= 'b0;
+            O_AGUSrc_sel    <= 'b0;
+            O_CSRSrc_sel    <= 'b0;
+            O_ls_valid      <= 'b0;
+            O_ls_type       <= 'b0;
+            O_csr_re        <= 'b0;
+            O_except        <= 'b0;
+        end else if (I_enable) begin
+            O_inst          <= I_inst;
+            O_inst_addr     <= I_inst_addr;
+            O_rs1_rdata     <= I_rs1_rdata;
+            O_rs2_rdata     <= I_rs2_rdata;
+            O_rd_we         <= I_rd_we;
+            O_rd_waddr      <= I_rd_waddr;
+            O_imm           <= I_imm;
+            O_csr_we        <= I_csr_we;
+            O_csr_waddr     <= I_csr_waddr;
+            O_csr_rdata     <= I_csr_rdata;
+            O_CSRCtrl       <= I_CSRCtrl;
+            O_ALUCtrl       <= I_ALUCtrl;
+            O_BRUCtrl       <= I_BRUCtrl;
+            O_FWDCtrl_rs1   <= I_FWDCtrl_rs1;
+            O_FWDCtrl_rs2   <= I_FWDCtrl_rs2;
+            O_FWDCtrl_csr   <= I_FWDCtrl_csr;
+            O_fwd_rd_we     <= I_rd_we;
+            O_fwd_rd_waddr  <= I_rd_waddr;
+            O_fwd_csr_we    <= I_csr_we;
+            O_fwd_csr_waddr <= I_csr_waddr;
+            O_ALUSrcA_sel   <= I_ALUSrcA_sel;
+            O_ALUSrcB_sel   <= I_ALUSrcB_sel;
+            O_AGUSrc_sel    <= I_AGUSrc_sel;
+            O_CSRSrc_sel    <= I_CSRSrc_sel;
+            O_ls_valid      <= I_ls_valid;
+            O_ls_type       <= I_ls_type;
+            O_csr_re        <= I_csr_re;
+            O_except        <= I_except;
         end
     end
 
@@ -158,75 +199,109 @@ endmodule
 // 执行访存流水线单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_pipeline_ex_ls
+module pipeline_ex_ls
 (
-    input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                        clk,
+    input   wire                        rst_n,
 
-    input   wire    [31:0                       ]   I_inst,             // 指令内容
-    input   wire    [31:0                       ]   I_inst_addr,
-    input   wire                                    I_rd_we,
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
-    input   wire    [31:0                       ]   I_rd_wdata,
-    input   wire    [31:0                       ]   I_memory_addr,
-    input   wire    [31:0                       ]   I_store_data,
-    input   wire                                    I_ld_valid,         // 访存有效标志
-    input   wire                                    I_st_valid,         // 访存有效标志
-    input   wire    [2:0]                           I_ls_ctrl,          // 访存控制信号
-    input   wire                                    I_csr_valid,        // 写CSR寄存器标志
-    input   wire    [11:0                       ]   I_csr_addr,         // 写CSR寄存器地址
-    input   wire    [31:0                       ]   I_csr_wdata,        // 写CSR寄存器数据
-    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
+    input   wire    [`InstBus       ]   I_inst,             // 指令内容
+    input   wire    [`InstAddrBus   ]   I_inst_addr,
+    input   wire                        I_rd_we,
+    input   wire    [`RegAddrBus    ]   I_rd_waddr,
+    input   wire    [`RegDataBus    ]   I_rd_wdata,
+    input   wire    [`MemAddrBus    ]   I_memory_addr,
+    input   wire    [`MemDataBus    ]   I_store_data,
+    input   wire                        I_ls_valid,         // 访存有效标志
+    input   wire    [`ls_diff_bus   ]   I_ls_type,
+    input   wire                        I_csr_we,           // 写CSR寄存器标志
+    input   wire    [`CSRAddrBus    ]   I_csr_waddr,        // 写CSR寄存器地址
+    input   wire    [`CSRDataBus    ]   I_csr_wdata,        // 写CSR寄存器数据
+    input   wire    [`Except_Bus    ]   I_except,           // 异常
 
-    output  reg     [31:0                       ]   O_inst,             // 指令内容
-    output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
-    output  reg                                     O_rd_we,
-    output  reg     [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
-    output  reg     [31:0                       ]   O_rd_wdata,
-    output  reg     [31:0                       ]   O_memory_addr,
-    output  reg     [31:0                       ]   O_store_data,
-    output  reg                                     O_ld_valid,         // 访存有效标志
-    output  reg                                     O_st_valid,         // 访存有效标志
-    output  reg     [2:0]                           O_ls_ctrl,          // 访存控制信号
-    output  reg                                     O_csr_valid,        // 写CSR寄存器标志
-    output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
-    output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
-
-    input   wire                                    I_enable,
-    input   wire                                    I_flush
+    output  reg     [`InstBus       ]   O_inst,             // 指令内容
+    output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg                         O_rd_we,
+    output  reg     [`RegAddrBus    ]   O_rd_waddr,
+    output  reg     [`RegDataBus    ]   O_rd_wdata,
+    output  reg     [`MemAddrBus    ]   O_memory_addr,
+    output  reg     [`MemDataBus    ]   O_store_data,
+    output  reg                         O_ls_valid,         // 访存有效标志
+    output  reg     [`ls_diff_bus   ]   O_ls_type,
+    output  reg                         O_csr_we,           // 写CSR寄存器标志
+    output  reg     [`CSRAddrBus    ]   O_csr_waddr,        // 写CSR寄存器地址
+    output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
+    output  reg                         O_fwd_rd_we,
+    output  reg     [`RegAddrBus    ]   O_fwd_rd_waddr,
+    output  reg     [`RegDataBus    ]   O_fwd_rd_wdata,
+    output  reg                         O_fwd_csr_we,
+    output  reg     [`CSRAddrBus    ]   O_fwd_csr_waddr,
+    output  reg     [`CSRDataBus    ]   O_fwd_csr_wdata,
+    output  reg     [`Except_Bus    ]   O_except,           // 异常
+    
+    input   wire                        I_enable,
+    input   wire                        I_flush
 );
-    always @(posedge clk) begin
-        if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-            O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_rd_wdata      <= 0                        ;
-            O_memory_addr   <= 0                        ;
-            O_store_data    <= 0                        ;
-            O_ld_valid      <= 0                        ;
-            O_st_valid      <= 0                        ;
-            O_ls_ctrl       <= 0                        ;
-            O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_csr_wdata     <= 0                        ;
-            O_except        <= 0                        ;;
-        end else if(I_enable) begin
-            O_inst          <= I_inst                   ;
-            O_inst_addr     <= I_inst_addr              ;
-            O_rd_we         <= I_rd_we                  ;
-            O_rd_waddr      <= I_rd_waddr               ;
-            O_rd_wdata      <= I_rd_wdata               ;
-            O_memory_addr   <= I_memory_addr            ;
-            O_store_data    <= I_store_data             ;
-            O_ld_valid      <= I_ld_valid               ;
-            O_st_valid      <= I_st_valid               ;
-            O_ls_ctrl       <= I_ls_ctrl                ;
-            O_csr_valid     <= I_csr_valid              ;
-            O_csr_addr      <= I_csr_addr               ;
-            O_csr_wdata     <= I_csr_wdata              ;
-            O_except        <= I_except                 ;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_memory_addr   <= 'b0;
+            O_store_data    <= 'b0;
+            O_fwd_rd_we     <= 'b0;
+            O_fwd_rd_waddr  <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_we    <= 'b0;
+            O_fwd_csr_waddr <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_ls_valid      <= 'b0;
+            O_ls_type       <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+        end else if (I_flush) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_memory_addr   <= 'b0;
+            O_store_data    <= 'b0;
+            O_fwd_rd_we     <= 'b0;
+            O_fwd_rd_waddr  <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_we    <= 'b0;
+            O_fwd_csr_waddr <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_ls_valid      <= 'b0;
+            O_ls_type       <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+        end else if (I_enable) begin
+            O_inst          <= I_inst;
+            O_inst_addr     <= I_inst_addr;
+            O_rd_we         <= I_rd_we;
+            O_rd_waddr      <= I_rd_waddr;
+            O_rd_wdata      <= I_rd_wdata;
+            O_memory_addr   <= I_memory_addr;
+            O_store_data    <= I_store_data;
+            O_fwd_rd_we     <= I_rd_we;
+            O_fwd_rd_waddr  <= I_rd_waddr;
+            O_fwd_rd_wdata  <= I_rd_wdata;
+            O_fwd_csr_we    <= I_csr_we;
+            O_fwd_csr_waddr <= I_csr_waddr;
+            O_fwd_csr_wdata <= I_csr_wdata;
+            O_ls_valid      <= I_ls_valid;
+            O_ls_type       <= I_ls_type;
+            O_csr_we        <= I_csr_we;
+            O_csr_waddr     <= I_csr_waddr;
+            O_csr_wdata     <= I_csr_wdata;
+            O_except        <= I_except;
         end
     end
 
@@ -237,62 +312,84 @@ endmodule
 // 访存写回流水线单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_pipeline_ls_wb
+module pipeline_ls_wb
 (
-    input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                        clk,
+    input   wire                        rst_n,
 
-    input   wire    [31:0                       ]   I_inst,             // 指令内容
-    input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
-    input   wire                                    I_rd_we,
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
-    input   wire    [31:0                       ]   I_rd_wdata,
-    input   wire                                    I_csr_valid,        // 写CSR寄存器标志
-    input   wire    [11:0                       ]   I_csr_addr,         // 写CSR寄存器地址
-    input   wire    [31:0                       ]   I_csr_wdata,        // 写CSR寄存器数据
-    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
+    input   wire    [`InstBus       ]   I_inst,             // 指令内容
+    input   wire    [`InstAddrBus   ]   I_inst_addr,        // 指令地址
+    input   wire                        I_rd_we,
+    input   wire    [`RegAddrBus    ]   I_rd_waddr,
+    input   wire    [`RegDataBus    ]   I_rd_wdata,
+    input   wire                        I_csr_we,           // 写CSR寄存器标志
+    input   wire    [`CSRAddrBus    ]   I_csr_waddr,        // 写CSR寄存器地址
+    input   wire    [`CSRDataBus    ]   I_csr_wdata,        // 写CSR寄存器数据
+    input   wire    [`Except_Bus    ]   I_except,           // 异常
 
-    input   wire                                    I_device_skip,
+    input   wire                        I_device_skip,
 
-    output  reg     [31:0                       ]   O_inst,             // 指令内容
-    output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
-    output  reg                                     O_rd_we,
-    output  reg     [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
-    output  reg     [31:0                       ]   O_rd_wdata,
-    output  reg                                     O_csr_valid,        // 写CSR寄存器标志
-    output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
-    output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
+    output  reg     [`InstBus       ]   O_inst,             // 指令内容
+    output  reg     [`InstAddrBus   ]   O_inst_addr,        // 指令地址
+    output  reg                         O_rd_we,
+    output  reg     [`RegAddrBus    ]   O_rd_waddr,
+    output  reg     [`RegDataBus    ]   O_rd_wdata,
+    output  reg                         O_csr_we,           // 写CSR寄存器标志
+    output  reg     [`CSRAddrBus    ]   O_csr_waddr,        // 写CSR寄存器地址
+    output  reg     [`CSRDataBus    ]   O_csr_wdata,        // 写CSR寄存器数据
+    output  reg     [`RegDataBus    ]   O_fwd_rd_wdata,
+    output  reg     [`CSRDataBus    ]   O_fwd_csr_wdata,
+    output  reg     [`Except_Bus    ]   O_except,           // 异常
 
-    output  wire                                    O_device_skip,
+    output  wire                        O_device_skip,
 
-    input   wire                                    I_enable,
-    input   wire                                    I_flush
+    input   wire                        I_enable,
+    input   wire                        I_flush
 );
 
-    always @(posedge clk) begin
-        if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-            O_rd_we         <= 0                        ;
-            O_rd_waddr      <= 0                        ;
-            O_rd_wdata      <= 0                        ;
-            O_csr_valid     <= 0                        ;
-            O_csr_addr      <= 0                        ;
-            O_csr_wdata     <= 0                        ;
-            O_except        <= 0                        ;
-            O_device_skip   <= 0                        ;
-        end else if(I_enable) begin
-            O_inst          <= I_inst                   ;
-            O_inst_addr     <= I_inst_addr              ;
-            O_rd_we         <= I_rd_we                  ;
-            O_rd_waddr      <= I_rd_waddr               ;
-            O_rd_wdata      <= I_rd_wdata               ;
-            O_csr_valid     <= I_csr_valid              ;
-            O_csr_addr      <= I_csr_addr               ;
-            O_csr_wdata     <= I_csr_wdata              ;
-            O_except        <= I_except                 ;
-            O_device_skip   <= I_device_skip            ;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+
+            O_device_skip   <= 'b0;
+        end else if (I_flush) begin
+            O_inst          <= 'b0;
+            O_inst_addr     <= 'b0;
+            O_rd_we         <= 'b0;
+            O_rd_waddr      <= 'b0;
+            O_rd_wdata      <= 'b0;
+            O_fwd_rd_wdata  <= 'b0;
+            O_fwd_csr_wdata <= 'b0;
+            O_csr_we        <= 'b0;
+            O_csr_waddr     <= 'b0;
+            O_csr_wdata     <= 'b0;
+            O_except        <= 'b0;
+
+            O_device_skip   <= 'b0;
+        end else if (I_enable) begin
+            O_inst          <= I_inst;
+            O_inst_addr     <= I_inst_addr;
+            O_rd_we         <= I_rd_we;
+            O_rd_waddr      <= I_rd_waddr;
+            O_rd_wdata      <= I_rd_wdata;
+            O_fwd_rd_wdata  <= I_rd_wdata;
+            O_fwd_csr_wdata <= I_csr_wdata;
+            O_csr_we        <= I_csr_we;
+            O_csr_waddr     <= I_csr_waddr;
+            O_csr_wdata     <= I_csr_wdata;
+            O_except        <= I_except;
+
+            O_device_skip   <= I_device_skip;
         end
     end
 

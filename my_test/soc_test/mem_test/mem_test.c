@@ -2,45 +2,66 @@
 #include <klib.h>
 #include <klib-macros.h>
 
-#define BASE 0xa0000000
-#define SIZE 0x200
+#define SIZE 1024 * 1024 * 4
 
-#define p_period 0x100
-
-#define PUT(i, period, op, bit) \
-    do { \
-        if(i % period == 0) printf("(%s): 0x%x-0x%x ", op, i * (bit / 8), (i + period) * (bit / 8) - 1); \
-    } while (0)
-
-#define TEST(bit, val_max, type) \
-    do { \
-        printf("Testing %d-bit access:\n", bit); \
-        volatile type *p = (volatile type *)BASE; \
-        for (uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            p[i] = (type)(i + val_max); \
-            PUT(i, p_period, "w", bit); \
-        } \
-        printf("\n"); \
-        for(uint32_t i = 0; &p[i] < (volatile type *)(BASE + SIZE); i++) { \
-            if(p[i] != (type)(i + val_max)) { \
-                putstr("error\n"); \
-                return 1; \
-            } \
-            PUT(i, p_period, "r", bit); \
-        } \
-        printf("\n\n"); \
-    } while (0)
+extern Area heap;
 
 int main(const char *args) {
+    // uint8_t *p8 = (uint8_t *)heap.start;
 
-    putstr("\nmem test start!\n");
-    printf("Testing memory range: 0x%x - 0x%x\n\n", BASE, BASE + SIZE - 1);
+    // for (int i = 0; &p8[i] < (uint8_t *)heap.end; i++) {
+    //     p8[i] = i % 256;
+    //     if(p8[i] != i % 256) {
+    //         putstr("error\n");
+    //         return 1;
+    //     }
+    // }
 
-    // TEST(64, 9876789, uint64_t);
-    // TEST(32, 124321,  uint32_t);
-    // TEST(16, 656,     uint16_t);
-    TEST(8,  26,      uint8_t );
+    // putstr("8 ");
 
-    putstr("mem test pass!\n\n");
+    // uint16_t *p16 = (uint16_t *)heap.start;
+
+    // for (int i = 0; &p16[i] < (uint16_t *)heap.end; i++) {
+    //     p16[i] = i % 65536;
+    //     if(p16[i] != i % 65536) {
+    //         putstr("error\n");
+    //         return 1;
+    //     }
+    // }
+
+    // putstr("16 ");
+
+    // uint32_t *p32 = (uint32_t *)heap.start;
+    // for (int i = 0; &p32[i] < (uint32_t *)heap.end; i++) {
+    //     p32[i] = i;
+    //     if(p32[i] != i) {
+    //         putstr("error\n");
+    //         return 1;
+    //     }
+    // }
+
+    // putstr("32 ");
+
+    // uint64_t *p64 = (uint64_t *)heap.start;
+    // for (int i = 0; &p64[i] < (uint64_t *)heap.end; i++) {
+    //     p64[i] = i;
+    //     if(p64[i] != i) {
+    //         putstr("error\n");
+    //         return 1;
+    //     }
+    // }
+
+    // putstr("64 ");
+
+    uint32_t *p32 = (uint32_t *)heap.start;
+    for (int i = 0; i < 20; i++) {
+        p32[i] = i * 2 + 2;
+        if(p32[i] != i * 2 + 2) {
+            putstr("error\n");
+            return 1;
+        }
+    }
+
+    putstr("mem test pass!\n");
     return 0;
 }
