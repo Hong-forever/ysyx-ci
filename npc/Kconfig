@@ -1,9 +1,5 @@
 mainmenu "NPC Configuration NPC"
 
-config USE_NVBOARD
-  bool "Enable nvboard use"
-  default n
-
 choice
   prompt "Running mode"
   default MODE_SYSTEM
@@ -57,12 +53,12 @@ config CC_OPT
 
 config CC_DEBUG
   bool "Enable debug information"
-  default n
+  default y
 
 config CC_ASAN
   depends on MODE_SYSTEM
   bool "Enable address sanitizer"
-  default n
+  default y
 
 endmenu
 
@@ -90,7 +86,7 @@ config ITRACE
 config LOOP_DETECT
   depends on ITRACE
   bool "Enable detect die loop"
-  default y
+  default n
   
 config WATCHPOINT
   depends on ITRACE
@@ -100,17 +96,17 @@ config WATCHPOINT
 config MTRACE
   depends on TRACE 
   bool "Enable memory trace"
-  default n 
+  default n
 
 config MTRACE_BASE
   depends on MTRACE
   hex "memory tracer base address"
-  default 0x80000000
+  default 0x80000000 
 
 config MTRACE_SIZE
   depends on MTRACE
   hex "memory tracer size"
-  default 0x10
+  default 0x1000
 
 config FTRACE
   depends on TRACE 
@@ -121,6 +117,10 @@ config DTRACE
   depends on TRACE 
   bool "Enable device trace"
   default n 
+
+config PERF_CAL
+  bool "Enable performance calculation"
+  default y
 
 config DIFFTEST
   bool "Enable differential testing"

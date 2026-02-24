@@ -11,6 +11,7 @@
 !.gitignore
 !README.md
 !Kconfig
+!*.nxdc
 include/config
 include/generated
-build/    
+build/

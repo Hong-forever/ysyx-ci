@@ -132,6 +132,27 @@ static void exec_once(Decode *s, vaddr_t pc) {
     IFDEF(CONFIG_LOOP_DETECT, detect_loop_pattern());
     cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
+
+    // static FILE *itrace_fp = NULL;
+        
+    // if (itrace_fp == NULL) {
+    //     itrace_fp = fopen("/tmp/cachesim.bin", "wb");
+    //     if (itrace_fp == NULL) {
+    //         perror("Failed to open itrace file");
+    //     }
+    // }
+    
+    // if (itrace_fp != NULL) {
+    //     // 写入PC值（十六进制）
+    //     fwrite(&cpu.pc, sizeof(vaddr_t), 1, itrace_fp);
+        
+    //     // 定期flush防止数据丢失
+    //     static int count = 0;
+    //     if (++count % 10000 == 0) {
+    //         fflush(itrace_fp);
+    //     }
+    // }
+
     char *p = s->logbuf;
     p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
     int ilen = s->snpc - s->pc;

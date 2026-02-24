@@ -1,6 +1,0 @@
-[submodule "rt-thread-am"]
-	path = rt-thread-am
-	url = git@github.com:Hong-forever/rt-thread-am.git
-[submodule "ysyxSoC"]
-	path = ysyxSoC
-	url = git@github.com:Hong-forever/ysyxSoC.git

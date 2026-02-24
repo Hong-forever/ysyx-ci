@@ -2,23 +2,32 @@
 #include "utils.h"
 #include <locale.h>
 
+#define CLK clock
+#define RST reset
+
 int cpu_inst_valid = 0;
 
 IFDEF(CONFIG_DIFFTEST, void difftest_step(paddr_t pc, paddr_t npc));
 void reg_display();
 
+IFDEF(CONFIG_PERF_CAL, void perf_cal());
+
 uint64_t get_time();
 uint64_t g_timer = 0;
+uint64_t g_cycle = 0;
+
+extern TOP_NAME *top ;
+extern VerilatedContext *contextp;
 
 void difftest_skip_ref();
 
-#ifdef CONFIG_USE_NVBOARD
 #include <nvboard.h>
+#ifdef CONFIG_USE_NVBOARD
 void nvboard_bind_all_pins(TOP_NAME *top);
 
 void nvboard()
 {
-    nvboard_bind_all_pins(&dut);
+    nvboard_bind_all_pins(top);
     nvboard_init();
 }
 #endif
@@ -127,8 +136,6 @@ extern "C" void trap(int reg_data, int halt_pc)
     // printf("Total cycles: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
 }
 
-extern TOP_NAME *top ;
-extern VerilatedContext *contextp;
 #if WAVE_ENABLE == 1
     #if WAVE_FORMAT == 1
         extern VerilatedVcdC *tfp;
@@ -139,14 +146,14 @@ extern VerilatedContext *contextp;
 
 static void single_cycle()
 {
-    top->clk = 0;
+    top->CLK = 0;
     top->eval();
 #if WAVE_ENABLE == 1
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
     contextp->timeInc(1);
     tfp->dump(contextp->time());
 #endif
-    top->clk = 1;
+    top->CLK = 1;
     top->eval();
 #if WAVE_ENABLE == 1
     // printf("Dumping waveforms at time %lu...\n", contextp->time());
@@ -155,12 +162,12 @@ static void single_cycle()
 #endif
 }
 
-void reset(int n)
+void cpu_reset(int n)
 {
-    top->rst_n = 0;
+    top->RST = 1;
     while (n-- > 0)
         single_cycle();
-    top->rst_n = 1;
+    top->RST = 0;
 }
 
 
@@ -184,9 +191,8 @@ void statistic() {
 static void exec_once()
 {
     single_cycle();
-
-    // printf("cpu_inst_valid: %d\n", cpu_inst_valid);
-    // printf("mcycle: %lu\n", extra_cpu.mcyclel + ((uint64_t)extra_cpu.mcycleh << 32));
+    
+    g_cycle++;
     
     if (!cpu_inst_valid) return;
 
@@ -220,6 +226,8 @@ static void execute(uint64_t n)
     while (n-- > 0) {
         exec_once();
 
+        IFDEF(CONFIG_USE_NVBOARD, nvboard_update());
+
         if(!cpu_inst_valid) {
             n++;
             continue;
@@ -228,10 +236,8 @@ static void execute(uint64_t n)
         trace_and_difftest(s, cpu.pc);
         cpu_inst_valid = 0;
         g_nr_guest_inst++;
-
         if (npc_state.state != NPC_RUNNING) break;
 
-        IFDEF(CONFIG_USE_NVBOARD, nvboard_update());
     }
 
 }
@@ -264,6 +270,7 @@ void cpu_exec(uint64_t n)
         case NPC_END:
             if (npc_state.halt_ret == 1) {
                 PRINTF_GREEN("[=>>> HIT GOOD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
+                IFDEF(CONFIG_PERF_CAL, perf_cal());
             } else if (npc_state.halt_ret == 2) {
                 PRINTF_RED("[=>>> HIT BAD TRAP at pc = 0x%08x\n", npc_state.halt_pc);
             }
