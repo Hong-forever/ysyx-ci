@@ -34,30 +34,30 @@ module ysyx_25110270_hazard_unit
 
     reg [1:0] fwd_ctrl_rs1, fwd_ctrl_rs2, fwd_ctrl_csr;
 
-    wire ls_same_addr_rs1 = I_ls_rd_waddr == I_rs1_raddr;
     wire ex_same_addr_rs1 = I_ex_rd_waddr == I_rs1_raddr;
+    wire ls_same_addr_rs1 = I_ls_rd_waddr == I_rs1_raddr;
 
-    wire ls_same_addr_rs2 = I_ls_rd_waddr == I_rs2_raddr;
     wire ex_same_addr_rs2 = I_ex_rd_waddr == I_rs2_raddr;
+    wire ls_same_addr_rs2 = I_ls_rd_waddr == I_rs2_raddr;
 
-    wire ls_same_addr_csr = I_ls_csr_waddr == I_csr_raddr;
     wire ex_same_addr_csr = I_ex_csr_waddr == I_csr_raddr;
+    wire ls_same_addr_csr = I_ls_csr_waddr == I_csr_raddr;
 
-    wire use_ls_data_rs1 = I_ls_rd_we & ls_same_addr_rs1;
     wire use_ex_data_rs1 = I_ex_rd_we & ex_same_addr_rs1;
+    wire use_ls_data_rs1 = I_ls_rd_we & ls_same_addr_rs1;
 
-    wire use_ls_data_rs2 = I_ls_rd_we & ls_same_addr_rs2;
     wire use_ex_data_rs2 = I_ex_rd_we & ex_same_addr_rs2;
+    wire use_ls_data_rs2 = I_ls_rd_we & ls_same_addr_rs2;
 
-    wire use_ls_data_csr = ls_same_addr_csr;
     wire use_ex_data_csr = ex_same_addr_csr;
+    wire use_ls_data_csr = ls_same_addr_csr;
 
     always @(*) begin
         if(I_rs1_re & I_rs1_raddr != 0) begin
-            if(use_ls_data_rs1) begin
-                fwd_ctrl_rs1 = `ysyx_25110270_FWDSRC_LS;
-            end else if(use_ex_data_rs1) begin
+            if(use_ex_data_rs1) begin
                 fwd_ctrl_rs1 = `ysyx_25110270_FWDSRC_EX;
+            end else if(use_ls_data_rs1) begin
+                fwd_ctrl_rs1 = `ysyx_25110270_FWDSRC_LS;
             end else begin
                 fwd_ctrl_rs1 = `ysyx_25110270_FWDSRC_NFW;
             end
@@ -68,10 +68,10 @@ module ysyx_25110270_hazard_unit
 
     always @(*) begin
         if(I_rs2_re & I_rs2_raddr != 0) begin
-            if(use_ls_data_rs2) begin
-                fwd_ctrl_rs2 = `ysyx_25110270_FWDSRC_LS;
-            end else if(use_ex_data_rs2) begin
+            if(use_ex_data_rs2) begin
                 fwd_ctrl_rs2 = `ysyx_25110270_FWDSRC_EX;
+            end else if(use_ls_data_rs2) begin
+                fwd_ctrl_rs2 = `ysyx_25110270_FWDSRC_LS;
             end else begin
                 fwd_ctrl_rs2 = `ysyx_25110270_FWDSRC_NFW;
             end
@@ -82,10 +82,10 @@ module ysyx_25110270_hazard_unit
 
     always @(*) begin
         if(I_csr_valid) begin
-            if(use_ls_data_csr) begin
-                fwd_ctrl_csr = `ysyx_25110270_FWDSRC_LS;
-            end else if(use_ex_data_csr) begin
+            if(use_ex_data_csr) begin
                 fwd_ctrl_csr = `ysyx_25110270_FWDSRC_EX;
+            end else if(use_ls_data_csr) begin
+                fwd_ctrl_csr = `ysyx_25110270_FWDSRC_LS;
             end else begin
                 fwd_ctrl_csr = `ysyx_25110270_FWDSRC_NFW;
             end
