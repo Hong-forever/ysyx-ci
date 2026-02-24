@@ -35,7 +35,7 @@ module ysyx_25110270_icache
 );
 
     parameter WORD_BYTES        = DATA_WIDTH/8;             
-    parameter WORDS_PER_BLOCK   = BLOCK_SIZE / WORD_BYTES;     // 每个block包含的字数
+    parameter WORDS_PER_BLOCK   = BLOCK_SIZE / WORD_BYTES;      // 每个block包含的字数
     parameter BLOCK_WIDTH       = $clog2(WORDS_PER_BLOCK);      // 块内字偏移宽度
     parameter SET_WIDTH         = $clog2(SET_NUM);              // 组索引宽度
     parameter TAG_WIDTH         = ADDR_WIDTH - SET_WIDTH - BLOCK_WIDTH - 2; // 标签宽度
