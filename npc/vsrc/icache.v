@@ -35,15 +35,14 @@ module ysyx_25110270_icache
 );
 
     parameter WORD_BYTES        = DATA_WIDTH/8;             
-    parameter WORDS_PER_BLOCK   = BLOCK_SIZE / WORD_BYTES;     // 每个block包含的字数
+    parameter WORDS_PER_BLOCK   = BLOCK_SIZE / WORD_BYTES;      // 每个block包含的字数
     parameter BLOCK_WIDTH       = $clog2(WORDS_PER_BLOCK);      // 块内字偏移宽度
     parameter SET_WIDTH         = $clog2(SET_NUM);              // 组索引宽度
     parameter TAG_WIDTH         = ADDR_WIDTH - SET_WIDTH - BLOCK_WIDTH - 2; // 标签宽度
 
-    parameter IDLE   = 3'b000;
-    parameter LOOKUP = 3'b001;
-    parameter REQ    = 3'b010;
-    parameter REFILL = 3'b100;
+    parameter IDLE   = 3'b00;
+    parameter REQ    = 3'b01;
+    parameter REFILL = 3'b10;
 
     // 存储器定义
     reg [TAG_WIDTH-1:0] tag_mem [0:SET_NUM*N_WAYS-1];
@@ -77,9 +76,8 @@ module ysyx_25110270_icache
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= I_valid ? LOOKUP : IDLE;
-                LOOKUP:  state <= hit ? IDLE : REQ;
-                REQ:     state <= (O_arvalid && I_arready) ? REFILL : REQ;
+                IDLE:    state <= I_valid ? (hit ? IDLE : REQ) : IDLE;
+                REQ:     state <= I_arready ? REFILL : REQ;
                 REFILL:  state <= (I_rvalid && I_rlast) ? IDLE : REFILL;
                 default: state <= IDLE;
             endcase
@@ -107,7 +105,7 @@ module ysyx_25110270_icache
                 valid_mem[i] <= 0;
             end
         end else begin
-            if(state[2] && I_rvalid) begin
+            if(state[1] && I_rvalid) begin
                 data_mem[index][cnt] <= I_rdata;
                 cnt <= I_rlast ? 0 : cnt + 1;
                 tag_mem[index] <= tag;
@@ -123,7 +121,7 @@ module ysyx_25110270_icache
         if(rst) begin
             odata_r  = 0;
             ovalid_r = 1'b0;
-        end else if(state[0] & hit) begin
+        end else if(I_valid & hit) begin
             odata_r = data_mem[index][offset];
             ovalid_r = 1'b1;
         end else begin
@@ -135,7 +133,7 @@ module ysyx_25110270_icache
     assign O_data  = odata_r;
     assign O_valid = ovalid_r;
 
-    assign O_arvalid = state[1]; // REQ state
+    assign O_arvalid = state[0]; // REQ state
     assign O_araddr  = {I_addr[ADDR_WIDTH-1:3], 3'b000};
     assign O_arlen   = WORDS_PER_BLOCK[7:0] - 8'b1;
     assign O_arsize  = 3'b010; // 4 bytes

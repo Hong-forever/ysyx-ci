@@ -61,24 +61,17 @@ module ysyx_25110270_clint
         end
     end
 
-    reg wdata_valid;
     always @(posedge clk) begin
         if(rst) begin
-            wdata_valid <= 1'b0;
             mtime <= 64'b0;
         end else begin
             mtime <= mtime + 1'b1;
-            if(bvalid_o && bready_i) begin
-                wdata_valid <= 1'b0;
-            end else if(wvalid_i) begin
-                wdata_valid <= 1'b1;
-            end
         end
     end
 
-    assign awready_o = 1'b1;
-    assign wready_o  = 1'b1;
-    assign bvalid_o  = wdata_valid;
+    assign awready_o = 1'b0;
+    assign wready_o  = 1'b0;
+    assign bvalid_o  = 1'b0;
     assign bresp_o   = 2'b00;
     assign bid_o     = 4'b0000;
     assign arready_o = 1'b1;
