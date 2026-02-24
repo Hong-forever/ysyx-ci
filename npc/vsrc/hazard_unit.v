@@ -94,7 +94,7 @@ module ysyx_25110270_hazard_unit
         end
     end
 
-    wire stallreq = ((I_rs1_re & ls_same_addr_rs1) | (I_rs2_re & ls_same_addr_rs2)) & (I_ex_ld_valid & ~I_bru_taken);
+    wire stallreq = ((I_rs1_re & ex_same_addr_rs1) | (I_rs2_re & ex_same_addr_rs2)) & (I_ex_ld_valid & ~I_bru_taken);
 
     // wire [1:0] fwd_ctrl_rs1 = (I_rs1_re & I_rs1_raddr != 0) ? 
     //                     (use_ls_data_rs1) ? `ysyx_25110270_FWDSRC_LS :
