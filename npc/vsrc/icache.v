@@ -64,7 +64,7 @@ module ysyx_25110270_icache
 
     wire hit;
     generate
-        if (N_WAYS == 1) begin
+        if(N_WAYS == 1) begin
             assign hit = (tag_mem[index] == tag) & valid_mem[index];
         end else begin
             // 多路情况，暂不实现
