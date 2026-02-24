@@ -120,6 +120,10 @@ module ysyx_25110270_cpu_core
     wire                                O_dec_rs1_re;
     wire                                O_dec_rs2_re;
 
+    wire [1:0                       ]   fwd_ctrl_rs1;
+    wire [1:0                       ]   fwd_ctrl_rs2;
+    wire [1:0                       ]   fwd_ctrl_csr;
+
     wire                                stallreq_dec;
 
     //-------------------------------------------------------------
@@ -363,11 +367,9 @@ module ysyx_25110270_cpu_core
     (
         .I_rs1_re               (O_dec_rs1_re               ),
         .I_rs2_re               (O_dec_rs2_re               ),
-        .I_csr_re               (O_dec_csr_valid            ),
 
         .I_rs1_raddr            (O_rs1_raddr                ),
         .I_rs2_raddr            (O_rs2_raddr                ),
-        .I_csr_raddr            (O_csr_addr                 ),
 
         .I_ex_rd_we             (I_ex_rd_we                 ),
         .I_ex_rd_waddr          (I_ex_rd_waddr              ),
@@ -375,20 +377,17 @@ module ysyx_25110270_cpu_core
         .I_ls_rd_we             (I_ls_rd_we                 ),
         .I_ls_rd_waddr          (I_ls_rd_waddr              ),
 
-        .I_wb_rd_we             (I_wb_rd_we                 ),
-        .I_wb_rd_waddr          (I_wb_rd_waddr              ),
-
-        .I_ex_csr_we            (I_ex_csr_valid             ),
+        .I_csr_valid            (O_dec_csr_valid            ),
+        .I_csr_raddr            (O_csr_addr                 ),
         .I_ex_csr_waddr         (I_ex_csr_addr              ),
-
-        .I_ls_csr_we            (I_ls_csr_valid             ),
         .I_ls_csr_waddr         (I_ls_csr_addr              ),
 
-        .I_wb_csr_we            (I_wb_csr_valid             ),
-        .I_wb_csr_waddr         (I_wb_csr_addr              ),
-
+        .I_ex_ld_valid          (I_ex_ld_valid              ),
         .I_bru_taken            (O_ex_bru_taken             ),
 
+        .O_fwd_ctrl_rs1         (fwd_ctrl_rs1               ),
+        .O_fwd_ctrl_rs2         (fwd_ctrl_rs2               ),
+        .O_fwd_ctrl_csr         (fwd_ctrl_csr               ),
         .O_stallreq             (stallreq_dec               )
     );
 
@@ -418,14 +417,21 @@ module ysyx_25110270_cpu_core
         .I_f7b5_en              (I_ex_f7b5_en               ),
         .I_sign                 (I_ex_sign                  ),
         .I_op                   (I_ex_op                    ),
-
         .I_csr_addr             (I_ex_csr_addr              ),
+        .I_except               (I_ex_except                ),
+
+        .I_fwd_ctrl_rs1         (fwd_ctrl_rs1               ),
+        .I_fwd_ctrl_rs2         (fwd_ctrl_rs2               ),
+        .I_fwd_ctrl_csr         (fwd_ctrl_csr               ),
 
         .I_rs1_rdata            (I_ex_rs1_rdata             ),
         .I_rs2_rdata            (I_ex_rs2_rdata             ),
         .I_csr_rdata            (I_ex_csr_rdata             ),
 
-        .I_except               (I_ex_except                ),
+        .I_fwd_old_rs_data      (I_ls_rd_wdata              ),
+        .I_fwd_old2_rs_data     (I_wb_rd_wdata              ),
+        .I_fwd_old_csr_data     (I_ls_csr_wdata             ),
+        .I_fwd_old2_csr_data    (I_wb_csr_wdata             ),
 
         .O_inst                 (O_ex_inst                  ),
         .O_inst_addr            (O_ex_inst_addr             ),
