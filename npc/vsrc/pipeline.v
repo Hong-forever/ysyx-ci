@@ -192,6 +192,8 @@ module ysyx_25110270_pipeline_ex_ls
     output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
+    output  reg     [31:0                       ]   O_fwd_rs_data,     // 前递
+    output  reg     [31:0                       ]   O_fwd_csr_data,    // 前递
 
     input   wire                                    I_enable,
     input   wire                                    I_flush
@@ -211,7 +213,9 @@ module ysyx_25110270_pipeline_ex_ls
             O_csr_valid     <= 0                        ;
             O_csr_addr      <= 0                        ;
             O_csr_wdata     <= 0                        ;
-            O_except        <= 0                        ;;
+            O_except        <= 0                        ;
+            O_fwd_rs_data   <= 0                        ;
+            O_fwd_csr_data  <= 0                        ;
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -227,6 +231,8 @@ module ysyx_25110270_pipeline_ex_ls
             O_csr_addr      <= I_csr_addr               ;
             O_csr_wdata     <= I_csr_wdata              ;
             O_except        <= I_except                 ;
+            O_fwd_rs_data   <= I_rd_wdata               ;
+            O_fwd_csr_data  <= I_csr_wdata              ;
         end
     end
 
@@ -264,6 +270,9 @@ module ysyx_25110270_pipeline_ls_wb
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
+    output  reg     [31:0                       ]   O_fwd_rs_data,     // 前递
+    output  reg     [31:0                       ]   O_fwd_csr_data,     // 前递
+
     output  wire                                    O_device_skip,
 
     input   wire                                    I_enable,
@@ -281,6 +290,8 @@ module ysyx_25110270_pipeline_ls_wb
             O_csr_addr      <= 0                        ;
             O_csr_wdata     <= 0                        ;
             O_except        <= 0                        ;
+            O_fwd_rs_data   <= 0                        ;
+            O_fwd_csr_data  <= 0                        ;
             O_device_skip   <= 0                        ;
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
@@ -292,6 +303,8 @@ module ysyx_25110270_pipeline_ls_wb
             O_csr_addr      <= I_csr_addr               ;
             O_csr_wdata     <= I_csr_wdata              ;
             O_except        <= I_except                 ;
+            O_fwd_rs_data   <= I_rd_wdata               ;
+            O_fwd_csr_data  <= I_csr_wdata              ;
             O_device_skip   <= I_device_skip            ;
         end
     end
