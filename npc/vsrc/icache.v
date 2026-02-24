@@ -77,7 +77,7 @@ module ysyx_25110270_icache
         end else begin
             case(state)
                 IDLE:    state <= I_valid ? (hit ? IDLE : REQ) : IDLE;
-                REQ:     state <= (O_arvalid && I_arready) ? REFILL : REQ;
+                REQ:     state <= I_arready ? REFILL : REQ;
                 REFILL:  state <= (I_rvalid && I_rlast) ? IDLE : REFILL;
                 default: state <= IDLE;
             endcase
