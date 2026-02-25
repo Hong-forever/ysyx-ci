@@ -19,16 +19,16 @@ bool btb_valid[4];
 uint32_t btb[4];
 
 // 核心访问函数
-bool branchsim_access(uint32_t inst, uint32_t addr, uint32_t target, bool br_taken) {
+bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken) {
     // 参数检查
     if (inst == 0) return false;
 
     if((inst & 0x7f) == 0x63) { // Branch
         br_inst_nr++;
         if(br_taken) {
+            btb_valid[(pc>>2) % 4] = true;
+            btb[(pc>>2) % 4] = target;
             taken_br_nr++;
-            btb_valid[addr % 4] = true;
-            btb[addr % 4] = target;
         }
     } else if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
         jump_inst_nr++;
@@ -40,9 +40,9 @@ bool branchsim_access(uint32_t inst, uint32_t addr, uint32_t target, bool br_tak
         assert(0 && "Not a branch or jump instruction");
     }
 
-    bool prediction = (inst & 0x7f) == 0x63 && (inst >> 31) == 1 && btb_valid[addr % 4];
-    uint32_t predicted_target = btb[addr % 4];
 
+    bool prediction = (inst & 0x7f) == 0x63 && (inst >> 31) == 1 && btb_valid[(pc>>2) % 4];
+    uint32_t predicted_target = btb[(pc>>2) % 4];
     total_accesses++;
     
     if ((prediction && br_taken && predicted_target == target) || (!prediction && !br_taken)) {
@@ -56,7 +56,6 @@ bool branchsim_access(uint32_t inst, uint32_t addr, uint32_t target, bool br_tak
 }
 
 
-
 // 打印统计信息
 void branchsim_print_stats() {
     
@@ -66,7 +65,7 @@ void branchsim_print_stats() {
     printf("  Correct predictions: %u\n", correct_predictions);
     printf("  Mispredictions: %u\n", mispredictions);
     printf("  Accuracy: %.2f%%\n", 
-           total_accesses > 0 ? 100.0 * correct_predictions / total_accesses : 0);
+           br_inst_nr > 0 ? 100.0 * correct_predictions / br_inst_nr : 0);
     
     printf("\nBranch/Jump Breakdown:\n");
     printf("  Branch instructions: %u\n", br_inst_nr);
