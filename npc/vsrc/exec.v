@@ -68,7 +68,7 @@ module ysyx_25110270_exec
     output  wire    [`ysyx_25110270_ExceptBus       ]   O_except,
 
     //bru
-    output  wire                                        O_is_jalr,
+    output  wire                                        O_btb_update,
     output  wire                                        O_bru_taken,
     output  wire    [31:0                           ]   O_bru_target
 
@@ -115,7 +115,7 @@ module ysyx_25110270_exec
     reg [31:0] alu_srcb;
     reg [31:0] agu_src;
 
-    reg is_jalr;
+    reg btb_update;
 
     always @(*) begin
         case(I_alu_srca_sel)
@@ -138,15 +138,15 @@ module ysyx_25110270_exec
         case(I_agu_src_sel)
             `ysyx_25110270_AGUSRC_RS1: begin
                 agu_src = final_rs1_rdata;
-                is_jalr = 1'b1;
+                btb_update = 1'b0;
             end
             `ysyx_25110270_AGUSRC_PC: begin
                 agu_src = I_inst_addr;
-                is_jalr = 1'b0;
+                btb_update = 1'b1;
             end
             default: begin
                 agu_src = 0;
-                is_jalr = 0;
+                btb_update = 1;
             end
         endcase
     end
@@ -232,7 +232,7 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_is_jalr = is_jalr;
+    assign O_btb_update = btb_update & bru_taken_final;
     assign O_bru_taken = bru_taken_final;
     assign O_bru_target = bru_taken_need ? agu_result : fix_addr_plus4;
 
