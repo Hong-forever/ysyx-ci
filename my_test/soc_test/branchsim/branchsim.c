@@ -1,18 +1,40 @@
-#include "cachesim.h"
+#include "branchsim.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <assert.h>
 
 uint32_t total_accesses = 0;
 uint32_t correct_predictions = 0;
 uint32_t mispredictions = 0;
 
+uint32_t br_inst_nr = 0;
+uint32_t jump_inst_nr = 0;
+uint32_t taken_br_nr = 0;
+uint32_t taken_jump_nr = 0;
+
 // 核心访问函数
 bool branchsim_access(uint32_t inst, bool br_taken) {
     // 参数检查
     if (inst == 0) return false;
+
+    if((inst & 0x7f) == 0x63) { // Branch
+        br_inst_nr++;
+        if(br_taken) {
+            taken_br_nr++;
+        }
+    } else if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
+        jump_inst_nr++;
+        if(br_taken) {
+            taken_jump_nr++;
+        }
+        assert(br_taken);
+    } else {
+        assert(0 && "Not a branch or jump instruction");
+    }
+
 
     bool prediction = (inst & 0x7f) == 0x63 && (inst >> 31) == 1;
     total_accesses++;
@@ -38,6 +60,16 @@ void branchsim_print_stats() {
     printf("  Mispredictions: %u\n", mispredictions);
     printf("  Accuracy: %.2f%%\n", 
            total_accesses > 0 ? 100.0 * correct_predictions / total_accesses : 0);
+    
+    printf("\nBranch/Jump Breakdown:\n");
+    printf("  Branch instructions: %u\n", br_inst_nr);
+    printf("  Jump instructions: %u\n", jump_inst_nr);
+    printf("  Taken branches: %u\n", taken_br_nr);
+    printf("  Taken jumps: %u\n", taken_jump_nr);
+    printf("  Taken branch rate: %.2f%%\n", 
+           br_inst_nr > 0 ? 100.0 * taken_br_nr / br_inst_nr : 0);
+    printf("  Taken jump rate: %.2f%%\n", 
+           jump_inst_nr > 0 ? 100.0 * taken_jump_nr / jump_inst_nr : 0);
     
     printf("================================================\n");
 }

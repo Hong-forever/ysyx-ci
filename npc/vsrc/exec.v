@@ -11,6 +11,7 @@ module ysyx_25110270_exec
     input   wire    [31:0                           ]   I_inst,
     input   wire    [31:0                           ]   I_inst_addr,
 
+    input   wire                                        I_valid,
     input   wire                                        I_ready,
     output  wire                                        O_ready,
     output  wire                                        O_valid,
@@ -230,6 +231,21 @@ module ysyx_25110270_exec
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 2);
         end
     end
+
+    reg valid_r;
+    always @(posedge clk) begin
+        if(rst) begin
+            valid_r <= 1'b0;
+        end else begin
+            valid_r <= I_valid;
+        end
+    end
 `endif
+
+`ifdef PERF
+
     
+
+`endif
+
 endmodule //exu

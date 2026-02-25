@@ -8,6 +8,7 @@
 // 函数声明
 
 bool branchsim_access(uint32_t inst, bool br_taken);
+void branchsim_print_stats();
 int process_binary_trace(const char *filename);
 
 #endif

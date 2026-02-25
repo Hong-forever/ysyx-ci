@@ -11,6 +11,9 @@ uint64_t alu_inst_nr, ls_inst_nr, br_inst_nr, csr_inst_nr, fence_i_inst_nr, jump
 uint64_t ls_delay_total;
 uint64_t icache_miss, icache_miss_penal;
 
+uint64_t ex_br_inst_nr, ex_jump_inst_nr;
+uint64_t ex_taken_br_nr, ex_taken_jump_nr;
+
 static inline uint64_t rdtime() {
     return g_cycle;
 }
@@ -38,6 +41,22 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
     }
 }
 
+extern "C" void jump_br_cal(uint32_t inst, bool is_taken) {
+    if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
+        ex_jump_inst_nr++;
+        if(is_taken) {
+            ex_taken_jump_nr++;
+        }
+        assert(is_taken);
+    }
+    if ((inst & 0x7f) == 0x63) { // Branch
+        ex_br_inst_nr++;
+        if(is_taken) {
+            ex_taken_br_nr++;
+        }
+    }
+}
+
 extern "C" void wb_inst_cycle_cal(uint32_t pc, uint32_t inst) {
 
         switch (inst & 0x7f) {
@@ -46,8 +65,8 @@ extern "C" void wb_inst_cycle_cal(uint32_t pc, uint32_t inst) {
             case 0x33: 
             case 0x37: alu_inst_nr++;  break;
             case 0x63: br_inst_nr++;  break;
-            case 0x67: jump_inst_nr++; br_inst_nr++; break;
-            case 0x6f: jump_inst_nr++; br_inst_nr++;  break;
+            case 0x67: jump_inst_nr++; break;
+            case 0x6f: jump_inst_nr++; break;
             case 0x03: 
             case 0x23: ls_inst_nr++;  break;
             case 0x73: csr_inst_nr++; break;
@@ -70,7 +89,8 @@ void perf_cal() {
     printf("\n===== Proportion =====\n");
     printf("ALU Inst(alu): %lu(%.2f%%)\n", alu_inst_nr, (double)alu_inst_nr / (double)g_nr_guest_inst * 100);
     printf("L/S Inst     : %lu(%.2f%%)\n", ls_inst_nr,  (double)ls_inst_nr  / (double)g_nr_guest_inst * 100);
-    printf("Branch Inst  : %lu(%.2f%%)(%.2f%%[jump])\n", br_inst_nr,  (double)br_inst_nr  / (double)g_nr_guest_inst * 100, (double)jump_inst_nr / (double)g_nr_guest_inst * 100);
+    printf("Branch Inst  : %lu(%.2f%%)\n", br_inst_nr,  (double)br_inst_nr  / (double)g_nr_guest_inst * 100);
+    printf("Jump Inst    : %lu(%.2f%%)\n", jump_inst_nr,  (double)jump_inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %lu(%.2f%%)\n", csr_inst_nr, (double)csr_inst_nr / (double)g_nr_guest_inst * 100);
     printf("FENCE Inst   : %lu(%.2f%%)\n", fence_i_inst_nr, (double)fence_i_inst_nr / (double)g_nr_guest_inst * 100);
 
@@ -87,8 +107,9 @@ void perf_cal() {
     printf("IHIT         : %.2f%%\n", hit_per * 100);
     printf("MISSPENALTY  : %.2f cycles\n", miss_penalty);
 
-    printf("\n===== DAMAT =====\n");
-    printf("L/S Delay    : %.2f\n", ls_inst_nr  ? (double)ls_delay_total / (double)ls_inst_nr : 0);
+    printf("\n===== BR/JP =====\n");
+    printf("TAKEN BR     : %lu(%.2f%%)\n", ex_taken_br_nr, (double)ex_taken_br_nr / (double)ex_br_inst_nr * 100);
+    printf("TAKEN JUMP   : %lu(%.2f%%)\n", ex_taken_jump_nr, (double)ex_taken_jump_nr / (double)ex_jump_inst_nr * 100);
 
     printf("\n==================================\n");
 }

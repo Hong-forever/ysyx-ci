@@ -62,6 +62,7 @@ int main(int argc, char *argv[]) {
     printf("Total accesses processed: %d\n", access_count);
     
     // 打印统计信息
+    branchsim_print_stats();
 
     return 0;
 }

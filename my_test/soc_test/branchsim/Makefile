@@ -25,6 +25,6 @@ clean:
 	rm -rf build
 
 run: $(TARGET)
-# 	./$(TARGET) --trace /home/hhh/Templates/branchsim.bin --size 64 --ways 1 --block 4 --policy lru --icache
+	./$(TARGET) --trace /tmp/btrace.bin
 
 .PHONY: all clean run
