@@ -54,6 +54,7 @@ extern "C" void jump_br_cal(uint32_t inst, bool is_taken) {
         if(is_taken) {
             ex_taken_br_nr++;
         }
+        printf("ex_br_inst_nr: %lu, ex_taken_br_nr: %lu\n", ex_br_inst_nr, ex_taken_br_nr);
     }
 }
 
