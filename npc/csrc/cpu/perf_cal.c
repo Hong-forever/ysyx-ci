@@ -45,7 +45,7 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
     }
 }
 
-extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken, bool is_taken_final) {
+extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken, bool is_taken_final, uint32_t pred_target) {
     if((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
         if((inst & 0x7f) == 0x6f) {
             ex_jal_inst_nr++;
@@ -67,8 +67,8 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
     }
 
     if(pc == 0xa00000a8) {
-        printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, FinalTaken=%d\n", 
-                pc, inst, target, is_taken, is_taken_final);
+        printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, FinalTaken=%d, PredTarget=0x%08x\n", 
+                pc, inst, target, is_taken, is_taken_final, pred_target);
     }
 
     if((inst & 0x7f) == 0x63 || (inst & 0x7f) == 0x6f) { // Branch or JAL
