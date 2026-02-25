@@ -130,7 +130,7 @@ module ysyx_25110270_ifetch
                 pc <= I_flush_addr;
             end else if(I_bru_taken) begin
                 pc <= I_bru_target;
-            end else if(pred_taken) begin
+            end else if(pred_taken & 0) begin
                 pc <= pred_target;
             end else begin
                 pc <= pc_plus4;
