@@ -66,6 +66,11 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
         }
     }
 
+    if(pc == 0xa00000a8) {
+        printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, FinalTaken=%d\n", 
+                pc, inst, target, is_taken, is_taken_final);
+    }
+
     if((inst & 0x7f) == 0x63 || (inst & 0x7f) == 0x6f) { // Branch or JAL
         static FILE *log_fp = NULL;
         if (!log_fp) {
