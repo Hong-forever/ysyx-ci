@@ -10,6 +10,7 @@ module ysyx_25110270_ifetch
     input   wire                        rst,
 
     input   wire                        I_bru_taken,        //跳转指令
+    input   wire    [31:0]              I_bru_source,       //跳转指令地址
     input   wire    [31:0]              I_bru_target,
 
     input   wire                        I_ready,
@@ -68,7 +69,6 @@ module ysyx_25110270_ifetch
     wire [31:0] inst;
     wire [31:0] pc_plus4;
 
-
     ysyx_25110270_icache 
     #(
         .ADDR_WIDTH             (32                         ),
@@ -100,7 +100,26 @@ module ysyx_25110270_ifetch
         .I_rdata                (ibus_rdata                 ),
         .I_rlast                (ibus_rlast                 ),
         .I_rresp                (ibus_rresp                 )
+    );
 
+    wire pred_taken;
+    wire [31:0] pred_target;
+    ysyx_25110270_branch_predictor
+    #(
+        .SRC_WIDTH              (2                          )
+    ) branch_predictor
+    (
+        .clk                    (clk                        ),
+        .rst                    (rst                        ),
+
+        .update                 (I_bru_taken                ),
+        .update_src             (I_bru_source[3:2]          ),
+        .update_dst             (I_bru_target               ),
+
+        .inst                   (inst                       ),
+        .pc                     (pc[3:2]                    ),
+        .taken                  (pred_taken                 ),
+        .target                 (pred_target                )
     );
 
     always @(posedge clk) begin
@@ -111,6 +130,8 @@ module ysyx_25110270_ifetch
                 pc <= I_flush_addr;
             end else if(I_bru_taken) begin
                 pc <= I_bru_target;
+            end else if(pred_taken) begin
+                pc <= pred_target;
             end else begin
                 pc <= pc_plus4;
             end

@@ -24,6 +24,8 @@ module ysyx_25110270_exec
     input   wire    [1:0                            ]   I_agu_src_sel,
     input   wire                                        I_csr_src_sel,
 
+    input   wire    [31:0                           ]   I_pred_target,      //分支预测目标地址
+
     input   wire                                        I_ld_valid,         //访存有效标志
     input   wire                                        I_st_valid,         //访存有效标志
     input   wire                                        I_br_valid,         //跳转指令标志
@@ -162,8 +164,9 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // agu运算
     //------------------------------------------------------------------------
-    wire [31:0] agu_result;
+    wire [31:0] agu_result, fix_addr_plus4;
     assign agu_result = agu_src + I_imm;
+    assign fix_addr_plus4 = I_inst_addr + 4;
 
     //------------------------------------------------------------------------
     // bru运算
@@ -173,10 +176,13 @@ module ysyx_25110270_exec
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
-        .I_br_valid                 (I_br_valid             ),
         .I_bru_ctrl                 (I_op                   ),
         .O_bru_taken                (bru_taken              )
     );
+
+    wire bru_taken_need = ((bru_taken & I_br_valid) & (I_pred_target != agu_result));         //应该跳转，但是跳转错误
+    wire bru_taken_noneed = ((!bru_taken & I_br_valid) & (I_pred_target != fix_addr_plus4));  //不用跳转，但是跳转了
+    wire bru_taken_final = bru_taken_need | bru_taken_noneed;
 
     //------------------------------------------------------------------------
     // csr运算
@@ -214,8 +220,8 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_bru_taken = bru_taken;
-    assign O_bru_target = agu_result;
+    assign O_bru_taken = bru_taken_final;
+    assign O_bru_target = bru_taken_need ? agu_result : fix_addr_plus4;
 
     assign O_except = I_except;
 
@@ -244,11 +250,11 @@ module ysyx_25110270_exec
 
 `ifdef PERF
 
-    import "DPI-C" function void jump_br_cal(input int inst, input int is_taken);
+    import "DPI-C" function void jump_br_cal(input int inst, input int pc, input int target, input int is_taken, input int is_taken_final);
 
     always @(posedge clk) begin
         if(I_br_valid & valid) begin
-            jump_br_cal(I_inst, bru_taken);
+            jump_br_cal(I_inst, I_inst_addr, agu_result, bru_taken, bru_taken_final);
         end
     end
 

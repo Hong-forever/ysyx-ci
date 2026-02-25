@@ -30,9 +30,9 @@ enum {
   TYPE_N, TYPE_J, TYPE_B, TYPE_R, TYPE_M
 };
 
-static void btrace(uint32_t inst, bool taken) {
+static void btrace(uint32_t inst, uint32_t addr, uint32_t target, bool taken) {
 
-#ifdef CONFIG_BTRACE
+// #ifdef CONFIG_BTRACE
     static FILE *btrace_fp = NULL;
         
     if (btrace_fp == NULL) {
@@ -42,13 +42,13 @@ static void btrace(uint32_t inst, bool taken) {
         }
     }
 
-    // if(op != 0) printf("op is %x\n", op);
-
-    uint64_t entry = ((uint64_t)inst) | ((uint64_t)taken << 32);
+    uint64_t entry = ((uint64_t)inst) | ((uint64_t)addr << 32);
+    uint64_t entry2 = ((uint64_t)target) | ((uint64_t)taken << 32);
     
     if (btrace_fp != NULL) {
         // 写入PC值（十六进制
         fwrite(&entry, sizeof(uint64_t), 1, btrace_fp);
+        fwrite(&entry2, sizeof(uint64_t), 1, btrace_fp);
         
         // 定期flush防止数据丢失
         static int count = 0;
@@ -56,7 +56,7 @@ static void btrace(uint32_t inst, bool taken) {
             fflush(btrace_fp);
         }
     }
-#endif
+// #endif
 
 }
 
@@ -146,15 +146,15 @@ static int decode_exec(Decode *s) {
 
   INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui    , U, R(rd) = imm);
   
-  INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, s->dnpc = (src1 == src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, src1 == src2));
-  INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne    , B, s->dnpc = (src1 != src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, src1 != src2));
-  INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt    , B, s->dnpc = ((int32_t)src1 < (int32_t)src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, (int32_t)src1 < (int32_t)src2));
-  INSTPAT("??????? ????? ????? 101 ????? 11000 11", bge    , B, s->dnpc = ((int32_t)src1 >= (int32_t)src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, (int32_t)src1 >= (int32_t)src2));
-  INSTPAT("??????? ????? ????? 110 ????? 11000 11", bltu   , B, s->dnpc = (src1 < src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, src1 < src2));
-  INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu   , B, s->dnpc = (src1 >= src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, src1 >= src2));
+  INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, s->dnpc = (src1 == src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, s->pc, s->dnpc, src1 == src2));
+  INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne    , B, s->dnpc = (src1 != src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, s->pc, s->dnpc, src1 != src2));
+  INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt    , B, s->dnpc = ((int32_t)src1 < (int32_t)src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, s->pc, s->dnpc, (int32_t)src1 < (int32_t)src2));
+  INSTPAT("??????? ????? ????? 101 ????? 11000 11", bge    , B, s->dnpc = ((int32_t)src1 >= (int32_t)src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, s->pc, s->dnpc, (int32_t)src1 >= (int32_t)src2));
+  INSTPAT("??????? ????? ????? 110 ????? 11000 11", bltu   , B, s->dnpc = (src1 < src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, s->pc, s->dnpc, src1 < src2));
+  INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu   , B, s->dnpc = (src1 >= src2)? s->pc + imm : s->snpc; btrace(s->isa.inst, s->pc, s->dnpc, src1 >= src2));
   
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, s->dnpc = src1 + imm; btrace(s->isa.inst, 1); IFDEF(CONFIG_FTRACE, ftrace_exec(s->pc, s->dnpc, rs1, rd, imm, 2)); R(rd) = s->pc + 4);
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, s->dnpc = s->pc + imm; btrace(s->isa.inst, 1); IFDEF(CONFIG_FTRACE, ftrace_exec(s->pc, s->dnpc, rs1, rd, imm, 1)); R(rd) = s->pc + 4);
+  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, s->dnpc = src1 + imm; btrace(s->isa.inst, s->pc, s->dnpc, 1); IFDEF(CONFIG_FTRACE, ftrace_exec(s->pc, s->dnpc, rs1, rd, imm, 2)); R(rd) = s->pc + 4);
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, s->dnpc = s->pc + imm; btrace(s->isa.inst, s->pc, s->dnpc, 1); IFDEF(CONFIG_FTRACE, ftrace_exec(s->pc, s->dnpc, rs1, rd, imm, 1)); R(rd) = s->pc + 4);
 
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , M, R(rd) = src1 * src2);
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , M, R(rd) = ((int64_t)(int32_t)src1 * (int64_t)(int32_t)src2) >> 32);

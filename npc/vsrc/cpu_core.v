@@ -283,6 +283,7 @@ module ysyx_25110270_cpu_core
         .rst                    (rst                        ),
 
         .I_bru_taken            (O_ex_bru_taken             ),
+        .I_bru_source           (O_ex_inst_addr             ),
         .I_bru_target           (O_ex_bru_target            ),
 
         .I_ready                (O_dec_ready                ),
@@ -415,6 +416,9 @@ module ysyx_25110270_cpu_core
         .I_alu_srcb_sel         (I_ex_alu_srcb_sel          ),
         .I_agu_src_sel          (I_ex_agu_src_sel           ),
         .I_csr_src_sel          (I_ex_csr_src_sel           ),
+
+        .I_pred_target          (I_dec_inst_addr            ),
+
         .I_ld_valid             (I_ex_ld_valid              ),
         .I_st_valid             (I_ex_st_valid              ),
         .I_br_valid             (I_ex_br_valid              ),

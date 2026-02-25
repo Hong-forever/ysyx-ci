@@ -13,12 +13,12 @@ int process_binary_trace(const char *filename) {
         return -1;
     }
     
-    uint64_t entry;
+    uint64_t entry, entry2;
     int count = 0;
     
-    while (fread(&entry, sizeof(uint64_t), 1, fp) == 1) {
-        bool is_taken = (entry >> 32) & 0x1;  // 取第32位作为分支结果 
-            branchsim_access((uint32_t)entry, is_taken);
+    while (fread(&entry, sizeof(uint64_t), 1, fp) == 1 && fread(&entry2, sizeof(uint64_t), 1, fp) == 1) {
+        bool is_taken = (entry2 >> 32) & 0x1;  // 取第32位作为分支结果 
+            branchsim_access((uint32_t)entry, (uint32_t)(entry >> 32), (uint32_t)(entry2 & 0xffffffff), is_taken);
             count++;
         if (count % 1000000 == 0) {
             printf("Processed %d million accesses...\n", count / 1000000);
