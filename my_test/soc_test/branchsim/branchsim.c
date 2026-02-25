@@ -29,6 +29,8 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
         uint32_t predicted_target = btb[(pc>>2) % 4];
 
         bool is_correct = (prediction && br_taken && predicted_target == target) || (!prediction && !br_taken);
+
+        bool is_taken_final = !is_correct;
     
         if (is_correct) {
             correct_predictions++;
@@ -52,9 +54,9 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
 
         if (log_fp) {
             uint64_t log_entry = ((uint64_t)inst) | ((uint64_t)pc << 32);
-            uint64_t log_entry2 = ((uint64_t)target) | ((uint64_t)br_taken << 32 | (uint64_t)is_correct << 33);
+            uint32_t log_entry2 =  ((uint32_t)br_taken | (uint32_t)is_taken_final << 1);
             fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
-            fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
+            fwrite(&log_entry2, sizeof(uint32_t), 1, log_fp);
         }
 
     } else if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
