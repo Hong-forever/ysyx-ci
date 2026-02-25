@@ -24,6 +24,8 @@ module ysyx_25110270_exec
     input   wire    [1:0                            ]   I_agu_src_sel,
     input   wire                                        I_csr_src_sel,
 
+    input   wire    [31:0                           ]   I_pred_target,      //分支预测目标地址
+
     input   wire                                        I_ld_valid,         //访存有效标志
     input   wire                                        I_st_valid,         //访存有效标志
     input   wire                                        I_br_valid,         //跳转指令标志
@@ -173,10 +175,11 @@ module ysyx_25110270_exec
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
-        .I_br_valid                 (I_br_valid             ),
         .I_bru_ctrl                 (I_op                   ),
         .O_bru_taken                (bru_taken              )
     );
+
+    wire bru_taken_final = (bru_taken & I_br_valid) & (I_pred_target != agu_result);
 
     //------------------------------------------------------------------------
     // csr运算
@@ -214,7 +217,7 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_bru_taken = bru_taken;
+    assign O_bru_taken = bru_taken_final;
     assign O_bru_target = agu_result;
 
     assign O_except = I_except;
