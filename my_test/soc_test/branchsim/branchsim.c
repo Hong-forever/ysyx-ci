@@ -15,8 +15,10 @@ uint32_t jump_inst_nr = 0;
 uint32_t taken_br_nr = 0;
 uint32_t taken_jump_nr = 0;
 
-bool btb_valid[4];
-uint32_t btb[4];
+#define BTB_SIZE 4
+
+bool btb_valid[BTB_SIZE];
+uint32_t btb[BTB_SIZE];
 
 // 核心访问函数
 bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken) {
@@ -25,8 +27,8 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
 
     if((inst & 0x7f) == 0x63) { // Branch
         br_inst_nr++;
-        bool prediction = (inst >> 31) == 1 && btb_valid[(pc>>2) % 4];
-        uint32_t predicted_target = btb[(pc>>2) % 4];
+        bool prediction = (inst >> 31) == 1 && btb_valid[(pc>>2) % BTB_SIZE];
+        uint32_t predicted_target = btb[(pc>>2) % BTB_SIZE];
 
         bool is_correct = (prediction && br_taken && predicted_target == target) || (!prediction && !br_taken);
 
@@ -38,9 +40,9 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
             mispredictions++;
         }
 
-        if(br_taken) {
-            btb_valid[(pc>>2) % 4] = true;
-            btb[(pc>>2) % 4] = target;
+        if(!is_correct) {
+            btb_valid[(pc>>2) % BTB_SIZE] = true;
+            btb[(pc>>2) % BTB_SIZE] = target;
             taken_br_nr++;
         }
 
