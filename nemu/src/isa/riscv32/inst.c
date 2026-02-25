@@ -32,6 +32,7 @@ enum {
 
 static void btrace(uint32_t inst, bool taken) {
 
+#ifdef CONFIG_BTRACE
     static FILE *btrace_fp = NULL;
         
     if (btrace_fp == NULL) {
@@ -55,6 +56,8 @@ static void btrace(uint32_t inst, bool taken) {
             fflush(btrace_fp);
         }
     }
+#endif
+
 }
 
 #define src1R() do { *src1 = R(rs1); } while (0)
