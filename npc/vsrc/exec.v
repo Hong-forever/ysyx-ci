@@ -250,11 +250,11 @@ module ysyx_25110270_exec
 
 `ifdef PERF
 
-    import "DPI-C" function void jump_br_cal(input int inst, input int is_taken);
+    import "DPI-C" function void jump_br_cal(input int inst, input int is_taken, input int is_taken_final);
 
     always @(posedge clk) begin
         if(I_br_valid & valid) begin
-            jump_br_cal(I_inst, bru_taken_final);
+            jump_br_cal(I_inst, bru_taken, bru_taken_final);
         end
     end
 

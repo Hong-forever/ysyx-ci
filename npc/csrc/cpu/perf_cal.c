@@ -14,6 +14,8 @@ uint64_t icache_miss, icache_miss_penal;
 uint64_t ex_br_inst_nr, ex_jump_inst_nr;
 uint64_t ex_taken_br_nr, ex_taken_jump_nr;
 
+uint64_t ex_taken_final_br_nr, ex_taken_final_jump_nr;
+
 static inline uint64_t rdtime() {
     return g_cycle;
 }
@@ -41,7 +43,7 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
     }
 }
 
-extern "C" void jump_br_cal(uint32_t inst, bool is_taken) {
+extern "C" void jump_br_cal(uint32_t inst, bool is_taken, bool is_taken_final) {
     if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
         ex_jump_inst_nr++;
         if(is_taken) {
@@ -51,10 +53,12 @@ extern "C" void jump_br_cal(uint32_t inst, bool is_taken) {
     }
     if ((inst & 0x7f) == 0x63) { // Branch
         ex_br_inst_nr++;
+        if(is_taken_final) {
+            ex_taken_final_br_nr++;
+        }
         if(is_taken) {
             ex_taken_br_nr++;
         }
-        printf("ex_br_inst_nr: %lu, ex_taken_br_nr: %lu\n", ex_br_inst_nr, ex_taken_br_nr);
     }
 }
 
@@ -111,7 +115,7 @@ void perf_cal() {
     printf("\n===== BR/JP =====\n");
     printf("TAKEN BR     : %lu(%.2f%%)\n", ex_taken_br_nr, (double)ex_taken_br_nr / (double)ex_br_inst_nr * 100);
     printf("TAKEN JUMP   : %lu(%.2f%%)\n", ex_taken_jump_nr-1, (double)ex_taken_jump_nr / (double)ex_jump_inst_nr * 100);
-    printf("Pred BR Crt  : %.2f%%\n", 100 - ((double)ex_taken_br_nr / (double)ex_br_inst_nr * 100));
+    printf("Pred BR TAKE : %lu(%.2f%%)\n", ex_taken_final_br_nr, 100 - (double)ex_taken_final_br_nr / (double)ex_br_inst_nr * 100);
     // printf("Pred JP Correct: %.2f%%\n", (double)(ex_taken_jump_nr-1) / (double)ex_jump_inst_nr * 100);
 
     printf("\n==================================\n");
