@@ -136,7 +136,7 @@ void perf_cal() {
     printf("TAKEN JAL    : %lu(%d%%)\n", jal_inst_nr, 100);
     printf("FINAL BR T   : %lu(HIT: %.2f%%)\n", ex_taken_final_br_nr, 100 - (double)ex_taken_final_br_nr / (double)ex_br_inst_nr * 100);
     printf("FINAL JAL T  : %lu(HIT: %.2f%%)\n", ex_taken_final_jal_nr, 100 - (double)ex_taken_final_jal_nr / (double)ex_jal_inst_nr * 100);
-    printf("Accuracy     : %.2f%%\n", (ex_taken_final_br_nr + ex_taken_final_jal_nr) / (double)(ex_br_inst_nr + ex_jal_inst_nr) * 100);
+    printf("Accuracy     : %.2f%%\n", 100 - (ex_taken_final_br_nr + ex_taken_final_jal_nr) / (double)(ex_br_inst_nr + ex_jal_inst_nr) * 100);
 
     printf("\n==================================\n");
 }
