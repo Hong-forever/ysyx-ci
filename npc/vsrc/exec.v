@@ -254,7 +254,7 @@ module ysyx_25110270_exec
 
     always @(posedge clk) begin
         if(I_br_valid & valid) begin
-            jump_br_cal(I_inst, bru_taken);
+            jump_br_cal(I_inst, bru_taken_final);
         end
     end
 
