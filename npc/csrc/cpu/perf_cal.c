@@ -110,7 +110,7 @@ void perf_cal() {
     printf("\n===== BR/JP =====\n");
     printf("TAKEN BR     : %lu(%.2f%%)\n", ex_taken_br_nr, (double)ex_taken_br_nr / (double)ex_br_inst_nr * 100);
     printf("TAKEN JUMP   : %lu(%.2f%%)\n", ex_taken_jump_nr-1, (double)ex_taken_jump_nr / (double)ex_jump_inst_nr * 100);
-    printf("Pred BR Crt  : %.2f%%\n", 1 - ((double)ex_taken_br_nr / (double)ex_br_inst_nr * 100));
+    printf("Pred BR Crt  : %.2f%%\n", 100 - ((double)ex_taken_br_nr / (double)ex_br_inst_nr * 100));
     // printf("Pred JP Correct: %.2f%%\n", (double)(ex_taken_jump_nr-1) / (double)ex_jump_inst_nr * 100);
 
     printf("\n==================================\n");
