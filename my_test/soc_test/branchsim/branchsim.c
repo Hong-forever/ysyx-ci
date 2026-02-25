@@ -54,9 +54,9 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
 
         if (log_fp) {
             uint64_t log_entry = ((uint64_t)inst) | ((uint64_t)pc << 32);
-            uint32_t log_entry2 =  ((uint32_t)br_taken | (uint32_t)is_taken_final << 1);
+            uint64_t log_entry2 =  ((uint64_t)br_taken | (uint64_t)is_taken_final << 1);
             fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
-            fwrite(&log_entry2, sizeof(uint32_t), 1, log_fp);
+            fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
         }
 
     } else if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
