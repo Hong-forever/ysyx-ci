@@ -15,8 +15,11 @@ uint32_t jump_inst_nr = 0;
 uint32_t taken_br_nr = 0;
 uint32_t taken_jump_nr = 0;
 
+bool btb_valid[4];
+uint32_t btb[4];
+
 // 核心访问函数
-bool branchsim_access(uint32_t inst, bool br_taken) {
+bool branchsim_access(uint32_t inst, uint32_t addr, uint32_t target, bool br_taken) {
     // 参数检查
     if (inst == 0) return false;
 
@@ -24,6 +27,8 @@ bool branchsim_access(uint32_t inst, bool br_taken) {
         br_inst_nr++;
         if(br_taken) {
             taken_br_nr++;
+            btb_valid[addr % 4] = true;
+            btb[addr % 4] = target;
         }
     } else if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
         jump_inst_nr++;
@@ -35,11 +40,12 @@ bool branchsim_access(uint32_t inst, bool br_taken) {
         assert(0 && "Not a branch or jump instruction");
     }
 
+    bool prediction = (inst & 0x7f) == 0x63 && (inst >> 31) == 1 && btb_valid[addr % 4];
+    uint32_t predicted_target = btb[addr % 4];
 
-    bool prediction = (inst & 0x7f) == 0x63 && (inst >> 31) == 1;
     total_accesses++;
     
-    if (prediction == br_taken) {
+    if ((prediction && br_taken && predicted_target == target) || (!prediction && !br_taken)) {
         correct_predictions++;
     } else {
         mispredictions++;
@@ -48,6 +54,7 @@ bool branchsim_access(uint32_t inst, bool br_taken) {
     return true;
     
 }
+
 
 
 // 打印统计信息
