@@ -6,7 +6,7 @@ extern uint64_t g_nr_guest_inst;
 extern uint64_t g_cycle;
 
 
-uint64_t alu_inst_nr, ls_inst_nr, br_inst_nr, csr_inst_nr, fence_i_inst_nr;
+uint64_t alu_inst_nr, ls_inst_nr, br_inst_nr, csr_inst_nr, fence_i_inst_nr, jump_inst_nr;
 
 uint64_t ls_delay_total;
 uint64_t icache_miss, icache_miss_penal;
@@ -45,9 +45,9 @@ extern "C" void wb_inst_cycle_cal(uint32_t pc, uint32_t inst) {
             case 0x17: 
             case 0x33: 
             case 0x37: alu_inst_nr++;  break;
-            case 0x63:
-            case 0x67:
-            case 0x6f: br_inst_nr++;  break;
+            case 0x63: br_inst_nr++;  break;
+            case 0x67: jump_inst_nr++; br_inst_nr++; break;
+            case 0x6f: jump_inst_nr++; br_inst_nr++;  break;
             case 0x03: 
             case 0x23: ls_inst_nr++;  break;
             case 0x73: csr_inst_nr++; break;
@@ -70,7 +70,7 @@ void perf_cal() {
     printf("\n===== Proportion =====\n");
     printf("ALU Inst(alu): %lu(%.2f%%)\n", alu_inst_nr, (double)alu_inst_nr / (double)g_nr_guest_inst * 100);
     printf("L/S Inst     : %lu(%.2f%%)\n", ls_inst_nr,  (double)ls_inst_nr  / (double)g_nr_guest_inst * 100);
-    printf("Branch Inst  : %lu(%.2f%%)\n", br_inst_nr,  (double)br_inst_nr  / (double)g_nr_guest_inst * 100);
+    printf("Branch Inst  : %lu(%.2f%%)(%.2f%%[jump])\n", br_inst_nr,  (double)br_inst_nr  / (double)g_nr_guest_inst * 100, (double)jump_inst_nr / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %lu(%.2f%%)\n", csr_inst_nr, (double)csr_inst_nr / (double)g_nr_guest_inst * 100);
     printf("FENCE Inst   : %lu(%.2f%%)\n", fence_i_inst_nr, (double)fence_i_inst_nr / (double)g_nr_guest_inst * 100);
 

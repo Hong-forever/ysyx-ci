@@ -1,0 +1,15 @@
+#ifndef __BRANCHSIM_H__
+#define __BRANCHSIM_H__
+
+#include <stdint.h>
+#include <stdbool.h>
+
+
+// 函数声明
+
+bool branchsim_access(uint32_t inst, bool br_taken);
+int process_binary_trace(const char *filename);
+
+#endif
+
+
