@@ -11,6 +11,7 @@ module ysyx_25110270_exec
     input   wire    [31:0                           ]   I_inst,
     input   wire    [31:0                           ]   I_inst_addr,
 
+    input   wire                                        I_valid,
     input   wire                                        I_ready,
     output  wire                                        O_ready,
     output  wire                                        O_valid,
@@ -230,6 +231,27 @@ module ysyx_25110270_exec
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 2);
         end
     end
+
+    reg valid;
+    always @(posedge clk) begin
+        if(rst) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end
+    end
 `endif
-    
+
+`ifdef PERF
+
+    import "DPI-C" function void jump_br_cal(input int inst, input int is_taken);
+
+    always @(posedge clk) begin
+        if(I_br_valid & valid) begin
+            jump_br_cal(I_inst, bru_taken);
+        end
+    end
+
+`endif
+
 endmodule //exu
