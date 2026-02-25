@@ -164,8 +164,9 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // agu运算
     //------------------------------------------------------------------------
-    wire [31:0] agu_result;
+    wire [31:0] agu_result, fix_addr_plus4;
     assign agu_result = agu_src + I_imm;
+    assign fix_addr_plus4 = I_inst_addr + 4;
 
     //------------------------------------------------------------------------
     // bru运算
@@ -179,7 +180,9 @@ module ysyx_25110270_exec
         .O_bru_taken                (bru_taken              )
     );
 
-    wire bru_taken_final = (bru_taken & I_br_valid) & (I_pred_target != agu_result) | (!bru_taken & I_br_valid) & (I_pred_target == agu_result);  //如果分支预测错误，则需要更新分支预测器
+    wire bru_taken_need = ((bru_taken & I_br_valid) & (I_pred_target != agu_result));         //应该跳转，但是跳转错误
+    wire bru_taken_noneed = ((!bru_taken & I_br_valid) & (I_pred_target != fix_addr_plus4));  //不用跳转，但是跳转了
+    wire bru_taken_final = bru_taken_need | bru_taken_noneed;
 
     //------------------------------------------------------------------------
     // csr运算
@@ -218,7 +221,7 @@ module ysyx_25110270_exec
     assign O_csr_wdata = csr_wdata;
 
     assign O_bru_taken = bru_taken_final;
-    assign O_bru_target = agu_result;
+    assign O_bru_target = bru_taken_need ? agu_result : fix_addr_plus4;
 
     assign O_except = I_except;
 
