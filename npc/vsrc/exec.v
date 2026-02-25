@@ -68,6 +68,7 @@ module ysyx_25110270_exec
     output  wire    [`ysyx_25110270_ExceptBus       ]   O_except,
 
     //bru
+    output  wire                                        O_btb_update,
     output  wire                                        O_bru_taken,
     output  wire    [31:0                           ]   O_bru_target
 
@@ -114,6 +115,8 @@ module ysyx_25110270_exec
     reg [31:0] alu_srcb;
     reg [31:0] agu_src;
 
+    reg btb_update;
+
     always @(*) begin
         case(I_alu_srca_sel)
             `ysyx_25110270_ALUSRCA_RS1: alu_srca = final_rs1_rdata;
@@ -133,9 +136,18 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_agu_src_sel)
-            `ysyx_25110270_AGUSRC_RS1:  agu_src = final_rs1_rdata;
-            `ysyx_25110270_AGUSRC_PC:   agu_src = I_inst_addr;
-            default:                    agu_src = 0;
+            `ysyx_25110270_AGUSRC_RS1: begin
+                agu_src = final_rs1_rdata;
+                btb_update = 1'b0;
+            end
+            `ysyx_25110270_AGUSRC_PC: begin
+                agu_src = I_inst_addr;
+                btb_update = 1'b1;
+            end
+            default: begin
+                agu_src = 0;
+                btb_update = 1;
+            end
         endcase
     end
 
@@ -220,6 +232,7 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
+    assign O_btb_update = btb_update & bru_taken_final;
     assign O_bru_taken = bru_taken_final;
     assign O_bru_target = bru_taken_need ? agu_result : fix_addr_plus4;
 
@@ -250,11 +263,11 @@ module ysyx_25110270_exec
 
 `ifdef PERF
 
-    import "DPI-C" function void jump_br_cal(input int inst, input int pc, input int target, input int is_taken, input int is_taken_final);
+    import "DPI-C" function void jump_br_cal(input int inst, input int pc, input int target, input int is_taken, input int is_taken_final, input int pred_target);
 
     always @(posedge clk) begin
         if(I_br_valid & valid) begin
-            jump_br_cal(I_inst, I_inst_addr, agu_result, bru_taken, bru_taken_final);
+            jump_br_cal(I_inst, I_inst_addr, agu_result, bru_taken, bru_taken_final, I_pred_target);
         end
     end
 

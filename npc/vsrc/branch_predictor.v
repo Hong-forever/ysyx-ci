@@ -24,7 +24,7 @@ module ysyx_25110270_branch_predictor
     wire valid;
     wire [31:0] branch_target;
 
-    assign taken = (inst[6:0] == 7'h63) & inst[31] & valid;
+    assign taken = (((inst[6:0] == 7'h63) & inst[31]) | (inst[6:0] == 7'h6f)) & valid;
     assign target = branch_target;
 
     ysyx_25110270_branch_target_buffer 

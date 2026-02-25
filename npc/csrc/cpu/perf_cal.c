@@ -6,15 +6,17 @@ extern uint64_t g_nr_guest_inst;
 extern uint64_t g_cycle;
 
 
-uint64_t alu_inst_nr, ls_inst_nr, br_inst_nr, csr_inst_nr, fence_i_inst_nr, jump_inst_nr;
+uint64_t alu_inst_nr, ls_inst_nr, br_inst_nr, csr_inst_nr, fence_i_inst_nr, jal_inst_nr, jalr_inst_nr;
 
 uint64_t ls_delay_total;
 uint64_t icache_miss, icache_miss_penal;
 
-uint64_t ex_br_inst_nr, ex_jump_inst_nr;
-uint64_t ex_taken_br_nr, ex_taken_jump_nr;
+uint64_t ex_br_inst_nr, ex_jalr_inst_nr;
+uint64_t ex_jal_inst_nr = -1;  // 由于流水线原因，ebreak指令后面会多一条jal指令，导致ex_jal_inst_nr比jal_inst_nr多1，所以初始化为-1
+uint64_t ex_taken_br_nr;
 
-uint64_t ex_taken_final_br_nr, ex_taken_final_jump_nr;
+uint64_t ex_taken_final_br_nr, ex_taken_final_jalr_nr;
+uint64_t ex_taken_final_jal_nr = -1;  // 由于流水线原因，ebreak指令后面会多一条jal指令，导致ex_taken_final_jal_nr比ex_jal_inst_nr多1，所以初始化为-1
 
 static inline uint64_t rdtime() {
     return g_cycle;
@@ -43,14 +45,18 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
     }
 }
 
-extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken, bool is_taken_final) {
-    if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
-        ex_jump_inst_nr++;
-        if(is_taken) {
-            ex_taken_jump_nr++;
+extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken, bool is_taken_final, uint32_t pred_target) {
+    if((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
+        if((inst & 0x7f) == 0x6f) {
+            ex_jal_inst_nr++;
+            if(is_taken_final) {
+                ex_taken_final_jal_nr++;
+            }
+        } else {
+            ex_jalr_inst_nr++;
         }
         assert(is_taken);
-    } else if ((inst & 0x7f) == 0x63) { // Branch
+    } else if((inst & 0x7f) == 0x63) { // Branch
         ex_br_inst_nr++;
         if(is_taken_final) {
             ex_taken_final_br_nr++;
@@ -58,7 +64,14 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
         if(is_taken) {
             ex_taken_br_nr++;
         }
+    }
 
+    // if(pc == 0xa00000a8) {
+    //     printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, FinalTaken=%d, PredTarget=0x%08x\n", 
+    //             pc, inst, target, is_taken, is_taken_final, pred_target);
+    // }
+
+    if((inst & 0x7f) == 0x63 || (inst & 0x7f) == 0x6f) { // Branch or JAL
         static FILE *log_fp = NULL;
         if (!log_fp) {
             log_fp = fopen("/tmp/npc_branch_log.bin", "wb");
@@ -72,7 +85,7 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
             uint64_t log_entry2 = ((uint64_t)is_taken | (uint64_t)is_taken_final << 1);
             fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
             fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
-        }
+        }    
     }
 }
 
@@ -84,8 +97,8 @@ extern "C" void wb_inst_cycle_cal(uint32_t pc, uint32_t inst) {
             case 0x33: 
             case 0x37: alu_inst_nr++;  break;
             case 0x63: br_inst_nr++;  break;
-            case 0x67: jump_inst_nr++; break;
-            case 0x6f: jump_inst_nr++; break;
+            case 0x67: jalr_inst_nr++; break;
+            case 0x6f: jal_inst_nr++; break;
             case 0x03: 
             case 0x23: ls_inst_nr++;  break;
             case 0x73: csr_inst_nr++; break;
@@ -109,7 +122,8 @@ void perf_cal() {
     printf("ALU Inst(alu): %lu(%.2f%%)\n", alu_inst_nr, (double)alu_inst_nr / (double)g_nr_guest_inst * 100);
     printf("L/S Inst     : %lu(%.2f%%)\n", ls_inst_nr,  (double)ls_inst_nr  / (double)g_nr_guest_inst * 100);
     printf("Branch Inst  : %lu(%.2f%%)\n", br_inst_nr,  (double)br_inst_nr  / (double)g_nr_guest_inst * 100);
-    printf("Jump Inst    : %lu(%.2f%%)\n", jump_inst_nr,  (double)jump_inst_nr  / (double)g_nr_guest_inst * 100);
+    printf("JAL Inst     : %lu(%.2f%%)\n", jal_inst_nr,  (double)jal_inst_nr  / (double)g_nr_guest_inst * 100);
+    printf("JALR Inst    : %lu(%.2f%%)\n", jalr_inst_nr,  (double)jalr_inst_nr  / (double)g_nr_guest_inst * 100);
     printf("CSR Inst     : %lu(%.2f%%)\n", csr_inst_nr, (double)csr_inst_nr / (double)g_nr_guest_inst * 100);
     printf("FENCE Inst   : %lu(%.2f%%)\n", fence_i_inst_nr, (double)fence_i_inst_nr / (double)g_nr_guest_inst * 100);
 
@@ -126,11 +140,12 @@ void perf_cal() {
     printf("IHIT         : %.2f%%\n", hit_per * 100);
     printf("MISSPENALTY  : %.2f cycles\n", miss_penalty);
 
-    printf("\n===== BR/JP =====\n");
+    printf("\n===== BR/JAL =====\n");
     printf("TAKEN BR     : %lu(%.2f%%)\n", ex_taken_br_nr, (double)ex_taken_br_nr / (double)ex_br_inst_nr * 100);
-    printf("TAKEN JUMP   : %lu(%.2f%%)\n", ex_taken_jump_nr-1, (double)ex_taken_jump_nr / (double)ex_jump_inst_nr * 100);
-    printf("Pred BR TAKE : %lu(%.2f%%)\n", ex_taken_final_br_nr, 100 - (double)ex_taken_final_br_nr / (double)ex_br_inst_nr * 100);
-    // printf("Pred JP Correct: %.2f%%\n", (double)(ex_taken_jump_nr-1) / (double)ex_jump_inst_nr * 100);
+    printf("TAKEN JAL    : %lu(%d%%)\n", jal_inst_nr, 100);
+    printf("FINAL BR T   : %lu(HIT: %.2f%%)\n", ex_taken_final_br_nr, 100 - (double)ex_taken_final_br_nr / (double)ex_br_inst_nr * 100);
+    printf("FINAL JAL T  : %lu(HIT: %.2f%%)\n", ex_taken_final_jal_nr, 100 - (double)ex_taken_final_jal_nr / (double)ex_jal_inst_nr * 100);
+    printf("Accuracy     : %.2f%%\n", 100 - (ex_taken_final_br_nr + ex_taken_final_jal_nr) / (double)(ex_br_inst_nr + ex_jal_inst_nr) * 100);
 
     printf("\n==================================\n");
 }
