@@ -9,6 +9,7 @@ module ysyx_25110270_ifetch
     input   wire                        clk,
     input   wire                        rst,
 
+    input   wire                        I_is_jalr,
     input   wire                        I_bru_taken,        //跳转指令
     input   wire    [31:0]              I_bru_source,       //跳转指令地址
     input   wire    [31:0]              I_bru_target,
@@ -112,7 +113,7 @@ module ysyx_25110270_ifetch
         .clk                    (clk                        ),
         .rst                    (rst                        ),
 
-        .update                 (I_bru_taken                ),
+        .update                 (I_bru_taken & ~I_is_jalr   ),
         .update_src             (I_bru_source[3:2]          ),
         .update_dst             (I_bru_target               ),
 
