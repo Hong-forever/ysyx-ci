@@ -44,7 +44,7 @@ extern "C" void ls_delay_cal(int begin_flag, int end_flag) {
 }
 
 extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken, bool is_taken_final) {
-    if ((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
+    if((inst & 0x7f) == 0x6f || (inst & 0x7f) == 0x67) { // JAL or JALR
         if((inst & 0x7f) == 0x6f) {
             ex_jal_inst_nr++;
             if(is_taken_final) {
@@ -54,7 +54,7 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
             ex_jalr_inst_nr++;
         }
         assert(is_taken);
-    } else if ((inst & 0x7f) == 0x63) { // Branch
+    } else if((inst & 0x7f) == 0x63) { // Branch
         ex_br_inst_nr++;
         if(is_taken_final) {
             ex_taken_final_br_nr++;
@@ -62,21 +62,23 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
         if(is_taken) {
             ex_taken_br_nr++;
         }
+    }
 
-        // static FILE *log_fp = NULL;
-        // if (!log_fp) {
-        //     log_fp = fopen("/tmp/npc_branch_log.bin", "wb");
-        //     if (!log_fp) {
-        //         perror("Failed to open log file");
-        //     }
-        // }
+    if((inst & 0x7f) == 0x63 || (inst & 0x7f) == 0x6f) { // Branch or JAL
+        static FILE *log_fp = NULL;
+        if (!log_fp) {
+            log_fp = fopen("/tmp/npc_branch_log.bin", "wb");
+            if (!log_fp) {
+                perror("Failed to open log file");
+            }
+        }
 
-        // if (log_fp) {
-        //     uint64_t log_entry = ((uint64_t)inst) | ((uint64_t)pc << 32);
-        //     uint64_t log_entry2 = ((uint64_t)is_taken | (uint64_t)is_taken_final << 1);
-        //     fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
-        //     fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
-        // }
+        if (log_fp) {
+            uint64_t log_entry = ((uint64_t)inst) | ((uint64_t)pc << 32);
+            uint64_t log_entry2 = ((uint64_t)is_taken | (uint64_t)is_taken_final << 1);
+            fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
+            fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
+        }    
     }
 }
 
