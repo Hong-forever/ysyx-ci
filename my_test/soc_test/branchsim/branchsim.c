@@ -11,10 +11,11 @@ uint32_t correct_predictions = 0;
 uint32_t mispredictions = 0;
 
 uint32_t br_inst_nr = 0;
-uint32_t jump_inst_nr = 0;
+uint32_t jal_inst_nr = 0;
+uint32_t jalr_inst_nr = 0;
 uint32_t taken_br_nr = 0;
 
-#define BTB_SIZE 2
+#define BTB_SIZE 4
 
 bool btb_valid[BTB_SIZE];
 uint32_t btb[BTB_SIZE];
@@ -33,7 +34,7 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
                 taken_br_nr++;
             }
         } else {
-            jump_inst_nr++;
+            jal_inst_nr++;
             prediction = true; // JAL always taken
             assert(br_taken);
         }
@@ -68,7 +69,7 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
         // }
 
     } else if ((inst & 0x7f) == 0x67) { // JALR
-        jump_inst_nr++;
+        jalr_inst_nr++;
         assert(br_taken);
     } else {
         assert(0 && "Not a branch or jump instruction");
@@ -85,16 +86,18 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool br_taken
 void branchsim_print_stats() {
     
     printf("\n========== Branch Simulator Statistics ==========\n");
-    printf("Configuration:\n");
+    printf("Prediction:\n");
     printf("  Total BR accesses: %u\n", br_inst_nr);
+    printf("  Total JAL accesses: %u\n", jal_inst_nr);
     printf("  Correct predictions: %u\n", correct_predictions);
     printf("  Mispredictions: %u\n", mispredictions);
     printf("  Accuracy: %.2f%%\n", 
-           br_inst_nr > 0 ? 100.0 * correct_predictions / br_inst_nr : 0);
+           correct_predictions > 0 ? 100.0 * correct_predictions / (br_inst_nr + jal_inst_nr) : 0);
     
     printf("\nBranch/Jump Breakdown:\n");
     printf("  Branch instructions: %u\n", br_inst_nr);
-    printf("  Jump instructions: %u\n", jump_inst_nr);
+    printf("  Jump instructions: %u\n", jal_inst_nr );
+    printf("  Jump-Link instructions: %u\n", jalr_inst_nr);
     printf("  Taken branches: %u\n", taken_br_nr);
     printf("  Taken branch rate: %.2f%%\n", 
            br_inst_nr > 0 ? 100.0 * taken_br_nr / br_inst_nr : 0);
