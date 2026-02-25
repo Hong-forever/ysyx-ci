@@ -14,7 +14,8 @@ uint64_t icache_miss, icache_miss_penal;
 uint64_t ex_br_inst_nr, ex_jal_inst_nr, ex_jalr_inst_nr;
 uint64_t ex_taken_br_nr;
 
-uint64_t ex_taken_final_br_nr, ex_taken_final_jal_nr, ex_taken_final_jalr_nr;
+uint64_t ex_taken_final_br_nr, ex_taken_final_jalr_nr;
+uint64_t ex_taken_final_jal_nr = -1;  // 由于流水线原因，ebreak指令后面会多一条jal指令，导致ex_taken_final_jal_nr比ex_jal_inst_nr多1，所以初始化为-1
 
 static inline uint64_t rdtime() {
     return g_cycle;
