@@ -403,6 +403,7 @@ module ysyx_25110270_cpu_core
         .I_inst                 (I_ex_inst                  ),
         .I_inst_addr            (I_ex_inst_addr             ),
 
+        .I_valid                (dec_enable                 ),
         .I_ready                (O_ls_ready                 ),
         .O_ready                (O_ex_ready                 ),
         .O_valid                (O_ex_valid                 ),

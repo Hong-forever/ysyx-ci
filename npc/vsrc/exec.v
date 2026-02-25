@@ -232,19 +232,25 @@ module ysyx_25110270_exec
         end
     end
 
-    reg valid_r;
+    reg valid;
     always @(posedge clk) begin
         if(rst) begin
-            valid_r <= 1'b0;
+            valid <= 1'b0;
         end else begin
-            valid_r <= I_valid;
+            valid <= I_valid;
         end
     end
 `endif
 
 `ifdef PERF
 
-    
+    import "DPI-C" function void jump_br_cal(input int inst, input int is_taken);
+
+    always @(posedge clk) begin
+        if(I_br_valid & valid) begin
+            jump_br_cal(I_inst, bru_taken);
+        end
+    end
 
 `endif
 
