@@ -55,6 +55,7 @@ static void btrace(uint32_t inst, uint32_t addr, uint32_t target, bool taken) {
         if (++count % 10000 == 0) {
             fflush(btrace_fp);
         }
+    printf("count: %d\n", count);
     }
 // #endif
 
