@@ -179,7 +179,7 @@ module ysyx_25110270_exec
         .O_bru_taken                (bru_taken              )
     );
 
-    wire bru_taken_final = (bru_taken & I_br_valid) & (I_pred_target != agu_result);
+    wire bru_taken_final = (bru_taken & I_br_valid) & (I_pred_target != agu_result) | (!bru_taken & I_br_valid) & (I_pred_target == agu_result);  //如果分支预测错误，则需要更新分支预测器
 
     //------------------------------------------------------------------------
     // csr运算
