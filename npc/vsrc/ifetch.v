@@ -105,20 +105,21 @@ module ysyx_25110270_ifetch
 
     wire pred_taken;
     wire [31:0] pred_target;
+    parameter SRC_W = 1;
     ysyx_25110270_branch_predictor
     #(
-        .SRC_WIDTH              (2                          )
+        .SRC_WIDTH              (SRC_W                      )
     ) branch_predictor
     (
         .clk                    (clk                        ),
         .rst                    (rst                        ),
 
         .update                 (I_btb_update               ),
-        .update_src             (I_bru_source[3:2]          ),
+        .update_src             (I_bru_source[2+:SRC_W-1]   ),
         .update_dst             (I_bru_target               ),
 
         .inst                   (inst                       ),
-        .pc                     (pc[3:2]                    ),
+        .pc                     (pc[2+:SRC_W]               ),
         .taken                  (pred_taken                 ),
         .target                 (pred_target                )
     );
