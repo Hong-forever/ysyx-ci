@@ -101,7 +101,7 @@
 `define ysyx_25110270_RV32I_OP_JAL    7'b1101111
 
 //------------------------------------------------------------------------
-// rv32 Debug type inst
+// rv32 Except type inst
 //------------------------------------------------------------------------
 `define ysyx_25110270_RV_MRET       32'h30200073
 `define ysyx_25110270_RV_ECALL      32'h00000073
@@ -171,9 +171,10 @@
 //------------------------------------------------------------------------
 // FWD SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
+`define ysyx_25110270_FWDSRC_NOP      2'b00
 `define ysyx_25110270_FWDSRC_NFW      2'b01
-`define ysyx_25110270_FWDSRC_LS       2'b10
-`define ysyx_25110270_FWDSRC_WB       2'b11
+`define ysyx_25110270_FWDSRC_EX       2'b10
+`define ysyx_25110270_FWDSRC_LS       2'b11
 
 //------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS

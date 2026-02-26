@@ -7,7 +7,7 @@
 module ysyx_25110270_lsu
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,             //指令内容
     input   wire    [31:0                       ]   I_inst_addr,
@@ -15,7 +15,6 @@ module ysyx_25110270_lsu
     input   wire                                    I_valid,
     output  wire                                    O_ready,
     output  wire                                    O_valid,
-    input   wire                                    I_ready,
 
     input   wire                                    I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
@@ -82,7 +81,7 @@ module ysyx_25110270_lsu
     //------------------------------------------------------------------------
     reg [31:0] rdata;
     always @(posedge clk) begin
-        if (!rst_n) begin
+        if(rst) begin
             rdata <= 0;
         end else if(dbus_rvalid) begin
             rdata <= dbus_rdata;
@@ -208,34 +207,32 @@ module ysyx_25110270_lsu
 
     reg req_valid;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             req_valid <= 1'b0;
         end else if(I_valid) begin
             req_valid <= 1'b1;
-        end else if((I_ld_valid && dbus_arready) || (I_st_valid && dbus_awready))begin
+        end else if((I_ld_valid && dbus_rvalid) || (I_st_valid && dbus_bvalid))begin
             req_valid <= 1'b0;
+        end
+    end
+
+    reg data_avalid;
+    always @(posedge clk) begin
+        if(rst) begin
+            data_avalid <= 0;
+        end else if(I_ld_valid && dbus_arready || I_st_valid && dbus_awready) begin
+            data_avalid <= 0;
+        end else if(I_valid && I_is_ldst) begin
+            data_avalid <= 1;
         end
     end
 
     parameter IDLE = 1'b0;
     parameter WB   = 1'b1;
 
-    reg data_avalid;
     reg state;
-
-    wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
-    wire data_avalid_next = (ls_req && !(dbus_awready | dbus_arready)) || (I_valid && I_is_ldst);
-
     always @(posedge clk) begin
-        if(!rst_n) begin
-            data_avalid <= 0;
-        end else begin
-            data_avalid <= data_avalid_next;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             state <= IDLE;
         end else begin
             case(state)
@@ -246,38 +243,17 @@ module ysyx_25110270_lsu
         end
     end
 
+    wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
     wire stallreq = ls_req;
-
-    reg inst_valid;
-    reg ready;
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            inst_valid <= 1'b0;
-        end else if(I_ready & inst_valid) begin
-            inst_valid <= 1'b0;
-        end else if((I_valid && ~I_is_ldst) || (dbus_bvalid || dbus_rvalid)) begin
-            inst_valid <= 1'b1;
-        end
-    end
-
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            ready <= 1'b1;
-        end else if(I_valid) begin
-            ready <= 1'b0;
-        end else if(~stallreq) begin
-            ready <= 1'b1;
-        end
-    end
 
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
-    assign O_valid = inst_valid;
-    assign O_ready = ready;
+
+    assign O_ready = ~stallreq;
+    assign O_valid = O_ready;
 
     assign O_rd_we = I_rd_we;
     assign O_rd_waddr = I_rd_waddr;
@@ -363,13 +339,6 @@ module ysyx_25110270_lsu
 `endif
 
 `ifdef PERF
-    import "DPI-C" function void ls_data_cal();
-
-    always @(posedge clk) begin
-        if(dbus_bvalid & dbus_bready | dbus_rvalid & dbus_rready) begin
-            ls_data_cal();
-        end
-    end
     
     import "DPI-C" function void ls_delay_cal(input int begin_flag, input int end_flag);
 
@@ -378,7 +347,7 @@ module ysyx_25110270_lsu
     wire end_flag   = (dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready);
 
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             begin_flag_r <= 1'b0;
         end else begin
             begin_flag_r <= begin_flag;
