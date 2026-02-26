@@ -71,7 +71,7 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
                 pc, inst, target, is_taken, is_taken_final, pred_target);
     }
 
-    if(pc == 0xa0000264 && is_taken == false && is_taken_final == true) {
+    if(pc == 0xa0000264 && is_taken == false) {
         if((inst & 0x7f) == 0x63 || (inst & 0x7f) == 0x6f) { // Branch or JAL
             static FILE *log_fp = NULL;
             if (!log_fp) {

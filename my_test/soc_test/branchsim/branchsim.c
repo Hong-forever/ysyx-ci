@@ -68,7 +68,7 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken
 
         bool is_taken_final = !is_correct;
         static FILE *log_fp = NULL;
-        if(pc == 0xa0000264 && is_taken == false && is_correct == false) {
+        if(pc == 0xa0000264 && is_taken == false) {
             if (!log_fp) {
                 log_fp = fopen("/tmp/branchsim_log.bin", "wb");
                 if (!log_fp) {
