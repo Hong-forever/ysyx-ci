@@ -144,7 +144,7 @@ module ysyx_25110270_csr_reg
     //------------------------------------------------------------------------
     assign O_rdata = rdata;
 
-    assign O_flush = except_call | except_mret | is_fence_i;
+    assign O_flush = except_call | except_mret;
     assign O_flush_addr =   except_call ? mtvec :
                             except_mret ? mepc  :
                             fence_next_inst_addr;
