@@ -66,9 +66,10 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
         }
     }
 
-    if(pc == 0xa0000264) {
+    if(pc == 0xa0000264 && is_taken == false && is_taken_final == false) {
         printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, FinalTaken=%d, PredTarget=0x%08x\n", 
                 pc, inst, target, is_taken, is_taken_final, pred_target);
+        assert(0 && "Branch mispredicted at PC=0xa0000264");
     }
 
     if(pc == 0xa0000264 && is_taken == false) {
