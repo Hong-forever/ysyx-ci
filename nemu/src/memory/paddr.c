@@ -74,40 +74,40 @@ void init_mem() {
 #define MTRACE_BASE 0x80000140
 #define MTRACE_SIZE 3
 
-// static void mtrace(paddr_t addr, word_t data, int op) {
-
-//     if(addr > MTRACE_BASE && addr < MTRACE_BASE+4*MTRACE_SIZE) printf("MTRACE===>>>  addr(0x%08x): data(0x%08x) op(%s)\n", addr, data, op==0? "read" : op==1? "sb  " : op==2? "sh  " : "sw  ");
-// }
-
 static void mtrace(paddr_t addr, word_t data, int op) {
 
-    if(!dcache) return;
-
-    static FILE *mtrace_fp = NULL;
-        
-    if (mtrace_fp == NULL) {
-        mtrace_fp = fopen("/home/hhh/Templates/dcachesim.bin", "wb");
-        if (mtrace_fp == NULL) {
-            perror("Failed to open mtrace file");
-        }
-    }
-
-    // if(op != 0) printf("op is %x\n", op);
-
-    uint64_t entry = ((uint64_t)op << 32) | (addr & 0xffffffff);
-    
-    if (mtrace_fp != NULL) {
-        // 写入PC值（十六进制
-        fwrite(&entry, sizeof(uint64_t), 1, mtrace_fp);
-        
-        // 定期flush防止数据丢失
-        static int count = 0;
-        if (++count % 10000 == 0) {
-            fflush(mtrace_fp);
-        }
-    }
-    dcache = false;
+    if(addr > MTRACE_BASE && addr < MTRACE_BASE+4*MTRACE_SIZE) printf("MTRACE===>>>  addr(0x%08x): data(0x%08x) op(%s)\n", addr, data, op==0? "read" : op==1? "sb  " : op==2? "sh  " : "sw  ");
 }
+
+// static void mtrace(paddr_t addr, word_t data, int op) {
+
+//     if(!dcache) return;
+
+//     static FILE *mtrace_fp = NULL;
+        
+//     if (mtrace_fp == NULL) {
+//         mtrace_fp = fopen("/home/hhh/Templates/dcachesim.bin", "wb");
+//         if (mtrace_fp == NULL) {
+//             perror("Failed to open mtrace file");
+//         }
+//     }
+
+//     // if(op != 0) printf("op is %x\n", op);
+
+//     uint64_t entry = ((uint64_t)op << 32) | (addr & 0xffffffff);
+    
+//     if (mtrace_fp != NULL) {
+//         // 写入PC值（十六进制
+//         fwrite(&entry, sizeof(uint64_t), 1, mtrace_fp);
+        
+//         // 定期flush防止数据丢失
+//         static int count = 0;
+//         if (++count % 10000 == 0) {
+//             fflush(mtrace_fp);
+//         }
+//     }
+//     dcache = false;
+// }
 
 #endif
 
