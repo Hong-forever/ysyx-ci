@@ -115,11 +115,11 @@ module ysyx_25110270_ifetch
         .rst                    (rst                        ),
 
         .update                 (I_btb_update               ),
-        .update_src             (I_bru_source[2+:SRC_W-1]   ),
+        .update_src             (I_bru_source[SRC_W+1:2]    ),
         .update_dst             (I_bru_target               ),
 
         .inst                   (inst                       ),
-        .pc                     (pc[2+:SRC_W]               ),
+        .pc                     (pc[SRC_W+1:2]              ),
         .taken                  (pred_taken                 ),
         .target                 (pred_target                )
     );
