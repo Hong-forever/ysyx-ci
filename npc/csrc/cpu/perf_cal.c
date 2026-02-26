@@ -66,9 +66,10 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
         }
     }
 
-    // if(pc == 0xa00000a8) {
+    // if(pc == 0xa0000264 && is_taken == false && is_taken_final == false) {
     //     printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, FinalTaken=%d, PredTarget=0x%08x\n", 
     //             pc, inst, target, is_taken, is_taken_final, pred_target);
+    //     // assert(0 && "Branch mispredicted at PC=0xa0000264");
     // }
 
     if((inst & 0x7f) == 0x63 || (inst & 0x7f) == 0x6f) { // Branch or JAL
@@ -82,7 +83,7 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
 
         if (log_fp) {
             uint64_t log_entry = ((uint64_t)inst) | ((uint64_t)pc << 32);
-            uint64_t log_entry2 = ((uint64_t)is_taken | (uint64_t)is_taken_final << 1);
+            uint64_t log_entry2 = ((uint64_t)is_taken | ((uint64_t)is_taken_final << 4) | ((uint64_t)pred_target << 32));
             fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
             fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
         }    
