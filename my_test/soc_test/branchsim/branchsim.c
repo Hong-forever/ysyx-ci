@@ -44,10 +44,10 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken
 
         bool is_correct = (pred_taken && is_taken && predicted_target == target) || (!pred_taken && !is_taken);
 
-        // if(pc == 0xa00000a8) {
-        //     printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, PredTaken=%d, PredTarget=0x%08x, Correct=%d\n", 
-        //             pc, inst, target, is_taken, pred_taken, predicted_target, is_correct);
-        // }
+        if(pc == 0xa0000264) {
+            printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, PredTaken=%d, PredTarget=0x%08x, Correct=%d\n", 
+                    pc, inst, target, is_taken, pred_taken, predicted_target, is_correct);
+        }
 
     
         if (is_correct) {
@@ -103,8 +103,10 @@ void branchsim_print_stats() {
     printf("pred_taken:\n");
     printf("  Total BR accesses: %u\n", br_inst_nr);
     printf("  Total JAL accesses: %u\n", jal_inst_nr);
-    printf("  Correct BR predictions: %u\n", correct_br_pred);
-    printf("  Correct JAL predictions: %u\n", correct_jal_pred);
+    printf("  Correct BR predictions: %u(%.2f%%)\n", correct_br_pred, 
+           br_inst_nr > 0 ? 100.0 * correct_br_pred / br_inst_nr : 0);
+    printf("  Correct JAL predictions: %u(%.2f%%)\n", correct_jal_pred, 
+           jal_inst_nr > 0 ? 100.0 * correct_jal_pred / jal_inst_nr : 0);
     printf("  Mispredicted BR: %u\n", mis_br_pred);
     printf("  Mispredicted JAL: %u\n", mis_jal_pred);
     printf("  Accuracy: %.2f%%\n", 
