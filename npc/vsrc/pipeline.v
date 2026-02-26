@@ -7,25 +7,22 @@
 module ysyx_25110270_pipeline_if_dec
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire    [31:0           ]   I_inst,             // 指令内容
     input   wire    [31:0           ]   I_inst_addr,        // 指令地址
 
     output  reg     [31:0           ]   O_inst,             // 指令内容
-    output  reg     [31:0           ]   O_inst_addr,        // 指令地址
-
-    input   wire                        I_enable,
-    input   wire                        I_flush
+    output  reg     [31:0           ]   O_inst_addr         // 指令地址
 
 );
     always @(posedge clk) begin
-        if(rst | I_flush) begin
-            O_inst          <= 0                        ;
-            O_inst_addr     <= 0                        ;
-        end else if(I_enable) begin
-            O_inst          <= I_inst                   ;
-            O_inst_addr     <= I_inst_addr              ;
+        if (!rst_n) begin
+            O_inst          <= 0;
+            O_inst_addr     <= 0;
+        end else begin
+            O_inst          <= I_inst;
+            O_inst_addr     <= I_inst_addr;
         end
     end
 
@@ -40,7 +37,7 @@ endmodule
 module ysyx_25110270_pipeline_dec_ex
 (
     input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                                    rst_n,
 
     input   wire    [31:0                       ]   I_inst,             // 指令内容
     input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
@@ -64,10 +61,6 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    I_sign,             // 有符号位
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
 
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs1,
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs2,
-    input   wire    [1:0                        ]   I_fwd_ctrl_csr,
-
     output  reg     [31:0                       ]   O_inst,             // 指令内容
     output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
     output  reg     [31:0                       ]   O_rs1_rdata,        // 通用寄存器1读数据
@@ -88,25 +81,32 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg                                     O_f7b5_en,          // 指令funct7[5]有效标志
     output  reg                                     O_sign,             // 有符号位
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
-
-    output  reg     [1:0                        ]   O_fwd_ctrl_rs1,
-    output  reg     [1:0                        ]   O_fwd_ctrl_rs2,
-    output  reg     [1:0                        ]   O_fwd_ctrl_csr,
-
-    input   wire                                    I_enable,
-    input   wire                                    I_flush
+    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except            // 异常
 );
     always @(posedge clk) begin
-        if(rst | I_flush) begin
+        if (!rst_n) begin
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+            O_rs1_rdata     <= 0                        ;
+            O_rs2_rdata     <= 0                        ;
+            O_csr_rdata     <= 0                        ;
+            O_imm           <= 0                        ;
             O_rd_we         <= 0                        ;
+            O_rd_waddr      <= 0                        ;
+            O_op            <= 0                        ;
+            O_alu_srca_sel  <= 0                        ;
+            O_alu_srcb_sel  <= 0                        ;
+            O_agu_src_sel   <= 0                        ;
+            O_csr_src_sel   <= 0                        ;
             O_ld_valid      <= 0                        ;
             O_st_valid      <= 0                        ;
             O_br_valid      <= 0                        ;
             O_csr_valid     <= 0                        ;
+            O_csr_addr      <= 0                        ;
+            O_f7b5_en       <= 0                        ;
+            O_sign          <= 0                        ;
             O_except        <= 0                        ;
-            O_inst_addr     <= 0                        ; //dpic debug
-        end else if(I_enable) begin
+        end else begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
             O_rs1_rdata     <= I_rs1_rdata              ;
@@ -127,10 +127,7 @@ module ysyx_25110270_pipeline_dec_ex
             O_csr_addr      <= I_csr_addr               ;
             O_f7b5_en       <= I_f7b5_en                ;
             O_sign          <= I_sign                   ;
-            O_except        <= I_except                 ;
-            O_fwd_ctrl_rs1  <= I_fwd_ctrl_rs1           ;   
-            O_fwd_ctrl_rs2  <= I_fwd_ctrl_rs2           ;   
-            O_fwd_ctrl_csr  <= I_fwd_ctrl_csr           ;   
+            O_except        <= I_except                 ;        
         end
     end
 
@@ -144,7 +141,7 @@ endmodule
 module ysyx_25110270_pipeline_ex_ls
 (
     input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                                    rst_n,
 
     input   wire    [31:0                       ]   I_inst,             // 指令内容
     input   wire    [31:0                       ]   I_inst_addr,
@@ -174,20 +171,26 @@ module ysyx_25110270_pipeline_ex_ls
     output  reg                                     O_csr_valid,        // 写CSR寄存器标志
     output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
+    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except            // 异常
 
-    input   wire                                    I_enable,
-    input   wire                                    I_flush
 );
     always @(posedge clk) begin
-        if(rst | I_flush) begin
+        if (!rst_n) begin
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;
+            O_rd_waddr      <= 0                        ;
+            O_rd_wdata      <= 0                        ;
+            O_memory_addr   <= 0                        ;
+            O_store_data    <= 0                        ;
             O_ld_valid      <= 0                        ;
             O_st_valid      <= 0                        ;
+            O_ls_ctrl       <= 0                        ;
             O_csr_valid     <= 0                        ;
+            O_csr_addr      <= 0                        ;
+            O_csr_wdata     <= 0                        ;
             O_except        <= 0                        ;
-            O_inst_addr     <= 0                        ; //dpic debug
-        end else if(I_enable) begin
+        end else begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
             O_rd_we         <= I_rd_we                  ;
@@ -215,7 +218,7 @@ endmodule
 module ysyx_25110270_pipeline_ls_wb
 (
     input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                                    rst_n,
 
     input   wire    [31:0                       ]   I_inst,             // 指令内容
     input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
@@ -239,19 +242,23 @@ module ysyx_25110270_pipeline_ls_wb
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
-    output  wire                                    O_device_skip,
+    output  wire                                    O_device_skip
 
-    input   wire                                    I_enable,
-    input   wire                                    I_flush
 );
 
     always @(posedge clk) begin
-        if(rst | I_flush) begin
+        if (!rst_n) begin
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
             O_rd_we         <= 0                        ;
+            O_rd_waddr      <= 0                        ;
+            O_rd_wdata      <= 0                        ;
             O_csr_valid     <= 0                        ;
+            O_csr_addr      <= 0                        ;
+            O_csr_wdata     <= 0                        ;
             O_except        <= 0                        ;
-            O_inst_addr     <= 0                        ; //dpic debug
-        end else if(I_enable) begin
+            O_device_skip   <= 0                        ;
+        end else begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
             O_rd_we         <= I_rd_we                  ;

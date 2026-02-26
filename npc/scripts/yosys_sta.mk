@@ -1,9 +1,7 @@
 
 DESIGN = ysyx_25110270
 
-RESOURCE_DIR = $(NPC_HOME)/resource
-
-O = $(abspath $(RESOURCE_DIR)/sta_result)
+O = $(abspath $(BUILD_DIR)/sta_result)
 RTL_FILES = $(VSRCS-SYM)
 SDC_FILE = ${NPC_HOME}/scripts/sta/npc.sdc
 

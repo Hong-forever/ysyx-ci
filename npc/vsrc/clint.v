@@ -8,7 +8,7 @@ module ysyx_25110270_clint
     parameter DATA_WIDTH = 32                   //数据总线宽度
 )(
     input   wire                        clk,        //时钟输入
-    input   wire                        rst,      //复位输入
+    input   wire                        rst_n,      //复位输入
 
     // AXI接口
     input   wire                        awvalid_i,
@@ -44,35 +44,46 @@ module ysyx_25110270_clint
 
     reg [2*DATA_WIDTH-1:0] mtime;
 
+    reg [31:0] rdata;
     reg rdata_valid;
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
+            rdata <= 0;
             rdata_valid <= 1'b0;
         end else begin
             if(rvalid_o && rready_i) begin
+                rdata <= 0;
                 rdata_valid <= 1'b0;
             end else if(arvalid_i) begin
+                rdata <= araddr_i[2] ? mtime[63:32] : mtime[31:0];
                 rdata_valid <= 1'b1;
             end
         end
     end
 
+    reg wdata_valid;
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
+            wdata_valid <= 1'b0;
             mtime <= 64'b0;
         end else begin
             mtime <= mtime + 1'b1;
+            if(bvalid_o && bready_i) begin
+                wdata_valid <= 1'b0;
+            end else if(wvalid_i) begin
+                wdata_valid <= 1'b1;
+            end
         end
     end
 
-    assign awready_o = 1'b0;
-    assign wready_o  = 1'b0;
-    assign bvalid_o  = 1'b0;
+    assign awready_o = 1'b1;
+    assign wready_o  = 1'b1;
+    assign bvalid_o  = wdata_valid;
     assign bresp_o   = 2'b00;
     assign bid_o     = 4'b0000;
     assign arready_o = 1'b1;
     assign rvalid_o  = rdata_valid;
-    assign rdata_o   = araddr_i[2] ? mtime[63:32] : mtime[31:0];
+    assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
     assign rlast_o   = 1'b1;
     assign rid_o     = 4'b0000;

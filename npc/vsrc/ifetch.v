@@ -7,20 +7,20 @@
 module ysyx_25110270_ifetch
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
-    input   wire                        I_btb_update,       // 来自EX阶段的分支预测更新信号
     input   wire                        I_bru_taken,        //跳转指令
-    input   wire    [31:0]              I_bru_source,       //跳转指令地址
     input   wire    [31:0]              I_bru_target,
 
-    input   wire                        I_ready,
+    input   wire                        I_valid,
+    output  wire                        O_ready,
     output  wire                        O_valid,
+    input   wire                        I_ready,
 
     input   wire                        I_flush,            // 指令冲刷
     input   wire    [31:0]              I_flush_addr,       // 冲刷跳转地址
 
-    input   wire                        I_fence_i,          // 指令同步
+    input   wire                        I_fence_i,           // 指令同步
 
     output  wire    [31:0]              O_inst,
     output  wire    [31:0]              O_inst_addr,
@@ -62,13 +62,60 @@ module ysyx_25110270_ifetch
     //------------------------------------------------------------------------
 
     parameter IDLE  = 1'b0;
-    parameter WAIT  = 1'b1;
+    parameter EXE   = 1'b1;
 
-    wire resp_valid;
+    reg state;
+
+    wire cache_valid, cache_miss;
+
+    reg req_valid;
 
     reg  [31:0] pc;
-    wire [31:0] inst;
-    wire [31:0] pc_plus4;
+    reg  [31:0] inst;
+    reg         inst_valid;
+    wire [31:0] cache_data;
+    wire [31:0] npc, pc_plus4;
+
+    wire req_valid_next = (~state | I_valid) & ~cache_valid;
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            req_valid <= 1'b0;
+        end else begin
+            req_valid <= req_valid_next;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst <= 0;
+        end else if(cache_valid) begin
+            inst <= cache_data;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            inst_valid <= 0;
+        end else if(I_ready & inst_valid) begin
+            inst_valid <= 1'b0;
+        end else if(cache_valid) begin
+            inst_valid <= 1'b1;
+        end
+    end
+
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            state <= IDLE;
+        end else begin
+            case(state)
+                IDLE:    state <= cache_valid ? EXE : IDLE;
+                EXE:     state <= I_valid ? IDLE : EXE;
+                default: state <= IDLE;
+            endcase
+        end
+    end
 
     ysyx_25110270_icache 
     #(
@@ -80,14 +127,15 @@ module ysyx_25110270_ifetch
     ) icache
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
-        .I_valid                (I_ready                    ),
-        .O_valid                (resp_valid                 ),
+        .I_valid                (req_valid                  ),
+        .O_valid                (cache_valid                ),
 
         .I_addr                 (pc                         ),
-        .O_data                 (inst                       ),
+        .O_data                 (cache_data                 ),
 
+        .O_miss                 (cache_miss                 ),
         .I_clear                (I_fence_i                  ),
 
         .O_arvalid              (ibus_arvalid               ),
@@ -101,49 +149,28 @@ module ysyx_25110270_ifetch
         .I_rdata                (ibus_rdata                 ),
         .I_rlast                (ibus_rlast                 ),
         .I_rresp                (ibus_rresp                 )
-    );
 
-    wire pred_taken;
-    wire [31:0] pred_target;
-    ysyx_25110270_branch_predictor
-    #(
-        .SRC_WIDTH              (2                          )
-    ) branch_predictor
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .update                 (I_btb_update               ),
-        .update_src             (I_bru_source[3:2]          ),
-        .update_dst             (I_bru_target               ),
-
-        .inst                   (inst                       ),
-        .pc                     (pc[3:2]                    ),
-        .taken                  (pred_taken                 ),
-        .target                 (pred_target                )
     );
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(resp_valid) begin     // WAIT
-            if(I_flush) begin
-                pc <= I_flush_addr;
-            end else if(I_bru_taken) begin
-                pc <= I_bru_target;
-            end else if(pred_taken) begin
-                pc <= pred_target;
-            end else begin
-                pc <= pc_plus4;
-            end
+        end else if(state) begin     // exe
+            pc <= npc;
         end
     end
 
+    assign npc =    I_flush        ? I_flush_addr    :
+                    I_bru_taken    ? I_bru_target    :
+                    I_valid        ? pc_plus4        :
+                    pc;
+    
     assign pc_plus4 = pc + 32'h4;
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = resp_valid & I_ready;
+    assign O_valid = inst_valid;
+    assign O_ready = 1'b1;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr  = 0;
@@ -162,14 +189,21 @@ module ysyx_25110270_ifetch
     assign ibus_arid = 0;
 
 `ifdef PERF
+    import "DPI-C" function void ifetch_inst_get_nr_cal(input int inst, input int pc);
     import "DPI-C" function void iamat_cal(input int begin_flag, input int end_flag);
+
+    always @(posedge clk) begin
+        if(inst_valid && (|inst) && (|pc)) begin
+            ifetch_inst_get_nr_cal(inst, pc);
+        end
+    end
 
     reg begin_flag_r;
     wire begin_flag = ibus_arvalid;
     wire end_flag   = ibus_rvalid && ibus_rready && ibus_rlast;
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             begin_flag_r <= 1'b0;
         end else begin
             begin_flag_r <= begin_flag;

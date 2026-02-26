@@ -7,7 +7,7 @@
 module ysyx_25110270_csr_reg
 (
     input   wire                                    clk,
-    input   wire                                    rst,
+    input   wire                                    rst_n,
 
     input   wire    [11:0                       ]   I_raddr,
     output  wire    [31:0                       ]   O_rdata,
@@ -52,7 +52,7 @@ module ysyx_25110270_csr_reg
 
     reg e_sync_r, e_mret_r;
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             e_sync_r <= 1'b0;
             e_mret_r <= 1'b0;
         end else begin
@@ -73,7 +73,7 @@ module ysyx_25110270_csr_reg
     //cycle counter
     //复位撤销后就一直计数
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             cycle <= 0;
         end else begin
             cycle <= cycle + 1'b1;
@@ -83,7 +83,7 @@ module ysyx_25110270_csr_reg
     //write reg
     //写寄存器操作
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             mtvec <= 0;
             mcause <= 0;
             mepc <= 0;
