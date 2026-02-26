@@ -277,6 +277,7 @@ module ysyx_25110270_cpu_core
     wire                                dbus_rlast;
     wire [3:0 ]                         dbus_rid;
 
+    wire ifu_fence_i = I_wb_except[`ysyx_25110270_EXCPT_FENCE_I];
     ysyx_25110270_ifetch u_ifetch
     (
         .clk                    (clk                        ),
@@ -292,6 +293,8 @@ module ysyx_25110270_cpu_core
 
         .I_flush                (O_flush                    ),
         .I_flush_addr           (O_flush_addr               ),
+
+        .I_fence_i              (ifu_fence_i                ),
 
         .O_inst                 (O_if_inst                  ),
         .O_inst_addr            (O_if_inst_addr             ),

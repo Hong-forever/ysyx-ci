@@ -179,12 +179,13 @@
 //------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_ExceptWidth     3
+`define ysyx_25110270_ExceptWidth     4
 `define ysyx_25110270_ExceptBus       `ysyx_25110270_ExceptWidth-1:0
 
 `define ysyx_25110270_EXCPT_ECALL     0
 `define ysyx_25110270_EXCPT_EBREAK    1
 `define ysyx_25110270_EXCPT_MRET      2
+`define ysyx_25110270_EXCPT_FENCE_I   3
 
 //------------------------------------------------------------------------
 // MEMORY DEFINITIONS

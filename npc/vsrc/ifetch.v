@@ -20,6 +20,8 @@ module ysyx_25110270_ifetch
     input   wire                        I_flush,            // 指令冲刷
     input   wire    [31:0]              I_flush_addr,       // 冲刷跳转地址
 
+    input   wire                        I_fence_i,          // 指令同步
+
     output  wire    [31:0]              O_inst,
     output  wire    [31:0]              O_inst_addr,
 
@@ -68,8 +70,6 @@ module ysyx_25110270_ifetch
     wire [31:0] inst;
     wire [31:0] pc_plus4;
 
-    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I) & O_valid;
-
     ysyx_25110270_icache 
     #(
         .ADDR_WIDTH             (32                         ),
@@ -88,7 +88,7 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .O_data                 (inst                       ),
 
-        .I_clear                (icache_clear               ),
+        .I_clear                (I_fence_i                  ),
 
         .O_arvalid              (ibus_arvalid               ),
         .I_arready              (ibus_arready               ),
