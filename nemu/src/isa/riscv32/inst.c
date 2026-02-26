@@ -36,7 +36,7 @@ static void btrace(uint32_t inst, uint32_t addr, uint32_t target, bool taken) {
     static FILE *btrace_fp = NULL;
         
     if (btrace_fp == NULL) {
-        btrace_fp = fopen("/tmp/btrace.bin", "wb");
+        btrace_fp = fopen("/home/hhh/Templates/branchsim.bin", "wb");
         if (btrace_fp == NULL) {
             perror("Failed to open btrace file");
         }
