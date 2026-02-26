@@ -32,7 +32,7 @@ enum {
 
 static void btrace(uint32_t inst, uint32_t addr, uint32_t target, bool taken) {
 
-// #ifdef CONFIG_BTRACE
+#ifdef CONFIG_BTRACE
     static FILE *btrace_fp = NULL;
         
     if (btrace_fp == NULL) {
@@ -56,7 +56,7 @@ static void btrace(uint32_t inst, uint32_t addr, uint32_t target, bool taken) {
             fflush(btrace_fp);
         }
     }
-// #endif
+#endif
 
 }
 
