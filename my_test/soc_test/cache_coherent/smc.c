@@ -11,7 +11,7 @@ int main() {
                "again:"
                "sb t1, (a1);"
                "sw t2, (a2);"
-               "fence.i;"
+              //  "fence.i;"
                "j again;"
               );
   return 0;
