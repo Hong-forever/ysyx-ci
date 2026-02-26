@@ -68,18 +68,20 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken
 
         bool is_taken_final = !is_correct;
         static FILE *log_fp = NULL;
-        if (!log_fp) {
-            log_fp = fopen("/tmp/branchsim_log.bin", "wb");
+        if(pc == 0xa0000264 && is_taken == false && is_correct == false) {
             if (!log_fp) {
-                perror("Failed to open log file");
+                log_fp = fopen("/tmp/branchsim_log.bin", "wb");
+                if (!log_fp) {
+                    perror("Failed to open log file");
+                }
             }
-        }
 
-        if (log_fp) {
-            uint64_t log_entry = ((uint64_t)inst) | ((uint64_t)pc << 32);
-            uint64_t log_entry2 =  ((uint64_t)is_taken | (uint64_t)is_taken_final << 1);
-            fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
-            fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
+            if (log_fp) {
+                uint64_t log_entry = ((uint64_t)inst) | ((uint64_t)pc << 32);
+                uint64_t log_entry2 =  ((uint64_t)is_taken | ((uint64_t)is_taken_final << 8) | ((uint64_t)target << 32));
+                fwrite(&log_entry, sizeof(uint64_t), 1, log_fp);
+                fwrite(&log_entry2, sizeof(uint64_t), 1, log_fp);
+            }
         }
 
     } else if ((inst & 0x7f) == 0x67) { // JALR

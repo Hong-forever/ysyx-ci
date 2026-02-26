@@ -42,13 +42,6 @@ module ysyx_25110270_branch_predictor
         .target                 (branch_target              )
     );
 
-    always @(*) begin
-        if(inst[6:0] == 7'h63 && inst[31] && !taken) begin
-            $display("Branch mispredicted at PC=0x%08x, target=0x%08x", pc, branch_target);
-            $error("Branch misprediction"); 
-        end
-    end
-
 endmodule
 
 module ysyx_25110270_branch_target_buffer
