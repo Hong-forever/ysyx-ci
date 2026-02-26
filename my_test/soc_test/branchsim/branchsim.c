@@ -42,7 +42,7 @@ bool branchsim_access(uint32_t inst, uint32_t pc, uint32_t target, bool is_taken
         }
         uint32_t predicted_target = btb[(pc>>2) % BTB_SIZE];
 
-        bool is_correct = (pred_taken && is_taken && predicted_target == target) || (!pred_taken && !is_taken);
+        bool is_correct = (pred_taken && predicted_target == target) || (!pred_taken && !is_taken);
 
         if(pc == 0xa0000264 && is_taken == false && is_correct == false) {
             printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, PredTaken=%d, PredTarget=0x%08x, Correct=%d\n", 
