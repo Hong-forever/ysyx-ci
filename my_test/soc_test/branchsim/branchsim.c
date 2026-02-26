@@ -17,7 +17,7 @@ uint32_t jal_inst_nr = 0;
 uint32_t jalr_inst_nr = 0;
 uint32_t taken_br_nr = 0;
 
-#define BTB_SIZE 4
+#define BTB_SIZE 2
 
 bool btb_valid[BTB_SIZE];
 uint32_t btb[BTB_SIZE];
