@@ -197,7 +197,7 @@ module ysyx_25110270_exec
     // csr运算
     //------------------------------------------------------------------------
     wire [31:0] csr_wdata;
-    ysyx_25110270_csr csr
+    ysyx_25110270_csr_exe csr_exe
     (
         .I_csr_src                  (csr_src                ),
         .I_csr_rdata                (I_csr_rdata            ),

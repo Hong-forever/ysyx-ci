@@ -60,7 +60,7 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     wire [`ysyx_25110270_RegAddrBus ]   O_rs1_raddr;
     wire [`ysyx_25110270_RegAddrBus ]   O_rs2_raddr;
-    wire [11:0                      ]   O_csr_addr;
+    wire [`ysyx_25110270_CsrMapBus  ]   O_csr_addr;
     wire [31:0                      ]   I_rs1_rdata;
     wire [31:0                      ]   I_rs2_rdata;
     wire [31:0                      ]   I_csr_rdata;
@@ -110,7 +110,7 @@ module ysyx_25110270_cpu_core
     wire                                I_ex_sign;
     wire [2:0                       ]   I_ex_op;
 
-    wire [11:0                      ]   I_ex_csr_addr;
+    wire [`ysyx_25110270_CsrMapBus  ]   I_ex_csr_addr;
 
     wire [`ysyx_25110270_ExceptBus  ]   I_ex_except;
 
@@ -151,7 +151,7 @@ module ysyx_25110270_cpu_core
     wire                                O_ex_st_valid;
     wire [2:0                       ]   O_ex_ls_ctrl;
     wire                                O_ex_csr_valid;
-    wire [11:0                      ]   O_ex_csr_addr;
+    wire [`ysyx_25110270_CsrMapBus  ]   O_ex_csr_addr;
     wire [31:0                      ]   O_ex_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   O_ex_except;
 
@@ -170,7 +170,7 @@ module ysyx_25110270_cpu_core
     wire                                I_ls_st_valid;
     wire [2:0                       ]   I_ls_ls_ctrl;
     wire                                I_ls_csr_valid;
-    wire [11:0                      ]   I_ls_csr_addr;
+    wire [`ysyx_25110270_CsrMapBus  ]   I_ls_csr_addr;
     wire [31:0                      ]   I_ls_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   I_ls_except;
 
@@ -186,7 +186,7 @@ module ysyx_25110270_cpu_core
     wire [`ysyx_25110270_RegAddrBus ]   O_ls_rd_waddr;
     wire [31:0                      ]   O_ls_rd_wdata;
     wire                                O_ls_csr_valid;
-    wire [11:0                      ]   O_ls_csr_addr;
+    wire [`ysyx_25110270_CsrMapBus  ]   O_ls_csr_addr;
     wire [31:0                      ]   O_ls_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   O_ls_except;
 
@@ -199,7 +199,7 @@ module ysyx_25110270_cpu_core
     wire [`ysyx_25110270_RegAddrBus ]   I_wb_rd_waddr;
     wire [31:0                      ]   I_wb_rd_wdata;
     wire                                I_wb_csr_valid;
-    wire [11:0                      ]   I_wb_csr_addr;
+    wire [`ysyx_25110270_CsrMapBus  ]   I_wb_csr_addr;
     wire [31:0                      ]   I_wb_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   I_wb_except;
 

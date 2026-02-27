@@ -4,16 +4,16 @@
 // CSR寄存器
 //------------------------------------------------------------------------
 
-module ysyx_25110270_csr_reg
+module ysyx_25110270_csr
 (
     input   wire                                    clk,
     input   wire                                    rst,
 
-    input   wire    [11:0                       ]   I_raddr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_raddr,
     output  wire    [31:0                       ]   O_rdata,
 
     input   wire                                    I_we,
-    input   wire    [11:0                       ]   I_waddr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_waddr,
     input   wire    [31:0                       ]   I_wdata,
 
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
@@ -50,8 +50,6 @@ module ysyx_25110270_csr_reg
     wire except_call = except_sync;
     wire except_mret = is_mret;
 
-    wire [31:0] fence_next_inst_addr = I_next_inst_addr; // for ysyx, fence_i指令执行完后下一条指令的地址
-
     reg e_sync_r, e_mret_r;
     always @(posedge clk) begin
         if(rst) begin
@@ -78,7 +76,7 @@ module ysyx_25110270_csr_reg
         if(rst) begin
             cycle <= 0;
         end else begin
-            cycle <= cycle + 1'b1;
+            cycle <= cycle + 64'b1;
         end
     end
 
@@ -101,11 +99,11 @@ module ysyx_25110270_csr_reg
             end else begin    
                 if(I_we) begin
                     case(I_waddr)
-                        `ysyx_25110270_CSR_MSTATUS:  mstatus     <= I_wdata;
-                        `ysyx_25110270_CSR_MIE:      mie         <= I_wdata;
-                        `ysyx_25110270_CSR_MTVEC:    mtvec       <= I_wdata;
-                        `ysyx_25110270_CSR_MEPC:     mepc        <= I_wdata;
-                        `ysyx_25110270_CSR_MCAUSE:   mcause      <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MIE:      mie         <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
                         default: begin end
                     endcase
                 end
@@ -122,16 +120,16 @@ module ysyx_25110270_csr_reg
             rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MSTATUS:   rdata = mstatus;
-                `ysyx_25110270_CSR_MIE:       rdata = mie;
-                `ysyx_25110270_CSR_MTVEC:     rdata = mtvec;
-                `ysyx_25110270_CSR_MEPC:      rdata = mepc;
-                `ysyx_25110270_CSR_MCAUSE:    rdata = mcause;
-                `ysyx_25110270_CSR_CYCLE:     rdata = cycle[31:0];
-                `ysyx_25110270_CSR_CYCLEH:    rdata = cycle[63:32];
-                `ysyx_25110270_CSR_MVENDORID: rdata = mvendorid;
-                `ysyx_25110270_CSR_MARCHID:   rdata = marchid;
-                default:                      rdata = 0;
+                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
+                `ysyx_25110270_CSR_MAP_MIE:       rdata = mie;
+                `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
+                `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
+                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
+                `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
+                `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = cycle[63:32];
+                `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
+                `ysyx_25110270_CSR_MAP_MARCHID:   rdata = marchid;
+                default:                          rdata = 0;
             endcase
         end
     end

@@ -118,8 +118,8 @@ module ysyx_25110270_icache
     //     if(rst) begin
     //         ovalid_r <= 1'b0;
     //     end else if(I_valid & hit & !ovalid_r) begin
-    //         odata_r <= data_mem[index][offset];
     //         ovalid_r <= 1'b1;
+    //         odata_r <= data_mem[index][offset];
     //     end else begin
     //         ovalid_r <= 1'b0;
     //     end
