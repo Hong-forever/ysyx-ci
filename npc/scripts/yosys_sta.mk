@@ -1,8 +1,13 @@
 
 DESIGN = ysyx_25110270
 
+# USE_ICSPROUT55 = 1
+
+ifeq ($(USE_ICSPROUT55),1)
+PDK = icsprout55
+else
 PDK = nangate45
-# PDK = icsprout55
+endif
 
 RESOURCE_DIR = $(NPC_HOME)/resource
 RESULT = $(abspath $(RESOURCE_DIR)/sta-result)
