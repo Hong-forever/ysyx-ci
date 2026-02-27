@@ -79,12 +79,12 @@ module ysyx_25110270_csr
             mepc <= 0;
             mie <= 0;
             mstatus <= 0;
-        end else begin
-            if(except_sync & I_valid) begin
+        end else if(I_valid) begin
+            if(except_sync) begin
                 mepc <= I_except_addr;
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_mret & I_valid) begin
+            end else if(except_mret) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else begin    
                 if(I_we) begin
