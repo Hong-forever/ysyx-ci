@@ -56,6 +56,11 @@ extern "C" void jump_br_cal(uint32_t inst, uint32_t pc, uint32_t target, bool is
             ex_jalr_inst_nr++;
         }
         assert(is_taken);
+        // if(!is_taken) {
+        //     printf("Debug: PC=0x%08x, Inst=0x%08x, Target=0x%08x, Taken=%d, FinalTaken=%d, PredTarget=0x%08x\n", 
+        //             pc, inst, target, is_taken, is_taken_final, pred_target);
+        // }
+        
     } else if((inst & 0x7f) == 0x63) { // Branch
         ex_br_inst_nr++;
         if(is_taken_final) {

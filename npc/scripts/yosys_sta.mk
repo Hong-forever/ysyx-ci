@@ -1,7 +1,7 @@
 
 DESIGN = ysyx_25110270
 
-USE_ICSPROUT55 = 1
+# USE_ICSPROUT55 = 1
 
 ifeq ($(USE_ICSPROUT55),1)
 PDK = icsprout55
