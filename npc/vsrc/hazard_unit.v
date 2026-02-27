@@ -102,18 +102,18 @@ module ysyx_25110270_hazard_unit
     wire stallreq = ((I_rs1_re & ex_same_addr_rs1) | (I_rs2_re & ex_same_addr_rs2)) & (I_ex_ld_valid & ~I_bru_taken);
 
     wire [1:0] fwd_ctrl_rs1 = (I_rs1_re & I_rs1_raddr != 0) ? 
-                        (use_ls_data_rs1) ? `ysyx_25110270_FWDSRC_LS :
-                        (use_ex_data_rs1) ? `ysyx_25110270_FWDSRC_EX : `ysyx_25110270_FWDSRC_NFW :
+                        (use_ex_data_rs1) ? `ysyx_25110270_FWDSRC_EX :
+                        (use_ls_data_rs1) ? `ysyx_25110270_FWDSRC_LS : `ysyx_25110270_FWDSRC_NFW :
                         `ysyx_25110270_FWDSRC_NOP;
 
     wire [1:0] fwd_ctrl_rs2 = (I_rs2_re & I_rs2_raddr != 0) ? 
-                        (use_ls_data_rs2) ? `ysyx_25110270_FWDSRC_LS :
-                        (use_ex_data_rs2) ? `ysyx_25110270_FWDSRC_EX : `ysyx_25110270_FWDSRC_NFW :
+                        (use_ex_data_rs2) ? `ysyx_25110270_FWDSRC_EX :
+                        (use_ls_data_rs2) ? `ysyx_25110270_FWDSRC_LS : `ysyx_25110270_FWDSRC_NFW :
                         `ysyx_25110270_FWDSRC_NOP;
 
     wire [1:0] fwd_ctrl_csr = (I_csr_valid) ? 
-                        (use_ls_data_csr) ? `ysyx_25110270_FWDSRC_LS :
-                        (use_ex_data_csr) ? `ysyx_25110270_FWDSRC_EX : `ysyx_25110270_FWDSRC_NFW :
+                        (use_ex_data_csr) ? `ysyx_25110270_FWDSRC_EX :
+                        (use_ls_data_csr) ? `ysyx_25110270_FWDSRC_LS : `ysyx_25110270_FWDSRC_NFW :
                         `ysyx_25110270_FWDSRC_NOP;
 
     assign O_fwd_ctrl_rs1 = fwd_ctrl_rs1;
