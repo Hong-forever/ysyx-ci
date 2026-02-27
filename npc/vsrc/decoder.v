@@ -287,7 +287,6 @@ module ysyx_25110270_dec_except
     assign O_except[`ysyx_25110270_EXCPT_ECALL  ] = (I_inst == `ysyx_25110270_RV_ECALL  );
     assign O_except[`ysyx_25110270_EXCPT_EBREAK ] = (I_inst == `ysyx_25110270_RV_EBREAK );
     assign O_except[`ysyx_25110270_EXCPT_MRET   ] = (I_inst == `ysyx_25110270_RV_MRET   );
-    assign O_except[`ysyx_25110270_EXCPT_FENCE_I] = (I_inst == `ysyx_25110270_RV_FENCE_I);
 
 endmodule
 
