@@ -83,7 +83,6 @@ module ysyx_25110270_bru
     input   wire                                    I_src_eq,
     input   wire                                    I_src_lt,
     input   wire    [2:0]                           I_bru_ctrl,
-    input   wire                                    I_br_valid,
     
     output  wire                                    O_bru_taken
 );
@@ -102,7 +101,7 @@ module ysyx_25110270_bru
         endcase
     end
 
-    assign O_bru_taken = bru_taken & I_br_valid;
+    assign O_bru_taken = bru_taken;
 
 
 endmodule
