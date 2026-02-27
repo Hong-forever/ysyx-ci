@@ -2,9 +2,9 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-`define DPIC
-`define PERF
-`define DEBUG
+// `define DPIC
+// `define PERF
+// `define DEBUG
 // `define SOC //no verilog macro define here, define it in Makefile
 
 //------------------------------------------------------------------------
@@ -130,29 +130,16 @@
 //------------------------------------------------------------------------
 // CSR REGISTER DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_CsrNum 16
-`define ysyx_25110270_CsrMapWidth $clog2(`ysyx_25110270_CsrNum)
-`define ysyx_25110270_CsrMapBus `ysyx_25110270_CsrMapWidth-1:0
-
-`define ysyx_25110270_CSR_MSTATUS           12'h300     // Machine Status Register
-`define ysyx_25110270_CSR_MIE               12'h304     // Machine Interrupt Enable Registers
-`define ysyx_25110270_CSR_MTVEC             12'h305     // Machine Trap-Vector Base-Address Register
-`define ysyx_25110270_CSR_MEPC              12'h341     // Machine Exception Program Counter
-`define ysyx_25110270_CSR_MCAUSE            12'h342     // Machine Cause Register
-`define ysyx_25110270_CSR_CYCLE             12'hc00     // Lower 32 bits of Cycle counter
-`define ysyx_25110270_CSR_CYCLEH            12'hc80     // Upper 32 bits of Cycle counter
-`define ysyx_25110270_CSR_MVENDORID         12'hf11     // Vendor ID
-`define ysyx_25110270_CSR_MARCHID           12'hf12     // Architecture ID
-
-`define ysyx_25110270_CSR_MAP_MSTATUS       0
-`define ysyx_25110270_CSR_MAP_MIE           1
-`define ysyx_25110270_CSR_MAP_MTVEC         2
-`define ysyx_25110270_CSR_MAP_MEPC          3
-`define ysyx_25110270_CSR_MAP_MCAUSE        4
-`define ysyx_25110270_CSR_MAP_CYCLE         5
-`define ysyx_25110270_CSR_MAP_CYCLEH        6
-`define ysyx_25110270_CSR_MAP_MVENDORID     7
-`define ysyx_25110270_CSR_MAP_MARCHID       8
+`define ysyx_25110270_CSR_MSTATUS     12'h300     // Machine Status Register
+`define ysyx_25110270_CSR_MIE         12'h304     // Machine Interrupt Enable Registers
+`define ysyx_25110270_CSR_MTVEC       12'h305     // Machine Trap-Vector Base-Address Register
+`define ysyx_25110270_CSR_MSCRATCH    12'h340     // Machine Scratch Register
+`define ysyx_25110270_CSR_MEPC        12'h341     // Machine Exception Program Counter
+`define ysyx_25110270_CSR_MCAUSE      12'h342     // Machine Cause Register
+`define ysyx_25110270_CSR_CYCLE       12'hc00     // Lower 32 bits of Cycle counter
+`define ysyx_25110270_CSR_CYCLEH      12'hc80     // Upper 32 bits of Cycle counter
+`define ysyx_25110270_CSR_MVENDORID   12'hf11     // Vendor ID
+`define ysyx_25110270_CSR_MARCHID     12'hf12     // Architecture ID
 
 //------------------------------------------------------------------------
 // ALU SOURCE SELECTION DEFINITIONS
@@ -192,12 +179,13 @@
 //------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_ExceptWidth     3
+`define ysyx_25110270_ExceptWidth     4
 `define ysyx_25110270_ExceptBus       `ysyx_25110270_ExceptWidth-1:0
 
 `define ysyx_25110270_EXCPT_ECALL     0
 `define ysyx_25110270_EXCPT_EBREAK    1
 `define ysyx_25110270_EXCPT_MRET      2
+`define ysyx_25110270_EXCPT_FENCE_I   3
 
 //------------------------------------------------------------------------
 // MEMORY DEFINITIONS

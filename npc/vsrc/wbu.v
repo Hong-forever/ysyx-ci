@@ -18,7 +18,7 @@ module ysyx_25110270_wbu
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
     output  wire    [31:0                       ]   O_rs1_rdata,
     output  wire    [31:0                       ]   O_rs2_rdata,
-    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_raddr,
+    input   wire    [11:0                       ]   I_csr_raddr,
     output  wire    [31:0                       ]   O_csr_rdata,
 
     input   wire                                    I_rd_we,
@@ -26,7 +26,7 @@ module ysyx_25110270_wbu
     input   wire    [31:0                       ]   I_rd_wdata,
 
     input   wire                                    I_csr_valid,
-    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_waddr,
+    input   wire    [11:0                       ]   I_csr_waddr,
     input   wire    [31:0                       ]   I_csr_wdata,
 
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
@@ -56,15 +56,6 @@ module ysyx_25110270_wbu
     wire [31:0] csr_mcycleh;
     wire [31:0] csr_mvendorid;
     wire [31:0] csr_marchid;
-
-    reg valid_r;
-    always @(posedge clk) begin
-        if(rst) begin
-            valid_r <= 1'b0;
-        end else begin
-            valid_r <= I_valid;
-        end
-    end
 
     ysyx_25110270_regfile u_regfile
     (
@@ -99,7 +90,7 @@ module ysyx_25110270_wbu
         .O_gpr15                (gpr15                      )
     );
 
-    ysyx_25110270_csr u_csr
+    ysyx_25110270_csr_reg u_csr_reg
     (
         .clk                    (clk                        ),
         .rst                    (rst                        ),
@@ -111,7 +102,6 @@ module ysyx_25110270_wbu
         .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 
-        .I_valid                (valid_r                    ),  
         .I_except               (I_except                   ),
         .I_except_addr          (I_except_addr              ),
 
@@ -133,6 +123,14 @@ module ysyx_25110270_wbu
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
 
+    reg valid_r;
+    always @(posedge clk) begin
+        if(rst) begin
+            valid_r <= 1'b0;
+        end else begin
+            valid_r <= I_valid;
+        end
+    end
 
     `ifdef SOC
         initial begin

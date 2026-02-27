@@ -18,7 +18,7 @@ module ysyx_25110270_decoder
 
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs1_raddr,        //regfiles读通用寄存器1地址
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rs2_raddr,        //regfiles读通用寄存器2地址       
-    output  wire    [`ysyx_25110270_CsrMapBus   ]   O_csr_addr,         //CSR寄存器地址
+    output  wire    [11:0                       ]   O_csr_addr,         //CSR寄存器地址
 
     output  wire    [31:0                       ]   O_inst,             //指令内容
     output  wire    [31:0                       ]   O_inst_addr,        //指令地址
@@ -238,18 +238,6 @@ module ysyx_25110270_decoder
     assign O_except = except;
 
     //------------------------------------------------------------------------
-    // csr重映射
-    //------------------------------------------------------------------------
-    wire [`ysyx_25110270_CsrMapBus ] csr_map;
-    ysyx_25110270_csr_mapout csr_mapout
-    (
-        .I_csr_addr             (I_inst[31:20]              ),
-        .O_csr_map              (csr_map                    )
-    );
-
-    assign O_csr_addr = csr_map;
-
-    //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
@@ -274,6 +262,8 @@ module ysyx_25110270_decoder
     assign O_f7b5_en = basic_ctrl[bit_f7b5_en];
     assign O_sign = basic_ctrl[bit_sign];
 
+    assign O_csr_addr  = I_inst[31:20];
+
     assign O_rs1_re = basic_ctrl[bit_rs1_re];
     assign O_rs2_re = basic_ctrl[bit_rs2_re];
 
@@ -281,6 +271,23 @@ module ysyx_25110270_decoder
     assign O_alu_srcb_sel = basic_ctrl[bit_alu_srcb +: 2];
     assign O_agu_src_sel  = basic_ctrl[bit_agu_src +: 2];
     assign O_csr_src_sel  = basic_ctrl[bit_csr_src];
+
+endmodule
+
+//------------------------------------------------------------------------
+// 异常指令译码单元
+//------------------------------------------------------------------------
+module ysyx_25110270_dec_except
+(
+    input   wire    [31:0                       ]   I_inst,
+    output  wire    [`ysyx_25110270_ExceptBus   ]   O_except
+);
+
+    // 异常指令
+    assign O_except[`ysyx_25110270_EXCPT_ECALL  ] = (I_inst == `ysyx_25110270_RV_ECALL  );
+    assign O_except[`ysyx_25110270_EXCPT_EBREAK ] = (I_inst == `ysyx_25110270_RV_EBREAK );
+    assign O_except[`ysyx_25110270_EXCPT_MRET   ] = (I_inst == `ysyx_25110270_RV_MRET   );
+    assign O_except[`ysyx_25110270_EXCPT_FENCE_I] = (I_inst == `ysyx_25110270_RV_FENCE_I);
 
 endmodule
 
@@ -305,50 +312,5 @@ module ysyx_25110270_RV32_Inst_Unpack
     assign rd     = I_inst[`ysyx_25110270_RV32_RD ];
     assign rs1    = I_inst[`ysyx_25110270_RV32_RS1];
     assign rs2    = I_inst[`ysyx_25110270_RV32_RS2];
-
-endmodule
-
-//------------------------------------------------------------------------
-// CSR寄存器重映射
-//------------------------------------------------------------------------
-module ysyx_25110270_csr_mapout
-(
-    input   wire    [11:0                       ]   I_csr_addr,
-    output  wire    [`ysyx_25110270_CsrMapBus   ]   O_csr_map
-);
-
-    reg [`ysyx_25110270_CsrMapBus] csr_map;
-    always @(*) begin
-        case(I_csr_addr)
-            `ysyx_25110270_CSR_MSTATUS      : csr_map =  `ysyx_25110270_CSR_MAP_MSTATUS;
-            `ysyx_25110270_CSR_MIE          : csr_map =  `ysyx_25110270_CSR_MAP_MIE;
-            `ysyx_25110270_CSR_MTVEC        : csr_map =  `ysyx_25110270_CSR_MAP_MTVEC;
-            `ysyx_25110270_CSR_MEPC         : csr_map =  `ysyx_25110270_CSR_MAP_MEPC;
-            `ysyx_25110270_CSR_MCAUSE       : csr_map =  `ysyx_25110270_CSR_MAP_MCAUSE;
-            `ysyx_25110270_CSR_CYCLE        : csr_map =  `ysyx_25110270_CSR_MAP_CYCLE;
-            `ysyx_25110270_CSR_CYCLEH       : csr_map =  `ysyx_25110270_CSR_MAP_CYCLEH;
-            `ysyx_25110270_CSR_MVENDORID    : csr_map =  `ysyx_25110270_CSR_MAP_MVENDORID;
-            `ysyx_25110270_CSR_MARCHID      : csr_map =  `ysyx_25110270_CSR_MAP_MARCHID;
-            default                         : csr_map =  0;
-        endcase
-    end
-
-    assign O_csr_map = csr_map;
-
-endmodule
-
-//------------------------------------------------------------------------
-// 异常指令译码单元
-//------------------------------------------------------------------------
-module ysyx_25110270_dec_except
-(
-    input   wire    [31:0                       ]   I_inst,
-    output  wire    [`ysyx_25110270_ExceptBus   ]   O_except
-);
-
-    // 异常指令
-    assign O_except[`ysyx_25110270_EXCPT_ECALL  ] = (I_inst == `ysyx_25110270_RV_ECALL  );
-    assign O_except[`ysyx_25110270_EXCPT_EBREAK ] = (I_inst == `ysyx_25110270_RV_EBREAK );
-    assign O_except[`ysyx_25110270_EXCPT_MRET   ] = (I_inst == `ysyx_25110270_RV_MRET   );
 
 endmodule
