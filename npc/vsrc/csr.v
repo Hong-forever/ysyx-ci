@@ -16,6 +16,7 @@ module ysyx_25110270_csr
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_waddr,
     input   wire    [31:0                       ]   I_wdata,
 
+    input   wire                                    I_valid,        //指令有效信号
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
 
@@ -49,17 +50,6 @@ module ysyx_25110270_csr
     wire except_sync = is_ecall; // for ysyx
     wire except_call = except_sync;
     wire except_mret = is_mret;
-
-    reg e_sync_r, e_mret_r;
-    always @(posedge clk) begin
-        if(rst) begin
-            e_sync_r <= 1'b0;
-            e_mret_r <= 1'b0;
-        end else begin
-            e_sync_r <= except_sync;
-            e_mret_r <= except_mret;
-        end
-    end
     
     wire [31:0] mvendorid;
     wire [31:0] marchid;
@@ -90,11 +80,11 @@ module ysyx_25110270_csr
             mie <= 0;
             mstatus <= 0;
         end else begin
-            if(except_sync & ~e_sync_r) begin
+            if(except_sync & I_valid) begin
                 mepc <= I_except_addr;
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_mret & ~e_mret_r) begin
+            end else if(except_mret & I_valid) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else begin    
                 if(I_we) begin

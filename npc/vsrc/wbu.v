@@ -57,6 +57,15 @@ module ysyx_25110270_wbu
     wire [31:0] csr_mvendorid;
     wire [31:0] csr_marchid;
 
+    reg valid_r;
+    always @(posedge clk) begin
+        if(rst) begin
+            valid_r <= 1'b0;
+        end else begin
+            valid_r <= I_valid;
+        end
+    end
+
     ysyx_25110270_regfile u_regfile
     (
         .clk                    (clk                        ),
@@ -102,6 +111,7 @@ module ysyx_25110270_wbu
         .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 
+        .I_valid                (valid_r                    ),  
         .I_except               (I_except                   ),
         .I_except_addr          (I_except_addr              ),
 
@@ -123,14 +133,6 @@ module ysyx_25110270_wbu
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
 
-    reg valid_r;
-    always @(posedge clk) begin
-        if(rst) begin
-            valid_r <= 1'b0;
-        end else begin
-            valid_r <= I_valid;
-        end
-    end
 
     `ifdef SOC
         initial begin
