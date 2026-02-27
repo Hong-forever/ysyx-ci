@@ -19,9 +19,13 @@ module ysyx_25110270_hazard_unit
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_ls_rd_waddr,
 
     input   wire                                    I_csr_valid,
-    input   wire    [11:0                       ]   I_csr_raddr,
-    input   wire    [11:0                       ]   I_ex_csr_waddr,
-    input   wire    [11:0                       ]   I_ls_csr_waddr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_raddr,
+
+    input   wire                                    I_ex_csr_valid,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_ex_csr_waddr,
+
+    input   wire                                    I_ls_csr_valid,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_ls_csr_waddr,
 
     input   wire                                    I_ex_ld_valid,
     input   wire                                    I_bru_taken,
@@ -49,8 +53,8 @@ module ysyx_25110270_hazard_unit
     wire use_ex_data_rs2 = I_ex_rd_we & ex_same_addr_rs2;
     wire use_ls_data_rs2 = I_ls_rd_we & ls_same_addr_rs2;
 
-    wire use_ex_data_csr = ex_same_addr_csr;
-    wire use_ls_data_csr = ls_same_addr_csr;
+    wire use_ex_data_csr = I_ex_csr_valid & ex_same_addr_csr;
+    wire use_ls_data_csr = I_ls_csr_valid & ls_same_addr_csr;
 
     always @(*) begin
         if(I_rs1_re & I_rs1_raddr != 0) begin

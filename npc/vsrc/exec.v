@@ -33,7 +33,7 @@ module ysyx_25110270_exec
     input   wire                                        I_f7b5_en,          //指令funct7=0x7b或0x5时有效
     input   wire                                        I_sign,             //有符号位
     input   wire    [2:0                            ]   I_op,
-    input   wire    [11:0                           ]   I_csr_addr,
+    input   wire    [`ysyx_25110270_CsrMapBus       ]   I_csr_addr,
     input   wire    [`ysyx_25110270_ExceptBus       ]   I_except,             //异常
 
     input   wire    [1:0                            ]   I_fwd_ctrl_rs1,
@@ -62,7 +62,7 @@ module ysyx_25110270_exec
     output  wire    [2:0                            ]   O_ls_ctrl,
 
     output  wire                                        O_csr_valid,
-    output  wire    [11:0                           ]   O_csr_addr,
+    output  wire    [`ysyx_25110270_CsrMapBus       ]   O_csr_addr,
     output  wire    [31:0                           ]   O_csr_wdata,
 
     output  wire    [`ysyx_25110270_ExceptBus       ]   O_except,
