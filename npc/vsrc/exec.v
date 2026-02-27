@@ -213,12 +213,20 @@ module ysyx_25110270_exec
     always @(posedge clk) begin
         if(rst) begin
             bru_taken_r <= 1'b0;
-            br_valid_r <= 1'b0;
         end else begin
-            bru_taken_r <= bru_taken & I_br_valid;
-            br_valid_r <= I_br_valid;
+            bru_taken_r <= bru_taken;
             agu_result_r <= agu_result;
             fix_addr_plus4_r <= fix_addr_plus4;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(rst) begin
+            br_valid_r <= 1'b0;
+        end else if(I_valid) begin
+            br_valid_r <= 1'b0;
+        end else begin
+            br_valid_r <= I_br_valid;
         end
     end
     
