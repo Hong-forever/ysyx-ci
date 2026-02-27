@@ -214,22 +214,24 @@ module ysyx_25110270_exec
         if(rst) begin
             bru_taken_r <= 1'b0;
         end else begin
+            bru_taken_r <= bru_taken;
             agu_result_r <= agu_result;
             fix_addr_plus4_r <= fix_addr_plus4;
-            bru_taken_r <= bru_taken;
         end
     end
     
     wire bru_taken_need = ((bru_taken_r & I_br_valid) & (I_pred_target != agu_result_r));         //应该跳转，但是跳转错误
     wire bru_taken_noneed = ((!bru_taken_r & I_br_valid) & (I_pred_target != fix_addr_plus4_r));  //不用跳转，但是跳转了
     wire bru_taken_final = bru_taken_need | bru_taken_noneed;
+
+    wire stallreq = bru_taken & ~bru_taken_r & I_br_valid;
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
 
-    assign O_ready = I_ready & ~(bru_taken & ~bru_taken_r);
+    assign O_ready = I_ready & ~stallreq;
     assign O_valid = O_ready;
 
     assign O_rd_we = I_rd_we;
