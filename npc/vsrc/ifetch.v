@@ -69,7 +69,7 @@ module ysyx_25110270_ifetch
     wire [31:0] inst;
     wire [31:0] pc_plus4;
 
-    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I);
+    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I) & resp_valid;
 
     ysyx_25110270_icache 
     #(
@@ -106,7 +106,7 @@ module ysyx_25110270_ifetch
 
     wire pred_taken;
     wire [31:0] pred_target;
-    parameter SRC_W = 1;
+    parameter SRC_W = 3;
     ysyx_25110270_branch_predictor
     #(
         .SRC_WIDTH              (SRC_W                      )
@@ -145,7 +145,7 @@ module ysyx_25110270_ifetch
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = resp_valid & I_ready;
+    assign O_valid = resp_valid;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr  = 0;
