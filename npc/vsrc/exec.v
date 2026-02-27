@@ -214,7 +214,7 @@ module ysyx_25110270_exec
         if(rst) begin
             bru_taken_r <= 1'b0;
         end else begin
-            bru_taken_r <= bru_taken;
+            bru_taken_r <= bru_taken & I_br_valid;
             agu_result_r <= agu_result;
             fix_addr_plus4_r <= fix_addr_plus4;
         end
