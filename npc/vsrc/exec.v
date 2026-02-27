@@ -189,6 +189,7 @@ module ysyx_25110270_exec
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
         .I_bru_ctrl                 (I_op                   ),
+        .I_br_valid                 (I_br_valid             ),
         .O_bru_taken                (bru_taken              )
     );
 
@@ -220,11 +221,11 @@ module ysyx_25110270_exec
         end
     end
     
-    wire bru_taken_need = ((bru_taken_r & I_br_valid) & (I_pred_target != agu_result_r));         //应该跳转，但是跳转错误
-    wire bru_taken_noneed = ((!bru_taken_r & I_br_valid) & (I_pred_target != fix_addr_plus4_r));  //不用跳转，但是跳转了
+    wire bru_taken_need = (bru_taken_r & (I_pred_target != agu_result_r));         //应该跳转，但是跳转错误
+    wire bru_taken_noneed = (!bru_taken_r & (I_pred_target != fix_addr_plus4_r));  //不用跳转，但是跳转了
     wire bru_taken_final = bru_taken_need | bru_taken_noneed;
 
-    wire stallreq = bru_taken & ~bru_taken_r & I_br_valid;
+    wire stallreq = bru_taken & ~bru_taken_r;
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
