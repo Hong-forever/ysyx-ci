@@ -69,7 +69,7 @@ module ysyx_25110270_ifetch
     wire [31:0] inst;
     wire [31:0] pc_plus4;
 
-    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I);
+    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I) & resp_valid;
 
     ysyx_25110270_icache 
     #(
