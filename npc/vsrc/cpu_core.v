@@ -383,7 +383,11 @@ module ysyx_25110270_cpu_core
 
         .I_csr_valid            (O_dec_csr_valid            ),
         .I_csr_raddr            (O_csr_addr                 ),
+
+        .I_ex_csr_valid         (I_ex_csr_valid             ),
         .I_ex_csr_waddr         (I_ex_csr_addr              ),
+
+        .I_ls_csr_valid         (I_ls_csr_valid             ),
         .I_ls_csr_waddr         (I_ls_csr_addr              ),
 
         .I_ex_ld_valid          (I_ex_ld_valid              ),

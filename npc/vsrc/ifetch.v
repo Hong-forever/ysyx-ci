@@ -106,7 +106,7 @@ module ysyx_25110270_ifetch
 
     wire pred_taken;
     wire [31:0] pred_target;
-    parameter SRC_W = 3;
+    parameter SRC_W = 1;
     ysyx_25110270_branch_predictor
     #(
         .SRC_WIDTH              (SRC_W                      )

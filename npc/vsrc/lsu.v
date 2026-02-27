@@ -25,7 +25,7 @@ module ysyx_25110270_lsu
     input   wire                                    I_st_valid,
     input   wire    [2:0                        ]   I_ls_ctrl,
     input   wire                                    I_csr_valid,
-    input   wire    [11:0                       ]   I_csr_addr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_addr,
     input   wire    [31:0                       ]   I_csr_wdata,
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
 
@@ -38,7 +38,7 @@ module ysyx_25110270_lsu
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
     output  wire    [31:0                       ]   O_rd_wdata,
     output  wire                                    O_csr_valid,
-    output  wire    [11:0                       ]   O_csr_addr,
+    output  wire    [`ysyx_25110270_CsrMapBus   ]   O_csr_addr,
     output  wire    [31:0                       ]   O_csr_wdata,
     output  wire    [`ysyx_25110270_ExceptBus   ]   O_except,
 
