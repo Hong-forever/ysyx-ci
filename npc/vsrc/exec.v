@@ -209,12 +209,14 @@ module ysyx_25110270_exec
     // ex2 pipeline
     //------------------------------------------------------------------------
     reg [31:0] agu_result_r, fix_addr_plus4_r;
-    reg bru_taken_r;
+    reg bru_taken_r, br_valid_r;
     always @(posedge clk) begin
         if(rst) begin
             bru_taken_r <= 1'b0;
+            br_valid_r <= 1'b0;
         end else begin
             bru_taken_r <= bru_taken & I_br_valid;
+            br_valid_r <= I_br_valid;
             agu_result_r <= agu_result;
             fix_addr_plus4_r <= fix_addr_plus4;
         end
@@ -222,7 +224,7 @@ module ysyx_25110270_exec
     
     wire bru_taken_need = (bru_taken_r & (I_pred_target != agu_result_r));         //应该跳转，但是跳转错误
     wire bru_taken_noneed = (!bru_taken_r & (I_pred_target != fix_addr_plus4_r));  //不用跳转，但是跳转了
-    wire bru_taken_final = (bru_taken_need | bru_taken_noneed) & I_br_valid;
+    wire bru_taken_final = (bru_taken_need | bru_taken_noneed) & br_valid_r; //最终是否需要跳转
 
     wire stallreq = bru_taken & ~bru_taken_r & I_br_valid;
     //------------------------------------------------------------------------
