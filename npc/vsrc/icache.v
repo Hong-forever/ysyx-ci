@@ -101,29 +101,29 @@ module ysyx_25110270_icache
     reg [DATA_WIDTH-1:0] odata_r;
     reg ovalid_r;
 
-    // always @(*) begin
-    //     if(rst) begin
-    //         ovalid_r = 1'b0;
-    //         odata_r = 0;
-    //     end else if(I_valid && hit) begin
-    //         ovalid_r = 1'b1;
-    //         odata_r = data_mem[index][offset];
-    //     end else begin
-    //         ovalid_r = 1'b0;
-    //         odata_r = 0;
-    //     end
-    // end
-
-    always @(posedge clk) begin
+    always @(*) begin
         if(rst) begin
-            ovalid_r <= 1'b0;
-        end else if(I_valid & hit & !ovalid_r) begin
-            odata_r <= data_mem[index][offset];
-            ovalid_r <= 1'b1;
+            ovalid_r = 1'b0;
+            odata_r = 0;
+        end else if(I_valid && hit) begin
+            ovalid_r = 1'b1;
+            odata_r = data_mem[index][offset];
         end else begin
-            ovalid_r <= 1'b0;
+            ovalid_r = 1'b0;
+            odata_r = 0;
         end
     end
+
+    // always @(posedge clk) begin
+    //     if(rst) begin
+    //         ovalid_r <= 1'b0;
+    //     end else if(I_valid & hit & !ovalid_r) begin
+    //         odata_r <= data_mem[index][offset];
+    //         ovalid_r <= 1'b1;
+    //     end else begin
+    //         ovalid_r <= 1'b0;
+    //     end
+    // end
 
     assign O_data  = odata_r;
     assign O_valid = ovalid_r;
