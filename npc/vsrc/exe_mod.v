@@ -174,7 +174,7 @@ endmodule
 // 执行CSR模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_csr
+module ysyx_25110270_csr_exe
 (
     input   wire    [31:0                           ]   I_csr_src,
     input   wire    [31:0                           ]   I_csr_rdata,

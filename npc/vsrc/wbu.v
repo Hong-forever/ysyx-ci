@@ -18,7 +18,7 @@ module ysyx_25110270_wbu
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
     output  wire    [31:0                       ]   O_rs1_rdata,
     output  wire    [31:0                       ]   O_rs2_rdata,
-    input   wire    [11:0                       ]   I_csr_raddr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_raddr,
     output  wire    [31:0                       ]   O_csr_rdata,
 
     input   wire                                    I_rd_we,
@@ -26,7 +26,7 @@ module ysyx_25110270_wbu
     input   wire    [31:0                       ]   I_rd_wdata,
 
     input   wire                                    I_csr_valid,
-    input   wire    [11:0                       ]   I_csr_waddr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_waddr,
     input   wire    [31:0                       ]   I_csr_wdata,
 
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
@@ -90,7 +90,7 @@ module ysyx_25110270_wbu
         .O_gpr15                (gpr15                      )
     );
 
-    ysyx_25110270_csr_reg u_csr_reg
+    ysyx_25110270_csr u_csr
     (
         .clk                    (clk                        ),
         .rst                    (rst                        ),

@@ -59,7 +59,7 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    I_st_valid,         // 访存有效标志
     input   wire                                    I_br_valid,         // 分支有效标志
     input   wire                                    I_csr_valid,        // 写CSR寄存器标志
-    input   wire    [11:0                       ]   I_csr_addr,         // 写CSR寄存器地址
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_addr,         // 写CSR寄存器地址
     input   wire                                    I_f7b5_en,          // 指令funct7[5]有效标志
     input   wire                                    I_sign,             // 有符号位
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
@@ -85,7 +85,7 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg                                     O_st_valid,         // 访存有效标志
     output  reg                                     O_br_valid,         // 分支有效标志
     output  reg                                     O_csr_valid,        // 写CSR寄存器标志
-    output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
+    output  reg     [`ysyx_25110270_CsrMapBus   ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg                                     O_f7b5_en,          // 指令funct7[5]有效标志
     output  reg                                     O_sign,             // 有符号位
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
@@ -158,7 +158,7 @@ module ysyx_25110270_pipeline_ex_ls
     input   wire                                    I_st_valid,         // 访存有效标志
     input   wire    [2:0]                           I_ls_ctrl,          // 访存控制信号
     input   wire                                    I_csr_valid,        // 写CSR寄存器标志
-    input   wire    [11:0                       ]   I_csr_addr,         // 写CSR寄存器地址
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_addr,         // 写CSR寄存器地址
     input   wire    [31:0                       ]   I_csr_wdata,        // 写CSR寄存器数据
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
 
@@ -173,7 +173,7 @@ module ysyx_25110270_pipeline_ex_ls
     output  reg                                     O_st_valid,         // 访存有效标志
     output  reg     [2:0]                           O_ls_ctrl,          // 访存控制信号
     output  reg                                     O_csr_valid,        // 写CSR寄存器标志
-    output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
+    output  reg     [`ysyx_25110270_CsrMapBus   ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
@@ -225,7 +225,7 @@ module ysyx_25110270_pipeline_ls_wb
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
     input   wire    [31:0                       ]   I_rd_wdata,
     input   wire                                    I_csr_valid,        // 写CSR寄存器标志
-    input   wire    [11:0                       ]   I_csr_addr,         // 写CSR寄存器地址
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_addr,         // 写CSR寄存器地址
     input   wire    [31:0                       ]   I_csr_wdata,        // 写CSR寄存器数据
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
 
@@ -237,7 +237,7 @@ module ysyx_25110270_pipeline_ls_wb
     output  reg     [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
     output  reg     [31:0                       ]   O_rd_wdata,
     output  reg                                     O_csr_valid,        // 写CSR寄存器标志
-    output  reg     [11:0                       ]   O_csr_addr,         // 写CSR寄存器地址
+    output  reg     [`ysyx_25110270_CsrMapBus   ]   O_csr_addr,         // 写CSR寄存器地址
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
