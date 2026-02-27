@@ -5,8 +5,8 @@ PDK = nangate45
 # PDK = icsprout55
 
 RESOURCE_DIR = $(NPC_HOME)/resource
-
-O = $(abspath $(RESOURCE_DIR)/sta-result-$(PDK)-$(DESIGN))
+RESULT = $(abspath $(RESOURCE_DIR)/sta-result)
+O = $(RESULT)/$(DESIGN)-$(PDK)
 RTL_FILES = $(VSRCS-SYM)
 SDC_FILE = ${NPC_HOME}/scripts/sta/npc.sdc
 
@@ -17,6 +17,6 @@ msta:
 	$(MAKE) -C $(YOSYS_HOME) sta DESIGN=$(DESIGN) O=$(O) RTL_FILES="$(RTL_FILES)" SDC_FILE=$(SDC_FILE) CLK_FREQ_MHZ=$(CLK_FREQ_MHZ) CLK_PORT_NANE=$(CLK_PORT_NANE) PDK=$(PDK)
 
 msta-clean:
-	rm -rf $(O)
+	rm -rf $(RESULT)
 
 .PHONY: msta msta-clean
