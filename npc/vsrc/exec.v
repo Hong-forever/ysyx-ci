@@ -192,9 +192,6 @@ module ysyx_25110270_exec
         .O_bru_taken                (bru_taken              )
     );
 
-    wire bru_taken_need = ((bru_taken & I_br_valid) & (I_pred_target != agu_result));         //应该跳转，但是跳转错误
-    wire bru_taken_noneed = ((!bru_taken & I_br_valid) & (I_pred_target != fix_addr_plus4));  //不用跳转，但是跳转了
-    wire bru_taken_final = bru_taken_need | bru_taken_noneed;
 
     //------------------------------------------------------------------------
     // csr运算
@@ -208,14 +205,31 @@ module ysyx_25110270_exec
         .O_csr_wdata                (csr_wdata              )
     );
 
-
+    //------------------------------------------------------------------------
+    // ex2 pipeline
+    //------------------------------------------------------------------------
+    reg [31:0] agu_result_r, fix_addr_plus4_r;
+    reg bru_taken_r;
+    always @(posedge clk) begin
+        if(rst) begin
+            bru_taken_r <= 1'b0;
+        end else begin
+            agu_result_r <= agu_result;
+            fix_addr_plus4_r <= fix_addr_plus4;
+            bru_taken_r <= bru_taken;
+        end
+    end
+    
+    wire bru_taken_need = ((bru_taken_r & I_br_valid) & (I_pred_target != agu_result_r));         //应该跳转，但是跳转错误
+    wire bru_taken_noneed = ((!bru_taken_r & I_br_valid) & (I_pred_target != fix_addr_plus4_r));  //不用跳转，但是跳转了
+    wire bru_taken_final = bru_taken_need | bru_taken_noneed;
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
 
-    assign O_ready = I_ready;
+    assign O_ready = I_ready & ~(bru_taken & ~bru_taken_r);
     assign O_valid = O_ready;
 
     assign O_rd_we = I_rd_we;
@@ -234,7 +248,7 @@ module ysyx_25110270_exec
 
     assign O_btb_update = btb_update & bru_taken_final;
     assign O_bru_taken = bru_taken_final;
-    assign O_bru_target = bru_taken_need ? agu_result : fix_addr_plus4;
+    assign O_bru_target = bru_taken_need ? agu_result_r : fix_addr_plus4_r;
 
     assign O_except = I_except;
 
