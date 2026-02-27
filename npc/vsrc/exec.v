@@ -277,14 +277,12 @@ module ysyx_25110270_exec
         end
     end
 
-    reg valid, valid_r2;
+    reg stallreq_r;
     always @(posedge clk) begin
         if(rst) begin
-            valid <= 1'b0;
-            valid_r2 <= 1'b0;
+            stallreq_r <= 1'b0;
         end else begin
-            valid <= I_valid;
-            valid_r2 <= valid;
+            stallreq_r <= stallreq;
         end
     end
 `endif
@@ -294,7 +292,7 @@ module ysyx_25110270_exec
     import "DPI-C" function void jump_br_cal(input int inst, input int pc, input int target, input int is_taken, input int is_taken_final, input int pred_target);
 
     always @(posedge clk) begin
-        if(I_br_valid & valid_r2) begin
+        if(I_br_valid & stallreq_r) begin
             jump_br_cal(I_inst, I_inst_addr, agu_result_r, bru_taken_r, bru_taken_final, I_pred_target);
         end
     end
