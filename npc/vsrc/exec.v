@@ -226,7 +226,7 @@ module ysyx_25110270_exec
     wire bru_taken_noneed = (!bru_taken_r & (I_pred_target != fix_addr_plus4_r));  //不用跳转，但是跳转了
     wire bru_taken_final = (bru_taken_need | bru_taken_noneed) & br_valid_r; //最终是否需要跳转
 
-    wire stallreq = bru_taken & ~bru_taken_r & I_br_valid;
+    wire stallreq = I_br_valid & ~br_valid_r;
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
