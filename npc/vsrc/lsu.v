@@ -188,6 +188,15 @@ module ysyx_25110270_lsu
         endcase
     end
 
+    reg valid;
+    always @(posedge clk) begin
+        if(rst) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
     wire is_ld_st = I_ld_valid | I_st_valid;
     wire ls_addr_resp = dbus_arready | dbus_awready;
     wire ls_data_resp = dbus_bvalid | dbus_rvalid;
@@ -196,7 +205,7 @@ module ysyx_25110270_lsu
     always @(posedge clk) begin
         if(rst) begin
             req_valid <= 1'b0;
-        end else if(I_valid) begin
+        end else if(I_valid & is_ld_st) begin
             req_valid <= 1'b1;
         end else if(ls_data_resp)begin
             req_valid <= 1'b0;
@@ -209,29 +218,28 @@ module ysyx_25110270_lsu
             addr_valid <= 0;
         end else if(ls_addr_resp) begin
             addr_valid <= 0;
-        end else if(I_valid && is_ld_st) begin
+        end else if(valid & is_ld_st) begin
             addr_valid <= 1;
         end
     end
 
-    parameter IDLE = 1'b0;
-    parameter WB   = 1'b1;
+    // parameter IDLE = 1'b0;
+    // parameter WB   = 1'b1;
 
-    reg state;
-    always @(posedge clk) begin
-        if(rst) begin
-            state <= IDLE;
-        end else begin
-            case(state)
-                IDLE:    state <= ls_data_resp ? WB : IDLE;
-                WB:      state <= IDLE;
-                default: state <= IDLE;
-            endcase
-        end
-    end
+    // reg state;
+    // always @(posedge clk) begin
+    //     if(rst) begin
+    //         state <= IDLE;
+    //     end else begin
+    //         case(state)
+    //             IDLE:    state <= ls_data_resp ? WB : IDLE;
+    //             WB:      state <= IDLE;
+    //             default: state <= IDLE;
+    //         endcase
+    //     end
+    // end
 
-    wire ls_req = is_ld_st & req_valid;
-    wire stallreq = ls_req;
+    wire stallreq = req_valid & ~ls_data_resp;
 
     //------------------------------------------------------------------------
     // 输出

@@ -217,20 +217,17 @@ module ysyx_25110270_exec
     reg [2:0] ls_ctrl;
 
     reg [31:0] rd_wdata;
-    reg valid;
 
     always @(posedge clk) begin
         if(rst) begin
             bru_taken_r <= 1'b0;
             ls_ctrl <= 0;
-            valid <= 1'b0;
         end else begin
             bru_taken_r <= bru_taken;
             agu_result_r <= agu_result;
             fix_addr_plus4_r <= fix_addr_plus4;
             store_data <= final_rs2_rdata;
-            ls_ctrl <= I_ld_valid ? I_op : 3'b111;
-            valid <= I_valid;
+            ls_ctrl <= (I_ld_valid | I_st_valid) ? I_op : 3'b111;
         end
     end
 
@@ -264,7 +261,7 @@ module ysyx_25110270_exec
         .I_inst                     (I_inst                 ),
         .I_inst_addr                (I_inst_addr            ),
 
-        .I_valid                    (valid                  ),
+        .I_valid                    (I_valid                ),
 
         .I_alu_result               (alu_result             ),
         .I_csr_valid                (I_csr_valid            ),
