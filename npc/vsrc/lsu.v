@@ -205,7 +205,7 @@ module ysyx_25110270_lsu
     always @(posedge clk) begin
         if(rst) begin
             req_valid <= 1'b0;
-        end else if(I_valid & is_ld_st) begin
+        end else if(I_valid) begin
             req_valid <= 1'b1;
         end else if(ls_data_resp)begin
             req_valid <= 1'b0;
@@ -239,7 +239,7 @@ module ysyx_25110270_lsu
     //     end
     // end
 
-    wire stallreq = req_valid & ~ls_data_resp;
+    wire stallreq = (is_ld_st & req_valid) & ~ls_data_resp;
 
     //------------------------------------------------------------------------
     // 输出
