@@ -23,8 +23,6 @@ module ysyx_25110270_exec
     input   wire    [1:0                        ]   I_agu_src_sel,
     input   wire                                    I_csr_src_sel,
 
-    input   wire    [31:0                       ]   I_pred_target,      //分支预测目标地址
-
     input   wire                                    I_ld_valid,         //访存有效标志
     input   wire                                    I_st_valid,         //访存有效标志
     input   wire                                    I_br_valid,         //跳转指令标志
@@ -62,7 +60,6 @@ module ysyx_25110270_exec
     output  wire                                    O_device_skip,
 
     //bru
-    output  wire                                    O_btb_update,
     output  wire                                    O_bru_taken,
     output  wire    [31:0                       ]   O_bru_target,
 
@@ -112,8 +109,6 @@ module ysyx_25110270_exec
     reg [31:0] alu_srcb;
     reg [31:0] agu_src;
 
-    reg btb_update;
-
     always @(*) begin
         case(I_alu_srca_sel)
             `ysyx_25110270_ALUSRCA_RS1: alu_srca = final_rs1_rdata;
@@ -133,18 +128,9 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_agu_src_sel)
-            `ysyx_25110270_AGUSRC_RS1: begin
-                agu_src = final_rs1_rdata;
-                btb_update = 1'b0;
-            end
-            `ysyx_25110270_AGUSRC_PC: begin
-                agu_src = I_inst_addr;
-                btb_update = 1'b1;
-            end
-            default: begin
-                agu_src = 0;
-                btb_update = 1;
-            end
+            `ysyx_25110270_AGUSRC_RS1:  agu_src = final_rs1_rdata;
+            `ysyx_25110270_AGUSRC_PC:   agu_src = I_inst_addr;
+            default:                    agu_src = 0;
         endcase
     end
 
@@ -202,12 +188,10 @@ module ysyx_25110270_exec
         .O_csr_wdata                (csr_wdata              )
     );
 
-
-
     //------------------------------------------------------------------------
     // ex2 pipeline
     //------------------------------------------------------------------------
-    reg [31:0] agu_result_r, fix_addr_plus4_r;
+    reg [31:0] agu_result_r;
     reg bru_taken_r;
     reg br_valid_r;
 
@@ -223,9 +207,8 @@ module ysyx_25110270_exec
             bru_taken_r <= 1'b0;
             ls_ctrl <= 0;
         end else begin
-            bru_taken_r <= bru_taken;
+            bru_taken_r <= bru_taken & I_br_valid;
             agu_result_r <= agu_result;
-            fix_addr_plus4_r <= fix_addr_plus4;
             store_data <= final_rs2_rdata;
             ls_ctrl <= (I_ld_valid | I_st_valid) ? I_op : 3'b111;
         end
@@ -240,11 +223,6 @@ module ysyx_25110270_exec
             br_valid_r <= I_br_valid;
         end
     end
-
-    
-    wire bru_taken_need = (bru_taken_r & (I_pred_target != agu_result_r));         //应该跳转，但是跳转错误
-    wire bru_taken_noneed = (!bru_taken_r & (I_pred_target != fix_addr_plus4_r));  //不用跳转，但是跳转了
-    wire bru_taken_final = (bru_taken_need | bru_taken_noneed) & br_valid_r; //最终是否需要跳转
 
     wire stallreq_br = I_br_valid & ~br_valid_r; //等待分支结果
     wire stallreq_ls;
@@ -326,9 +304,8 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_btb_update = btb_update & bru_taken_final;
-    assign O_bru_taken = bru_taken_final;
-    assign O_bru_target = bru_taken_need ? agu_result_r : fix_addr_plus4_r;
+    assign O_bru_taken = bru_taken_r;
+    assign O_bru_target = agu_result_r;
 
     assign O_except = I_except;
     assign O_device_skip = device_skip;

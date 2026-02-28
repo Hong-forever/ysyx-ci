@@ -9,9 +9,7 @@ module ysyx_25110270_ifetch
     input   wire                        clk,
     input   wire                        rst,
 
-    input   wire                        I_btb_update,       //来自EX阶段的分支预测更新信号
     input   wire                        I_bru_taken,        //跳转指令
-    input   wire    [31:0]              I_bru_source,       //跳转指令地址
     input   wire    [31:0]              I_bru_target,
 
     input   wire                        I_ready,
@@ -107,27 +105,6 @@ module ysyx_25110270_ifetch
         .I_rresp                (ibus_rresp                 )
     );
 
-    wire pred_taken;
-    wire [31:0] pred_target;
-    parameter SRC_W = 1;
-    ysyx_25110270_branch_predictor
-    #(
-        .SRC_WIDTH              (SRC_W                      )
-    ) branch_predictor
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .update                 (I_btb_update               ),
-        .update_src             (I_bru_source[SRC_W+1:2]    ),
-        .update_dst             (I_bru_target               ),
-
-        .inst                   (inst                       ),
-        .pc                     (pc[SRC_W+1:2]              ),
-        .taken                  (pred_taken                 ),
-        .target                 (pred_target                )
-    );
-
     always @(posedge clk) begin
         if(rst) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
@@ -136,8 +113,6 @@ module ysyx_25110270_ifetch
                 pc <= I_flush_addr;
             end else if(I_bru_taken) begin
                 pc <= I_bru_target;
-            end else if(pred_taken) begin
-                pc <= pred_target;
             end else begin
                 pc <= pc_plus4;
             end
