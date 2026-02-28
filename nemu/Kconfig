@@ -171,6 +171,10 @@ config ETRACE
   bool "Enable exception trace"
   default n 
 
+config BTRACE
+  bool "Enable branch trace"
+  default n
+
 config LOOP_DETECT
   bool "Enable loop detection"
   default n

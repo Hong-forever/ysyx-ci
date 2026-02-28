@@ -82,7 +82,6 @@ module ysyx_25110270_bru
 (
     input   wire                                    I_src_eq,
     input   wire                                    I_src_lt,
-    input   wire                                    I_br_valid,        // 是否为分支指令
     input   wire    [2:0]                           I_bru_ctrl,
     
     output  wire                                    O_bru_taken
@@ -102,7 +101,7 @@ module ysyx_25110270_bru
         endcase
     end
 
-    assign O_bru_taken = bru_taken & I_br_valid;
+    assign O_bru_taken = bru_taken;
 
 
 endmodule
@@ -148,6 +147,7 @@ module ysyx_25110270_barrel_shift
         end
     endgenerate
 
+
     // wire [WIDTH-1:0] lstage0, lstage1, lstage2, lstage3, lstage4;
     // wire [WIDTH-1:0] rstage0, rstage1, rstage2, rstage3, rstage4;
 
@@ -174,7 +174,7 @@ endmodule
 // 执行CSR模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_csr
+module ysyx_25110270_csr_exe
 (
     input   wire    [31:0                           ]   I_csr_src,
     input   wire    [31:0                           ]   I_csr_rdata,

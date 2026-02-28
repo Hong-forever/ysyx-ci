@@ -83,22 +83,9 @@ module ysyx_25110270_icache
         end
     end
 
-    reg clear_r;
-    always @(posedge clk) begin
-        if(rst) begin
-            clear_r <= 1'b0;
-        end else begin
-            clear_r <= I_clear;
-        end
-    end
-
     integer i, j;
     always @(posedge clk) begin
-        if(rst) begin
-            for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
-                valid_mem[i] <= 0;
-            end
-        end else if(I_clear && !clear_r) begin
+        if(rst || I_clear) begin
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
                 valid_mem[i] <= 0;
             end
@@ -131,8 +118,8 @@ module ysyx_25110270_icache
         if(rst) begin
             ovalid_r <= 1'b0;
         end else if(I_valid & hit & !ovalid_r) begin
-            odata_r <= data_mem[index][offset];
             ovalid_r <= 1'b1;
+            odata_r <= data_mem[index][offset];
         end else begin
             ovalid_r <= 1'b0;
         end
