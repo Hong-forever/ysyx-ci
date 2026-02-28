@@ -9,7 +9,7 @@ USE_NVBOARD = 0
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
 # else
-WAVE_ENABLE = 0
+WAVE_ENABLE = 1
 # endif
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
@@ -81,6 +81,9 @@ perf:
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
 	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
 
+test: 
+	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
+	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
 
 $(shell mkdir -p $(BUILD_DIR))
 

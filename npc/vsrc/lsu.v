@@ -9,38 +9,23 @@ module ysyx_25110270_lsu
     input   wire                                    clk,
     input   wire                                    rst,
 
-    input   wire    [31:0                       ]   I_inst,             //指令内容
+    input   wire    [31:0                       ]   I_inst,
     input   wire    [31:0                       ]   I_inst_addr,
 
     input   wire                                    I_valid,
-    output  wire                                    O_ready,
-    output  wire                                    O_valid,
 
-    input   wire                                    I_rd_we,
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
-    input   wire    [31:0                       ]   I_rd_wdata,
-    input   wire    [31:0                       ]   I_memory_addr,
-    input   wire    [31:0                       ]   I_store_data,
+    input   wire    [31:0                       ]   I_alu_result,
+    input   wire                                    I_csr_valid,
+    input   wire    [31:0                       ]   I_csr_rdata,
+
     input   wire                                    I_ld_valid,
     input   wire                                    I_st_valid,
     input   wire    [2:0                        ]   I_ls_ctrl,
-    input   wire                                    I_csr_valid,
-    input   wire    [11:0                       ]   I_csr_addr,
-    input   wire    [31:0                       ]   I_csr_wdata,
-    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
+    input   wire    [31:0                       ]   I_memory_addr,
+    input   wire    [31:0                       ]   I_store_data,
 
-    input   wire                                    I_is_ldst,          //是否为访存指令
-
-    output  wire    [31:0                       ]   O_inst,
-    output  wire    [31:0                       ]   O_inst_addr,
-
-    output  wire                                    O_rd_we,
-    output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
     output  wire    [31:0                       ]   O_rd_wdata,
-    output  wire                                    O_csr_valid,
-    output  wire    [11:0                       ]   O_csr_addr,
-    output  wire    [31:0                       ]   O_csr_wdata,
-    output  wire    [`ysyx_25110270_ExceptBus   ]   O_except,
+    output  wire                                    O_stallreq,
 
     output  wire                                    O_device_skip,
 
@@ -124,12 +109,10 @@ module ysyx_25110270_lsu
     // 访存逻辑
     //------------------------------------------------------------------------
 
-    wire [2:0] ld_ctrl = I_ld_valid ? I_ls_ctrl : 3'b111; // 111 no op
-
     reg [31:0] rd_data;
     always @(*) begin
-        rd_data = I_rd_wdata;
-        case({ld_ctrl, offset})
+        rd_data = I_csr_valid ? I_csr_rdata : I_alu_result;
+        case({I_ls_ctrl, offset})
             {`ysyx_25110270_RV32I_F3_LB,  2'b00}: rd_data = lb_00_res;
             {`ysyx_25110270_RV32I_F3_LB,  2'b01}: rd_data = lb_01_res;
             {`ysyx_25110270_RV32I_F3_LB,  2'b10}: rd_data = lb_10_res;
@@ -205,25 +188,29 @@ module ysyx_25110270_lsu
         endcase
     end
 
+    wire is_ld_st = I_ld_valid | I_st_valid;
+    wire ls_addr_resp = dbus_arready | dbus_awready;
+    wire ls_data_resp = dbus_bvalid | dbus_rvalid;
+
     reg req_valid;
     always @(posedge clk) begin
         if(rst) begin
             req_valid <= 1'b0;
         end else if(I_valid) begin
             req_valid <= 1'b1;
-        end else if((I_ld_valid && dbus_rvalid) || (I_st_valid && dbus_bvalid))begin
+        end else if(ls_data_resp)begin
             req_valid <= 1'b0;
         end
     end
 
-    reg data_avalid;
+    reg addr_valid;
     always @(posedge clk) begin
         if(rst) begin
-            data_avalid <= 0;
-        end else if(I_ld_valid && dbus_arready || I_st_valid && dbus_awready) begin
-            data_avalid <= 0;
-        end else if(I_valid && I_is_ldst) begin
-            data_avalid <= 1;
+            addr_valid <= 0;
+        end else if(ls_addr_resp) begin
+            addr_valid <= 0;
+        end else if(I_valid && is_ld_st) begin
+            addr_valid <= 1;
         end
     end
 
@@ -236,34 +223,22 @@ module ysyx_25110270_lsu
             state <= IDLE;
         end else begin
             case(state)
-                IDLE:    state <= (dbus_bvalid | dbus_rvalid) ? WB : IDLE;
+                IDLE:    state <= ls_data_resp ? WB : IDLE;
                 WB:      state <= IDLE;
                 default: state <= IDLE;
             endcase
         end
     end
 
-    wire ls_req = (I_ld_valid | I_st_valid) & req_valid;
+    wire ls_req = is_ld_st & req_valid;
     wire stallreq = ls_req;
 
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
-    assign O_inst = I_inst;
-    assign O_inst_addr = I_inst_addr;
-
-    assign O_ready = ~stallreq;
-    assign O_valid = O_ready;
-
-    assign O_rd_we = I_rd_we;
-    assign O_rd_waddr = I_rd_waddr;
     assign O_rd_wdata = rd_data;
 
-    assign O_csr_valid = I_csr_valid;
-    assign O_csr_addr = I_csr_addr;
-    assign O_csr_wdata = I_csr_wdata;
-
-    assign O_except = I_except;
+    assign O_stallreq = stallreq;
 
 `ifdef DEBUG
     assign O_device_skip = (I_ld_valid | I_st_valid) & 
@@ -282,9 +257,9 @@ module ysyx_25110270_lsu
 `endif
 
 
-    assign dbus_awvalid = data_avalid & I_st_valid;
-    assign dbus_wvalid = data_avalid & I_st_valid;
-    assign dbus_arvalid = data_avalid & I_ld_valid;
+    assign dbus_awvalid = addr_valid & I_st_valid;
+    assign dbus_wvalid = addr_valid & I_st_valid;
+    assign dbus_arvalid = addr_valid & I_ld_valid;
 
     assign dbus_awaddr = I_memory_addr;
     assign dbus_awid = 4'b0000;
