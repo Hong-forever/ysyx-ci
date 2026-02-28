@@ -40,7 +40,7 @@ module ysyx_25110270_csr
     reg [31:0] mtvec;
     reg [31:0] mepc;
     reg [31:0] mcause;
-    reg [63:0] cycle;
+    reg [39:0] cycle;
 
     wire is_ecall  = I_except[`ysyx_25110270_EXCPT_ECALL];
     wire is_ebreak = I_except[`ysyx_25110270_EXCPT_EBREAK];
@@ -66,7 +66,7 @@ module ysyx_25110270_csr
         if(rst) begin
             cycle <= 0;
         end else begin
-            cycle <= cycle + 64'b1;
+            cycle <= cycle + 1;
         end
     end
 
@@ -116,7 +116,7 @@ module ysyx_25110270_csr
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
                 `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
                 `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
-                `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = cycle[63:32];
+                `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = {24'd0, cycle[39:32]};
                 `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
                 `ysyx_25110270_CSR_MAP_MARCHID:   rdata = marchid;
                 default:                          rdata = 0;
@@ -139,7 +139,7 @@ module ysyx_25110270_csr
     assign O_csr_mstatus = mstatus;
     assign O_csr_mcause = mcause;
     assign O_csr_mcyclel = cycle[31:0];
-    assign O_csr_mcycleh = cycle[63:32];
+    assign O_csr_mcycleh = {24'd0, cycle[39:32]};
     assign O_csr_mvendorid = mvendorid;
     assign O_csr_marchid = marchid;
 

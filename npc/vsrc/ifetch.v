@@ -130,7 +130,7 @@ module ysyx_25110270_ifetch
     assign ibus_awid    = 0;
     assign ibus_awlen   = 0;
     assign ibus_awsize  = 0;
-    assign ibus_awburst = 2'b01;
+    assign ibus_awburst = 2'b00;
 
     assign ibus_wvalid = 1'b0;
     assign ibus_wdata  = 0;
