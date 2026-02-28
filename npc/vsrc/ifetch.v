@@ -9,9 +9,7 @@ module ysyx_25110270_ifetch
     input   wire                        clk,
     input   wire                        rst,
 
-    input   wire                        I_btb_update,       //来自EX阶段的分支预测更新信号
     input   wire                        I_bru_taken,        //跳转指令
-    input   wire    [31:0]              I_bru_source,       //跳转指令地址
     input   wire    [31:0]              I_bru_target,
 
     input   wire                        I_ready,
@@ -20,6 +18,7 @@ module ysyx_25110270_ifetch
     input   wire                        I_flush,            // 指令冲刷
     input   wire    [31:0]              I_flush_addr,       // 冲刷跳转地址
 
+    input   wire                        I_fence_i,          // 指令同步
 
     output  wire    [31:0]              O_inst,
     output  wire    [31:0]              O_inst_addr,
@@ -69,7 +68,6 @@ module ysyx_25110270_ifetch
     wire [31:0] inst;
     wire [31:0] pc_plus4;
 
-    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I) & resp_valid;
 
     ysyx_25110270_icache 
     #(
@@ -89,7 +87,7 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .O_data                 (inst                       ),
 
-        .I_clear                (icache_clear               ),
+        .I_clear                (I_fence_i                  ),
 
         .O_arvalid              (ibus_arvalid               ),
         .I_arready              (ibus_arready               ),
@@ -102,27 +100,7 @@ module ysyx_25110270_ifetch
         .I_rdata                (ibus_rdata                 ),
         .I_rlast                (ibus_rlast                 ),
         .I_rresp                (ibus_rresp                 )
-    );
 
-    wire pred_taken;
-    wire [31:0] pred_target;
-    parameter SRC_W = 1;
-    ysyx_25110270_branch_predictor
-    #(
-        .SRC_WIDTH              (SRC_W                      )
-    ) branch_predictor
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .update                 (I_btb_update               ),
-        .update_src             (I_bru_source[SRC_W+1:2]    ),
-        .update_dst             (I_bru_target               ),
-
-        .inst                   (inst                       ),
-        .pc                     (pc[SRC_W+1:2]              ),
-        .taken                  (pred_taken                 ),
-        .target                 (pred_target                )
     );
 
     always @(posedge clk) begin
@@ -133,8 +111,6 @@ module ysyx_25110270_ifetch
                 pc <= I_flush_addr;
             end else if(I_bru_taken) begin
                 pc <= I_bru_target;
-            end else if(pred_taken) begin
-                pc <= pred_target;
             end else begin
                 pc <= pc_plus4;
             end
@@ -145,7 +121,7 @@ module ysyx_25110270_ifetch
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = resp_valid;
+    assign O_valid = resp_valid & I_ready;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr  = 0;

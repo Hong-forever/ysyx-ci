@@ -4,19 +4,18 @@
 // CSR寄存器
 //------------------------------------------------------------------------
 
-module ysyx_25110270_csr
+module ysyx_25110270_csr_reg
 (
     input   wire                                    clk,
     input   wire                                    rst,
 
-    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_raddr,
+    input   wire    [11:0                       ]   I_raddr,
     output  wire    [31:0                       ]   O_rdata,
 
     input   wire                                    I_we,
-    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_waddr,
+    input   wire    [11:0                       ]   I_waddr,
     input   wire    [31:0                       ]   I_wdata,
 
-    input   wire                                    I_valid,        //指令有效信号
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
 
@@ -50,6 +49,17 @@ module ysyx_25110270_csr
     wire except_sync = is_ecall; // for ysyx
     wire except_call = except_sync;
     wire except_mret = is_mret;
+
+    reg e_sync_r, e_mret_r;
+    always @(posedge clk) begin
+        if(rst) begin
+            e_sync_r <= 1'b0;
+            e_mret_r <= 1'b0;
+        end else begin
+            e_sync_r <= except_sync;
+            e_mret_r <= except_mret;
+        end
+    end
     
     wire [31:0] mvendorid;
     wire [31:0] marchid;
@@ -66,7 +76,7 @@ module ysyx_25110270_csr
         if(rst) begin
             cycle <= 0;
         end else begin
-            cycle <= cycle + 64'b1;
+            cycle <= cycle + 1'b1;
         end
     end
 
@@ -79,21 +89,21 @@ module ysyx_25110270_csr
             mepc <= 0;
             mie <= 0;
             mstatus <= 0;
-        end else if(I_valid) begin
-            if(except_sync) begin
+        end else begin
+            if(except_sync & ~e_sync_r) begin
                 mepc <= I_except_addr;
                 mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_mret) begin
+            end else if(except_mret & ~e_mret_r) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else begin    
                 if(I_we) begin
                     case(I_waddr)
-                        `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
-                        `ysyx_25110270_CSR_MAP_MIE:      mie         <= I_wdata;
-                        `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
-                        `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
-                        `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
+                        `ysyx_25110270_CSR_MSTATUS:  mstatus     <= I_wdata;
+                        `ysyx_25110270_CSR_MIE:      mie         <= I_wdata;
+                        `ysyx_25110270_CSR_MTVEC:    mtvec       <= I_wdata;
+                        `ysyx_25110270_CSR_MEPC:     mepc        <= I_wdata;
+                        `ysyx_25110270_CSR_MCAUSE:   mcause      <= I_wdata;
                         default: begin end
                     endcase
                 end
@@ -106,22 +116,22 @@ module ysyx_25110270_csr
     //idu模块读CSR寄存器
     reg [31:0] rdata;
     always @(*) begin
-        if(I_we && I_raddr == I_waddr) begin
-            rdata = I_wdata;
-        end else begin
+        // if(I_we && I_raddr == I_waddr) begin
+        //     rdata = I_wdata;
+        // end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
-                `ysyx_25110270_CSR_MAP_MIE:       rdata = mie;
-                `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
-                `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
-                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
-                `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
-                `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = cycle[63:32];
-                `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
-                `ysyx_25110270_CSR_MAP_MARCHID:   rdata = marchid;
-                default:                          rdata = 0;
+                `ysyx_25110270_CSR_MSTATUS:   rdata = mstatus;
+                `ysyx_25110270_CSR_MIE:       rdata = mie;
+                `ysyx_25110270_CSR_MTVEC:     rdata = mtvec;
+                `ysyx_25110270_CSR_MEPC:      rdata = mepc;
+                `ysyx_25110270_CSR_MCAUSE:    rdata = mcause;
+                `ysyx_25110270_CSR_CYCLE:     rdata = cycle[31:0];
+                `ysyx_25110270_CSR_CYCLEH:    rdata = cycle[63:32];
+                `ysyx_25110270_CSR_MVENDORID: rdata = mvendorid;
+                `ysyx_25110270_CSR_MARCHID:   rdata = marchid;
+                default:                      rdata = 0;
             endcase
-        end
+        // end
     end
 
 
@@ -131,8 +141,8 @@ module ysyx_25110270_csr
     assign O_rdata = rdata;
 
     assign O_flush = except_call | except_mret;
-    assign O_flush_addr =   except_call ? mtvec : mepc;
-
+    assign O_flush_addr =   except_call ? mtvec :
+                            except_mret ? mepc  : 0;
 
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;

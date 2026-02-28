@@ -54,30 +54,16 @@ module ysyx_25110270_regfile
         end
     end
 
-    reg [31:0] rs1_rdata, rs2_rdata;
-    always @(*) begin
-        if(I_rs1_raddr == 0) begin
-            rs1_rdata = 0;
-        end else if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
-            rs1_rdata = I_rd_wdata;
-        end else begin
-            rs1_rdata = regs[I_rs1_raddr];
-        end
-    end
-
-    always @(*) begin
-        if(I_rs2_raddr == 0) begin
-            rs2_rdata = 0;
-        end else if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
-            rs2_rdata = I_rd_wdata;
-        end else begin
-            rs2_rdata = regs[I_rs2_raddr];
-        end
-    end
-
     //读寄存器
-    assign O_rs1_rdata = rs1_rdata;
-    assign O_rs2_rdata = rs2_rdata;
+    assign O_rs1_rdata = 
+                I_rs1_raddr == 0 ? 0 :
+                // (I_rd_we && I_rd_waddr == I_rs1_raddr) ? I_rd_wdata : regs[I_rs1_raddr];
+                regs[I_rs1_raddr];
+
+    assign O_rs2_rdata = 
+                I_rs2_raddr == 0 ? 0 :
+                // (I_rd_we && I_rd_waddr == I_rs2_raddr) ? I_rd_wdata : regs[I_rs2_raddr];
+                regs[I_rs2_raddr];
 
     assign O_gpr0  = 0;
     assign O_gpr1  = regs[1];
