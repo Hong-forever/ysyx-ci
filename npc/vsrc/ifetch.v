@@ -64,12 +64,15 @@ module ysyx_25110270_ifetch
     parameter WAIT  = 1'b1;
 
     wire resp_valid;
+    wire valid;
 
     reg  [31:0] pc;
     wire [31:0] inst;
     wire [31:0] pc_plus4;
 
-    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I) & resp_valid;
+    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I) & valid;
+
+    assign valid = I_ready & resp_valid;
 
     ysyx_25110270_icache 
     #(
@@ -128,7 +131,7 @@ module ysyx_25110270_ifetch
     always @(posedge clk) begin
         if(rst) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(resp_valid) begin     // WAIT
+        end else if(valid) begin     // WAIT
             if(I_flush) begin
                 pc <= I_flush_addr;
             end else if(I_bru_taken) begin
@@ -145,7 +148,7 @@ module ysyx_25110270_ifetch
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = resp_valid;
+    assign O_valid = valid;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr  = 0;
