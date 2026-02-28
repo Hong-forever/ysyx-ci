@@ -49,13 +49,13 @@ module ysyx_25110270_decoder
     //------------------------------------------------------------------------
     // 指令解码
     //------------------------------------------------------------------------
-    wire [`ysyx_25110270_RV32_OP_WIDTH-1:0]  opcode;
-    wire [`ysyx_25110270_RV32_F3_WIDTH-1:0]  funct3;
-    wire [`ysyx_25110270_RV32_F7_WIDTH-1:0]  funct7;
-    wire [`ysyx_25110270_RV32_RD_WIDTH-1:0]  rd;
-    wire [`ysyx_25110270_RV32_RS1_WIDTH-1:0] rs1;
-    wire [`ysyx_25110270_RV32_RS2_WIDTH-1:0] rs2;
-    
+    wire [6:0]  opcode;
+    wire [2:0]  funct3;
+    wire [6:0]  funct7;
+    wire [3:0]  rd;
+    wire [3:0]  rs1;
+    wire [3:0]  rs2;
+
     ysyx_25110270_RV32_Inst_Unpack inst_unpack
     (
         .I_inst                 (I_inst                     ),
@@ -290,21 +290,21 @@ endmodule
 
 module ysyx_25110270_RV32_Inst_Unpack
 (
-    input   wire    [31:0                               ] I_inst,
-    output  wire    [`ysyx_25110270_RV32_OP_WIDTH-1:0   ] opcode,
-    output  wire    [`ysyx_25110270_RV32_F3_WIDTH-1:0   ] funct3,
-    output  wire    [`ysyx_25110270_RV32_F7_WIDTH-1:0   ] funct7,
-    output  wire    [`ysyx_25110270_RV32_RD_WIDTH-1:0   ] rd,
-    output  wire    [`ysyx_25110270_RV32_RS1_WIDTH-1:0  ] rs1,
-    output  wire    [`ysyx_25110270_RV32_RS2_WIDTH-1:0  ] rs2
+    input   wire    [31:0]  I_inst,
+    output  wire    [6:0 ]  opcode,
+    output  wire    [2:0 ]  funct3,
+    output  wire    [6:0 ]  funct7,
+    output  wire    [3:0 ]  rd,
+    output  wire    [3:0 ]  rs1,
+    output  wire    [3:0 ]  rs2
 );
 
-    assign opcode = I_inst[`ysyx_25110270_RV32_OP ];
-    assign funct3 = I_inst[`ysyx_25110270_RV32_F3 ];
-    assign funct7 = I_inst[`ysyx_25110270_RV32_F7 ];
-    assign rd     = I_inst[`ysyx_25110270_RV32_RD ];
-    assign rs1    = I_inst[`ysyx_25110270_RV32_RS1];
-    assign rs2    = I_inst[`ysyx_25110270_RV32_RS2];
+    assign opcode = I_inst[6:0];
+    assign rd     = I_inst[10:7];
+    assign funct3 = I_inst[14:12];
+    assign rs1    = I_inst[18:15];
+    assign rs2    = I_inst[23:20];
+    assign funct7 = I_inst[31:25];
 
 endmodule
 

@@ -2,34 +2,10 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-// `define DPIC
-// `define PERF
-// `define DEBUG
+`define DPIC
+`define PERF
+`define DEBUG
 // `define SOC //no verilog macro define here, define it in Makefile
-
-//------------------------------------------------------------------------
-// CLOCK
-//------------------------------------------------------------------------
-
-//------------------------------------------------------------------------
-// INSTRUCTION FIELD DEFINITIONS (BIT RANGE)
-//------------------------------------------------------------------------
-`define ysyx_25110270_RV32_OP  6:0    // Opcode field (7 bits)
-`define ysyx_25110270_RV32_RD  10:7   // Destination register field (4 bits)
-`define ysyx_25110270_RV32_F3  14:12  // Function 3 field (3 bits)
-`define ysyx_25110270_RV32_RS1 18:15  // Source register 1 field (4 bits)
-`define ysyx_25110270_RV32_RS2 23:20  // Source register 2 field (4 bits)
-`define ysyx_25110270_RV32_F7  31:25  // Function 7 field (7 bits)
-
-//------------------------------------------------------------------------
-// FIELD WIDTH DEFINITIONS
-//------------------------------------------------------------------------
-`define ysyx_25110270_RV32_OP_WIDTH   7   // Opcode field width
-`define ysyx_25110270_RV32_RD_WIDTH   4   // Destination register field width
-`define ysyx_25110270_RV32_RS1_WIDTH  4   // Source register 1 field width
-`define ysyx_25110270_RV32_RS2_WIDTH  4   // Source register 2 field width
-`define ysyx_25110270_RV32_F3_WIDTH   3   // funct3 field width
-`define ysyx_25110270_RV32_F7_WIDTH   7   // funct7 field width
 
 //------------------------------------------------------------------------
 // rv32i load type inst
