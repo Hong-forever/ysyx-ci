@@ -131,7 +131,6 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     // exec
     //-------------------------------------------------------------
-    wire                                O_ex_btb_update;
     wire                                O_ex_bru_taken;
     wire [31:0                      ]   O_ex_bru_target;
 
@@ -240,9 +239,7 @@ module ysyx_25110270_cpu_core
         .clk                    (clk                        ),
         .rst                    (rst                        ),
 
-        .I_btb_update           (O_ex_btb_update            ),
         .I_bru_taken            (O_ex_bru_taken             ),
-        .I_bru_source           (O_ex_inst_addr             ),
         .I_bru_target           (O_ex_bru_target            ),
 
         .I_ready                (O_dec_ready                ),
@@ -367,8 +364,6 @@ module ysyx_25110270_cpu_core
         .I_agu_src_sel          (I_ex_agu_src_sel           ),
         .I_csr_src_sel          (I_ex_csr_src_sel           ),
 
-        .I_pred_target          (I_dec_inst_addr            ),
-
         .I_ld_valid             (I_ex_ld_valid              ),
         .I_st_valid             (I_ex_st_valid              ),
         .I_br_valid             (I_ex_br_valid              ),
@@ -403,7 +398,6 @@ module ysyx_25110270_cpu_core
 
         .O_device_skip          (ex_device_skip             ),
 
-        .O_btb_update           (O_ex_btb_update            ),
         .O_bru_taken            (O_ex_bru_taken             ),
         .O_bru_target           (O_ex_bru_target            ),
 
