@@ -16,11 +16,11 @@ module ysyx_25110270_csr
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_waddr,
     input   wire    [31:0                       ]   I_wdata,
 
-    input   wire                                    I_valid,        //指令有效信号
+    input   wire                                    I_valid,            //指令有效信号
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
 
-    input   wire    [31:0                       ]   I_next_inst_addr,
+    output  wire    [63:0                       ]   O_mtime,            //mtime寄存器
 
     output  wire                                    O_flush,
     output  wire    [31:0                       ]   O_flush_addr,
@@ -29,10 +29,10 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_csr_mepc,         //mepc寄存器
     output  wire    [31:0                       ]   O_csr_mstatus,      //mstatus寄存器
     output  wire    [31:0                       ]   O_csr_mcause,       //mcause寄存器
-    output  wire    [31:0                       ]   O_csr_mcyclel,       //mcycle寄存器
-    output  wire    [31:0                       ]   O_csr_mcycleh,       //mcycle寄存器
-    output  wire    [31:0                       ]   O_csr_mvendorid,      //mvendorid寄存器
-    output  wire    [31:0                       ]   O_csr_marchid         //marchid寄存器
+    output  wire    [31:0                       ]   O_csr_mcyclel,      //mcycle寄存器
+    output  wire    [31:0                       ]   O_csr_mcycleh,      //mcycle寄存器
+    output  wire    [31:0                       ]   O_csr_mvendorid,    //mvendorid寄存器
+    output  wire    [31:0                       ]   O_csr_marchid       //marchid寄存器
 );
 
     reg [31:0] mstatus;
@@ -131,7 +131,9 @@ module ysyx_25110270_csr
     assign O_rdata = rdata;
 
     assign O_flush = except_call | except_mret;
-    assign O_flush_addr =   except_call ? mtvec : mepc;
+    assign O_flush_addr = except_call ? mtvec : mepc;
+
+    assign O_mtime = cycle;
 
 
     assign O_csr_mtvec = mtvec;

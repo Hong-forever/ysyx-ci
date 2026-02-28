@@ -9,6 +9,8 @@ module ysyx_25110270_cpu_core
     input   wire                        clk,
     input   wire                        rst,
 
+    output  wire    [63:0]              mtime,
+
     input   wire                        io_interrupt,
 
     output  wire                        io_master_awvalid,
@@ -460,7 +462,8 @@ module ysyx_25110270_cpu_core
 
         .I_except               (I_wb_except                ),
         .I_except_addr          (I_wb_inst_addr             ),
-        .I_next_inst_addr       (I_ex_inst_addr             ),
+
+        .O_mtime                (mtime                      ),
 
         .O_flush                (O_flush                    ),
         .O_flush_addr           (O_flush_addr               ),

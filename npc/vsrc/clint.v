@@ -5,7 +5,9 @@
 module ysyx_25110270_clint
 (
     input   wire                        clk,        //时钟输入
-    input   wire                        rst,      //复位输入
+    input   wire                        rst,        //复位输入
+
+    input   wire    [63:0]              time_i,     //mtime寄存器输入
 
     // AXI接口
     input   wire                        awvalid_i,
@@ -39,8 +41,6 @@ module ysyx_25110270_clint
     output  wire    [3:0 ]              rid_o
 );
 
-    reg [39:0] mtime;
-
     reg rdata_valid;
     always @(posedge clk) begin
         if(rst) begin
@@ -54,13 +54,7 @@ module ysyx_25110270_clint
         end
     end
 
-    always @(posedge clk) begin
-        if(rst) begin
-            mtime <= 0;
-        end else begin
-            mtime <= mtime + 1;
-        end
-    end
+
 
     assign awready_o = 1'b0;
     assign wready_o  = 1'b0;
@@ -69,7 +63,7 @@ module ysyx_25110270_clint
     assign bid_o     = 4'b0000;
     assign arready_o = 1'b1;
     assign rvalid_o  = rdata_valid;
-    assign rdata_o   = araddr_i[2] ? {24'd0, mtime[39:32]} : mtime[31:0];
+    assign rdata_o   = araddr_i[2] ? time_i[63:32] : time_i[31:0];
     assign rresp_o   = 2'b00;
     assign rlast_o   = 1'b1;
     assign rid_o     = 4'b0000;
