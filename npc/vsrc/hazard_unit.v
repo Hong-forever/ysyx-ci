@@ -15,8 +15,6 @@ module ysyx_25110270_hazard_unit
     input   wire                                    I_ex_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_ex_rd_waddr,
 
-    input   wire                                    I_ls_rd_we,
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_ls_rd_waddr,
 
     input   wire                                    I_csr_valid,
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_raddr,
@@ -24,8 +22,6 @@ module ysyx_25110270_hazard_unit
     input   wire                                    I_ex_csr_valid,
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_ex_csr_waddr,
 
-    input   wire                                    I_ls_csr_valid,
-    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_ls_csr_waddr,
 
     input   wire                                    I_ex_ld_valid,
     input   wire                                    I_bru_taken,

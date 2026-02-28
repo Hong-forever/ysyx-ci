@@ -139,82 +139,10 @@ endmodule
 
 
 //------------------------------------------------------------------------
-// 执行访存流水线单元
-//------------------------------------------------------------------------
-
-module ysyx_25110270_pipeline_ex_ls
-(
-    input   wire                                    clk,
-    input   wire                                    rst,
-
-    input   wire    [31:0                       ]   I_inst,             // 指令内容
-    input   wire    [31:0                       ]   I_inst_addr,
-    input   wire                                    I_rd_we,
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
-    input   wire    [31:0                       ]   I_rd_wdata,
-    input   wire    [31:0                       ]   I_memory_addr,
-    input   wire    [31:0                       ]   I_store_data,
-    input   wire                                    I_ld_valid,         // 访存有效标志
-    input   wire                                    I_st_valid,         // 访存有效标志
-    input   wire    [2:0]                           I_ls_ctrl,          // 访存控制信号
-    input   wire                                    I_csr_valid,        // 写CSR寄存器标志
-    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_addr,         // 写CSR寄存器地址
-    input   wire    [31:0                       ]   I_csr_wdata,        // 写CSR寄存器数据
-    input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
-
-    output  reg     [31:0                       ]   O_inst,             // 指令内容
-    output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
-    output  reg                                     O_rd_we,
-    output  reg     [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,
-    output  reg     [31:0                       ]   O_rd_wdata,
-    output  reg     [31:0                       ]   O_memory_addr,
-    output  reg     [31:0                       ]   O_store_data,
-    output  reg                                     O_ld_valid,         // 访存有效标志
-    output  reg                                     O_st_valid,         // 访存有效标志
-    output  reg     [2:0]                           O_ls_ctrl,          // 访存控制信号
-    output  reg                                     O_csr_valid,        // 写CSR寄存器标志
-    output  reg     [`ysyx_25110270_CsrMapBus   ]   O_csr_addr,         // 写CSR寄存器地址
-    output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
-    output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
-
-    input   wire                                    I_enable,
-    input   wire                                    I_flush
-);
-    always @(posedge clk) begin
-        if(rst | I_flush) begin
-            O_rd_we         <= 0                        ;
-            O_ld_valid      <= 0                        ;
-            O_st_valid      <= 0                        ;
-            O_csr_valid     <= 0                        ;
-            O_except        <= 0                        ;
-            O_inst_addr     <= 0                        ; //dpic debug
-            // O_inst          <= 0                        ;
-        end else if(I_enable) begin
-            O_inst          <= I_inst                   ;
-            O_inst_addr     <= I_inst_addr              ;
-            O_rd_we         <= I_rd_we                  ;
-            O_rd_waddr      <= I_rd_waddr               ;
-            O_rd_wdata      <= I_rd_wdata               ;
-            O_memory_addr   <= I_memory_addr            ;
-            O_store_data    <= I_store_data             ;
-            O_ld_valid      <= I_ld_valid               ;
-            O_st_valid      <= I_st_valid               ;
-            O_ls_ctrl       <= I_ls_ctrl                ;
-            O_csr_valid     <= I_csr_valid              ;
-            O_csr_addr      <= I_csr_addr               ;
-            O_csr_wdata     <= I_csr_wdata              ;
-            O_except        <= I_except                 ;
-        end
-    end
-
-endmodule
-
-
-//------------------------------------------------------------------------
 // 访存写回流水线单元
 //------------------------------------------------------------------------
 
-module ysyx_25110270_pipeline_ls_wb
+module ysyx_25110270_pipeline_ex_wb
 (
     input   wire                                    clk,
     input   wire                                    rst,

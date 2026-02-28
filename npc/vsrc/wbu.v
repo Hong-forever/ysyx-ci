@@ -40,7 +40,6 @@ module ysyx_25110270_wbu
     input   wire    [31:0                       ]   I_if_addr,
     input   wire    [31:0                       ]   I_dec_addr,
     input   wire    [31:0                       ]   I_ex_addr,
-    input   wire    [31:0                       ]   I_ls_addr,
 
     input   wire                                    I_device_skip
 );
@@ -171,11 +170,9 @@ module ysyx_25110270_wbu
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
             pc              <= O_flush ? O_flush_addr :
-                               (I_ls_addr == 0 ? 
                                (I_ex_addr == 0 ? 
                                (I_dec_addr == 0 ? I_if_addr : I_dec_addr) 
-                               : I_ex_addr) 
-                               : I_ls_addr);
+                               : I_ex_addr);
             skip_r          <= I_device_skip;
         end
     end

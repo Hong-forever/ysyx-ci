@@ -145,53 +145,13 @@ module ysyx_25110270_cpu_core
     wire                                O_ex_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   O_ex_rd_waddr;
     wire [31:0                      ]   O_ex_rd_wdata;
-    wire [31:0                      ]   O_ex_memory_addr;
-    wire [31:0                      ]   O_ex_store_data;
-    wire                                O_ex_ld_valid;
-    wire                                O_ex_st_valid;
-    wire [2:0                       ]   O_ex_ls_ctrl;
     wire                                O_ex_csr_valid;
     wire [`ysyx_25110270_CsrMapBus  ]   O_ex_csr_addr;
     wire [31:0                      ]   O_ex_csr_wdata;
     wire [`ysyx_25110270_ExceptBus  ]   O_ex_except;
 
-
     //-------------------------------------------------------------
-    // pipeline_ex_ls
-    //-------------------------------------------------------------
-    wire [31:0                      ]   I_ls_inst;
-    wire [31:0                      ]   I_ls_inst_addr;
-    wire                                I_ls_rd_we;
-    wire [`ysyx_25110270_RegAddrBus ]   I_ls_rd_waddr;
-    wire [31:0                      ]   I_ls_rd_wdata;
-    wire [31:0                      ]   I_ls_memory_addr;
-    wire [31:0                      ]   I_ls_store_data;
-    wire                                I_ls_ld_valid;
-    wire                                I_ls_st_valid;
-    wire [2:0                       ]   I_ls_ls_ctrl;
-    wire                                I_ls_csr_valid;
-    wire [`ysyx_25110270_CsrMapBus  ]   I_ls_csr_addr;
-    wire [31:0                      ]   I_ls_csr_wdata;
-    wire [`ysyx_25110270_ExceptBus  ]   I_ls_except;
-
-
-    //-------------------------------------------------------------
-    // ls
-    //-------------------------------------------------------------
-    wire [31:0                      ]   O_ls_inst;
-    wire [31:0                      ]   O_ls_inst_addr;
-    wire                                O_ls_valid;
-    wire                                O_ls_ready;
-    wire                                O_ls_rd_we;
-    wire [`ysyx_25110270_RegAddrBus ]   O_ls_rd_waddr;
-    wire [31:0                      ]   O_ls_rd_wdata;
-    wire                                O_ls_csr_valid;
-    wire [`ysyx_25110270_CsrMapBus  ]   O_ls_csr_addr;
-    wire [31:0                      ]   O_ls_csr_wdata;
-    wire [`ysyx_25110270_ExceptBus  ]   O_ls_except;
-
-    //-------------------------------------------------------------
-    // pipeline_ls_wb
+    // pipeline_ex_wb
     //-------------------------------------------------------------
     wire [31:0                      ]   I_wb_inst;
     wire [31:0                      ]   I_wb_inst_addr;
@@ -212,8 +172,8 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     // instantiate modules
     //-------------------------------------------------------------
-    wire lsu_device_skip;
-    wire wbu_device_skip;
+    wire ex_device_skip;
+    wire wb_device_skip;
 
     //ibus
     wire                                ibus_awvalid;
@@ -451,59 +411,14 @@ module ysyx_25110270_cpu_core
         .O_rd_we                (O_ex_rd_we                 ),
         .O_rd_waddr             (O_ex_rd_waddr              ),
         .O_rd_wdata             (O_ex_rd_wdata              ),
-        .O_memory_addr          (O_ex_memory_addr           ),
-        .O_store_data           (O_ex_store_data            ),
-        .O_ld_valid             (O_ex_ld_valid              ),
-        .O_st_valid             (O_ex_st_valid              ),
-        .O_ls_ctrl              (O_ex_ls_ctrl               ),
-
         .O_csr_valid            (O_ex_csr_valid             ),
         .O_csr_addr             (O_ex_csr_addr              ),
         .O_csr_wdata            (O_ex_csr_wdata             ),
         .O_except               (O_ex_except                ),
+
         .O_btb_update           (O_ex_btb_update            ),
         .O_bru_taken            (O_ex_bru_taken             ),
-        .O_bru_target           (O_ex_bru_target            )
-    );
-
-    ysyx_25110270_lsu u_lsu
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .I_inst                 (I_ls_inst                  ),
-        .I_inst_addr            (I_ls_inst_addr             ),
-
-        .I_valid                (ex_enable                  ),
-        .O_ready                (O_ls_ready                 ),
-        .O_valid                (O_ls_valid                 ),
-
-        .I_rd_we                (I_ls_rd_we                 ),
-        .I_rd_waddr             (I_ls_rd_waddr              ),
-        .I_rd_wdata             (I_ls_rd_wdata              ),
-        .I_memory_addr          (I_ls_memory_addr           ),
-        .I_store_data           (I_ls_store_data            ),
-        .I_ld_valid             (I_ls_ld_valid              ),
-        .I_st_valid             (I_ls_st_valid              ),
-        .I_ls_ctrl              (I_ls_ls_ctrl               ),
-        .I_csr_valid            (I_ls_csr_valid             ),
-        .I_csr_addr             (I_ls_csr_addr              ),
-        .I_csr_wdata            (I_ls_csr_wdata             ),
-        .I_except               (I_ls_except                ),
-
-        .I_is_ldst              (O_ex_ld_valid|O_ex_st_valid),
-
-        .O_device_skip          (lsu_device_skip            ),
-
-        .O_inst                 (O_ls_inst                  ),
-        .O_inst_addr            (O_ls_inst_addr             ),
-        .O_rd_we                (O_ls_rd_we                 ),
-        .O_rd_waddr             (O_ls_rd_waddr              ),
-        .O_rd_wdata             (O_ls_rd_wdata              ),
-        .O_csr_valid            (O_ls_csr_valid             ),
-        .O_csr_addr             (O_ls_csr_addr              ),
-        .O_csr_wdata            (O_ls_csr_wdata             ),
-        .O_except               (O_ls_except                ),
+        .O_bru_target           (O_ex_bru_target            ),
 
         //to bus
         .dbus_awvalid           (dbus_awvalid               ),
@@ -564,7 +479,7 @@ module ysyx_25110270_cpu_core
 
         .I_except               (I_wb_except                ),
         .I_except_addr          (I_wb_inst_addr             ),
-        .I_next_inst_addr       (I_ls_inst_addr             ),
+        .I_next_inst_addr       (I_ex_inst_addr             ),
 
         .O_flush                (O_flush                    ),
         .O_flush_addr           (O_flush_addr               ),
@@ -572,9 +487,8 @@ module ysyx_25110270_cpu_core
         .I_if_addr              (O_if_inst_addr             ),
         .I_dec_addr             (O_dec_inst_addr            ),
         .I_ex_addr              (O_ex_inst_addr             ),
-        .I_ls_addr              (O_ls_inst_addr             ),
 
-        .I_device_skip          (wbu_device_skip            )
+        .I_device_skip          (wb_device_skip             )
     );
 
     ysyx_25110270_arbiter arbiter_inst 
@@ -765,7 +679,7 @@ module ysyx_25110270_cpu_core
     wire ex_enable = (O_ex_valid & cpu_execute) | dec_buble;
     wire ex_flush = (O_flush & cpu_execute);
 
-    ysyx_25110270_pipeline_ex_ls u_pipeline_ex_ls
+    ysyx_25110270_pipeline_ex_wb u_pipeline_ex_wb
     (
         .clk                    (clk                        ),
         .rst                    (rst                        ),
@@ -775,54 +689,12 @@ module ysyx_25110270_cpu_core
         .I_rd_we                (O_ex_rd_we                 ),
         .I_rd_waddr             (O_ex_rd_waddr              ),
         .I_rd_wdata             (O_ex_rd_wdata              ),
-        .I_memory_addr          (O_ex_memory_addr           ),
-        .I_store_data           (O_ex_store_data            ),
-        .I_ld_valid             (O_ex_ld_valid              ),
-        .I_st_valid             (O_ex_st_valid              ),
-        .I_ls_ctrl              (O_ex_ls_ctrl               ),
         .I_csr_valid            (O_ex_csr_valid             ),
         .I_csr_addr             (O_ex_csr_addr              ),
         .I_csr_wdata            (O_ex_csr_wdata             ),
         .I_except               (O_ex_except                ),
 
-        .O_inst                 (I_ls_inst                  ),
-        .O_inst_addr            (I_ls_inst_addr             ),
-        .O_rd_we                (I_ls_rd_we                 ),
-        .O_rd_waddr             (I_ls_rd_waddr              ),
-        .O_rd_wdata             (I_ls_rd_wdata              ),
-        .O_memory_addr          (I_ls_memory_addr           ),
-        .O_store_data           (I_ls_store_data            ),
-        .O_ld_valid             (I_ls_ld_valid              ),
-        .O_st_valid             (I_ls_st_valid              ),
-        .O_ls_ctrl              (I_ls_ls_ctrl               ),
-        .O_csr_valid            (I_ls_csr_valid             ),
-        .O_csr_addr             (I_ls_csr_addr              ),
-        .O_csr_wdata            (I_ls_csr_wdata             ),
-        .O_except               (I_ls_except                ),
-
-        .I_enable               (ex_enable                  ),
-        .I_flush                (ex_flush                   )
-    );
-
-    wire ls_enable = (O_ls_valid & O_ex_valid & cpu_execute) | dec_buble;
-    wire ls_flush = O_flush & cpu_execute;
-
-    ysyx_25110270_pipeline_ls_wb u_pipeline_ls_wb
-    (
-        .clk                    (clk                        ),
-        .rst                    (rst                        ),
-
-        .I_inst                 (O_ls_inst                  ),
-        .I_inst_addr            (O_ls_inst_addr             ),
-        .I_rd_we                (O_ls_rd_we                 ),
-        .I_rd_waddr             (O_ls_rd_waddr              ),
-        .I_rd_wdata             (O_ls_rd_wdata              ),
-        .I_csr_valid            (O_ls_csr_valid             ),
-        .I_csr_addr             (O_ls_csr_addr              ),
-        .I_csr_wdata            (O_ls_csr_wdata             ),
-        .I_except               (O_ls_except                ),
-
-        .I_device_skip          (lsu_device_skip            ),
+        .I_device_skip          (ex_device_skip             ),
 
         .O_inst                 (I_wb_inst                  ),
         .O_inst_addr            (I_wb_inst_addr             ),
@@ -834,10 +706,10 @@ module ysyx_25110270_cpu_core
         .O_csr_wdata            (I_wb_csr_wdata             ),
         .O_except               (I_wb_except                ),
 
-        .O_device_skip          (wbu_device_skip            ),
+        .O_device_skip          (wb_device_skip             ),
 
-        .I_enable               (ls_enable                  ),
-        .I_flush                (ls_flush                   )
+        .I_enable               (ex_enable                  ),
+        .I_flush                (ex_flush                   )
     );
 
 
