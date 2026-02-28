@@ -5,6 +5,9 @@
 //------------------------------------------------------------------------
 module ysyx_25110270_alu
 (
+    input   wire                                    clk,
+    input   wire                                    rst_n,
+
     input   wire    [31:0                       ]   I_alu_srca,
     input   wire    [31:0                       ]   I_alu_srcb,
     input   wire                                    I_sign,             // 有符号位
@@ -17,7 +20,7 @@ module ysyx_25110270_alu
 );
 
     wire adder_sign = I_sign;
-    wire adder_sub = I_f7b5_en | (I_alu_ctrl != `ysyx_25110270_RV32I_F3_ADD_SUB); // no add
+    wire adder_sub = I_f7b5_en | (|I_alu_ctrl); // no add
 
     wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
     wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
@@ -43,7 +46,7 @@ module ysyx_25110270_alu
             `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:
                 res = rv32i_shift_res;
             `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
-                res = {31'b0, adder_cout};
+                res = {{32-1{1'b0}}, adder_cout};
             `ysyx_25110270_RV32I_F3_XOR:
                 res = rv32i_xor_res;
             `ysyx_25110270_RV32I_F3_OR: 
@@ -82,6 +85,7 @@ module ysyx_25110270_bru
 (
     input   wire                                    I_src_eq,
     input   wire                                    I_src_lt,
+    input   wire                                    I_br_valid,        // 是否为分支指令
     input   wire    [2:0]                           I_bru_ctrl,
     
     output  wire                                    O_bru_taken
@@ -101,7 +105,7 @@ module ysyx_25110270_bru
         endcase
     end
 
-    assign O_bru_taken = bru_taken;
+    assign O_bru_taken = bru_taken & I_br_valid;
 
 
 endmodule
@@ -147,7 +151,6 @@ module ysyx_25110270_barrel_shift
         end
     endgenerate
 
-
     // wire [WIDTH-1:0] lstage0, lstage1, lstage2, lstage3, lstage4;
     // wire [WIDTH-1:0] rstage0, rstage1, rstage2, rstage3, rstage4;
 
@@ -174,7 +177,7 @@ endmodule
 // 执行CSR模块
 //------------------------------------------------------------------------
 
-module ysyx_25110270_csr_exe
+module ysyx_25110270_csr
 (
     input   wire    [31:0                           ]   I_csr_src,
     input   wire    [31:0                           ]   I_csr_rdata,

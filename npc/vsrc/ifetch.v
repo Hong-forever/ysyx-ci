@@ -7,7 +7,7 @@
 module ysyx_25110270_ifetch
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire                        I_bru_taken,        //跳转指令
     input   wire    [31:0]              I_bru_target,
@@ -18,6 +18,7 @@ module ysyx_25110270_ifetch
     input   wire                        I_flush,            // 指令冲刷
     input   wire    [31:0]              I_flush_addr,       // 冲刷跳转地址
 
+    input   wire                        I_fence_i,          // 指令同步
 
     output  wire    [31:0]              O_inst,
     output  wire    [31:0]              O_inst_addr,
@@ -62,15 +63,11 @@ module ysyx_25110270_ifetch
     parameter WAIT  = 1'b1;
 
     wire resp_valid;
-    wire valid;
 
     reg  [31:0] pc;
     wire [31:0] inst;
-    wire [31:0] pc_plus4;
+    wire [31:0] npc, pc_plus4;
 
-    wire icache_clear = (inst == `ysyx_25110270_RV_FENCE_I) & valid;
-
-    assign valid = I_ready & resp_valid;
 
     ysyx_25110270_icache 
     #(
@@ -82,7 +79,7 @@ module ysyx_25110270_ifetch
     ) icache
     (
         .clk                    (clk                        ),
-        .rst                    (rst                        ),
+        .rst_n                  (rst_n                      ),
 
         .I_valid                (I_ready                    ),
         .O_valid                (resp_valid                 ),
@@ -90,7 +87,7 @@ module ysyx_25110270_ifetch
         .I_addr                 (pc                         ),
         .O_data                 (inst                       ),
 
-        .I_clear                (icache_clear               ),
+        .I_clear                (I_fence_i                  ),
 
         .O_arvalid              (ibus_arvalid               ),
         .I_arready              (ibus_arready               ),
@@ -103,34 +100,34 @@ module ysyx_25110270_ifetch
         .I_rdata                (ibus_rdata                 ),
         .I_rlast                (ibus_rlast                 ),
         .I_rresp                (ibus_rresp                 )
+
     );
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             pc <= `ysyx_25110270_RESET_VECTOR;
-        end else if(valid) begin     // WAIT
-            if(I_flush) begin
-                pc <= I_flush_addr;
-            end else if(I_bru_taken) begin
-                pc <= I_bru_target;
-            end else begin
-                pc <= pc_plus4;
-            end
+        end else if(resp_valid) begin     // WAIT
+            pc <= npc;
         end
     end
 
+    assign npc =    I_flush        ? I_flush_addr    :
+                    I_bru_taken    ? I_bru_target    :
+                    I_ready        ? pc_plus4        :
+                    pc;
+    
     assign pc_plus4 = pc + 32'h4;
 
     assign O_inst = inst;
     assign O_inst_addr = pc;
-    assign O_valid = valid;
+    assign O_valid = resp_valid & I_ready;
     
     assign ibus_awvalid = 1'b0;
     assign ibus_awaddr  = 0;
     assign ibus_awid    = 0;
     assign ibus_awlen   = 0;
     assign ibus_awsize  = 0;
-    assign ibus_awburst = 2'b00;
+    assign ibus_awburst = 2'b01;
 
     assign ibus_wvalid = 1'b0;
     assign ibus_wdata  = 0;
@@ -149,7 +146,7 @@ module ysyx_25110270_ifetch
     wire end_flag   = ibus_rvalid && ibus_rready && ibus_rlast;
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             begin_flag_r <= 1'b0;
         end else begin
             begin_flag_r <= begin_flag;

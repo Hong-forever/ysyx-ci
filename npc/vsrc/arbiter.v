@@ -7,7 +7,7 @@
 module ysyx_25110270_arbiter
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire                        M0_awvalid,
     output  wire                        M0_awready,
@@ -113,7 +113,7 @@ module ysyx_25110270_arbiter
     reg [1:0] state;
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             state <= IDLE;
         end else begin
             case(state)
@@ -139,32 +139,46 @@ module ysyx_25110270_arbiter
     // AXI信号连接
     assign M_awvalid  = state_m0 ? M0_awvalid :
                         state_m1 ? M1_awvalid : 0;
+    assign M_awaddr   = state_m0 ? M0_awaddr  :
+                        state_m1 ? M1_awaddr  : 0;
+    assign M_awid     = state_m0 ? M0_awid    :
+                        state_m1 ? M1_awid    : 0;
+    assign M_awlen    = state_m0 ? M0_awlen   :
+                        state_m1 ? M1_awlen   : 0;
+    assign M_awsize   = state_m0 ? M0_awsize  :
+                        state_m1 ? M1_awsize  : 0;
+    assign M_awburst  = state_m0 ? M0_awburst :
+                        state_m1 ? M1_awburst : 0;
     assign M_wvalid   = state_m0 ? M0_wvalid  :
                         state_m1 ? M1_wvalid  : 0;
+    assign M_wdata    = state_m0 ? M0_wdata   :
+                        state_m1 ? M1_wdata   : 0;
+    assign M_wstrb    = state_m0 ? M0_wstrb   :
+                        state_m1 ? M1_wstrb   : 0;
+    assign M_wlast    = state_m0 ? M0_wlast   :
+                        state_m1 ? M1_wlast   : 0;
+    assign M_bready   = state_m0 ? M0_bready  :
+                        state_m1 ? M1_bready  : 0;
     assign M_arvalid  = state_m0 ? M0_arvalid :
                         state_m1 ? M1_arvalid : 0;
+    assign M_araddr   = state_m0 ? M0_araddr  :
+                        state_m1 ? M1_araddr  : 0;
+    assign M_arid     = state_m0 ? M0_arid    :
+                        state_m1 ? M1_arid    : 0;
+    assign M_arlen    = state_m0 ? M0_arlen   :
+                        state_m1 ? M1_arlen   : 0;
+    assign M_arsize   = state_m0 ? M0_arsize  :
+                        state_m1 ? M1_arsize  : 0;
+    assign M_arburst  = state_m0 ? M0_arburst :
+                        state_m1 ? M1_arburst : 0;
+    assign M_rready   = state_m0 ? M0_rready  :
+                        state_m1 ? M1_rready  : 0;
 
-    assign M_awaddr   = state_m0 ? M0_awaddr  : M1_awaddr;
-    assign M_awid     = state_m0 ? M0_awid    : M1_awid;
-    assign M_awlen    = state_m0 ? M0_awlen   : M1_awlen;
-    assign M_awsize   = state_m0 ? M0_awsize  : M1_awsize;
-    assign M_awburst  = state_m0 ? M0_awburst : M1_awburst;
-    assign M_wdata    = state_m0 ? M0_wdata   : M1_wdata;
-    assign M_wstrb    = state_m0 ? M0_wstrb   : M1_wstrb;
-    assign M_wlast    = state_m0 ? M0_wlast   : M1_wlast;
-    assign M_bready   = 1'b0; // xbar中已经将bready固定为1'b1了
-    assign M_araddr   = state_m0 ? M0_araddr  : M1_araddr;
-    assign M_arid     = state_m0 ? M0_arid    : M1_arid;
-    assign M_arlen    = state_m0 ? M0_arlen   : M1_arlen;
-    assign M_arsize   = state_m0 ? M0_arsize  : M1_arsize;
-    assign M_arburst  = state_m0 ? M0_arburst : M1_arburst;
-    assign M_rready   = 1'b0; // xbar中已经将rready固定为1'b1了
-
-    assign M0_awready = 0; // 只读
-    assign M0_wready  = 0; // 只读
-    assign M0_bvalid  = 0; // 只读
-    assign M0_bresp   = 0; // 只读
-    assign M0_bid     = 0; // 只读
+    assign M0_awready = state_m0 ? M_awready  : 0;
+    assign M0_wready  = state_m0 ? M_wready   : 0;
+    assign M0_bvalid  = state_m0 ? M_bvalid   : 0;
+    assign M0_bresp   = state_m0 ? M_bresp    : 0;
+    assign M0_bid     = state_m0 ? M_bid      : 0;
     assign M0_arready = state_m0 ? M_arready  : 0;
     assign M0_rvalid  = state_m0 ? M_rvalid   : 0;
     assign M0_rdata   = state_m0 ? M_rdata    : 0;
