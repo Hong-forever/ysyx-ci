@@ -134,7 +134,7 @@ module ysyx_25110270_xbar
     assign M1_wdata   = sel_slave0 ? 0 : S_wdata    ;
     assign M1_wstrb   = sel_slave0 ? 0 : S_wstrb    ;
     assign M1_wlast   = sel_slave0 ? 0 : S_wlast    ;
-    assign M1_bready  = 1'b1;
+    assign M1_bready  = 1'b0;
     assign M1_arvalid = sel_slave0 ? 0 : S_arvalid  ;
     assign M1_araddr  = sel_slave0 ? 0 : S_araddr   ;
     assign M1_arid    = sel_slave0 ? 0 : S_arid     ;
