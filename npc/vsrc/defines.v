@@ -2,9 +2,9 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-`define DPIC
-`define PERF
-`define DEBUG
+// `define DPIC
+// `define PERF
+// `define DEBUG
 // `define SOC //no verilog macro define here, define it in Makefile
 
 //------------------------------------------------------------------------
@@ -160,10 +160,8 @@
 //------------------------------------------------------------------------
 // FWD SOURCE SELECTION DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_FWDSRC_NOP      2'b00
-`define ysyx_25110270_FWDSRC_NFW      2'b01
-`define ysyx_25110270_FWDSRC_EX       2'b10
-`define ysyx_25110270_FWDSRC_LS       2'b11
+`define ysyx_25110270_FWDSRC_NFW      1'b0
+`define ysyx_25110270_FWDSRC_EX       1'b1
 
 //------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS

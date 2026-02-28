@@ -64,9 +64,9 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    I_sign,             // 有符号位
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
 
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs1,
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs2,
-    input   wire    [1:0                        ]   I_fwd_ctrl_csr,
+    input   wire                                    I_fwd_ctrl_rs1,
+    input   wire                                    I_fwd_ctrl_rs2,
+    input   wire                                    I_fwd_ctrl_csr,
 
     output  reg     [31:0                       ]   O_inst,             // 指令内容
     output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
@@ -90,9 +90,9 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg                                     O_sign,             // 有符号位
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
-    output  reg     [1:0                        ]   O_fwd_ctrl_rs1,
-    output  reg     [1:0                        ]   O_fwd_ctrl_rs2,
-    output  reg     [1:0                        ]   O_fwd_ctrl_csr,
+    output  reg                                     O_fwd_ctrl_rs1,
+    output  reg                                     O_fwd_ctrl_rs2,
+    output  reg                                     O_fwd_ctrl_csr,
 
     input   wire                                    I_enable,
     input   wire                                    I_flush

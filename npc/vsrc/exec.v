@@ -12,7 +12,6 @@ module ysyx_25110270_exec
     input   wire    [31:0                       ]   I_inst_addr,
 
     input   wire                                    I_valid,
-    input   wire                                    I_ready,
     output  wire                                    O_ready,
     output  wire                                    O_valid,
 
@@ -36,18 +35,16 @@ module ysyx_25110270_exec
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_addr,
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,             //异常
 
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs1,
-    input   wire    [1:0                        ]   I_fwd_ctrl_rs2,
-    input   wire    [1:0                        ]   I_fwd_ctrl_csr,
+    input   wire                                    I_fwd_ctrl_rs1,
+    input   wire                                    I_fwd_ctrl_rs2,
+    input   wire                                    I_fwd_ctrl_csr,
 
     input   wire    [31:0                       ]   I_rs1_rdata,
     input   wire    [31:0                       ]   I_rs2_rdata,
     input   wire    [31:0                       ]   I_csr_rdata,
 
     input   wire    [31:0                       ]   I_fwd_old_rs_data,      //转发的旧数据
-    input   wire    [31:0                       ]   I_fwd_old2_rs_data,     //转发的旧数据
     input   wire    [31:0                       ]   I_fwd_old_csr_data,     //转发的旧数据
-    input   wire    [31:0                       ]   I_fwd_old2_csr_data,    //转发的旧数据
 
     output  wire    [31:0                       ]   O_inst,
     output  wire    [31:0                       ]   O_inst_addr,
@@ -62,7 +59,7 @@ module ysyx_25110270_exec
 
     output  wire    [`ysyx_25110270_ExceptBus   ]   O_except,
 
-    output  wire                                    O_device_skip
+    output  wire                                    O_device_skip,
 
     //bru
     output  wire                                    O_btb_update,
@@ -104,37 +101,9 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // fwd选择
     //------------------------------------------------------------------------
-    reg [31:0] final_rs1_rdata, final_rs2_rdata, final_csr_rdata;
-
-    always @(*) begin
-        case(I_fwd_ctrl_rs1)
-            `ysyx_25110270_FWDSRC_NOP   : final_rs1_rdata = 0;
-            `ysyx_25110270_FWDSRC_NFW   : final_rs1_rdata = I_rs1_rdata;
-            `ysyx_25110270_FWDSRC_EX    : final_rs1_rdata = I_fwd_old_rs_data;
-            `ysyx_25110270_FWDSRC_LS    : final_rs1_rdata = I_fwd_old2_rs_data;
-            default                     : final_rs1_rdata = 0;
-        endcase
-    end
-
-    always @(*) begin
-        case(I_fwd_ctrl_rs2)
-            `ysyx_25110270_FWDSRC_NOP   : final_rs2_rdata = 0;
-            `ysyx_25110270_FWDSRC_NFW   : final_rs2_rdata = I_rs2_rdata;
-            `ysyx_25110270_FWDSRC_EX    : final_rs2_rdata = I_fwd_old_rs_data;
-            `ysyx_25110270_FWDSRC_LS    : final_rs2_rdata = I_fwd_old2_rs_data;
-            default                     : final_rs2_rdata = 0;
-        endcase
-    end
-
-    always @(*) begin
-        case(I_fwd_ctrl_csr)
-            `ysyx_25110270_FWDSRC_NOP   : final_csr_rdata = 0;
-            `ysyx_25110270_FWDSRC_NFW   : final_csr_rdata = I_csr_rdata;
-            `ysyx_25110270_FWDSRC_EX    : final_csr_rdata = I_fwd_old_csr_data;
-            `ysyx_25110270_FWDSRC_LS    : final_csr_rdata = I_fwd_old2_csr_data;
-            default                     : final_csr_rdata = 0;
-        endcase
-    end
+    wire [31:0] final_rs1_rdata = I_fwd_ctrl_rs1 ? I_fwd_old_rs_data : I_rs1_rdata;
+    wire [31:0] final_rs2_rdata = I_fwd_ctrl_rs2 ? I_fwd_old_rs_data : I_rs2_rdata;
+    wire [31:0] final_csr_rdata = I_fwd_ctrl_csr ? I_fwd_old_csr_data : I_csr_rdata;
 
     //------------------------------------------------------------------------
     // src选择
@@ -248,20 +217,17 @@ module ysyx_25110270_exec
     reg [2:0] ls_ctrl;
 
     reg [31:0] rd_wdata;
-    reg valid;
 
     always @(posedge clk) begin
         if(rst) begin
             bru_taken_r <= 1'b0;
             ls_ctrl <= 0;
-            valid <= 1'b0;
         end else begin
             bru_taken_r <= bru_taken;
             agu_result_r <= agu_result;
             fix_addr_plus4_r <= fix_addr_plus4;
             store_data <= final_rs2_rdata;
-            ls_ctrl <= I_ld_valid ? I_op : 3'b111;
-            valid <= I_valid;
+            ls_ctrl <= (I_ld_valid | I_st_valid) ? I_op : 3'b111;
         end
     end
 
@@ -285,12 +251,17 @@ module ysyx_25110270_exec
 
     wire stallreq = stallreq_br | stallreq_ls;
 
+    wire device_skip;
+
     ysyx_25110270_lsu lsu
     (
         .clk                        (clk                    ),
         .rst                        (rst                    ),
 
-        .I_valid                    (valid                  ),
+        .I_inst                     (I_inst                 ),
+        .I_inst_addr                (I_inst_addr            ),
+
+        .I_valid                    (I_valid                ),
 
         .I_alu_result               (alu_result             ),
         .I_csr_valid                (I_csr_valid            ),
@@ -344,7 +315,7 @@ module ysyx_25110270_exec
     assign O_inst = I_inst;
     assign O_inst_addr = I_inst_addr;
 
-    assign O_ready = I_ready & ~stallreq;
+    assign O_ready = ~stallreq;
     assign O_valid = O_ready;
 
     assign O_rd_we = I_rd_we;
