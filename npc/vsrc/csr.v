@@ -131,7 +131,7 @@ module ysyx_25110270_csr
     assign O_rdata = rdata;
 
     assign O_flush = except_call | except_mret;
-    assign O_flush_addr =   except_call ? mtvec : mepc;
+    assign O_flush_addr = except_call ? mtvec : mepc;
 
     assign O_mtime = cycle;
 

@@ -152,19 +152,19 @@ module ysyx_25110270_arbiter
     assign M_wdata    = state_m0 ? M0_wdata   : M1_wdata;
     assign M_wstrb    = state_m0 ? M0_wstrb   : M1_wstrb;
     assign M_wlast    = state_m0 ? M0_wlast   : M1_wlast;
-    assign M_bready   = 1'b1;
+    assign M_bready   = 1'b0; // xbar中已经将bready固定为1'b1了
     assign M_araddr   = state_m0 ? M0_araddr  : M1_araddr;
     assign M_arid     = state_m0 ? M0_arid    : M1_arid;
     assign M_arlen    = state_m0 ? M0_arlen   : M1_arlen;
     assign M_arsize   = state_m0 ? M0_arsize  : M1_arsize;
     assign M_arburst  = state_m0 ? M0_arburst : M1_arburst;
-    assign M_rready   = 1'b1;
+    assign M_rready   = 1'b0; // xbar中已经将rready固定为1'b1了
 
-    assign M0_awready = state_m0 ? M_awready  : 0;
-    assign M0_wready  = state_m0 ? M_wready   : 0;
-    assign M0_bvalid  = state_m0 ? M_bvalid   : 0;
-    assign M0_bresp   = state_m0 ? M_bresp    : 0;
-    assign M0_bid     = state_m0 ? M_bid      : 0;
+    assign M0_awready = 0; // 只读
+    assign M0_wready  = 0; // 只读
+    assign M0_bvalid  = 0; // 只读
+    assign M0_bresp   = 0; // 只读
+    assign M0_bid     = 0; // 只读
     assign M0_arready = state_m0 ? M_arready  : 0;
     assign M0_rvalid  = state_m0 ? M_rvalid   : 0;
     assign M0_rdata   = state_m0 ? M_rdata    : 0;

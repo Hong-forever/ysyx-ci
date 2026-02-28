@@ -17,7 +17,7 @@ module ysyx_25110270_alu
 );
 
     wire adder_sign = I_sign;
-    wire adder_sub = I_f7b5_en | (|I_alu_ctrl); // no add
+    wire adder_sub = I_f7b5_en | (I_alu_ctrl != `ysyx_25110270_RV32I_F3_ADD_SUB); // no add
 
     wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
     wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
@@ -43,7 +43,7 @@ module ysyx_25110270_alu
             `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:
                 res = rv32i_shift_res;
             `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
-                res = {{32-1{1'b0}}, adder_cout};
+                res = {31'b0, adder_cout};
             `ysyx_25110270_RV32I_F3_XOR:
                 res = rv32i_xor_res;
             `ysyx_25110270_RV32I_F3_OR: 
