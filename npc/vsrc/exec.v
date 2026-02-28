@@ -333,16 +333,5 @@ module ysyx_25110270_exec
     end
 `endif
 
-`ifdef PERF
-
-    import "DPI-C" function void jump_br_cal(input int inst, input int pc, input int target, input int is_taken, input int is_taken_final, input int pred_target);
-
-    always @(posedge clk) begin
-        if(I_br_valid & stallreq_br_r) begin
-            jump_br_cal(I_inst, I_inst_addr, agu_result_r, bru_taken_r, bru_taken_final, I_pred_target);
-        end
-    end
-
-`endif
 
 endmodule //exu
