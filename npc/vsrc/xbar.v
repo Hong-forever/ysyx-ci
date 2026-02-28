@@ -122,7 +122,7 @@ module ysyx_25110270_xbar
     assign M0_arlen   = sel_slave0 ? S_arlen    : 0 ;
     assign M0_arsize  = sel_slave0 ? S_arsize   : 0 ;
     assign M0_arburst = sel_slave0 ? S_arburst  : 0 ;
-    assign M0_rready  = 1'b0;
+    assign M0_rready  = 1'b1;
 
     assign M1_awvalid = sel_slave0 ? 0 : S_awvalid  ;
     assign M1_awaddr  = sel_slave0 ? 0 : S_awaddr   ;
