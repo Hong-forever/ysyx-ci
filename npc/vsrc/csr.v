@@ -16,11 +16,11 @@ module ysyx_25110270_csr
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_waddr,
     input   wire    [31:0                       ]   I_wdata,
 
-    input   wire                                    I_valid,        //指令有效信号
+    input   wire                                    I_valid,            //指令有效信号
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
 
-    input   wire    [31:0                       ]   I_next_inst_addr,
+    output  wire    [63:0                       ]   O_mtime,            //mtime寄存器
 
     output  wire                                    O_flush,
     output  wire    [31:0                       ]   O_flush_addr,
@@ -29,10 +29,10 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_csr_mepc,         //mepc寄存器
     output  wire    [31:0                       ]   O_csr_mstatus,      //mstatus寄存器
     output  wire    [31:0                       ]   O_csr_mcause,       //mcause寄存器
-    output  wire    [31:0                       ]   O_csr_mcyclel,       //mcycle寄存器
-    output  wire    [31:0                       ]   O_csr_mcycleh,       //mcycle寄存器
-    output  wire    [31:0                       ]   O_csr_mvendorid,      //mvendorid寄存器
-    output  wire    [31:0                       ]   O_csr_marchid         //marchid寄存器
+    output  wire    [31:0                       ]   O_csr_mcyclel,      //mcycle寄存器
+    output  wire    [31:0                       ]   O_csr_mcycleh,      //mcycle寄存器
+    output  wire    [31:0                       ]   O_csr_mvendorid,    //mvendorid寄存器
+    output  wire    [31:0                       ]   O_csr_marchid       //marchid寄存器
 );
 
     reg [31:0] mstatus;
@@ -40,7 +40,7 @@ module ysyx_25110270_csr
     reg [31:0] mtvec;
     reg [31:0] mepc;
     reg [31:0] mcause;
-    reg [63:0] cycle;
+    reg [39:0] cycle;
 
     wire is_ecall  = I_except[`ysyx_25110270_EXCPT_ECALL];
     wire is_ebreak = I_except[`ysyx_25110270_EXCPT_EBREAK];
@@ -66,7 +66,7 @@ module ysyx_25110270_csr
         if(rst) begin
             cycle <= 0;
         end else begin
-            cycle <= cycle + 64'b1;
+            cycle <= cycle + 1;
         end
     end
 
@@ -116,7 +116,7 @@ module ysyx_25110270_csr
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
                 `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
                 `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
-                `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = cycle[63:32];
+                `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = {24'd0, cycle[39:32]};
                 `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
                 `ysyx_25110270_CSR_MAP_MARCHID:   rdata = marchid;
                 default:                          rdata = 0;
@@ -133,13 +133,15 @@ module ysyx_25110270_csr
     assign O_flush = except_call | except_mret;
     assign O_flush_addr =   except_call ? mtvec : mepc;
 
+    assign O_mtime = cycle;
+
 
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;
     assign O_csr_mstatus = mstatus;
     assign O_csr_mcause = mcause;
     assign O_csr_mcyclel = cycle[31:0];
-    assign O_csr_mcycleh = cycle[63:32];
+    assign O_csr_mcycleh = {24'd0, cycle[39:32]};
     assign O_csr_mvendorid = mvendorid;
     assign O_csr_marchid = marchid;
 

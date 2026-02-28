@@ -159,9 +159,8 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // agu运算
     //------------------------------------------------------------------------
-    wire [31:0] agu_result, fix_addr_plus4;
+    wire [31:0] agu_result;
     assign agu_result = agu_src + I_imm;
-    assign fix_addr_plus4 = I_inst_addr + 4;
 
     //------------------------------------------------------------------------
     // bru运算
@@ -323,14 +322,6 @@ module ysyx_25110270_exec
         end
     end
 
-    reg stallreq_br_r;
-    always @(posedge clk) begin
-        if(rst) begin
-            stallreq_br_r <= 1'b0;
-        end else begin
-            stallreq_br_r <= stallreq_br;
-        end
-    end
 `endif
 
 

@@ -29,10 +29,10 @@ module ysyx_25110270_wbu
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_waddr,
     input   wire    [31:0                       ]   I_csr_wdata,
 
+    output  wire    [63:0                       ]   O_mtime,
+
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
-
-    input   wire    [31:0                       ]   I_next_inst_addr,
 
     output  wire                                    O_flush,
     output  wire    [31:0                       ]   O_flush_addr,
@@ -114,7 +114,7 @@ module ysyx_25110270_wbu
         .I_except               (I_except                   ),
         .I_except_addr          (I_except_addr              ),
 
-        .I_next_inst_addr       (I_next_inst_addr           ),
+        .O_mtime                (O_mtime                    ),
 
         .O_flush                (O_flush                    ),
         .O_flush_addr           (O_flush_addr               ),
