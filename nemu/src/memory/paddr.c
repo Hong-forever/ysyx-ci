@@ -86,7 +86,7 @@ static void mtrace(paddr_t addr, word_t data, int op) {
 //     static FILE *mtrace_fp = NULL;
         
 //     if (mtrace_fp == NULL) {
-//         mtrace_fp = fopen("/home/hhh/Templates/dcachesim.bin", "wb");
+//         mtrace_fp = fopen("/tmp/dcachesim.bin", "wb");
 //         if (mtrace_fp == NULL) {
 //             perror("Failed to open mtrace file");
 //         }

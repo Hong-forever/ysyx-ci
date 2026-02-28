@@ -44,15 +44,11 @@ module ysyx_25110270_csr_reg
     wire is_ecall  = I_except[`ysyx_25110270_EXCPT_ECALL];
     wire is_ebreak = I_except[`ysyx_25110270_EXCPT_EBREAK];
     wire is_mret   = I_except[`ysyx_25110270_EXCPT_MRET];
-    wire is_fence_i = I_except[`ysyx_25110270_EXCPT_FENCE_I];
 
     // wire except_sync = is_ecall | is_ebreak;
     wire except_sync = is_ecall; // for ysyx
     wire except_call = except_sync;
     wire except_mret = is_mret;
-    wire except_fence_i = is_fence_i;
-
-    wire [31:0] fence_next_inst_addr = I_next_inst_addr; // for ysyx, fence_i指令执行完后下一条指令的地址
 
     reg e_sync_r, e_mret_r;
     always @(posedge clk) begin
@@ -144,11 +140,9 @@ module ysyx_25110270_csr_reg
     //------------------------------------------------------------------------
     assign O_rdata = rdata;
 
-    assign O_flush = except_call | except_mret | except_fence_i;
+    assign O_flush = except_call | except_mret;
     assign O_flush_addr =   except_call ? mtvec :
-                            except_mret ? mepc  :
-                            fence_next_inst_addr;
-
+                            except_mret ? mepc  : 0;
 
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;

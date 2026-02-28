@@ -3,11 +3,11 @@ DESIGN = ysyx_25110270
 
 RESOURCE_DIR = $(NPC_HOME)/resource
 
+PDK = nangate45
+
 O = $(abspath $(RESOURCE_DIR)/sta-result)
 RTL_FILES = $(VSRCS-SYM)
 SDC_FILE = ${NPC_HOME}/scripts/sta/npc.sdc
-
-PDK = nangate45
 
 CLK_FREQ_MHZ = 1200
 CLK_PORT_NANE = clock

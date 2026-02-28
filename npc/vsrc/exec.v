@@ -11,7 +11,6 @@ module ysyx_25110270_exec
     input   wire    [31:0                           ]   I_inst,
     input   wire    [31:0                           ]   I_inst_addr,
 
-    input   wire                                        I_valid,
     input   wire                                        I_ready,
     output  wire                                        O_ready,
     output  wire                                        O_valid,
@@ -23,8 +22,6 @@ module ysyx_25110270_exec
     input   wire    [1:0                            ]   I_alu_srcb_sel,
     input   wire    [1:0                            ]   I_agu_src_sel,
     input   wire                                        I_csr_src_sel,
-
-    input   wire    [31:0                           ]   I_pred_target,      //分支预测目标地址
 
     input   wire                                        I_ld_valid,         //访存有效标志
     input   wire                                        I_st_valid,         //访存有效标志
@@ -68,7 +65,6 @@ module ysyx_25110270_exec
     output  wire    [`ysyx_25110270_ExceptBus       ]   O_except,
 
     //bru
-    output  wire                                        O_btb_update,
     output  wire                                        O_bru_taken,
     output  wire    [31:0                           ]   O_bru_target
 
@@ -115,8 +111,6 @@ module ysyx_25110270_exec
     reg [31:0] alu_srcb;
     reg [31:0] agu_src;
 
-    reg btb_update;
-
     always @(*) begin
         case(I_alu_srca_sel)
             `ysyx_25110270_ALUSRCA_RS1: alu_srca = final_rs1_rdata;
@@ -136,18 +130,9 @@ module ysyx_25110270_exec
 
     always @(*) begin
         case(I_agu_src_sel)
-            `ysyx_25110270_AGUSRC_RS1: begin
-                agu_src = final_rs1_rdata;
-                btb_update = 1'b0;
-            end
-            `ysyx_25110270_AGUSRC_PC: begin
-                agu_src = I_inst_addr;
-                btb_update = 1'b1;
-            end
-            default: begin
-                agu_src = 0;
-                btb_update = 1;
-            end
+            `ysyx_25110270_AGUSRC_RS1:  agu_src = final_rs1_rdata;
+            `ysyx_25110270_AGUSRC_PC:   agu_src = I_inst_addr;
+            default:                    agu_src = 0;
         endcase
     end
 
@@ -176,9 +161,8 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     // agu运算
     //------------------------------------------------------------------------
-    wire [31:0] agu_result, fix_addr_plus4;
+    wire [31:0] agu_result;
     assign agu_result = agu_src + I_imm;
-    assign fix_addr_plus4 = I_inst_addr + 4;
 
     //------------------------------------------------------------------------
     // bru运算
@@ -188,13 +172,10 @@ module ysyx_25110270_exec
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
+        .I_br_valid                 (I_br_valid             ),
         .I_bru_ctrl                 (I_op                   ),
         .O_bru_taken                (bru_taken              )
     );
-
-    wire bru_taken_need = ((bru_taken & I_br_valid) & (I_pred_target != agu_result));         //应该跳转，但是跳转错误
-    wire bru_taken_noneed = ((!bru_taken & I_br_valid) & (I_pred_target != fix_addr_plus4));  //不用跳转，但是跳转了
-    wire bru_taken_final = bru_taken_need | bru_taken_noneed;
 
     //------------------------------------------------------------------------
     // csr运算
@@ -232,9 +213,8 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_btb_update = btb_update & bru_taken_final;
-    assign O_bru_taken = bru_taken_final;
-    assign O_bru_target = bru_taken_need ? agu_result : fix_addr_plus4;
+    assign O_bru_taken = bru_taken;
+    assign O_bru_target = agu_result;
 
     assign O_except = I_except;
 
@@ -250,27 +230,6 @@ module ysyx_25110270_exec
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 2);
         end
     end
-
-    reg valid;
-    always @(posedge clk) begin
-        if(rst) begin
-            valid <= 1'b0;
-        end else begin
-            valid <= I_valid;
-        end
-    end
 `endif
-
-`ifdef PERF
-
-    import "DPI-C" function void jump_br_cal(input int inst, input int pc, input int target, input int is_taken, input int is_taken_final, input int pred_target);
-
-    always @(posedge clk) begin
-        if(I_br_valid & valid) begin
-            jump_br_cal(I_inst, I_inst_addr, agu_result, bru_taken, bru_taken_final, I_pred_target);
-        end
-    end
-
-`endif
-
+    
 endmodule //exu
