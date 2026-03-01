@@ -199,7 +199,7 @@ module ysyx_25110270_exec
     reg [31:0] store_data;
     reg [2:0] ls_ctrl;
 
-    reg [31:0] rd_wdata;
+    wire [31:0] rd_wdata;
 
     always @(posedge clk) begin
         if(rst) begin
