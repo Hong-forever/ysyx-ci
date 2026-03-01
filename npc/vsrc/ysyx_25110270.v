@@ -2093,8 +2093,10 @@ module ysyx_25110270_wbu
         end
     end
 
+    wire is_ebreak = inst_r1 == `ysyx_25110270_RV_EBREAK;
+
     always @(posedge clk) begin
-        if(inst_r1 == `ysyx_25110270_RV_EBREAK) begin
+        if(is_ebreak) begin
             if(gpr10 == 0) begin
                 $display("~~~~~~~~~~~~~~~~~~~ TEST_PASS ~~~~~~~~~~~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
