@@ -1,9 +1,7 @@
 `ifdef __ICARUS__
 
 module mem 
-#(
-    parameter MEM_DEPTH  = 32'h01000000                //MEM深度
-)(
+(
     input   wire                        clk,        //时钟输入
     input   wire                        rst,      //复位输入
 
