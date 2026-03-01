@@ -2084,12 +2084,14 @@ module ysyx_25110270_wbu
 
 `ifdef __ICARUS__
 
-    reg [31:0] inst_r1;
+    reg [31:0] inst_r1, inst_addr_r1;
     always @(posedge clk) begin
         if(rst) begin
             inst_r1 <= 0;
+            inst_addr_r1 <= 0;
         end else begin
             inst_r1 <= I_inst;
+            inst_addr_r1 <= I_inst_addr;
         end
     end
 
@@ -2107,6 +2109,7 @@ module ysyx_25110270_wbu
                 $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~");
                 $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("Finish at PC = 0x%08x", inst_addr_r1);
             end else begin
                 $display("~~~~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -2117,6 +2120,7 @@ module ysyx_25110270_wbu
                 $display("~~~~~~~~~~#       #    #     #    #     ~~~~~~~~~~");
                 $display("~~~~~~~~~~#       #    #     #    ######~~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("Finish at PC = 0x%08x", inst_addr_r1);
             end
             $finish;
         end
