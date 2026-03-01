@@ -177,8 +177,9 @@ ifeq ($(WAVE_ENABLE),1)
 IVERILOG_FLAGS = -DWAVE=1
 endif
 
-$(BUILD_DIR)/test.data: $(ELF)
-	@echo "elffile = $<"
+FORCE:
+
+$(BUILD_DIR)/test.data: $(ELF) FORCE
 	riscv64-linux-gnu-objcopy --adjust-vma=-0x80000000 -O verilog $< $@
 
 $(BIN): $(VSRCS) $(BUILD_DIR)/test.data
