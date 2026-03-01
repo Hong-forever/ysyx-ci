@@ -39,7 +39,6 @@ module uart
     reg                    awready;
     reg                    wready;
 
-    reg [31:0] rdata;
     reg rvalid;
     reg rlast;
     reg flag;
@@ -83,9 +82,6 @@ module uart
     end
 
     always @(*) begin
-        if(arvalid_i) begin
-            $error("UART read is not supported!");
-        end
         if(wvalid_i && wready_o) begin
             $write("%c", wdata_i[7:0]);
             $fflush();
@@ -98,9 +94,9 @@ module uart
     assign bresp_o   = 2'b00;
     assign arready_o = arready;
     assign rvalid_o  = 1'b0;
-    assign rdata_o   = rdata;
+    assign rdata_o   = 32'b0;
     assign rresp_o   = 2'b00;
-
+    assign rlast_o   = 1'b1;
 
 endmodule
 
