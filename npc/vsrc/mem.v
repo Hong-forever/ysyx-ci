@@ -134,7 +134,7 @@ module mem
     assign rresp_o   = 2'b00;
 
     wire [31:0] mem0 = mem_array[0];
-    wire [31:0] araddr = araddr_i[31:2];
+    wire [31:0] araddr = araddr_i[$clog2(MEM_DEPTH)+1:2];
     wire [31:0] araddr_ref = araddr_i[31:2];
 
     initial begin
