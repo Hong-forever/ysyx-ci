@@ -20,11 +20,12 @@ module top_tb;
         .reset(reset)
     );
 
-
+`ifdef WAVE_ENABLE
     initial begin
         $dumpfile("build/waveform.vcd");
         $dumpvars(0,top_tb);
     end
+`endif
 
     initial begin
         #1000 $finish;

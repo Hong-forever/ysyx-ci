@@ -9,7 +9,7 @@ USE_NVBOARD = 0
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
 # else
-WAVE_ENABLE = 1
+WAVE_ENABLE = 0
 # endif
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
@@ -173,6 +173,7 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 else
 
 # IVERILOG_FLAGS = -pARRAY_SIZE_LIMIT=134217728
+IVERILOG_FLAGS = -DWAVE=$(WAVE_ENABLE)
 
 $(BIN): $(VSRCS)
 	riscv64-linux-gnu-objcopy --adjust-vma=-0x80000000 -O verilog $(ELF) $(BUILD_DIR)/test.data
