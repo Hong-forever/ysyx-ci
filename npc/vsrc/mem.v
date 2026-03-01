@@ -132,9 +132,7 @@ module mem
     assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
 
-    wire [31:0] mem0 = mem_array[0];
-    wire [31:0] araddr = araddr_i[$clog2(MEM_DEPTH)-1:0];
-    wire [31:0] araddr_ref = araddr_i[31:2];
+    wire [31:0] mem0 = {mem_array[3], mem_array[2], mem_array[1], mem_array[0]};
 
     initial begin
         $readmemh("/home/hhh/Public/ysyx/ysyx-workbench/npc/build/test.data", mem_array);
