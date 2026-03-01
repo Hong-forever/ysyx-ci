@@ -7,7 +7,7 @@
 module ysyx_25110270_wbu
 (
     input   wire                                    clk,
-    input   wire                                    rst_n,
+    input   wire                                    rst,
 
     input   wire    [31:0                       ]   I_inst,
     input   wire    [31:0                       ]   I_inst_addr,
@@ -18,7 +18,7 @@ module ysyx_25110270_wbu
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,
     output  wire    [31:0                       ]   O_rs1_rdata,
     output  wire    [31:0                       ]   O_rs2_rdata,
-    input   wire    [11:0                       ]   I_csr_raddr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_raddr,
     output  wire    [31:0                       ]   O_csr_rdata,
 
     input   wire                                    I_rd_we,
@@ -26,13 +26,13 @@ module ysyx_25110270_wbu
     input   wire    [31:0                       ]   I_rd_wdata,
 
     input   wire                                    I_csr_valid,
-    input   wire    [11:0                       ]   I_csr_waddr,
+    input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_waddr,
     input   wire    [31:0                       ]   I_csr_wdata,
+
+    output  wire    [63:0                       ]   O_mtime,
 
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
-
-    input   wire    [31:0                       ]   I_next_inst_addr,
 
     output  wire                                    O_flush,
     output  wire    [31:0                       ]   O_flush_addr,
@@ -40,7 +40,6 @@ module ysyx_25110270_wbu
     input   wire    [31:0                       ]   I_if_addr,
     input   wire    [31:0                       ]   I_dec_addr,
     input   wire    [31:0                       ]   I_ex_addr,
-    input   wire    [31:0                       ]   I_ls_addr,
 
     input   wire                                    I_device_skip
 );
@@ -57,10 +56,19 @@ module ysyx_25110270_wbu
     wire [31:0] csr_mvendorid;
     wire [31:0] csr_marchid;
 
+    reg valid_r;
+    always @(posedge clk) begin
+        if(rst) begin
+            valid_r <= 1'b0;
+        end else begin
+            valid_r <= I_valid;
+        end
+    end
+
     ysyx_25110270_regfile u_regfile
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_rs1_raddr            (I_rs1_raddr                ),
         .I_rs2_raddr            (I_rs2_raddr                ),
@@ -90,10 +98,10 @@ module ysyx_25110270_wbu
         .O_gpr15                (gpr15                      )
     );
 
-    ysyx_25110270_csr_reg u_csr_reg
+    ysyx_25110270_csr u_csr
     (
         .clk                    (clk                        ),
-        .rst_n                  (rst_n                      ),
+        .rst                    (rst                        ),
 
         .I_raddr                (I_csr_raddr                ),
         .O_rdata                (O_csr_rdata                ),
@@ -102,10 +110,11 @@ module ysyx_25110270_wbu
         .I_waddr                (I_csr_waddr                ),
         .I_wdata                (I_csr_wdata                ),
 
+        .I_valid                (valid_r                    ),  
         .I_except               (I_except                   ),
         .I_except_addr          (I_except_addr              ),
 
-        .I_next_inst_addr       (I_next_inst_addr           ),
+        .O_mtime                (O_mtime                    ),
 
         .O_flush                (O_flush                    ),
         .O_flush_addr           (O_flush_addr               ),
@@ -123,14 +132,6 @@ module ysyx_25110270_wbu
 `ifdef DPIC
     ////////////////////// DPI-C //////////////////////
 
-    reg valid_r;
-    always @(posedge clk) begin
-        if(!rst_n) begin
-            valid_r <= 1'b0;
-        end else begin
-            valid_r <= I_valid;
-        end
-    end
 
     `ifdef SOC
         initial begin
@@ -160,7 +161,7 @@ module ysyx_25110270_wbu
     reg [31:0] pc;
     reg skip_r;
     always @(posedge clk) begin
-        if(!rst_n) begin
+        if(rst) begin
             inst_r1         <= 0;
             inst_addr_r1    <= 0;
             pc              <= 0;
@@ -169,11 +170,9 @@ module ysyx_25110270_wbu
             inst_r1         <= I_inst;
             inst_addr_r1    <= I_inst_addr;
             pc              <= O_flush ? O_flush_addr :
-                               (I_ls_addr == 0 ? 
                                (I_ex_addr == 0 ? 
                                (I_dec_addr == 0 ? I_if_addr : I_dec_addr) 
-                               : I_ex_addr) 
-                               : I_ls_addr);
+                               : I_ex_addr);
             skip_r          <= I_device_skip;
         end
     end

@@ -81,6 +81,9 @@ perf:
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
 	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
 
+test: 
+	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
+	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
 
 $(shell mkdir -p $(BUILD_DIR))
 

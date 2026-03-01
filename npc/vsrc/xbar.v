@@ -8,7 +8,7 @@ module ysyx_25110270_xbar
     parameter M0_SIZE = 32'h0001_0000
 )(
     input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                        rst,
 
     input   wire                        S_awvalid,
     output  wire                        S_awready,
@@ -102,28 +102,27 @@ module ysyx_25110270_xbar
     input   wire                        M1_rlast,
     input   wire    [3:0]               M1_rid
 );
-    wire sel_slave0   = (M0_BASE <= S_araddr && S_araddr < M0_BASE + M0_SIZE) ||
-                        (M0_BASE <= S_awaddr && S_awaddr < M0_BASE + M0_SIZE) ;
+    wire sel_slave0   = (M0_BASE <= S_araddr && S_araddr < M0_BASE + M0_SIZE);
 
     
-    assign M0_awvalid = sel_slave0 ? S_awvalid  : 0 ;
-    assign M0_awaddr  = sel_slave0 ? S_awaddr   : 0 ;
-    assign M0_awid    = sel_slave0 ? S_awid     : 0 ;
-    assign M0_awlen   = sel_slave0 ? S_awlen    : 0 ;
-    assign M0_awsize  = sel_slave0 ? S_awsize   : 0 ;
-    assign M0_awburst = sel_slave0 ? S_awburst  : 0 ;
-    assign M0_wvalid  = sel_slave0 ? S_wvalid   : 0 ;
-    assign M0_wdata   = sel_slave0 ? S_wdata    : 0 ;
-    assign M0_wstrb   = sel_slave0 ? S_wstrb    : 0 ;
-    assign M0_wlast   = sel_slave0 ? S_wlast    : 0 ;
-    assign M0_bready  = sel_slave0 ? S_bready   : 0 ;
+    assign M0_awvalid = 0;  //只读
+    assign M0_awaddr  = 0;
+    assign M0_awid    = 0;
+    assign M0_awlen   = 0;
+    assign M0_awsize  = 0;
+    assign M0_awburst = 0;
+    assign M0_wvalid  = 0;
+    assign M0_wdata   = 0;
+    assign M0_wstrb   = 0;
+    assign M0_wlast   = 0;
+    assign M0_bready  = 0;
     assign M0_arvalid = sel_slave0 ? S_arvalid  : 0 ;
     assign M0_araddr  = sel_slave0 ? S_araddr   : 0 ;
     assign M0_arid    = sel_slave0 ? S_arid     : 0 ;
     assign M0_arlen   = sel_slave0 ? S_arlen    : 0 ;
     assign M0_arsize  = sel_slave0 ? S_arsize   : 0 ;
     assign M0_arburst = sel_slave0 ? S_arburst  : 0 ;
-    assign M0_rready  = sel_slave0 ? S_rready   : 0 ;
+    assign M0_rready  = 1'b1;
 
     assign M1_awvalid = sel_slave0 ? 0 : S_awvalid  ;
     assign M1_awaddr  = sel_slave0 ? 0 : S_awaddr   ;
@@ -135,14 +134,14 @@ module ysyx_25110270_xbar
     assign M1_wdata   = sel_slave0 ? 0 : S_wdata    ;
     assign M1_wstrb   = sel_slave0 ? 0 : S_wstrb    ;
     assign M1_wlast   = sel_slave0 ? 0 : S_wlast    ;
-    assign M1_bready  = sel_slave0 ? 0 : S_bready   ;
+    assign M1_bready  = 1'b1;
     assign M1_arvalid = sel_slave0 ? 0 : S_arvalid  ;
     assign M1_araddr  = sel_slave0 ? 0 : S_araddr   ;
     assign M1_arid    = sel_slave0 ? 0 : S_arid     ;
     assign M1_arlen   = sel_slave0 ? 0 : S_arlen    ;
     assign M1_arsize  = sel_slave0 ? 0 : S_arsize   ;
     assign M1_arburst = sel_slave0 ? 0 : S_arburst  ;
-    assign M1_rready  = sel_slave0 ? 0 : S_rready   ;
+    assign M1_rready  = 1'b1;
 
     assign S_awready  = sel_slave0 ? M0_awready : M1_awready ;
     assign S_wready   = sel_slave0 ? M0_wready  : M1_wready  ;
