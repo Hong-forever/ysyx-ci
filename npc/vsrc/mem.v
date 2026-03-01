@@ -38,7 +38,7 @@ module mem
     output  wire    [3:0 ]              rid_o
 );
 
-    reg [31:0] mem_array [32'h8000_0000 : 32'h8000_0000 + (MEM_DEPTH-1)];
+    reg [31:0] mem_array [0 : (MEM_DEPTH-1)];
 
     reg                    arready;
     reg                    awready;
@@ -86,7 +86,7 @@ module mem
                 rvalid <= 1'b0;
                 rlast <= 1'b0;
             end else if(arvalid_i && arready || flag) begin
-                rdata <= mem_array[araddr_i[31:2] + cnt];
+                rdata <= mem_array[araddr_i[$clog2(MEM_DEPTH)+1:2] + cnt];
                 rvalid <= 1'b1;
                 if(cnt == arlen_i) begin
                     rlast <= 1'b1;
@@ -103,10 +103,10 @@ module mem
 
     wire [31:0] wdata_mask = 
     {
-        (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[31:2]][31:24]),
-        (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[31:2]][23:16]),
-        (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[31:2]][15:8 ]),
-        (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[31:2]][7 :0 ])
+        (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[$clog2(MEM_DEPTH)+1:2]][31:24]),
+        (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[$clog2(MEM_DEPTH)+1:2]][23:16]),
+        (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH)+1:2]][15:8 ]),
+        (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH)+1:2]][7 :0 ])
     };
 
     reg bvalid;
@@ -117,7 +117,7 @@ module mem
             if(bvalid_o && bready_i) begin
                 bvalid <= 1'b0;
             end else if(wvalid_i && wready) begin
-                mem_array[awaddr_i[31:2]] <= wdata_mask;
+                mem_array[awaddr_i[$clog2(MEM_DEPTH)+1:2]] <= wdata_mask;
                 bvalid <= 1'b1;
             end
         end
@@ -133,7 +133,7 @@ module mem
     assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
 
-    wire [31:0] mem = mem_array[32'h8000_0000];
+    wire [31:0] mem0 = mem_array[0];
     wire [31:0] araddr = araddr_i[31:2];
     wire [31:0] araddr_ref = araddr_i[31:2];
 
