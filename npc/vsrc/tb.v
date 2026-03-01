@@ -22,7 +22,7 @@ module top_tb;
 
 
     initial begin
-        $dumpfile("test.vcd");
+        $dumpfile("waveform.vcd");
         $dumpvars(0,top_tb);
     end
 
