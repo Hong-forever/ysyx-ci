@@ -134,7 +134,7 @@ module mem
     assign rresp_o   = 2'b00;
 
     initial begin
-        $readmemh("test.data", mem_array);
+        $readmemh("/home/hhh/Public/ysyx/ysyx-workbench/npc/build/test.data", mem_array);
     end
 
 endmodule
