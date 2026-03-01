@@ -86,7 +86,7 @@ module mem
                 rvalid <= 1'b0;
                 rlast <= 1'b0;
             end else if(arvalid_i && arready || flag) begin
-                rdata <= mem_array[araddr_i[26:2] + cnt];
+                rdata <= mem_array[araddr_i[$clog2(MEM_DEPTH*4)-1:2] + cnt];
                 rvalid <= 1'b1;
                 if(cnt == arlen_i) begin
                     rlast <= 1'b1;
@@ -103,10 +103,10 @@ module mem
 
     wire [31:0] wdata_mask = 
     {
-        (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[26:2]][31:24]),
-        (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[26:2]][23:16]),
-        (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[26:2]][15:8 ]),
-        (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[26:2]][7 :0 ])
+        (wstrb_i[3] ? wdata_i[31:24] : mem_array[awaddr_i[$clog2(MEM_DEPTH*4)-1:2]][31:24]),
+        (wstrb_i[2] ? wdata_i[23:16] : mem_array[awaddr_i[$clog2(MEM_DEPTH*4)-1:2]][23:16]),
+        (wstrb_i[1] ? wdata_i[15:8 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH*4)-1:2]][15:8 ]),
+        (wstrb_i[0] ? wdata_i[7 :0 ] : mem_array[awaddr_i[$clog2(MEM_DEPTH*4)-1:2]][7 :0 ])
     };
 
     reg bvalid;
