@@ -73,6 +73,7 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 include $(NPC_HOME)/scripts/difftest.mk
 
 IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+ELF ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.elf
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
@@ -174,7 +175,7 @@ else
 IVERILOG_FLAGS = -pARRAY_SIZE_LIMIT=33554432
 
 $(BIN): $(VSRCS)
-	objcopy -I elf -O verilog $(ELF) $(BUILD_DIR)/test.data
+	riscv64-linux-gnu-objcopy -O verilog $(ELF) $(BUILD_DIR)/test.data
 	echo "Compiling with Icarus Verilog..."
 	iverilog -s $(TOPNAME) -o $@ $^ $(IVERILOG_FLAGS)
 
