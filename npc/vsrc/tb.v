@@ -19,6 +19,13 @@ module top_tb;
         .reset(reset)
     );
 
+
+    initial
+    begin
+        $dumpfile("test.vcd");
+        $dumpvars(0,top_tb);
+    end
+
 endmodule
 
 `endif
