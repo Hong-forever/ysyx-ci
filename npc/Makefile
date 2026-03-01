@@ -177,9 +177,11 @@ ifeq ($(WAVE_ENABLE),1)
 IVERILOG_FLAGS = -DWAVE=1
 endif
 
-$(BIN): $(VSRCS) $(ELF)
-	riscv64-linux-gnu-objcopy --adjust-vma=-0x80000000 -O verilog $(ELF) $(BUILD_DIR)/test.data
-	echo "elf2verilog: $(ELF) -> $(BUILD_DIR)/test.data"
+$(BUILD_DIR)/test.data: $(ELF)
+	riscv64-linux-gnu-objcopy --adjust-vma=-0x80000000 -O verilog $< $@
+	echo "elf2verilog: $< -> $@"
+
+$(BIN): $(VSRCS) $(BUILD_DIR)/test.data
 	iverilog -s $(TOPNAME) -o $@ $^ $(IVERILOG_FLAGS)
 
 endif
