@@ -7,8 +7,6 @@ module top_tb;
     initial begin
         clock = 0;
         forever #1 clock = ~clock;
-
-        #10000 $finish;
     end
 
     initial begin
@@ -22,10 +20,13 @@ module top_tb;
     );
 
 
-    initial
-    begin
+    initial begin
         $dumpfile("test.vcd");
         $dumpvars(0,top_tb);
+    end
+
+    initial begin
+        #1000000 $finish;
     end
 
 endmodule
