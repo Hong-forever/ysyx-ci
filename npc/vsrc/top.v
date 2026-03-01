@@ -163,10 +163,7 @@ module top
     );
 
 
-    mem
-    #(
-        .MEM_DEPTH(32'h0100_0000)
-    ) mem_test
+    mem mem_test
     (
         .clk(clock),
         .rst(reset),
