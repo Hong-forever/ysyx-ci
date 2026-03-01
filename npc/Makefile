@@ -172,7 +172,7 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 else
 
-IVERILOG_FLAGS = -pARRAY_SIZE_LIMIT=33554432
+# IVERILOG_FLAGS = -pARRAY_SIZE_LIMIT=134217728
 
 $(BIN): $(VSRCS)
 	riscv64-linux-gnu-objcopy --adjust-vma=-0x80000000 -O verilog $(ELF) $(BUILD_DIR)/test.data
