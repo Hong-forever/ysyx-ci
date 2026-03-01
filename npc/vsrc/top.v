@@ -164,7 +164,7 @@ module top
 
     mem
     #(
-        .MEM_DEPTH(32'h0800_0000)
+        .MEM_DEPTH(32'h0800_0000/4)
     ) mem_test
     (
         .clk(clock),

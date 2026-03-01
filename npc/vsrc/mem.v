@@ -38,7 +38,7 @@ module mem
     output  wire    [3:0 ]              rid_o
 );
 
-    reg [31:0] mem_array [0:MEM_DEPTH-1];
+    reg [31:0] mem_array [32'h8000_0000 : 32'h8000_0000 + (MEM_DEPTH-1)];
 
     reg                    arready;
     reg                    awready;
