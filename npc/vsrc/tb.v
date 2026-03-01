@@ -1,4 +1,5 @@
 `ifdef __ICARUS__
+`timescale 1ns / 1ps
 module top_tb;
     
     reg clock;
