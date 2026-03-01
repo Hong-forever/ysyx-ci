@@ -24,7 +24,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 endif
 
-TOPNAME = ysyxSoCFull
+TOPNAME = ysyx_25110270
 
 remove_quote = $(patsubst "%",%,$(1))
 
@@ -32,17 +32,19 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
+VERILATOR_CFLAGS += -MMD -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 8
 VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
 ifeq ($(SOC),1)
-VERILATOR_CFLAGS += -DSOC=1
+VERILATOR_CFLAGS += -Dysyx_25110270_SOC=1
 endif
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
-VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
+# VERILATOR_CFLAGS += --build
+VERILATOR_CFLAGS += --lint-only -Wall
+VERILATOR_CFLAGS += -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL
 
 
 ifeq ($(WAVE_FORMAT),1)
@@ -103,8 +105,8 @@ CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name
 
 VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "*.v")
 
-VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
-VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
+# VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
+# VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
 
 ifeq ($(USE_NVBOARD),1)
 CSRCS-y += $(SRC_AUTO_BIND)
