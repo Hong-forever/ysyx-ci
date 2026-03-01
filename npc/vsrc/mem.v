@@ -131,6 +131,7 @@ module mem
     assign rvalid_o  = rvalid;
     assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
+    assign rlast_o   = rlast;
 
     wire [31:0] mem0 = {mem_array[3], mem_array[2], mem_array[1], mem_array[0]};
 
