@@ -3585,7 +3585,19 @@ module ysyx_25110270_xbar
     wire sel_slave0   = (S0_BASE <= S_araddr && S_araddr < S0_BASE + S0_SIZE);
 `endif
 
-    
+`ifdef __ICARUS__    
+    assign M0_awvalid = sel_slave0 ? S_awvalid  : 0 ;
+    assign M0_awaddr  = sel_slave0 ? S_awaddr   : 0 ;
+    assign M0_awid    = sel_slave0 ? S_awid     : 0 ;
+    assign M0_awlen   = sel_slave0 ? S_awlen    : 0 ;
+    assign M0_awsize  = sel_slave0 ? S_awsize   : 0 ;
+    assign M0_awburst = sel_slave0 ? S_awburst  : 0 ;
+    assign M0_wvalid  = sel_slave0 ? S_wvalid   : 0 ;
+    assign M0_wdata   = sel_slave0 ? S_wdata    : 0 ;
+    assign M0_wstrb   = sel_slave0 ? S_wstrb    : 0 ;
+    assign M0_wlast   = sel_slave0 ? S_wlast    : 0 ;
+    assign M0_bready  = sel_slave0 ? S_bready   : 0 ;
+`else
     assign M0_awvalid = 0;  //只读
     assign M0_awaddr  = 0;
     assign M0_awid    = 0;
@@ -3597,6 +3609,7 @@ module ysyx_25110270_xbar
     assign M0_wstrb   = 0;
     assign M0_wlast   = 0;
     assign M0_bready  = 0;
+`endif 
     assign M0_arvalid = sel_slave0 ? S_arvalid  : 0 ;
     assign M0_araddr  = sel_slave0 ? S_araddr   : 0 ;
     assign M0_arid    = sel_slave0 ? S_arid     : 0 ;
