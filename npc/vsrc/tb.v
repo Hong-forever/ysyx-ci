@@ -7,6 +7,8 @@ module top_tb;
     initial begin
         clock = 0;
         forever #1 clock = ~clock;
+
+        #10000 $finish;
     end
 
     initial begin
