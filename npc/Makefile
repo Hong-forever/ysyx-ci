@@ -173,6 +173,7 @@ else
 
 $(BIN): $(VSRCS)
 	objcopy --adjust-vma=0x80000000 -I binary -O verilog $(IMG) $(BUILD_DIR)/test.data
+	@echo "Compiling with Icarus Verilog..."
 	iverilog -s $(TOPNAME) -o $@ $^
 
 endif
