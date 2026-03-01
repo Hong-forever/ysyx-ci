@@ -175,7 +175,7 @@ IVERILOG_FLAGS = -pARRAY_SIZE_LIMIT=33554432
 
 $(BIN): $(VSRCS)
 	objcopy -I elf -O verilog $(ELF) $(BUILD_DIR)/test.data
-	@echo "Compiling with Icarus Verilog..."
+	echo "Compiling with Icarus Verilog..."
 	iverilog -s $(TOPNAME) -o $@ $^ $(IVERILOG_FLAGS)
 
 endif
