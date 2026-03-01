@@ -327,7 +327,7 @@ module ysyx_25110270_lsu
 
     reg begin_flag_r;
     wire begin_flag = dbus_arvalid | dbus_awvalid;
-    wire end_flag   = (dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready);
+    wire end_flag   = dbus_bvalid  | dbus_rvalid;
 
     always @(posedge clk) begin
         if(rst) begin

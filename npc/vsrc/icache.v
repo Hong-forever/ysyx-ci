@@ -134,6 +134,6 @@ module ysyx_25110270_icache
     assign O_arsize  = 3'b010; // 4 bytes
     assign O_arburst = 2'b01; // INCR
     // assign O_arburst = 2'b10; // WRAP
-    assign O_rready  = 1'b1;
+    assign O_rready  = 1'b0; // xbar is set to 1
 
 endmodule
