@@ -179,6 +179,7 @@ endif
 
 $(BIN): $(VSRCS)
 	riscv64-linux-gnu-objcopy --adjust-vma=-0x80000000 -O verilog $(ELF) $(BUILD_DIR)/test.data
+	echo "elf2verilog: $(ELF) -> $(BUILD_DIR)/test.data"
 	iverilog -s $(TOPNAME) -o $@ $^ $(IVERILOG_FLAGS)
 
 endif
