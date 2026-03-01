@@ -171,10 +171,12 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 
 else
 
+IVERILOG_FLAGS = -pARRAY_SIZE_LIMIT=33554432
+
 $(BIN): $(VSRCS)
 	objcopy --adjust-vma=0x80000000 -I binary -O verilog $(IMG) $(BUILD_DIR)/test.data
 	@echo "Compiling with Icarus Verilog..."
-	iverilog -s $(TOPNAME) -o $@ $^
+	iverilog -s $(TOPNAME) -o $@ $^ $(IVERILOG_FLAGS)
 
 endif
 
