@@ -1,15 +1,9 @@
-//------------------------------------------------------------------------
-// clint模块
-//------------------------------------------------------------------------
-
-module ysyx_25110270_clint
+`ifdef __ICARUS__
+module uart
 (
     input   wire                        clk,        //时钟输入
-    input   wire                        rst,        //复位输入
+    input   wire                        rst,      //复位输入
 
-    input   wire    [63:0]              time_i,     //mtime寄存器输入
-
-    // AXI接口
     input   wire                        awvalid_i,
     output  wire                        awready_o,
     input   wire    [31:0]              awaddr_i,
@@ -41,32 +35,73 @@ module ysyx_25110270_clint
     output  wire    [3:0 ]              rid_o
 );
 
-    reg rdata_valid;
+    reg                    arready;
+    reg                    awready;
+    reg                    wready;
+
+    reg [31:0] rdata;
+    reg rvalid;
+    reg rlast;
+    reg flag;
+    reg [7:0] cnt;
+
     always @(posedge clk) begin
         if(rst) begin
-            rdata_valid <= 1'b0;
+            arready <= 1'b1;
+            awready <= 1'b1;
+            wready  <= 1'b1;
         end else begin
-            if(rvalid_o && rready_i) begin
-                rdata_valid <= 1'b0;
-            end else if(arvalid_i) begin
-                rdata_valid <= 1'b1;
+            if(arvalid_i && arready) begin
+                arready <= 1'b0;
+            end else if(rvalid_o && rready_i && rlast) begin
+                arready <= 1'b1;
+            end
+            if(awvalid_i && awready) begin
+                awready <= 1'b0;
+            end else if(bvalid_o && bready_i) begin
+                awready <= 1'b1;
+            end
+            if(wvalid_i && wready) begin
+                wready <= 1'b0;
+            end else if(bvalid_o && bready_i) begin
+                wready <= 1'b1;
             end
         end
     end
 
+    reg bvalid;
+    always @(posedge clk) begin
+        if(rst) begin
+            bvalid <= 1'b0;
+        end else begin
+            if(bvalid_o && bready_i) begin
+                bvalid <= 1'b0;
+            end else if(wvalid_i && wready_o) begin
+                bvalid <= 1'b1;
+            end
+        end
+    end
 
+    always @(*) begin
+        if(arvalid_i) begin
+            $error("UART read is not supported!");
+        end
+        if(wvalid_i && wready_o) begin
+            $write("%c", wdata_i[7:0]);
+            $fflush();
+        end
+    end
 
-    assign awready_o = 1'b0;
-    assign wready_o  = 1'b0;
-    assign bvalid_o  = 1'b0;
+    assign awready_o = awready;
+    assign wready_o  = wready;
+    assign bvalid_o  = bvalid;
     assign bresp_o   = 2'b00;
-    assign bid_o     = 4'b0000;
-    assign arready_o = 1'b1;
-    assign rvalid_o  = rdata_valid;
-    assign rdata_o   = araddr_i[2] ? time_i[63:32] : time_i[31:0];
+    assign arready_o = arready;
+    assign rvalid_o  = 1'b0;
+    assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
-    assign rlast_o   = 1'b1;
-    assign rid_o     = 4'b0000;
 
 
 endmodule
+
+`endif
