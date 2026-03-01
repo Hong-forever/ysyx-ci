@@ -161,6 +161,80 @@ module top
         .io_slave_rlast()
     );
 
+
+    mem
+    #(
+        .MEM_DEPTH(32'h0800_0000)
+    ) mem_test
+    (
+        .clk(clock),
+        .rst(reset),
+        .awvalid_i(s0_awvalid),
+        .awready_o(s0_awready),
+        .awaddr_i(s0_awaddr),
+        .awid_i(s0_awid),
+        .awlen_i(s0_awlen),
+        .awsize_i(s0_awsize),
+        .awburst_i(s0_awburst),
+        .wvalid_i(s0_wvalid),
+        .wready_o(s0_wready),
+        .wdata_i(s0_wdata),
+        .wstrb_i(s0_wstrb),
+        .wlast_i(s0_wlast),
+        .bvalid_o(s0_bvalid),
+        .bready_i(s0_bready),
+        .bresp_o(s0_bresp),
+        .bid_o(s0_bid),
+        .arvalid_i(s0_arvalid),
+        .arready_o(s0_arready),
+        .araddr_i(s0_araddr),
+        .arid_i(s0_arid),
+        .arlen_i(s0_arlen),
+        .arsize_i(s0_arsize),
+        .arburst_i(s0_arburst),
+        .rvalid_o(s0_rvalid),
+        .rready_i(s0_rready),
+        .rdata_o(s0_rdata),
+        .rresp_o(s0_rresp),
+        .rlast_o(s0_rlast),
+        .rid_o(s0_rid)
+    );
+
+    uart uart_test(
+        .clk(clock),
+        .rst(reset),
+        .awvalid_i(s1_awvalid),
+        .awready_o(s1_awready),
+        .awaddr_i(s1_awaddr),
+        .awid_i(s1_awid),
+        .awlen_i(s1_awlen),
+        .awsize_i(s1_awsize),
+        .awburst_i(s1_awburst),
+        .wvalid_i(s1_wvalid),
+        .wready_o(s1_wready),
+        .wdata_i(s1_wdata),
+        .wstrb_i(s1_wstrb),
+        .wlast_i(s1_wlast),
+        .bvalid_o(s1_bvalid),
+        .bready_i(s1_bready),
+        .bresp_o(s1_bresp),
+        .bid_o(s1_bid),
+        .arvalid_i(s1_arvalid),
+        .arready_o(s1_arready),
+        .araddr_i(s1_araddr),
+        .arid_i(s1_arid),
+        .arlen_i(s1_arlen),
+        .arsize_i(s1_arsize),
+        .arburst_i(s1_arburst),
+        .rvalid_o(s1_rvalid),
+        .rready_i(s1_rready),
+        .rdata_o(s1_rdata),
+        .rresp_o(s1_rresp),
+        .rlast_o(s1_rlast),
+        .rid_o(s1_rid)
+    );
+
+
     ysyx_25110270_xbar
     #(
         .S0_BASE(32'h8000_0000),
@@ -259,74 +333,6 @@ module top
         .M1_rdata(s1_rdata),
         .M1_rresp(s1_rresp),
         .M1_rlast(s1_rlast)
-    );
-
-    mem mem_test(
-        .clk(clock),
-        .rst(reset),
-        .awvalid_i(s0_awvalid),
-        .awready_o(s0_awready),
-        .awaddr_i(s0_awaddr),
-        .awid_i(s0_awid),
-        .awlen_i(s0_awlen),
-        .awsize_i(s0_awsize),
-        .awburst_i(s0_awburst),
-        .wvalid_i(s0_wvalid),
-        .wready_o(s0_wready),
-        .wdata_i(s0_wdata),
-        .wstrb_i(s0_wstrb),
-        .wlast_i(s0_wlast),
-        .bvalid_o(s0_bvalid),
-        .bready_i(s0_bready),
-        .bresp_o(s0_bresp),
-        .bid_o(s0_bid),
-        .arvalid_i(s0_arvalid),
-        .arready_o(s0_arready),
-        .araddr_i(s0_araddr),
-        .arid_i(s0_arid),
-        .arlen_i(s0_arlen),
-        .arsize_i(s0_arsize),
-        .arburst_i(s0_arburst),
-        .rvalid_o(s0_rvalid),
-        .rready_i(s0_rready),
-        .rdata_o(s0_rdata),
-        .rresp_o(s0_rresp),
-        .rlast_o(s0_rlast),
-        .rid_o(s0_rid)
-    );
-
-    uart uart_test(
-        .clk(clock),
-        .rst(reset),
-        .awvalid_i(s1_awvalid),
-        .awready_o(s1_awready),
-        .awaddr_i(s1_awaddr),
-        .awid_i(s1_awid),
-        .awlen_i(s1_awlen),
-        .awsize_i(s1_awsize),
-        .awburst_i(s1_awburst),
-        .wvalid_i(s1_wvalid),
-        .wready_o(s1_wready),
-        .wdata_i(s1_wdata),
-        .wstrb_i(s1_wstrb),
-        .wlast_i(s1_wlast),
-        .bvalid_o(s1_bvalid),
-        .bready_i(s1_bready),
-        .bresp_o(s1_bresp),
-        .bid_o(s1_bid),
-        .arvalid_i(s1_arvalid),
-        .arready_o(s1_arready),
-        .araddr_i(s1_araddr),
-        .arid_i(s1_arid),
-        .arlen_i(s1_arlen),
-        .arsize_i(s1_arsize),
-        .arburst_i(s1_arburst),
-        .rvalid_o(s1_rvalid),
-        .rready_i(s1_rready),
-        .rdata_o(s1_rdata),
-        .rresp_o(s1_rresp),
-        .rlast_o(s1_rlast),
-        .rid_o(s1_rid)
     );
 
 endmodule
