@@ -8,12 +8,12 @@ SECTIONS {
     *(entry)
     *(.text*)
     *(.rodata*)
+    . = ALIGN(8);
   } : text
   etext = .;
   _etext = .;
   .data : {
     *(.data*)
-    . = ALIGN(4);
   } : data
   edata = .;
   _data = .;
