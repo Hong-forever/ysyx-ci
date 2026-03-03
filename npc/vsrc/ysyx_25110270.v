@@ -2,8 +2,8 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-`define ysyx_25110270_DPIC
-`define ysyx_25110270_PERF
+// `define ysyx_25110270_DPIC
+// `define ysyx_25110270_PERF
 // `define ysyx_25110270_DEBUG
 // `define ysyx_25110270_SOC //no verilog macro define here, define it in Makefile
 
@@ -202,17 +202,10 @@
 `define ysyx_25110270_SdramAddrBase 32'ha000_0000
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
-`ifdef __ICARUS__
-    `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-
-`else 
-
 `ifdef ysyx_25110270_SOC
     `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
 `else
     `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
-`endif
-
 `endif
 
 //------------------------------------------------------------------------

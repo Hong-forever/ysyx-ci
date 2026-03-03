@@ -14,7 +14,7 @@ WAVE_ENABLE = 0
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
 
-# iverilog = 1
+iverilog = 1
 
 GUEST_ISA = riscv32
 
@@ -180,7 +180,7 @@ endif
 FORCE:
 
 $(BUILD_DIR)/test.data: $(ELF) FORCE
-	riscv64-linux-gnu-objcopy --adjust-vma=-0x80000000 -O verilog $< $@
+	riscv64-linux-gnu-objcopy --adjust-vma=-0xa0000000 -O verilog $< $@
 
 $(BIN): $(VSRCS) $(BUILD_DIR)/test.data
 	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)

@@ -235,7 +235,7 @@ module top
 
     ysyx_25110270_xbar
     #(
-        .S0_BASE(32'h8000_0000),
+        .S0_BASE(32'ha000_0000),
         .S0_SIZE(32'h0800_0000)
     ) xbar_test
     (
