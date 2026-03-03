@@ -8,14 +8,16 @@ SECTIONS {
     *(entry)
     *(.text*)
     *(.rodata*)
+    . = ALIGN(8);
     etext = .;
     _etext = .;
   } : text
 
   .data : {
-    sdata = .;
+    sdata = ALIGN(4);
     *(.data*)
     *(.sdata*)
+    . = ALIGN(4);
     edata = .;
     _edata = .;
   } : data
