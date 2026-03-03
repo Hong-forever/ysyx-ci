@@ -2131,6 +2131,7 @@ module ysyx_25110270_wbu
     always @(posedge clk) begin
         if(valid_r & inst_r1 == 0 && inst_addr_r1 != 0) begin
             $error("Error: inst is 0 at addr %h!", inst_addr_r1);
+            $finish;
         end
     end
 `endif
