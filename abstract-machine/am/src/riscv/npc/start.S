@@ -6,8 +6,8 @@ _start:
   mv s0, zero
   la sp, _stack_pointer
 
-  la a0, edata
-  la a1, ebss
+  la a0, _edata
+  la a1, _ebss
 
 .zero_loop:
   beq a0, a1, .zero_done

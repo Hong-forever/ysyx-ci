@@ -19,16 +19,16 @@ SECTIONS {
     *(.sdata*)
     . = ALIGN(4);
     edata = .;
-    _data = .;
+    _edata = .;
   } : data
 
   .bss (NOLOAD) : {
 	  _bss_start = .;
-    sbss = .;
+    _sbss = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-    ebss = ALIGN(4);
+    _ebss = ALIGN(4);
   }
 
   _stack_top = ALIGN(0x1000);
