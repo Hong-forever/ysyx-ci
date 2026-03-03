@@ -38,14 +38,10 @@ module mem
     output  wire    [3:0 ]              rid_o
 );
 
-    reg [7:0] mem_array0 [0 : 32'h0100_0000-1];
-    reg [7:0] mem_array1 [0 : 32'h0100_0000-1];
-    reg [7:0] mem_array2 [0 : 32'h0100_0000-1];
-    reg [7:0] mem_array3 [0 : 32'h0100_0000-1];
-    reg [7:0] mem_array4 [0 : 32'h0100_0000-1];
-    reg [7:0] mem_array5 [0 : 32'h0100_0000-1];
-    reg [7:0] mem_array6 [0 : 32'h0100_0000-1];
-    reg [7:0] mem_array7 [0 : 32'h0100_0000-1];
+    reg [7:0] mem_array0 [0 : 32'h0200_0000-1];
+    reg [7:0] mem_array1 [0 : 32'h0200_0000-1];
+    reg [7:0] mem_array2 [0 : 32'h0200_0000-1];
+    reg [7:0] mem_array3 [0 : 32'h0200_0000-1];
 
     reg                    arready;
     reg                    awready;
@@ -93,15 +89,11 @@ module mem
                 rvalid <= 1'b0;
                 rlast <= 1'b0;
             end else if(arvalid_i && arready || flag) begin
-                case(araddr_i[26:24])
-                    3'b000: rdata <= {mem_array0[araddr_i[23:0]+3+4*cnt], mem_array0[araddr_i[23:0]+2+4*cnt], mem_array0[araddr_i[23:0]+1+4*cnt], mem_array0[araddr_i[23:0]+0+4*cnt]};
-                    3'b001: rdata <= {mem_array1[araddr_i[23:0]+3+4*cnt], mem_array1[araddr_i[23:0]+2+4*cnt], mem_array1[araddr_i[23:0]+1+4*cnt], mem_array1[araddr_i[23:0]+0+4*cnt]};
-                    3'b010: rdata <= {mem_array2[araddr_i[23:0]+3+4*cnt], mem_array2[araddr_i[23:0]+2+4*cnt], mem_array2[araddr_i[23:0]+1+4*cnt], mem_array2[araddr_i[23:0]+0+4*cnt]};
-                    3'b011: rdata <= {mem_array3[araddr_i[23:0]+3+4*cnt], mem_array3[araddr_i[23:0]+2+4*cnt], mem_array3[araddr_i[23:0]+1+4*cnt], mem_array3[araddr_i[23:0]+0+4*cnt]};
-                    3'b100: rdata <= {mem_array4[araddr_i[23:0]+3+4*cnt], mem_array4[araddr_i[23:0]+2+4*cnt], mem_array4[araddr_i[23:0]+1+4*cnt], mem_array4[araddr_i[23:0]+0+4*cnt]};
-                    3'b101: rdata <= {mem_array5[araddr_i[23:0]+3+4*cnt], mem_array5[araddr_i[23:0]+2+4*cnt], mem_array5[araddr_i[23:0]+1+4*cnt], mem_array5[araddr_i[23:0]+0+4*cnt]};
-                    3'b110: rdata <= {mem_array6[araddr_i[23:0]+3+4*cnt], mem_array6[araddr_i[23:0]+2+4*cnt], mem_array6[araddr_i[23:0]+1+4*cnt], mem_array6[araddr_i[23:0]+0+4*cnt]};
-                    3'b111: rdata <= {mem_array7[araddr_i[23:0]+3+4*cnt], mem_array7[araddr_i[23:0]+2+4*cnt], mem_array7[araddr_i[23:0]+1+4*cnt], mem_array7[araddr_i[23:0]+0+4*cnt]};
+                case(araddr_i[26:25])
+                    2'b00: rdata <= {mem_array0[araddr_i[24:0]+3+4*cnt], mem_array0[araddr_i[24:0]+2+4*cnt], mem_array0[araddr_i[24:0]+1+4*cnt], mem_array0[araddr_i[24:0]+0+4*cnt]};
+                    2'b01: rdata <= {mem_array1[araddr_i[24:0]+3+4*cnt], mem_array1[araddr_i[24:0]+2+4*cnt], mem_array1[araddr_i[24:0]+1+4*cnt], mem_array1[araddr_i[24:0]+0+4*cnt]};
+                    2'b10: rdata <= {mem_array2[araddr_i[24:0]+3+4*cnt], mem_array2[araddr_i[24:0]+2+4*cnt], mem_array2[araddr_i[24:0]+1+4*cnt], mem_array2[araddr_i[24:0]+0+4*cnt]};
+                    2'b11: rdata <= {mem_array3[araddr_i[24:0]+3+4*cnt], mem_array3[araddr_i[24:0]+2+4*cnt], mem_array3[araddr_i[24:0]+1+4*cnt], mem_array3[araddr_i[24:0]+0+4*cnt]};
                 endcase
                 rvalid <= 1'b1;
                 if(cnt == arlen_i) begin
@@ -126,54 +118,30 @@ module mem
             if(bvalid_o && bready_i) begin
                 bvalid <= 1'b0;
             end else if(wvalid_i && wready) begin
-                case(awaddr_i[26:24])
-                    3'b000: begin
-                        if(wstrb_i[3]) mem_array0[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array0[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array0[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array0[awaddr_i[23:0]+0] <= wdata_i[7:0];
+                case(awaddr_i[26:25])
+                    2'b00: begin
+                        if(wstrb_i[3]) mem_array0[awaddr_i[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array0[awaddr_i[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array0[awaddr_i[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array0[awaddr_i[24:0]+0] <= wdata_i[7:0];
                     end
-                    3'b001: begin
-                        if(wstrb_i[3]) mem_array1[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array1[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array1[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array1[awaddr_i[23:0]+0] <= wdata_i[7:0];
+                    2'b01: begin
+                        if(wstrb_i[3]) mem_array1[awaddr_i[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array1[awaddr_i[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array1[awaddr_i[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array1[awaddr_i[24:0]+0] <= wdata_i[7:0];
                     end
-                    3'b010: begin
-                        if(wstrb_i[3]) mem_array2[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array2[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array2[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array2[awaddr_i[23:0]+0] <= wdata_i[7:0];
+                    2'b10: begin
+                        if(wstrb_i[3]) mem_array2[awaddr_i[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array2[awaddr_i[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array2[awaddr_i[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array2[awaddr_i[24:0]+0] <= wdata_i[7:0];
                     end
-                    3'b011: begin
-                        if(wstrb_i[3]) mem_array3[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array3[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array3[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array3[awaddr_i[23:0]+0] <= wdata_i[7:0];
-                    end
-                    3'b100: begin
-                        if(wstrb_i[3]) mem_array4[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array4[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array4[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array4[awaddr_i[23:0]+0] <= wdata_i[7:0];
-                    end
-                    3'b101: begin
-                        if(wstrb_i[3]) mem_array5[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array5[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array5[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array5[awaddr_i[23:0]+0] <= wdata_i[7:0];
-                    end
-                    3'b110: begin
-                        if(wstrb_i[3]) mem_array6[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array6[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array6[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array6[awaddr_i[23:0]+0] <= wdata_i[7:0];
-                    end
-                    3'b111: begin
-                        if(wstrb_i[3]) mem_array7[awaddr_i[23:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array7[awaddr_i[23:0]+2] <= wdata_i[23:16];
-                        if(wstrb_i[1]) mem_array7[awaddr_i[23:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array7[awaddr_i[23:0]+0] <= wdata_i[7:0];
+                    2'b11: begin
+                        if(wstrb_i[3]) mem_array3[awaddr_i[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array3[awaddr_i[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array3[awaddr_i[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array3[awaddr_i[24:0]+0] <= wdata_i[7:0];
                     end
                 endcase
                 bvalid <= 1'b1;
