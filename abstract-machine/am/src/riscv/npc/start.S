@@ -6,6 +6,7 @@ _start:
   mv s0, zero
   la sp, _stack_pointer
 
+  la a2, sbss
   la a0, edata
   la a1, ebss
 
