@@ -2,8 +2,8 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-// `define ysyx_25110270_DPIC
-// `define ysyx_25110270_PERF
+`define ysyx_25110270_DPIC
+`define ysyx_25110270_PERF
 // `define ysyx_25110270_DEBUG
 // `define ysyx_25110270_SOC //no verilog macro define here, define it in Makefile
 
