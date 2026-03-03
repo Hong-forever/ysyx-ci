@@ -162,7 +162,21 @@ module mem
 
     wire [31:0] mem0 = {mem_array0[0+3], mem_array0[0+2], mem_array0[0+1], mem_array0[0+0]};
     wire [31:0] mem_test = {mem_array0[32'h0000_016c+3], mem_array0[32'h0000_016c+2], mem_array0[32'h0000_016c+1], mem_array0[32'h0000_016c+0]};
-    wire [31:0] mem_test2 = {mem_array0[32'h0000_026c+3], mem_array0[32'h0000_026c+2], mem_array0[32'h0000_026c+1], mem_array0[32'h0000_026c+0]};
+    wire [31:0] mem_test2 = {mem_array0[32'h0000_0170+3], mem_array0[32'h0000_0170+2], mem_array0[32'h0000_0170+1], mem_array0[32'h0000_0170+0]};
+    wire [31:0] mem_test3 = {mem_array0[32'h0000_0174+3], mem_array0[32'h0000_0174+2], mem_array0[32'h0000_0174+1], mem_array0[32'h0000_0174+0]};
+    wire [31:0] mem_test4 = {mem_array0[32'h0000_0178+3], mem_array0[32'h0000_0178+2], mem_array0[32'h0000_0178+1], mem_array0[32'h0000_0178+0]};
+    wire [31:0] mem_test5 = {mem_array0[32'h0000_017c+3], mem_array0[32'h0000_017c+2], mem_array0[32'h0000_017c+1], mem_array0[32'h0000_017c+0]};
+    wire [31:0] mem_test6 = {mem_array0[32'h0000_0180+3], mem_array0[32'h0000_0180+2], mem_array0[32'h0000_0180+1], mem_array0[32'h0000_0180+0]};
+    wire [31:0] mem_test7 = {mem_array0[32'h0000_0184+3], mem_array0[32'h0000_0184+2], mem_array0[32'h0000_0184+1], mem_array0[32'h0000_0184+0]};
+    wire [31:0] mem_test8 = {mem_array0[32'h0000_0188+3], mem_array0[32'h0000_0188+2], mem_array0[32'h0000_0188+1], mem_array0[32'h0000_0188+0]};
+    wire [31:0] mem_test9 = {mem_array0[32'h0000_018c+3], mem_array0[32'h0000_018c+2], mem_array0[32'h0000_018c+1], mem_array0[32'h0000_018c+0]};
+    wire [31:0] mem_test10 = {mem_array0[32'h0000_0190+3], mem_array0[32'h0000_0190+2], mem_array0[32'h0000_0190+1], mem_array0[32'h0000_0190+0]};
+    wire [31:0] mem_test11 = {mem_array0[32'h0000_0194+3], mem_array0[32'h0000_0194+2], mem_array0[32'h0000_0194+1], mem_array0[32'h0000_0194+0]};
+    wire [31:0] mem_test12 = {mem_array0[32'h0000_0198+3], mem_array0[32'h0000_0198+2], mem_array0[32'h0000_0198+1], mem_array0[32'h0000_0198+0]};
+    wire [31:0] mem_test13 = {mem_array0[32'h0000_019c+3], mem_array0[32'h0000_019c+2], mem_array0[32'h0000_019c+1], mem_array0[32'h0000_019c+0]};
+    wire [31:0] mem_test14 = {mem_array0[32'h0000_01a0+3], mem_array0[32'h0000_01a0+2], mem_array0[32'h0000_01a0+1], mem_array0[32'h0000_01a0+0]};
+    wire [31:0] mem_test15 = {mem_array0[32'h0000_01a4+3], mem_array0[32'h0000_01a4+2], mem_array0[32'h0000_01a4+1], mem_array0[32'h0000_01a4+0]};
+    
 
     initial begin
         $readmemh("/home/hhh/Public/ysyx/ysyx-workbench/npc/build/test.data", mem_array0);
