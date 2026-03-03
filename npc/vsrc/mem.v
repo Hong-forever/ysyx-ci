@@ -77,6 +77,8 @@ module mem
         end
     end
 
+    wire [31:0] araddr_align = {araddr_i[31:2], 2'b00};
+
 
     always @(posedge clk) begin
         if(rst) begin
@@ -89,11 +91,11 @@ module mem
                 rvalid <= 1'b0;
                 rlast <= 1'b0;
             end else if(arvalid_i && arready || flag) begin
-                case(araddr_i[26:25])
-                    2'b00: rdata <= {mem_array0[araddr_i[24:0]+3+4*cnt], mem_array0[araddr_i[24:0]+2+4*cnt], mem_array0[araddr_i[24:0]+1+4*cnt], mem_array0[araddr_i[24:0]+0+4*cnt]};
-                    2'b01: rdata <= {mem_array1[araddr_i[24:0]+3+4*cnt], mem_array1[araddr_i[24:0]+2+4*cnt], mem_array1[araddr_i[24:0]+1+4*cnt], mem_array1[araddr_i[24:0]+0+4*cnt]};
-                    2'b10: rdata <= {mem_array2[araddr_i[24:0]+3+4*cnt], mem_array2[araddr_i[24:0]+2+4*cnt], mem_array2[araddr_i[24:0]+1+4*cnt], mem_array2[araddr_i[24:0]+0+4*cnt]};
-                    2'b11: rdata <= {mem_array3[araddr_i[24:0]+3+4*cnt], mem_array3[araddr_i[24:0]+2+4*cnt], mem_array3[araddr_i[24:0]+1+4*cnt], mem_array3[araddr_i[24:0]+0+4*cnt]};
+                case(araddr_align[26:25])
+                    2'b00: rdata <= {mem_array0[araddr_align[24:0]+3+4*cnt], mem_array0[araddr_align[24:0]+2+4*cnt], mem_array0[araddr_align[24:0]+1+4*cnt], mem_array0[araddr_align[24:0]+0+4*cnt]};
+                    2'b01: rdata <= {mem_array1[araddr_align[24:0]+3+4*cnt], mem_array1[araddr_align[24:0]+2+4*cnt], mem_array1[araddr_align[24:0]+1+4*cnt], mem_array1[araddr_align[24:0]+0+4*cnt]};
+                    2'b10: rdata <= {mem_array2[araddr_align[24:0]+3+4*cnt], mem_array2[araddr_align[24:0]+2+4*cnt], mem_array2[araddr_align[24:0]+1+4*cnt], mem_array2[araddr_align[24:0]+0+4*cnt]};
+                    2'b11: rdata <= {mem_array3[araddr_align[24:0]+3+4*cnt], mem_array3[araddr_align[24:0]+2+4*cnt], mem_array3[araddr_align[24:0]+1+4*cnt], mem_array3[araddr_align[24:0]+0+4*cnt]};
                 endcase
                 rvalid <= 1'b1;
                 if(cnt == arlen_i) begin
@@ -109,6 +111,7 @@ module mem
         end
     end
 
+    wire [31:0] awaddr_align = {awaddr_i[31:2], 2'b00};
 
     reg bvalid;
     always @(posedge clk) begin
@@ -118,30 +121,30 @@ module mem
             if(bvalid_o && bready_i) begin
                 bvalid <= 1'b0;
             end else if(wvalid_i && wready) begin
-                case(awaddr_i[26:25])
+                case(awaddr_align[26:25])
                     2'b00: begin
-                        if(wstrb_i[3]) mem_array0[awaddr_i[24:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array0[awaddr_i[24:0]+2] <= wdata_i[24:16];
-                        if(wstrb_i[1]) mem_array0[awaddr_i[24:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array0[awaddr_i[24:0]+0] <= wdata_i[7:0];
+                        if(wstrb_i[3]) mem_array0[awaddr_align[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array0[awaddr_align[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array0[awaddr_align[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array0[awaddr_align[24:0]+0] <= wdata_i[7:0];
                     end
                     2'b01: begin
-                        if(wstrb_i[3]) mem_array1[awaddr_i[24:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array1[awaddr_i[24:0]+2] <= wdata_i[24:16];
-                        if(wstrb_i[1]) mem_array1[awaddr_i[24:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array1[awaddr_i[24:0]+0] <= wdata_i[7:0];
+                        if(wstrb_i[3]) mem_array1[awaddr_align[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array1[awaddr_align[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array1[awaddr_align[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array1[awaddr_align[24:0]+0] <= wdata_i[7:0];
                     end
                     2'b10: begin
-                        if(wstrb_i[3]) mem_array2[awaddr_i[24:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array2[awaddr_i[24:0]+2] <= wdata_i[24:16];
-                        if(wstrb_i[1]) mem_array2[awaddr_i[24:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array2[awaddr_i[24:0]+0] <= wdata_i[7:0];
+                        if(wstrb_i[3]) mem_array2[awaddr_align[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array2[awaddr_align[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array2[awaddr_align[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array2[awaddr_align[24:0]+0] <= wdata_i[7:0];
                     end
                     2'b11: begin
-                        if(wstrb_i[3]) mem_array3[awaddr_i[24:0]+3] <= wdata_i[31:24];
-                        if(wstrb_i[2]) mem_array3[awaddr_i[24:0]+2] <= wdata_i[24:16];
-                        if(wstrb_i[1]) mem_array3[awaddr_i[24:0]+1] <= wdata_i[15:8];
-                        if(wstrb_i[0]) mem_array3[awaddr_i[24:0]+0] <= wdata_i[7:0];
+                        if(wstrb_i[3]) mem_array3[awaddr_align[24:0]+3] <= wdata_i[31:24];
+                        if(wstrb_i[2]) mem_array3[awaddr_align[24:0]+2] <= wdata_i[24:16];
+                        if(wstrb_i[1]) mem_array3[awaddr_align[24:0]+1] <= wdata_i[15:8];
+                        if(wstrb_i[0]) mem_array3[awaddr_align[24:0]+0] <= wdata_i[7:0];
                     end
                 endcase
                 bvalid <= 1'b1;
@@ -176,6 +179,7 @@ module mem
     wire [31:0] mem_test13 = {mem_array0[32'h0000_019c+3], mem_array0[32'h0000_019c+2], mem_array0[32'h0000_019c+1], mem_array0[32'h0000_019c+0]};
     wire [31:0] mem_test14 = {mem_array0[32'h0000_01a0+3], mem_array0[32'h0000_01a0+2], mem_array0[32'h0000_01a0+1], mem_array0[32'h0000_01a0+0]};
     wire [31:0] mem_test15 = {mem_array0[32'h0000_01a4+3], mem_array0[32'h0000_01a4+2], mem_array0[32'h0000_01a4+1], mem_array0[32'h0000_01a4+0]};
+    
 
     initial begin
         $readmemh("/home/hhh/Public/ysyx/ysyx-workbench/npc/build/test.data", mem_array0);
