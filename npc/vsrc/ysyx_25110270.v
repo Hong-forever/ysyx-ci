@@ -2005,6 +2005,24 @@ module ysyx_25110270_wbu
     initial begin
         $display("RUNNING IN ICARUS VERILOG SIMULATOR!");
     end
+
+    wire [31:0] zero = 0;
+    wire [31:0] x1_ra = gpr1;
+    wire [31:0] x2_sp = gpr2;
+    wire [31:0] x3_gp = gpr3;
+    wire [31:0] x4_tp = gpr4;
+    wire [31:0] x5_t0 = gpr5;
+    wire [31:0] x6_t1 = gpr6;
+    wire [31:0] x7_t2 = gpr7;
+    wire [31:0] x8_s0 = gpr8;
+    wire [31:0] x9_s1 = gpr9;
+    wire [31:0] x10_a0 = gpr10;
+    wire [31:0] x11_a1 = gpr11;
+    wire [31:0] x12_a2 = gpr12;
+    wire [31:0] x13_a3 = gpr13;
+    wire [31:0] x14_a4 = gpr14;
+    wire [31:0] x15_a5 = gpr15;
+
 `endif
 
 `ifdef ysyx_25110270_DPIC
