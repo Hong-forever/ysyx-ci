@@ -40,7 +40,6 @@ module uart
     reg                    wready;
 
     reg rvalid;
-    reg rlast;
     reg [31:0] rdata;
 
     always @(posedge clk) begin
@@ -51,7 +50,7 @@ module uart
         end else begin
             if(arvalid_i && arready) begin
                 arready <= 1'b0;
-            end else if(rvalid_o && rready_i && rlast) begin
+            end else if(rvalid_o && rready_i) begin
                 arready <= 1'b1;
             end
             if(awvalid_i && awready) begin
@@ -73,7 +72,7 @@ module uart
         end else begin
             if(arvalid_i && arready_o) begin
                 rvalid <= 1'b1;
-                rdata <= 32'h02;
+                rdata <= 32'h0;
             end else if(rvalid_o && rready_i && rlast_o) begin
                 rvalid <= 1'b0;
             end
