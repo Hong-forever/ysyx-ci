@@ -1772,7 +1772,7 @@ module ysyx_25110270_lsu
 
     assign O_stallreq = stallreq;
 
-`ifdef ysyx_25110270_DEBUG
+`ifdef ysyx_25110270_DPIC
     assign O_device_skip = (I_ld_valid | I_st_valid) & 
     (
         (I_memory_addr >= `ysyx_25110270_SERIAL_BASE & I_memory_addr < (`ysyx_25110270_SERIAL_BASE + `ysyx_25110270_SERIAL_SIZE)) |
