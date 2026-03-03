@@ -7,28 +7,23 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-    *(.rodata*)
-    etext = .;
-    _etext = .;
   } : text
-
+  etext = .;
+  _etext = .;
+  .rodata : {
+    *(.rodata*)
+  }
   .data : {
-    sdata = .;
     *(.data*)
-    *(.sdata*)
-    edata = .;
-    _edata = .;
   } : data
-
-  .bss (NOLOAD) : {
-	  _bss_start = .;
-    _sbss = .;
+  edata = .;
+  _data = .;
+  .bss : {
+	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-    _ebss = ALIGN(4);
   }
-
   _stack_top = ALIGN(0x1000);
   . = _stack_top + 0x8000;
   _stack_pointer = .;
