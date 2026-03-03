@@ -1,4 +1,4 @@
-`ifdef __ICARUS__
+`ifndef __ICARUS__
 module uart
 (
     input   wire                        clk,        //时钟输入
@@ -99,5 +99,4 @@ module uart
     assign rlast_o   = 1'b1;
 
 endmodule
-
 `endif
