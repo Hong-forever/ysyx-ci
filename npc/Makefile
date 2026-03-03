@@ -17,7 +17,7 @@ WAVE_FORMAT = 1
 ifeq ($(SOC),1)
 iverilog = 0
 else
-iverilog = 1
+iverilog = 0
 endif
 
 GUEST_ISA = riscv32
