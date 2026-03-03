@@ -1,4 +1,4 @@
-`ifndef __ICARUS__
+`ifdef __ICARUS__
 
 module top
 (
