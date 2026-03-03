@@ -41,8 +41,7 @@ module uart
 
     reg rvalid;
     reg rlast;
-    reg flag;
-    reg [7:0] cnt;
+    reg [31:0] rdata;
 
     always @(posedge clk) begin
         if(rst) begin
@@ -64,6 +63,19 @@ module uart
                 wready <= 1'b0;
             end else if(bvalid_o && bready_i) begin
                 wready <= 1'b1;
+            end
+        end
+    end
+
+    always @(posedge clk) begin
+        if(rst) begin
+            rvalid <= 1'b0;
+        end else begin
+            if(arvalid_i && arready_o) begin
+                rvalid <= 1'b1;
+                rdata <= 32'h02;
+            end else if(rvalid_o && rready_i && rlast_o) begin
+                rvalid <= 1'b0;
             end
         end
     end
@@ -93,8 +105,8 @@ module uart
     assign bvalid_o  = bvalid;
     assign bresp_o   = 2'b00;
     assign arready_o = arready;
-    assign rvalid_o  = 1'b0;
-    assign rdata_o   = 32'b0;
+    assign rvalid_o  = rvalid;
+    assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
     assign rlast_o   = 1'b1;
 
