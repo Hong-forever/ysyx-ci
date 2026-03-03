@@ -161,6 +161,8 @@ module mem
     assign rlast_o   = rlast;
 
     wire [31:0] mem0 = {mem_array0[0+3], mem_array0[0+2], mem_array0[0+1], mem_array0[0+0]};
+    wire [31:0] mem_test = {mem_array0[32'h0000_016c+3], mem_array0[32'h0000_016c+2], mem_array0[32'h0000_016c+1], mem_array0[32'h0000_016c+0]};
+    wire [31:0] mem_test2 = {mem_array0[32'h0000_026c+3], mem_array0[32'h0000_026c+2], mem_array0[32'h0000_026c+1], mem_array0[32'h0000_026c+0]};
 
     initial begin
         $readmemh("/home/hhh/Public/ysyx/ysyx-workbench/npc/build/test.data", mem_array0);
