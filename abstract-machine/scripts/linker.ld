@@ -7,6 +7,7 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
+    . = ALIGN(4);
     *(.rodata*)
     . = ALIGN(8);
   } : text
