@@ -21,7 +21,7 @@ SECTIONS {
     _data = .;
   } : data
 
-  .bss : {
+  .bss (NOLOAD) : {
 	  _bss_start = .;
     sbss = .;
     *(.bss*)
