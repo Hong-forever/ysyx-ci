@@ -6,7 +6,7 @@ _start:
   mv s0, zero
   la sp, _stack_pointer
 
-  la a0, edata
+  la a0, sbss
   la a1, ebss
 
 .zero_loop:

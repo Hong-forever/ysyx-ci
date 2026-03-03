@@ -18,6 +18,7 @@ SECTIONS {
   _data = .;
   .bss : {
 	_bss_start = .;
+  sbss = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
