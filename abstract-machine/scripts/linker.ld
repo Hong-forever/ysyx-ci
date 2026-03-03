@@ -7,14 +7,13 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
+    *(.rodata*)
   } : text
   etext = .;
   _etext = .;
-  .rodata : {
-    *(.rodata*)
-  }
   .data : {
     *(.data*)
+    . = ALIGN(4);
   } : data
   edata = .;
   _data = .;
