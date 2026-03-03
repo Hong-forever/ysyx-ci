@@ -14,6 +14,12 @@ WAVE_ENABLE = 0
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
 
+ifeq ($(SOC),1)
+iverilog = 0
+else
+# iverilog = 1
+endif
+
 GUEST_ISA = riscv32
 
 ifeq ($(USE_NVBOARD),1)
@@ -24,7 +30,11 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 endif
 
+ifneq ($(iverilog),1)
 TOPNAME = ysyxSoCFull
+else
+TOPNAME = top_tb
+endif
 
 remove_quote = $(patsubst "%",%,$(1))
 
@@ -32,17 +42,19 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
+VERILATOR_CFLAGS += -MMD -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 8
 VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
 ifeq ($(SOC),1)
-VERILATOR_CFLAGS += -DSOC=1
+VERILATOR_CFLAGS += -Dysyx_25110270_SOC=1
 endif
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
-VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
+VERILATOR_CFLAGS += --build --Wno-WIDTHEXPAND
+# VERILATOR_CFLAGS += --lint-only -Wall
+VERILATOR_CFLAGS += -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL
 
 
 ifeq ($(WAVE_FORMAT),1)
@@ -65,9 +77,12 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 include $(NPC_HOME)/scripts/difftest.mk
 
 IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+# ELF ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.elf
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
+
+ifneq ($(iverilog),1)
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -75,6 +90,14 @@ ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
 else
 	$(BIN) $(ARGS) $(IMG)
+endif
+
+else
+
+sim: $(BIN)
+	$(call git_commit, "sim RTL with iverilog") # DO NOT REMOVE THIS LINE!!!
+	vvp $(BIN)
+
 endif
 
 perf: 
@@ -103,8 +126,10 @@ CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name
 
 VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "*.v")
 
+ifneq ($(iverilog),1)
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
+endif
 
 ifeq ($(USE_NVBOARD),1)
 CSRCS-y += $(SRC_AUTO_BIND)
@@ -140,12 +165,32 @@ endif
 
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
 
+ifneq ($(iverilog),1)
+
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+
+else
+
+IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
+ifeq ($(WAVE_ENABLE),1)
+IVERILOG_FLAGS += -DWAVE=1
+endif
+
+FORCE:
+
+
+$(BUILD_DIR)/test.data: $(ELF) FORCE
+	riscv64-linux-gnu-objcopy --adjust-vma=-0xa0000000 -O verilog $< $@
+
+$(BIN): $(VSRCS) $(BUILD_DIR)/test.data
+	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+
+endif
 
 
 ifeq ($(WAVE_ENABLE),1)
