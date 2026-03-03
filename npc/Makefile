@@ -9,7 +9,7 @@ USE_NVBOARD = 0
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
 # else
-WAVE_ENABLE = 1
+WAVE_ENABLE = 0
 # endif
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
@@ -184,7 +184,7 @@ endif
 FORCE:
 
 $(BUILD_DIR)/test.data: $(ELF) FORCE
-	riscv64-linux-gnu-objcopy --adjust-vma=-0xa0000000 -O verilog $< $@
+	riscv64-linux-gnu-objcopy --adjust-vma=-0xa0000000 -O verilog $< $@ --set-section-flags .bss=alloc,contents
 
 $(BIN): $(VSRCS) $(BUILD_DIR)/test.data
 	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
