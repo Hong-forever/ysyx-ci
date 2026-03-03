@@ -7,14 +7,14 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
+    *(.rodata*)
+    . = ALIGN(8);
   } : text
   etext = .;
   _etext = .;
-  .rodata : {
-    *(.rodata*)
-  }
   .data : {
     *(.data*)
+    . = ALIGN(4);
   } : data
   edata = .;
   _data = .;
@@ -24,6 +24,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   }
+  ebss = ALIGN(4);
   _stack_top = ALIGN(0x1000);
   . = _stack_top + 0x8000;
   _stack_pointer = .;
