@@ -202,16 +202,17 @@
 `define ysyx_25110270_SdramAddrBase 32'ha000_0000
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
-// `ifdef ysyx_25110270_SOC
-//     `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
-// `else
-//     `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
-// `endif
-
 `ifdef __ICARUS__
     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-`else
+
+`else 
+
+`ifdef ysyx_25110270_SOC
     `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+`else
+    `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+`endif
+
 `endif
 
 //------------------------------------------------------------------------
