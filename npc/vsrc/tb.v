@@ -28,7 +28,7 @@ module top_tb;
 `endif
 
     initial begin
-        #1000 $finish;
+        #10000 $finish;
     end
 
 endmodule
