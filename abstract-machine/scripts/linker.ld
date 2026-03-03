@@ -14,6 +14,7 @@ SECTIONS {
   _etext = .;
   .data : {
     *(.data*)
+    . = ALIGN(4);
   } : data
   edata = .;
   _data = .;
