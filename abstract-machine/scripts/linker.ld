@@ -8,7 +8,6 @@ SECTIONS {
     *(entry)
     *(.text*)
     *(.rodata*)
-    . = ALIGN(8);
   } : text
   etext = .;
   _etext = .;
