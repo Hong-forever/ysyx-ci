@@ -509,7 +509,7 @@ module ysyx_25110270_icache
     assign O_arsize  = 3'b010; // 4 bytes
     assign O_arburst = 2'b01; // INCR
     // assign O_arburst = 2'b10; // WRAP
-    assign O_rready  = 1'b1;
+    assign O_rready  = 1'b0;
 
 endmodule
 //------------------------------------------------------------------------
@@ -1052,7 +1052,9 @@ module ysyx_25110270_exec
 
     output  wire    [`ysyx_25110270_ExceptBus   ]   O_except,
 
+`ifdef ysyx_25110270_DPIC
     output  wire                                    O_device_skip,
+`endif
 
     //bru
     output  wire                                    O_bru_taken,
@@ -1223,7 +1225,9 @@ module ysyx_25110270_exec
 
     wire stallreq = stallreq_br | stallreq_ls;
 
+`ifdef ysyx_25110270_DPIC
     wire device_skip;
+`endif
 
     ysyx_25110270_lsu lsu
     (
@@ -1247,7 +1251,10 @@ module ysyx_25110270_exec
 
         .O_rd_wdata                 (rd_wdata               ),
         .O_stallreq                 (stallreq_ls            ),
+
+`ifdef yxyx_25110270_DPIC
         .O_device_skip              (device_skip            ),
+`endif
 
         .dbus_awvalid               (dbus_awvalid           ),
         .dbus_awready               (dbus_awready           ),
@@ -1302,11 +1309,13 @@ module ysyx_25110270_exec
     assign O_bru_target = agu_result_r;
 
     assign O_except = I_except;
-    assign O_device_skip = device_skip;
+
+
 
 `ifdef ysyx_25110270_DPIC
     import "DPI-C" function void ftrace_exec(input int pc, input int dnpc, input int rs1, input int rd, input int imm, input int op); //op=1 jal, op=2 jalr
 
+    assign O_device_skip = device_skip;
     wire [3:0] rs1 = I_inst[18:15];
 
     always @(*) begin
@@ -1550,7 +1559,9 @@ module ysyx_25110270_lsu
     output  wire    [31:0                       ]   O_rd_wdata,
     output  wire                                    O_stallreq,
 
+`ifdef ysyx_25110270_DPIC
     output  wire                                    O_device_skip,
+`endif
 
     //to bus
     output  wire                                    dbus_awvalid,
@@ -1782,8 +1793,6 @@ module ysyx_25110270_lsu
         (I_memory_addr >= `ysyx_25110270_VGA_BASE    & I_memory_addr < (`ysyx_25110270_VGA_BASE    + `ysyx_25110270_VGA_SIZE   )) |
         (I_memory_addr >= `ysyx_25110270_CHIPL_BASE  /*& I_memory_addr < (`ysyx_25110270_CHIPL_BASE  + `ysyx_25110270_CHIPL_SIZE )*/)
     );
-`else
-    assign O_device_skip = 1'b0;
 
 `endif
 
@@ -1850,7 +1859,7 @@ module ysyx_25110270_lsu
 
     reg begin_flag_r;
     wire begin_flag = dbus_arvalid | dbus_awvalid;
-    wire end_flag   = (dbus_bvalid && dbus_bready) || (dbus_rvalid && dbus_rready);
+    wire end_flag   = dbus_bvalid  | dbus_rvalid;
 
     always @(posedge clk) begin
         if(rst) begin
@@ -1905,15 +1914,18 @@ module ysyx_25110270_wbu
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,
     input   wire    [31:0                       ]   I_except_addr,
 
-    output  wire                                    O_flush,
-    output  wire    [31:0                       ]   O_flush_addr,
-
+`ifdef ysyx_25110270_DPIC
     input   wire    [31:0                       ]   I_if_addr,
     input   wire    [31:0                       ]   I_dec_addr,
     input   wire    [31:0                       ]   I_ex_addr,
 
-    input   wire                                    I_device_skip
+    input   wire                                    I_device_skip,
+`endif
+    output  wire                                    O_flush,
+    output  wire    [31:0                       ]   O_flush_addr
 );
+
+`ifdef ysyx_25110270_DPIC
     // registers for DPI
     wire [31:0] gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7, gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15, gpr16, gpr17, gpr18, gpr19, gpr20, gpr21, gpr22, gpr23, gpr24, gpr25, gpr26, gpr27, gpr28, gpr29, gpr30, gpr31;   //寄存器组
 
@@ -1926,6 +1938,12 @@ module ysyx_25110270_wbu
     wire [31:0] csr_mcycleh;
     wire [31:0] csr_mvendorid;
     wire [31:0] csr_marchid;
+`endif
+
+`ifdef __ICARUS__
+    // icarus仿真时输出gpr10的值，方便调试
+    wire [31:0] gpr10;
+`endif
 
     reg valid_r;
     always @(posedge clk) begin
@@ -1947,10 +1965,7 @@ module ysyx_25110270_wbu
         .O_rs1_rdata            (O_rs1_rdata                ),
         .O_rs2_rdata            (O_rs2_rdata                ),
 
-        .I_rd_we                (I_rd_we                    ),
-        .I_rd_waddr             (I_rd_waddr                 ),
-        .I_rd_wdata             (I_rd_wdata                 ),
-
+`ifdef ysyx_25110270_DPIC
         .O_gpr0                 (gpr0                       ),
         .O_gpr1                 (gpr1                       ),
         .O_gpr2                 (gpr2                       ),
@@ -1966,7 +1981,16 @@ module ysyx_25110270_wbu
         .O_gpr12                (gpr12                      ),
         .O_gpr13                (gpr13                      ),
         .O_gpr14                (gpr14                      ),
-        .O_gpr15                (gpr15                      )
+        .O_gpr15                (gpr15                      ),
+`endif
+
+`ifdef __ICARUS__
+        .gpr10                  (gpr10                      ), 
+`endif
+
+        .I_rd_we                (I_rd_we                    ),
+        .I_rd_waddr             (I_rd_waddr                 ),
+        .I_rd_wdata             (I_rd_wdata                 )
     );
 
     ysyx_25110270_csr u_csr
@@ -1985,11 +2009,11 @@ module ysyx_25110270_wbu
         .I_except               (I_except                   ),
         .I_except_addr          (I_except_addr              ),
 
-        .O_mtime                (O_mtime                    ),
 
         .O_flush                (O_flush                    ),
         .O_flush_addr           (O_flush_addr               ),
 
+`ifdef ysyx_25110270_DPIC
         .O_csr_mtvec            (csr_mtvec                  ), //mtvec寄存器
         .O_csr_mepc             (csr_mepc                   ), //mepc寄存器
         .O_csr_mstatus          (csr_mstatus                ), //mstatus寄存器
@@ -1997,30 +2021,16 @@ module ysyx_25110270_wbu
         .O_csr_mcyclel          (csr_mcyclel                ), //mcycle寄存器
         .O_csr_mcycleh          (csr_mcycleh                ), //mcycle寄存器
         .O_csr_mvendorid        (csr_mvendorid              ), //mvendorid寄存器
-        .O_csr_marchid          (csr_marchid                )  //marchid寄存器
+        .O_csr_marchid          (csr_marchid                ), //marchid寄存器
+`endif
+
+        .O_mtime                (O_mtime                    )
     );
 
 `ifdef __ICARUS__
     initial begin
         $display("RUNNING IN ICARUS VERILOG SIMULATOR!");
     end
-
-    wire [31:0] zero = 0;
-    wire [31:0] x1_ra = gpr1;
-    wire [31:0] x2_sp = gpr2;
-    wire [31:0] x3_gp = gpr3;
-    wire [31:0] x4_tp = gpr4;
-    wire [31:0] x5_t0 = gpr5;
-    wire [31:0] x6_t1 = gpr6;
-    wire [31:0] x7_t2 = gpr7;
-    wire [31:0] x8_s0 = gpr8;
-    wire [31:0] x9_s1 = gpr9;
-    wire [31:0] x10_a0 = gpr10;
-    wire [31:0] x11_a1 = gpr11;
-    wire [31:0] x12_a2 = gpr12;
-    wire [31:0] x13_a3 = gpr13;
-    wire [31:0] x14_a4 = gpr14;
-    wire [31:0] x15_a5 = gpr15;
 
 `endif
 
@@ -2175,10 +2185,7 @@ module ysyx_25110270_regfile
     output  wire    [31:0                       ]   O_rs1_rdata,     //输出寄存器1数据
     output  wire    [31:0                       ]   O_rs2_rdata,     //输出寄存器2数据
 
-    input   wire                                    I_rd_we,         //写寄存器标志
-    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,      //写寄存器地址
-    input   wire    [31:0                       ]   I_rd_wdata,      //写寄存器数据
-
+`ifdef ysyx_25110270_DPIC
     output  wire    [31:0                       ]   O_gpr0,           // for dpi
     output  wire    [31:0                       ]   O_gpr1,
     output  wire    [31:0                       ]   O_gpr2,
@@ -2194,7 +2201,17 @@ module ysyx_25110270_regfile
     output  wire    [31:0                       ]   O_gpr12,
     output  wire    [31:0                       ]   O_gpr13,
     output  wire    [31:0                       ]   O_gpr14,
-    output  wire    [31:0                       ]   O_gpr15
+    output  wire    [31:0                       ]   O_gpr15,
+
+`endif
+
+`ifdef __ICARUS__
+    output  wire    [31:0                       ]   gpr10,            // for
+`endif
+
+    input   wire                                    I_rd_we,         //写寄存器标志
+    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,      //写寄存器地址
+    input   wire    [31:0                       ]   I_rd_wdata      //写寄存器数据
 );
 
 
@@ -2239,6 +2256,7 @@ module ysyx_25110270_regfile
     assign O_rs1_rdata = rs1_rdata;
     assign O_rs2_rdata = rs2_rdata;
 
+`ifdef ysyx_25110270_DPIC
     assign O_gpr0  = 0;
     assign O_gpr1  = regs[1];
     assign O_gpr2  = regs[2];
@@ -2255,6 +2273,11 @@ module ysyx_25110270_regfile
     assign O_gpr13 = regs[13];
     assign O_gpr14 = regs[14];
     assign O_gpr15 = regs[15];
+`endif
+
+`ifdef __ICARUS__
+    assign gpr10 = regs[10];
+`endif
 
 endmodule //regfile
 
@@ -2280,9 +2303,7 @@ module ysyx_25110270_csr
 
     output  wire    [63:0                       ]   O_mtime,            //mtime寄存器
 
-    output  wire                                    O_flush,
-    output  wire    [31:0                       ]   O_flush_addr,
-
+`ifdef ysyx_25110270_DPIC
     output  wire    [31:0                       ]   O_csr_mtvec,        //mtvec寄存器
     output  wire    [31:0                       ]   O_csr_mepc,         //mepc寄存器
     output  wire    [31:0                       ]   O_csr_mstatus,      //mstatus寄存器
@@ -2291,6 +2312,10 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_csr_mcycleh,      //mcycle寄存器
     output  wire    [31:0                       ]   O_csr_mvendorid,    //mvendorid寄存器
     output  wire    [31:0                       ]   O_csr_marchid       //marchid寄存器
+`endif
+
+    output  wire                                    O_flush,
+    output  wire    [31:0                       ]   O_flush_addr
 );
 
     reg [31:0] mstatus;
@@ -2390,7 +2415,7 @@ module ysyx_25110270_csr
 
     assign O_mtime = {24'd0, cycle};
 
-
+`ifdef ysyx_25110270_DPIC
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;
     assign O_csr_mstatus = mstatus;
@@ -2399,7 +2424,7 @@ module ysyx_25110270_csr
     assign O_csr_mcycleh = {24'd0, cycle[39:32]};
     assign O_csr_mvendorid = mvendorid;
     assign O_csr_marchid = marchid;
-
+`endif
 
 endmodule
 
@@ -2425,9 +2450,6 @@ module ysyx_25110270_pipeline_if_dec
     always @(posedge clk) begin
         if(rst | I_flush) begin
             O_inst          <= 0                        ;
-`ifdef ysyx_25110270_DPIC
-            O_inst_addr     <= 0                        ;
-`endif
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -2510,9 +2532,6 @@ module ysyx_25110270_pipeline_dec_ex
             O_br_valid      <= 0                        ;
             O_csr_valid     <= 0                        ;
             O_except        <= 0                        ;
-`ifdef ysyx_25110270_DPIC
-            O_inst_addr     <= 0                        ;
-`endif
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -2563,7 +2582,9 @@ module ysyx_25110270_pipeline_ex_wb
     input   wire    [31:0                       ]   I_csr_wdata,        // 写CSR寄存器数据
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,           // 异常
 
+`ifdef ysyx_25110270_DPIC
     input   wire                                    I_device_skip,
+`endif
 
     output  reg     [31:0                       ]   O_inst,             // 指令内容
     output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
@@ -2575,7 +2596,9 @@ module ysyx_25110270_pipeline_ex_wb
     output  reg     [31:0                       ]   O_csr_wdata,        // 写CSR寄存器数据
     output  reg     [`ysyx_25110270_ExceptBus   ]   O_except,           // 异常
 
+`ifdef ysyx_25110270_DPIC
     output  reg                                     O_device_skip,
+`endif
 
     input   wire                                    I_enable,
     input   wire                                    I_flush
@@ -2586,9 +2609,6 @@ module ysyx_25110270_pipeline_ex_wb
             O_rd_we         <= 0                        ;
             O_csr_valid     <= 0                        ;
             O_except        <= 0                        ;
-`ifdef ysyx_25110270_DPIC
-            O_inst_addr     <= 0                        ;
-`endif
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -2599,7 +2619,9 @@ module ysyx_25110270_pipeline_ex_wb
             O_csr_addr      <= I_csr_addr               ;
             O_csr_wdata     <= I_csr_wdata              ;
             O_except        <= I_except                 ;
+`ifdef ysyx_25110270_DPIC
             O_device_skip   <= I_device_skip            ;
+`endif
         end
     end
 
@@ -2961,8 +2983,10 @@ module ysyx_25110270_cpu_core
     //-------------------------------------------------------------
     // instantiate modules
     //-------------------------------------------------------------
+`ifdef ysyx_25110270_DPIC
     wire ex_device_skip;
     wire wb_device_skip;
+`endif
 
     wire cpu_execute;
     wire if_enable, dec_enable, ex_enable;
@@ -3192,7 +3216,9 @@ module ysyx_25110270_cpu_core
         .O_csr_wdata            (O_ex_csr_wdata             ),
         .O_except               (O_ex_except                ),
 
+`ifdef ysyx_25110270_DPIC
         .O_device_skip          (ex_device_skip             ),
+`endif
 
         .O_bru_taken            (O_ex_bru_taken             ),
         .O_bru_target           (O_ex_bru_target            ),
@@ -3259,14 +3285,15 @@ module ysyx_25110270_cpu_core
 
         .O_mtime                (mtime                      ),
 
-        .O_flush                (O_flush                    ),
-        .O_flush_addr           (O_flush_addr               ),
-
+`ifdef ysyx_25110270_DPIC
         .I_if_addr              (O_if_inst_addr             ),
         .I_dec_addr             (O_dec_inst_addr            ),
         .I_ex_addr              (O_ex_inst_addr             ),
 
-        .I_device_skip          (wb_device_skip             )
+        .I_device_skip          (wb_device_skip             ),
+`endif
+        .O_flush                (O_flush                    ),
+        .O_flush_addr           (O_flush_addr               )
     );
 
     ysyx_25110270_arbiter arbiter_inst 
@@ -3470,7 +3497,9 @@ module ysyx_25110270_cpu_core
         .I_csr_wdata            (O_ex_csr_wdata             ),
         .I_except               (O_ex_except                ),
 
+`ifdef ysyx_25110270_DPIC
         .I_device_skip          (ex_device_skip             ),
+`endif
 
         .O_inst                 (I_wb_inst                  ),
         .O_inst_addr            (I_wb_inst_addr             ),
@@ -3482,7 +3511,9 @@ module ysyx_25110270_cpu_core
         .O_csr_wdata            (I_wb_csr_wdata             ),
         .O_except               (I_wb_except                ),
 
+`ifdef ysyx_25110270_DPIC
         .O_device_skip          (wb_device_skip             ),
+`endif
 
         .I_enable               (ex_enable                  ),
         .I_flush                (ex_flush                   )
