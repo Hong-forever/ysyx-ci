@@ -72,7 +72,7 @@ module uart
         end else begin
             if(arvalid_i && arready_o) begin
                 rvalid <= 1'b1;
-                rdata <= 32'h02;
+                rdata <= 32'h20;
             end else if(rvalid_o && rready_i && rlast_o) begin
                 rvalid <= 1'b0;
             end
