@@ -73,22 +73,27 @@ module ysyx_25110270_csr
     //write reg
     //写寄存器操作
     always @(posedge clk) begin
-        if(except_sync) begin
-            mepc <= I_except_addr;
-            mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
-            mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-        end else if(except_mret) begin
-            mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
-        end else begin    
-            if(I_we) begin
-                case(I_waddr[2:0]) //只使用低3位地址线
-                    `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
-                    `ysyx_25110270_CSR_MAP_MIE:      mie         <= I_wdata;
-                    `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
-                    `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
-                    `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
-                    default: begin end
-                endcase
+        if(rst) begin
+            mstatus <= 0;
+            mcause <= 0;
+        end else if(I_valid) begin
+            if(except_sync) begin
+                mepc <= I_except_addr;
+                mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
+                mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
+            end else if(except_mret) begin
+                mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
+            end else begin    
+                if(I_we) begin
+                    case(I_waddr[2:0]) //只使用低3位地址线
+                        `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MIE:      mie         <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
+                        default: begin end
+                    endcase
+                end
             end
         end
     end
