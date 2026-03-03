@@ -8,23 +8,27 @@ SECTIONS {
     *(entry)
     *(.text*)
     *(.rodata*)
-    . = ALIGN(8);
+    etext = .;
+    _etext = .;
   } : text
-  etext = .;
-  _etext = .;
+
   .data : {
+    sdata = .;
     *(.data*)
-    . = ALIGN(4);
+    *(.sdata*)
+    edata = .;
+    _edata = .;
   } : data
-  edata = .;
-  _data = .;
-  .bss : {
-	_bss_start = .;
+
+  .bss (NOLOAD) : {
+	  _bss_start = .;
+    _sbss = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+    _ebss = ALIGN(4);
   }
-  ebss = ALIGN(4);
+
   _stack_top = ALIGN(0x1000);
   . = _stack_top + 0x8000;
   _stack_pointer = .;
