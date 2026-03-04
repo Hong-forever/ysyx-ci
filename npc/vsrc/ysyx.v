@@ -2731,8 +2731,8 @@
 //     parameter M0   = 2'b01;
 //     parameter M1   = 2'b10;
 
-//     wire m0_req = M0_awvalid & M_awready | M0_arvalid & M_arready;
-//     wire m1_req = M1_awvalid & M_awready | M1_arvalid & M_arready;
+//     wire m0_req = M0_awvalid | M0_arvalid;
+//     wire m1_req = M1_awvalid | M1_arvalid;
 
 //     wire m0_resp = M0_bvalid | (M0_rvalid & M0_rlast);
 //     wire m1_resp = M1_bvalid | (M1_rvalid & M1_rlast);
