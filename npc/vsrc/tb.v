@@ -1,4 +1,3 @@
-`ifdef __ICARUS__
 `timescale 1ns / 1ps
 module top_tb;
     
@@ -32,5 +31,3 @@ module top_tb;
     end
 
 endmodule
-
-`endif
