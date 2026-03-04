@@ -183,7 +183,7 @@ config LOOP_DETECT
   default n
 
 config DIFFTEST
-  depends on TARGET_NATIVE_ELF
+  depends on TARGET_NATIVE_ELF && !SOC
   bool "Enable differential testing"
   default n
   help
