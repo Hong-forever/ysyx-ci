@@ -1750,10 +1750,19 @@
 //     always @(posedge clk) begin
 //         if(rst) begin
 //             addr_valid <= 0;
-//         end else if(dbus_awvalid & dbus_awready | dbus_arvalid & dbus_arready) begin
-//             addr_valid <= 0;
 //         end else if(valid & is_ld_st) begin
 //             addr_valid <= 1;
+//         end
+//     end
+
+//     reg addr_resp_valid;
+//     always @(posedge clk) begin
+//         if(rst) begin
+//             addr_resp_valid <= 0;
+//         end else if((dbus_awvalid & dbus_awready | dbus_arvalid & dbus_arready)) begin
+//             addr_resp_valid <= 1;
+//         end else if(I_valid) begin
+//             addr_resp_valid <= 0;
 //         end
 //     end
 
@@ -1797,9 +1806,9 @@
 // `endif
 
 
-//     assign dbus_awvalid = addr_valid & I_st_valid;
-//     assign dbus_wvalid = addr_valid & I_st_valid;
-//     assign dbus_arvalid = addr_valid & I_ld_valid;
+//     assign dbus_awvalid = addr_valid & I_st_valid & ~addr_resp_valid;
+//     assign dbus_wvalid = addr_valid & I_st_valid & ~addr_resp_valid;
+//     assign dbus_arvalid = addr_valid & I_ld_valid & ~addr_resp_valid;
 
 //     assign dbus_awaddr = I_memory_addr;
 //     assign dbus_awid = 4'b0000;
