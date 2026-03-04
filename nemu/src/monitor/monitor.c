@@ -152,7 +152,7 @@ void init_monitor(int argc, char *argv[])
     IFDEF(CONFIG_ITRACE, init_disasm());
 
 #ifdef CONFIG_SOC
-    printf("Nemu is running on Soc mode with reset vector at 0x%08x\n", RESET_VECTOR);
+    printf("Nemu is running on SoC mode with reset vector at 0x%08x\n", RESET_VECTOR);
 #else
     printf("Nemu is running on normal mode with reset vector at 0x%08x\n", RESET_VECTOR);
 #endif

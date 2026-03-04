@@ -44,15 +44,15 @@ void add_mmio_map(const char *name, paddr_t addr, void *space, uint32_t len, io_
   if (in_sram(left) || in_sram(right)) {
     report_mmio_overlap(name, left, right, "ram", PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM);
   }
-  if (in_flash(left) || in_flash(right)) {
-    report_mmio_overlap(name, left, right, "flash", PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH);
-  }
-  if (in_psram(left) || in_psram(right)) {
-    report_mmio_overlap(name, left, right, "psram", PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM);
-  }
-  if (in_sdram(left) || in_sdram(right)) {
-    report_mmio_overlap(name, left, right, "sdram", PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM);
-  }
+  // if (in_flash(left) || in_flash(right)) {
+  //   report_mmio_overlap(name, left, right, "flash", PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH);
+  // }
+  // if (in_psram(left) || in_psram(right)) {
+  //   report_mmio_overlap(name, left, right, "psram", PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM);
+  // }
+  // if (in_sdram(left) || in_sdram(right)) {
+  //   report_mmio_overlap(name, left, right, "sdram", PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM);
+  // }
 #else
   if (in_pmem(left) || in_pmem(right)) {
     report_mmio_overlap(name, left, right, "pmem", PMEM_LEFT, PMEM_RIGHT);
