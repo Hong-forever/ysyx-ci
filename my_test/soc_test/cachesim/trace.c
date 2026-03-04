@@ -13,15 +13,14 @@ int process_binary_trace(const char *filename, CacheSim *cache) {
         return -1;
     }
     
-    uint64_t entry;
+    uint32_t entry;
     int count = 0;
     
-    while (fread(&entry, sizeof(uint64_t), 1, fp) == 1) {
-        bool is_write = (entry >> 32) != 0;
-        // if(entry < 0x0f000000 || entry >= 0x10000000) {
-            cachesim_access(cache, (uint32_t)entry, is_write);
+    while (fread(&entry, sizeof(uint32_t), 1, fp) == 1) {
+        if(entry < 0x0f000000 || entry >= 0x10000000) {
+            cachesim_access(cache, entry, 0);
             count++;
-        // }
+        }
         if (count % 1000000 == 0) {
             printf("Processed %d million accesses...\n", count / 1000000);
         }

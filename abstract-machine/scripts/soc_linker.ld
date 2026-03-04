@@ -16,45 +16,46 @@ MEMORY {
 
 SECTIONS {
   .fsbl : {
-    _sfsbl = ALIGN(4);
+    _sfsbl = .;
     *(fsbl_entry)
-    _efsbl = ALIGN(4);
+    _efsbl = .;
   } > flash AT>flash : fsbl
 
   .ssbl : {
-    _sssbl = ALIGN(4);
+    _sssbl = .;
     *(ssbl_entry)
-    _essbl = ALIGN(4);
+    _essbl = .;
   } > sram AT>flash : ssbl
 
   _ssbl_loadaddr = LOADADDR(.ssbl);
   
   .text : {
-    _sload = ALIGN(4);
+    _stext = ALIGN(4);
     *(text_entry)
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    . = ALIGN(8);
+    _etext = ALIGN(4);
   } > sdram AT>flash : text
 
-  _start_loadaddr = LOADADDR(.text);
+  _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    . = ALIGN(4);
+    _sdata = ALIGN(4);
     *(.data*)
     *(.sdata*)
-    . = ALIGN(4);
-    _eload = .;
+    _edata = ALIGN(4);
   } > sdram AT>flash : data
 
-
+  _data_loadaddr = LOADADDR(.data);
+  
   .bss (NOLOAD) : {
+	  _sbss = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-	  _ezero = ALIGN(4);
+	  _ebss = ALIGN(4);
   } > sdram
 
   .heap (NOLOAD) : {
@@ -65,6 +66,7 @@ SECTIONS {
 
   .stack (NOLOAD) : {
     . = _essbl;
+    . = ALIGN(4);
     _stack_end = .;
     _stack_top = .;
     . = ORIGIN(sram) + LENGTH(sram);

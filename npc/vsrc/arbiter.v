@@ -7,7 +7,7 @@
 module ysyx_25110270_arbiter
 (
     input   wire                        clk,
-    input   wire                        rst,
+    input   wire                        rst_n,
 
     input   wire                        M0_awvalid,
     output  wire                        M0_awready,
@@ -100,89 +100,143 @@ module ysyx_25110270_arbiter
     input   wire    [3:0]               M_rid
 );
 
-    parameter IDLE = 2'b00;
-    parameter M0   = 2'b01;
-    parameter M1   = 2'b10;
+    parameter IDLE      = 2'b00;
+    parameter ARBITRATE = 2'b01;
+    parameter M0_ACCESS = 2'b10;
+    parameter M1_ACCESS = 2'b11;
 
-    wire m0_req = M0_awvalid | M0_arvalid;
-    wire m1_req = M1_awvalid | M1_arvalid;
+    wire m0_write_req = M0_awvalid & M0_wvalid;
+    wire m0_read_req = M0_arvalid;
+    wire m1_write_req = M1_awvalid & M1_wvalid;
+    wire m1_read_req = M1_arvalid;
 
-    wire m0_resp = M0_bvalid | (M0_rvalid & M0_rlast);
-    wire m1_resp = M1_bvalid | (M1_rvalid & M1_rlast);
+    wire m0_req = m0_write_req | m0_read_req;
+    wire m1_req = m1_write_req | m1_read_req;
 
-    reg [1:0] state;
+    wire m_resp = (M_awready & M_wready) | M_arready;
+
+    reg [1:0] state, nstate;                                
 
     always @(posedge clk) begin
-        if(rst) begin
+        if(!rst_n) begin
             state <= IDLE;
+        end else begin
+            state <= nstate;
+        end
+    end
+
+    always @(*) begin
+        if(!rst_n) begin
+            nstate = IDLE;
         end else begin
             case(state)
                 IDLE: begin
-                    if(m0_req) state <= M0;
-                    else if(m1_req) state <= M1;
+                    if(m0_req && m_resp && !m1_req) begin
+                        nstate = M0_ACCESS;
+                    end else if(!m0_req && m1_req && m_resp) begin
+                        nstate = M1_ACCESS;
+                    end else if(m0_req && m1_req && m_resp) begin
+                        nstate = ARBITRATE;
+                    end else begin
+                        nstate = IDLE;
+                    end
                 end
-                M0: begin
-                    if(m0_resp) state <= (m1_req) ? M1 : IDLE;
+                ARBITRATE: begin
+                    if(m0_req) begin
+                        nstate = M0_ACCESS;
+                    end else if(m1_req) begin
+                        nstate = M1_ACCESS;
+                    end else begin
+                        nstate = IDLE;
+                    end
                 end
-                M1: begin
-                    if(m1_resp) state <= (m0_req) ? M0 : IDLE;
+                M0_ACCESS: begin
+                    if((M_rvalid && M0_rready && M_rlast) || (M_bvalid && M0_bready)) begin
+                        if(m1_req && m_resp) begin
+                            nstate = M1_ACCESS;
+                        end else begin
+                            nstate = IDLE;
+                        end
+                    end else begin 
+                        nstate = M0_ACCESS;
+                    end
                 end
-                default: state <= IDLE;
+                M1_ACCESS: begin
+                    if((M_rvalid && M1_rready && M_rlast) || (M_bvalid && M1_bready)) begin
+                        if(m0_req && m_resp) begin
+                            nstate = M0_ACCESS;
+                        end else begin
+                            nstate = IDLE;
+                        end
+                    end else begin
+                        nstate = M1_ACCESS;
+                    end
+                end
+                default: nstate = IDLE;
             endcase
         end
     end
 
-    wire state_m0 = state[0];
-    wire state_m1 = state[1];
-
-
     // AXI信号连接
-    assign M_awvalid  = state_m0 ? M0_awvalid :
-                        state_m1 ? M1_awvalid : 0;
-    assign M_wvalid   = state_m0 ? M0_wvalid  :
-                        state_m1 ? M1_wvalid  : 0;
-    assign M_arvalid  = state_m0 ? M0_arvalid :
-                        state_m1 ? M1_arvalid : 0;
+    assign M_awvalid  = (state == M0_ACCESS) ? M0_awvalid :
+                        (state == M1_ACCESS) ? M1_awvalid : 0;
+    assign M_awaddr   = (state == M0_ACCESS) ? M0_awaddr  :
+                        (state == M1_ACCESS) ? M1_awaddr  : 0;
+    assign M_awid     = (state == M0_ACCESS) ? M0_awid    :
+                        (state == M1_ACCESS) ? M1_awid    : 0;
+    assign M_awlen    = (state == M0_ACCESS) ? M0_awlen   :
+                        (state == M1_ACCESS) ? M1_awlen   : 0;
+    assign M_awsize   = (state == M0_ACCESS) ? M0_awsize  :
+                        (state == M1_ACCESS) ? M1_awsize  : 0;
+    assign M_awburst  = (state == M0_ACCESS) ? M0_awburst :
+                        (state == M1_ACCESS) ? M1_awburst : 0;
+    assign M_wvalid   = (state == M0_ACCESS) ? M0_wvalid  :
+                        (state == M1_ACCESS) ? M1_wvalid  : 0;
+    assign M_wdata    = (state == M0_ACCESS) ? M0_wdata   :
+                        (state == M1_ACCESS) ? M1_wdata   : 0;
+    assign M_wstrb    = (state == M0_ACCESS) ? M0_wstrb   :
+                        (state == M1_ACCESS) ? M1_wstrb   : 0;
+    assign M_wlast    = (state == M0_ACCESS) ? M0_wlast   :
+                        (state == M1_ACCESS) ? M1_wlast   : 0;
+    assign M_bready   = (state == M0_ACCESS) ? M0_bready  :
+                        (state == M1_ACCESS) ? M1_bready  : 0;
+    assign M_arvalid  = (state == M0_ACCESS) ? M0_arvalid :
+                        (state == M1_ACCESS) ? M1_arvalid : 0;
+    assign M_araddr   = (state == M0_ACCESS) ? M0_araddr  :
+                        (state == M1_ACCESS) ? M1_araddr  : 0;
+    assign M_arid     = (state == M0_ACCESS) ? M0_arid    :
+                        (state == M1_ACCESS) ? M1_arid    : 0;
+    assign M_arlen    = (state == M0_ACCESS) ? M0_arlen   :
+                        (state == M1_ACCESS) ? M1_arlen   : 0;
+    assign M_arsize   = (state == M0_ACCESS) ? M0_arsize  :
+                        (state == M1_ACCESS) ? M1_arsize  : 0;
+    assign M_arburst  = (state == M0_ACCESS) ? M0_arburst :
+                        (state == M1_ACCESS) ? M1_arburst : 0;
+    assign M_rready   = (state == M0_ACCESS) ? M0_rready  :
+                        (state == M1_ACCESS) ? M1_rready  : 0;
 
-    assign M_awaddr   = state_m0 ? M0_awaddr  : M1_awaddr;
-    assign M_awid     = state_m0 ? M0_awid    : M1_awid;
-    assign M_awlen    = state_m0 ? M0_awlen   : M1_awlen;
-    assign M_awsize   = state_m0 ? M0_awsize  : M1_awsize;
-    assign M_awburst  = state_m0 ? M0_awburst : M1_awburst;
-    assign M_wdata    = state_m0 ? M0_wdata   : M1_wdata;
-    assign M_wstrb    = state_m0 ? M0_wstrb   : M1_wstrb;
-    assign M_wlast    = state_m0 ? M0_wlast   : M1_wlast;
-    assign M_bready   = 1'b0; // xbar中已经将bready固定为1'b1了
-    assign M_araddr   = state_m0 ? M0_araddr  : M1_araddr;
-    assign M_arid     = state_m0 ? M0_arid    : M1_arid;
-    assign M_arlen    = state_m0 ? M0_arlen   : M1_arlen;
-    assign M_arsize   = state_m0 ? M0_arsize  : M1_arsize;
-    assign M_arburst  = state_m0 ? M0_arburst : M1_arburst;
-    assign M_rready   = 1'b0; // xbar中已经将rready固定为1'b1了
+    assign M0_awready = (state == M0_ACCESS) ? M_awready  : 0;
+    assign M0_wready  = (state == M0_ACCESS) ? M_wready   : 0;
+    assign M0_bvalid  = (state == M0_ACCESS) ? M_bvalid   : 0;
+    assign M0_bresp   = (state == M0_ACCESS) ? M_bresp    : 0;
+    assign M0_bid     = (state == M0_ACCESS) ? M_bid      : 0;
+    assign M0_arready = (state == M0_ACCESS) ? M_arready  : 0;
+    assign M0_rvalid  = (state == M0_ACCESS) ? M_rvalid   : 0;
+    assign M0_rdata   = (state == M0_ACCESS) ? M_rdata    : 0;
+    assign M0_rresp   = (state == M0_ACCESS) ? M_rresp    : 0;
+    assign M0_rlast   = (state == M0_ACCESS) ? M_rlast    : 0;
+    assign M0_rid     = (state == M0_ACCESS) ? M_rid      : 0;
 
-    assign M0_awready = 0; // 只读
-    assign M0_wready  = 0; // 只读
-    assign M0_bvalid  = 0; // 只读
-    assign M0_bresp   = 0; // 只读
-    assign M0_bid     = 0; // 只读
-    assign M0_arready = state_m0 ? M_arready  : 0;
-    assign M0_rvalid  = state_m0 ? M_rvalid   : 0;
-    assign M0_rdata   = state_m0 ? M_rdata    : 0;
-    assign M0_rresp   = state_m0 ? M_rresp    : 0;
-    assign M0_rlast   = state_m0 ? M_rlast    : 0;
-    assign M0_rid     = state_m0 ? M_rid      : 0;
-
-    assign M1_awready = state_m1 ? M_awready  : 0;
-    assign M1_wready  = state_m1 ? M_wready   : 0;
-    assign M1_bvalid  = state_m1 ? M_bvalid   : 0;
-    assign M1_bresp   = state_m1 ? M_bresp    : 0;
-    assign M1_bid     = state_m1 ? M_bid      : 0;
-    assign M1_arready = state_m1 ? M_arready  : 0;
-    assign M1_rvalid  = state_m1 ? M_rvalid   : 0;
-    assign M1_rdata   = state_m1 ? M_rdata    : 0;
-    assign M1_rresp   = state_m1 ? M_rresp    : 0;
-    assign M1_rlast   = state_m1 ? M_rlast    : 0;
-    assign M1_rid     = state_m1 ? M_rid      : 0;
-
+    assign M1_awready = (state == M1_ACCESS) ? M_awready  : 0;
+    assign M1_wready  = (state == M1_ACCESS) ? M_wready   : 0;
+    assign M1_bvalid  = (state == M1_ACCESS) ? M_bvalid   : 0;
+    assign M1_bresp   = (state == M1_ACCESS) ? M_bresp    : 0;
+    assign M1_bid     = (state == M1_ACCESS) ? M_bid      : 0;
+    assign M1_arready = (state == M1_ACCESS) ? M_arready  : 0;
+    assign M1_rvalid  = (state == M1_ACCESS) ? M_rvalid   : 0;
+    assign M1_rdata   = (state == M1_ACCESS) ? M_rdata    : 0;
+    assign M1_rresp   = (state == M1_ACCESS) ? M_rresp    : 0;
+    assign M1_rlast   = (state == M1_ACCESS) ? M_rlast    : 0;
+    assign M1_rid     = (state == M1_ACCESS) ? M_rid      : 0;
 
 endmodule
