@@ -124,7 +124,7 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
-VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "*.v")
+VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "ysyx.v")
 
 ifneq ($(iverilog),1)
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
