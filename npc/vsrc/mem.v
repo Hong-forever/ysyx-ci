@@ -1,4 +1,5 @@
 
+`ifdef __ICARUS__
 module mem 
 #(
     parameter MEM_DEPTH  = 32'h01000000                //MEM深度
@@ -185,3 +186,5 @@ module mem
     end
 
 endmodule
+
+`endif
