@@ -1,4 +1,3 @@
-`ifdef __ICARUS__
 
 module top
 (
@@ -101,7 +100,6 @@ module top
         .clock(clock),
         .reset(reset),
         .io_interrupt(1'b0),
-
         .io_master_awvalid(cpu_awvalid),
         .io_master_awready(cpu_awready),
         .io_master_awaddr_0_(cpu_awaddr[0]),
@@ -154,7 +152,6 @@ module top
         .io_master_awburst_0_(cpu_awburst[0]),
         .io_master_awburst_1_(cpu_awburst[1]),
         .io_master_wvalid(cpu_wvalid),
-
         .io_master_wready(cpu_wready),
         .io_master_wdata_0_(cpu_wdata[0]),
         .io_master_wdata_1_(cpu_wdata[1]),
@@ -293,6 +290,7 @@ module top
         .io_master_rid_1_(cpu_rid[1]),
         .io_master_rid_2_(cpu_rid[2]),
         .io_master_rid_3_(cpu_rid[3]),
+
         .io_slave_awvalid(1'b0),
         .io_slave_awready(),
         .io_slave_awaddr_0_(1'b0),
@@ -384,7 +382,7 @@ module top
         .io_slave_wstrb_3_(1'b0),
         .io_slave_wlast(1'b0),
         .io_slave_bvalid(),
-        .io_slave_bready(),
+        .io_slave_bready(1'b0),
         .io_slave_bresp_0_(),
         .io_slave_bresp_1_(),
         .io_slave_bid_0_(),
@@ -483,9 +481,9 @@ module top
         .io_slave_rid_1_(),
         .io_slave_rid_2_(),
         .io_slave_rid_3_()
-);
+    );
 
-     
+
     mem mem_test
     (
         .clk(clock),
@@ -556,7 +554,7 @@ module top
     );
 
 
-    ysyx_25110270_xbar
+    test_xbar
     #(
         .S0_BASE(32'ha000_0000),
         .S0_SIZE(32'h0800_0000)
@@ -657,5 +655,3 @@ module top
     );
 
 endmodule
-
-`endif
