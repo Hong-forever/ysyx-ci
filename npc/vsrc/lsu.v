@@ -188,15 +188,6 @@ module ysyx_25110270_lsu
         endcase
     end
 
-    reg valid;
-    always @(posedge clk) begin
-        if(rst) begin
-            valid <= 1'b0;
-        end else begin
-            valid <= I_valid;
-        end
-    end
-
     wire is_ld_st = I_ld_valid | I_st_valid;
     wire ls_addr_resp = dbus_arready | dbus_awready;
     wire ls_data_resp = dbus_bvalid | dbus_rvalid;
@@ -265,9 +256,9 @@ module ysyx_25110270_lsu
 `endif
 
 
-    assign dbus_awvalid = addr_valid & I_st_valid;
-    assign dbus_wvalid = addr_valid & I_st_valid;
-    assign dbus_arvalid = addr_valid & I_ld_valid;
+    assign dbus_awvalid = addr_resp_valid & I_st_valid;
+    assign dbus_wvalid = dbus_awvalid;
+    assign dbus_arvalid = addr_resp_valid & I_ld_valid;
 
     assign dbus_awaddr = I_memory_addr;
     assign dbus_awid = 4'b0000;
