@@ -130,6 +130,9 @@ endmenu
 
 menu "Testing and Debugging"
 
+config SOC
+  bool "enable SoC simulation"
+  default n
 
 config TRACE
   bool "Enable tracer"
@@ -180,7 +183,7 @@ config LOOP_DETECT
   default n
 
 config DIFFTEST
-  depends on TARGET_NATIVE_ELF
+  depends on TARGET_NATIVE_ELF && !SOC
   bool "Enable differential testing"
   default n
   help

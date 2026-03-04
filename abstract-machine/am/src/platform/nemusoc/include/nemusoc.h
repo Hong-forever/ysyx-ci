@@ -1,5 +1,5 @@
-#ifndef NEMU_H__
-#define NEMU_H__
+#ifndef NEMUSOC_H__
+#define NEMUSOC_H__
 
 #include <klib-macros.h>
 
@@ -38,13 +38,15 @@
 #define FB_ADDR         (MMIO_BASE   + 0x1000000)
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
-extern char _pmem_start;
-#define PMEM_SIZE (128 * 1024 * 1024)
-#define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
+extern char _rom_start, _rom_end;
+extern char _ram_start, _ram_end;
+
 #define NEMU_PADDR_SPACE \
-  RANGE(&_pmem_start, PMEM_END), \
+  RANGE(&_rom_start, &_rom_end), \
+  RANGE(&_ram_start, &_ram_end), \
   RANGE(FB_ADDR, FB_ADDR + 0x200000), \
-  RANGE(MMIO_BASE, MMIO_BASE + 0x1000) /* serial, rtc, screen, keyboard */
+  RANGE(MMIO_BASE, MMIO_BASE + 0x1000) // serial, rtc, screen, keyboard 
+
 
 typedef uintptr_t PTE;
 
