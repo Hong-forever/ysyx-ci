@@ -1788,9 +1788,9 @@ module ysyx_25110270_lsu
 `endif
 
 
-    assign dbus_awvalid = addr_resp_valid & I_st_valid;
+    assign dbus_awvalid = ~addr_resp_valid & I_st_valid;
     assign dbus_wvalid = dbus_awvalid;   // write address和write data同时有效
-    assign dbus_arvalid = addr_resp_valid & I_ld_valid;
+    assign dbus_arvalid = ~addr_resp_valid & I_ld_valid;
 
     assign dbus_awaddr = I_memory_addr;
     assign dbus_awid = 4'b0000;
