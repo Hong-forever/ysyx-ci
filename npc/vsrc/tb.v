@@ -1,3 +1,4 @@
+`ifdef __ICARUS__
 `timescale 1ns / 1ps
 module top_tb;
     
@@ -27,7 +28,9 @@ module top_tb;
 `endif
 
     initial begin
-        #1000 $finish;
+        // #100000 $finish;
     end
 
 endmodule
+
+`endif
