@@ -1,5 +1,4 @@
 
-`ifdef __ICARUS__
 module mem 
 #(
     parameter MEM_DEPTH  = 32'h01000000                //MEM深度
@@ -43,9 +42,6 @@ module mem
     reg [7:0] mem_array2 [0 : 32'h0200_0000-1];
     reg [7:0] mem_array3 [0 : 32'h0200_0000-1];
 
-    reg                    arready;
-    reg                    awready;
-    reg                    wready;
 
     reg [31:0] rdata;
     reg rvalid;
@@ -53,29 +49,6 @@ module mem
     reg flag;
     reg [7:0] cnt;
 
-    always @(posedge clk) begin
-        if(rst) begin
-            arready <= 1'b1;
-            awready <= 1'b1;
-            wready  <= 1'b1;
-        end else begin
-            if(arvalid_i && arready) begin
-                arready <= 1'b0;
-            end else if(rvalid_o && rready_i && rlast) begin
-                arready <= 1'b1;
-            end
-            if(awvalid_i && awready) begin
-                awready <= 1'b0;
-            end else if(bvalid_o && bready_i) begin
-                awready <= 1'b1;
-            end
-            if(wvalid_i && wready) begin
-                wready <= 1'b0;
-            end else if(bvalid_o && bready_i) begin
-                wready <= 1'b1;
-            end
-        end
-    end
 
     wire [31:0] araddr_align = {araddr_i[31:2], 2'b00};
 
@@ -90,7 +63,7 @@ module mem
             if(rvalid_o && rready_i) begin
                 rvalid <= 1'b0;
                 rlast <= 1'b0;
-            end else if(arvalid_i && arready || flag) begin
+            end else if(arvalid_i || flag) begin
                 case(araddr_align[26:25])
                     2'b00: rdata <= {mem_array0[araddr_align[24:0]+3+4*cnt], mem_array0[araddr_align[24:0]+2+4*cnt], mem_array0[araddr_align[24:0]+1+4*cnt], mem_array0[araddr_align[24:0]+0+4*cnt]};
                     2'b01: rdata <= {mem_array1[araddr_align[24:0]+3+4*cnt], mem_array1[araddr_align[24:0]+2+4*cnt], mem_array1[araddr_align[24:0]+1+4*cnt], mem_array1[araddr_align[24:0]+0+4*cnt]};
@@ -120,7 +93,7 @@ module mem
         end else begin
             if(bvalid_o && bready_i) begin
                 bvalid <= 1'b0;
-            end else if(wvalid_i && wready) begin
+            end else if(wvalid_i) begin
                 case(awaddr_align[26:25])
                     2'b00: begin
                         if(wstrb_i[3]) mem_array0[awaddr_align[24:0]+3] <= wdata_i[31:24];
@@ -153,11 +126,11 @@ module mem
     end
 
 
-    assign awready_o = awready;
-    assign wready_o  = wready;
+    assign awready_o = 1'b1;
+    assign wready_o  = 1'b1;
     assign bvalid_o  = bvalid;
     assign bresp_o   = 2'b00;
-    assign arready_o = arready;
+    assign arready_o = 1'b1;
     assign rvalid_o  = rvalid;
     assign rdata_o   = rdata;
     assign rresp_o   = 2'b00;
@@ -186,5 +159,3 @@ module mem
     end
 
 endmodule
-
-`endif
