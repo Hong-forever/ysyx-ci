@@ -2035,12 +2035,12 @@ module ysyx_25110270_wbu
         .O_mtime                (O_mtime                    )
     );
 
-// `ifdef __ICARUS__
-//     initial begin
-//         $display("RUNNING IN ICARUS VERILOG SIMULATOR!");
-//     end
+`ifdef __ICARUS__
+    initial begin
+        $display("RUNNING IN ICARUS VERILOG SIMULATOR!");
+    end
 
-// `endif
+`endif
 
 `ifdef ysyx_25110270_DPIC
     ////////////////////// DPI-C //////////////////////
@@ -2111,50 +2111,50 @@ module ysyx_25110270_wbu
     end
 `endif
 
-// `ifdef __ICARUS__
+`ifdef __ICARUS__
 
-//     reg [31:0] inst_r1, inst_addr_r1;
-//     always @(posedge clk) begin
-//         if(rst) begin
-//             inst_r1 <= 0;
-//             inst_addr_r1 <= 0;
-//         end else begin
-//             inst_r1 <= I_inst;
-//             inst_addr_r1 <= I_inst_addr;
-//         end
-//     end
+    reg [31:0] inst_r1, inst_addr_r1;
+    always @(posedge clk) begin
+        if(rst) begin
+            inst_r1 <= 0;
+            inst_addr_r1 <= 0;
+        end else begin
+            inst_r1 <= I_inst;
+            inst_addr_r1 <= I_inst_addr;
+        end
+    end
 
-//     wire is_ebreak = inst_r1 == `ysyx_25110270_RV_EBREAK;
+    wire is_ebreak = inst_r1 == `ysyx_25110270_RV_EBREAK;
 
-//     always @(posedge clk) begin
-//         if(is_ebreak) begin
-//             if(gpr10 == 0) begin
-//                 $display("~~~~~~~~~~~~~~~~~~~ TEST_PASS ~~~~~~~~~~~~~~~~~~~");
-//                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-//                 $display("~~~~~~~~~ #####     ##     ####    #### ~~~~~~~~~");
-//                 $display("~~~~~~~~~ #    #   #  #   #       #     ~~~~~~~~~");
-//                 $display("~~~~~~~~~ #    #  #    #   ####    #### ~~~~~~~~~");
-//                 $display("~~~~~~~~~ #####   ######       #       #~~~~~~~~~");
-//                 $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~");
-//                 $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~");
-//                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-//                 $display("Finish at PC = 0x%08x", inst_addr_r1);
-//             end else begin
-//                 $display("~~~~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~");
-//                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-//                 $display("~~~~~~~~~~######    ##       #    #     ~~~~~~~~~~");
-//                 $display("~~~~~~~~~~#        #  #      #    #     ~~~~~~~~~~");
-//                 $display("~~~~~~~~~~#####   #    #     #    #     ~~~~~~~~~~");
-//                 $display("~~~~~~~~~~#       ######     #    #     ~~~~~~~~~~");
-//                 $display("~~~~~~~~~~#       #    #     #    #     ~~~~~~~~~~");
-//                 $display("~~~~~~~~~~#       #    #     #    ######~~~~~~~~~~");
-//                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-//                 $display("Finish at PC = 0x%08x", inst_addr_r1);
-//             end
-//             $finish;
-//         end
-//     end
-// `endif
+    always @(posedge clk) begin
+        if(is_ebreak) begin
+            if(gpr10 == 0) begin
+                $display("~~~~~~~~~~~~~~~~~~~ TEST_PASS ~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~ #####     ##     ####    #### ~~~~~~~~~");
+                $display("~~~~~~~~~ #    #   #  #   #       #     ~~~~~~~~~");
+                $display("~~~~~~~~~ #    #  #    #   ####    #### ~~~~~~~~~");
+                $display("~~~~~~~~~ #####   ######       #       #~~~~~~~~~");
+                $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~");
+                $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("Finish at PC = 0x%08x", inst_addr_r1);
+            end else begin
+                $display("~~~~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("~~~~~~~~~~######    ##       #    #     ~~~~~~~~~~");
+                $display("~~~~~~~~~~#        #  #      #    #     ~~~~~~~~~~");
+                $display("~~~~~~~~~~#####   #    #     #    #     ~~~~~~~~~~");
+                $display("~~~~~~~~~~#       ######     #    #     ~~~~~~~~~~");
+                $display("~~~~~~~~~~#       #    #     #    #     ~~~~~~~~~~");
+                $display("~~~~~~~~~~#       #    #     #    ######~~~~~~~~~~");
+                $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("Finish at PC = 0x%08x", inst_addr_r1);
+            end
+            $finish;
+        end
+    end
+`endif
 
 `ifdef ysyx_25110270_DEBUG
     always @(posedge clk) begin
