@@ -205,5 +205,5 @@
 `ifdef SOC
     `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
 `else
-    `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+    `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
 `endif

@@ -212,14 +212,14 @@ module ysyx_25110270_lsu
         end
     end
 
-    reg addr_valid;
+    reg addr_resp_valid;
     always @(posedge clk) begin
         if(rst) begin
-            addr_valid <= 0;
+            addr_resp_valid <= 1'b1;
         end else if(ls_addr_resp) begin
-            addr_valid <= 0;
-        end else if(valid & is_ld_st) begin
-            addr_valid <= 1;
+            addr_resp_valid <= 1'b0;
+        end else if(I_valid) begin
+            addr_resp_valid <= 1'b1;
         end
     end
 
