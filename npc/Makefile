@@ -184,8 +184,8 @@ endif
 FORCE:
 
 
-$(BUILD_DIR)/test.data: $(ELF) FORCE
-	riscv64-linux-gnu-objcopy --adjust-vma=-0xa0000000 -O verilog $< $@
+$(BUILD_DIR)/test.data: $(IMG) FORCE
+	riscv64-linux-gnu-objcopy -I binary -O verilog $< $@
 
 $(BIN): $(VSRCS) $(BUILD_DIR)/test.data
 	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
