@@ -1,24 +1,20 @@
-AM_SRCS := riscv/npc/start.S \
-           riscv/npc/trm.c \
-           riscv/npc/ioe.c \
-           riscv/npc/gpu.c \
-           riscv/npc/timer.c \
-           riscv/npc/input.c \
-           riscv/npc/uart.c \
-           riscv/npc/cte.c \
-           riscv/npc/trap.S \
-           platform/dummy/vme.c \
-           platform/dummy/mpe.c
+AM_SRCS := platform/nemu/trm.c \
+           platform/nemu/ioe/ioe.c \
+           platform/nemu/ioe/timer.c \
+           platform/nemu/ioe/input.c \
+           platform/nemu/ioe/gpu.c \
+           platform/nemu/ioe/audio.c \
+           platform/nemu/ioe/disk.c \
+           platform/nemu/mpe.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
-CFLAGS    += -I$(AM_HOME)/am/src/riscv/npc/include
-LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
+CFLAGS    += -I$(AM_HOME)/am/src/platform/nemu/include
+LDSCRIPTS += $(AM_HOME)/scripts/soc_linker.ld
 LDFLAGS   += --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
-
-NPCFLAGS  += --log=$(shell dirname $(IMAGE).elf)/npc-log.txt
-NPCFLAGS  += --elf=$(IMAGE).elf
-NPCFLAGS  += -b
+NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
+NEMUFLAGS += -e $(IMAGE).elf
+NEMUFLAGS += -b
 
 MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = the_insert-arg_rule_in_Makefile_will_insert_mainargs_here
@@ -30,12 +26,12 @@ insert-arg: image
 image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
-	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+	@$(OBJCOPY) -S -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
-	$(MAKE) -C $(NPC_HOME) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 
 gdb: insert-arg
-	$(MAKE) -C $(NPC_HOME) gdb ARGS="$(NNPCFLAG)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 
 .PHONY: insert-arg
