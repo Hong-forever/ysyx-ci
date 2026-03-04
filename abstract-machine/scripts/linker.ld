@@ -15,7 +15,6 @@ SECTIONS {
   }
   .data : {
     *(.data*)
-    *(.sdata*)
   } : data
   edata = .;
   _data = .;
