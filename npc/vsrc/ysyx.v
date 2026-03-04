@@ -1740,11 +1740,11 @@
 //     reg addr_resp_valid;
 //     always @(posedge clk) begin
 //         if(rst) begin
-//             addr_resp_valid <= 1'b0;
-//         end else if(ls_addr_resp) begin
 //             addr_resp_valid <= 1'b1;
-//         end else if(I_valid) begin
+//         end else if(ls_addr_resp) begin
 //             addr_resp_valid <= 1'b0;
+//         end else if(I_valid) begin
+//             addr_resp_valid <= 1'b1;
 //         end
 //     end
 
@@ -1788,9 +1788,9 @@
 // `endif
 
 
-//     assign dbus_awvalid = ~addr_resp_valid & I_st_valid;
+//     assign dbus_awvalid = addr_resp_valid & I_st_valid;
 //     assign dbus_wvalid = dbus_awvalid;   // write address和write data同时有效
-//     assign dbus_arvalid = ~addr_resp_valid & I_ld_valid;
+//     assign dbus_arvalid = addr_resp_valid & I_ld_valid;
 
 //     assign dbus_awaddr = I_memory_addr;
 //     assign dbus_awid = 4'b0000;
