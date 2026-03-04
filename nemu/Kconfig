@@ -130,6 +130,9 @@ endmenu
 
 menu "Testing and Debugging"
 
+config SOC
+  bool "enable SoC simulation"
+  default n
 
 config TRACE
   bool "Enable tracer"

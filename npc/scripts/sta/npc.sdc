@@ -1,5 +1,5 @@
 set CLK_PORT_NANE clock
-set CLK_FREQ_MHZ 500
+set CLK_FREQ_MHZ 1200
 set clk_io_pct 0.2
 
 set clk_port [get_ports $CLK_PORT_NANE]
