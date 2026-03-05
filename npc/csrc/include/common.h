@@ -1,11 +1,14 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+#include <autoconf.h>
+
 #ifdef CONFIG_SOC
 #include <VysyxSoCFull.h>
 #else
 #include <Vtop.h>
 #endif
+
 #include "macro.h"
 #include <verilated.h>
 
