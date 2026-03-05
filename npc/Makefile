@@ -4,7 +4,7 @@
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
 
-USE_NVBOARD = 0
+USE_NVBOARD = 1
 
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
