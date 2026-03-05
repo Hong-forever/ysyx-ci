@@ -1,4 +1,3 @@
-`ifndef SOC 
 module top
 (
     input         clock,
@@ -234,8 +233,8 @@ module top
 
     ysyx_25110270_xbar
     #(
-        .M0_BASE(32'h8000_0000),
-        .M0_SIZE(32'h0800_0000)
+        .S0_BASE(32'h8000_0000),
+        .S0_SIZE(32'h0800_0000)
     ) xbar_test
     (
         .clk(clock),
@@ -333,5 +332,3 @@ module top
     );
 
 endmodule
-
-`endif

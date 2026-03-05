@@ -24,10 +24,19 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 endif
 
+
 ifeq ($(CONFIG_SOC),y)
+
 TOPNAME = ysyxSoCFull
+
+else
+
+ifeq ($(CONFIG_ICARUS),y)
+TOPNAME = top_tb
 else
 TOPNAME = top
+endif
+
 endif
 
 remove_quote = $(patsubst "%",%,$(1))
@@ -42,7 +51,7 @@ VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
 VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
 ifeq ($(CONFIG_SOC),y)
-VERILATOR_CFLAGS += -DSOC=1
+VERILATOR_CFLAGS += -Dysyx_25110270_SOC=1
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 endif
@@ -70,9 +79,12 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 include $(NPC_HOME)/scripts/difftest.mk
 
 IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+# ELF ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.elf
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
+
+ifneq ($(CONFIG_ICARUS),y)
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -80,6 +92,14 @@ ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
 else
 	$(BIN) $(ARGS) $(IMG)
+endif
+
+else
+
+sim: $(BIN)
+	$(call git_commit, "sim RTL with iverilog") # DO NOT REMOVE THIS LINE!!!
+	vvp $(BIN)
+
 endif
 
 perf: 
@@ -106,7 +126,7 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
-VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "*.v")
+VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "ysyx_25110270.v")
 
 ifeq ($(CONFIG_SOC),y)
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
@@ -144,6 +164,8 @@ CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
 
+ifneq ($(CONFIG_ICARUS),y)
+
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
@@ -151,6 +173,23 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
+else
+
+IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
+ifeq ($(WAVE_ENABLE),1)
+IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
+endif
+
+FORCE:
+
+
+$(BUILD_DIR)/test.data: $(IMG) FORCE
+	riscv64-linux-gnu-objcopy -I binary -O verilog $< $@
+
+$(BIN): $(VSRCS) $(BUILD_DIR)/test.data
+	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+
+endif
 
 ifeq ($(WAVE_ENABLE),1)
 run: sim view_wave
