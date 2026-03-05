@@ -1,30 +1,31 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Thu Mar  5 06:50:41 2026
+[*] Thu Mar  5 11:21:49 2026
 [*]
 [dumpfile] "/home/hhh/Public/ysyx/ysyx-workbench/npc/build/waveform.vcd"
-[dumpfile_mtime] "Thu Mar  5 06:50:02 2026"
-[dumpfile_size] 82124
+[dumpfile_mtime] "Thu Mar  5 11:13:33 2026"
+[dumpfile_size] 89855441
 [optimize_vcd]
 [savefile] "/home/hhh/Public/ysyx/ysyx-workbench/npc/constr/wave_signal.gtkw"
-[timestart] 1
+[timestart] 0
 [size] 2560 1345
 [pos] -27 -24
-*-3.562119 31 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[treeopen] TOP.
-[treeopen] TOP.top.
-[treeopen] TOP.top.ysyx_25110270.
-[treeopen] TOP.top.ysyx_25110270.cpu_core.
+*-11.400000 21760 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top_tb.
+[treeopen] top_tb.top.
+[treeopen] top_tb.top.ysyx_25110270.
+[treeopen] top_tb.top.ysyx_25110270.cpu_core.
 [sst_width] 297
-[signals_width] 166
+[signals_width] 174
 [sst_expanded] 1
 [sst_vpaned_height] 418
 @28
-TOP.top.ysyx_25110270.cpu_core.u_ifetch.clk
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.clk
 @22
-TOP.top.ysyx_25110270.cpu_core.u_ifetch.O_inst[31:0]
-TOP.top.ysyx_25110270.cpu_core.u_ifetch.O_inst_addr[31:0]
-@29
-TOP.top.ysyx_25110270.cpu_core.u_ifetch.O_valid
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.I_inst[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.I_inst_addr[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.inst_addr_r1[31:0]
+@23
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.inst_r1[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

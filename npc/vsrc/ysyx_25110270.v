@@ -622,6 +622,10 @@ module ysyx_25110270_decoder
     output  wire    [31:0                       ]   O_inst,             //指令内容
 `endif
 
+`ifdef __ICARUS__
+    output  wire    [31:0                       ]   O_inst,             //指令内容
+`endif
+
     output  wire    [31:0                       ]   O_inst_addr,        //指令地址
 
     output  wire    [31:0                       ]   O_imm,              //立即数
@@ -856,7 +860,9 @@ module ysyx_25110270_decoder
 `ifdef ysyx_25110270_DPIC
     assign O_inst = I_inst;
 `endif
-
+`ifdef __ICARUS__
+    assign O_inst = I_inst;
+`endif
     assign O_inst_addr = I_inst_addr;
     
     assign O_ready = I_ready;
@@ -1018,6 +1024,9 @@ module ysyx_25110270_exec
 `ifdef ysyx_25110270_DPIC
     input   wire    [31:0                       ]   I_inst,
 `endif
+`ifdef __ICARUS__
+    input   wire    [31:0                       ]   I_inst,
+`endif
 
     input   wire    [31:0                       ]   I_inst_addr,
 
@@ -1057,6 +1066,10 @@ module ysyx_25110270_exec
 `ifdef ysyx_25110270_DPIC
     output  wire    [31:0                       ]   O_inst,
     output  wire                                    O_device_skip,
+`endif
+
+`ifdef __ICARUS__
+    output  wire    [31:0                       ]   O_inst,
 `endif
 
     output  wire    [31:0                       ]   O_inst_addr,
@@ -1308,6 +1321,10 @@ module ysyx_25110270_exec
     // 输出
     //------------------------------------------------------------------------
 `ifdef ysyx_25110270_DPIC
+    assign O_inst = I_inst;
+`endif
+
+`ifdef __ICARUS__
     assign O_inst = I_inst;
 `endif
 
@@ -2516,6 +2533,9 @@ module ysyx_25110270_pipeline_if_dec
 `ifdef ysyx_25110270_DPIC
             O_inst_addr     <= 0                        ;
 `endif
+`ifdef __ICARUS__
+            O_inst_addr     <= 0                        ;
+`endif
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
@@ -2536,6 +2556,9 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    rst,
 
 `ifdef ysyx_25110270_DPIC
+    input   wire    [31:0                       ]   I_inst,             // 指令内容
+`endif
+`ifdef __ICARUS__
     input   wire    [31:0                       ]   I_inst,             // 指令内容
 `endif
     input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
@@ -2564,6 +2587,9 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire                                    I_fwd_ctrl_csr,
 
 `ifdef ysyx_25110270_DPIC
+    output  reg     [31:0                       ]   O_inst,             // 指令内容
+`endif
+`ifdef __ICARUS__
     output  reg     [31:0                       ]   O_inst,             // 指令内容
 `endif
     output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
@@ -2606,8 +2632,15 @@ module ysyx_25110270_pipeline_dec_ex
             O_inst          <= 0                        ;
             O_inst_addr     <= 0                        ;
 `endif
+`ifdef __ICARUS__
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+`endif
         end else if(I_enable) begin
 `ifdef ysyx_25110270_DPIC
+            O_inst          <= I_inst                   ;
+`endif
+`ifdef __ICARUS__
             O_inst          <= I_inst                   ;
 `endif
             O_inst_addr     <= I_inst_addr              ;
@@ -2652,6 +2685,9 @@ module ysyx_25110270_pipeline_ex_wb
     input   wire    [31:0                       ]   I_inst,             // 指令内容
     input   wire                                    I_device_skip,
 `endif
+`ifdef __ICARUS__
+    input   wire    [31:0                       ]   I_inst,             // 指令
+`endif
     input   wire    [31:0                       ]   I_inst_addr,        // 指令地址
     input   wire                                    I_rd_we,
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,
@@ -2664,6 +2700,9 @@ module ysyx_25110270_pipeline_ex_wb
 `ifdef ysyx_25110270_DPIC
     output  reg     [31:0                       ]   O_inst,             // 指令内容
     output  reg                                     O_device_skip,
+`endif
+`ifdef __ICARUS__
+    output  reg     [31:0                       ]   O_inst,             // 指令
 `endif
     output  reg     [31:0                       ]   O_inst_addr,        // 指令地址
     output  reg                                     O_rd_we,
@@ -2688,10 +2727,17 @@ module ysyx_25110270_pipeline_ex_wb
             O_inst_addr     <= 0                        ;
             O_device_skip   <= 0                        ;
 `endif
+`ifdef __ICARUS__
+            O_inst          <= 0                        ;
+            O_inst_addr     <= 0                        ;
+`endif
         end else if(I_enable) begin
 `ifdef ysyx_25110270_DPIC
             O_inst          <= I_inst                   ;
             O_device_skip   <= I_device_skip            ;
+`endif
+`ifdef __ICARUS__            
+            O_inst          <= I_inst                   ;
 `endif
             O_inst_addr     <= I_inst_addr              ;
             O_rd_we         <= I_rd_we                  ;
@@ -2961,6 +3007,9 @@ module ysyx_25110270_cpu_core
 `ifdef ysyx_25110270_DPIC
     wire [31:0                      ]   O_dec_inst;
 `endif
+`ifdef __ICARUS__
+    wire [31:0                      ]   O_dec_inst;
+`endif
 
     wire [31:0                      ]   O_dec_inst_addr;
     wire                                O_dec_valid;
@@ -2985,6 +3034,9 @@ module ysyx_25110270_cpu_core
     // pipeline_dec_ex
     //-------------------------------------------------------------
 `ifdef ysyx_25110270_DPIC
+    wire [31:0                      ]   I_ex_inst;
+`endif
+`ifdef __ICARUS__
     wire [31:0                      ]   I_ex_inst;
 `endif
 
@@ -3036,6 +3088,9 @@ module ysyx_25110270_cpu_core
 `ifdef ysyx_25110270_DPIC
     wire [31:0                      ]   O_ex_inst;
 `endif
+`ifdef __ICARUS__
+    wire [31:0                      ]   O_ex_inst;
+`endif
 
     wire [31:0                      ]   O_ex_inst_addr;
     wire                                O_ex_valid;
@@ -3053,6 +3108,10 @@ module ysyx_25110270_cpu_core
     // pipeline_ex_wb
     //-------------------------------------------------------------
 `ifdef ysyx_25110270_DPIC
+    wire [31:0                      ]   I_wb_inst;
+`endif
+
+`ifdef __ICARUS__
     wire [31:0                      ]   I_wb_inst;
 `endif
 
@@ -3213,6 +3272,9 @@ module ysyx_25110270_cpu_core
 `ifdef ysyx_25110270_DPIC
         .O_inst                 (O_dec_inst                 ),
 `endif
+`ifdef __ICARUS__
+        .O_inst                 (O_dec_inst                 ),
+`endif
 
         .O_inst_addr            (O_dec_inst_addr            ),
 
@@ -3266,6 +3328,9 @@ module ysyx_25110270_cpu_core
 `ifdef ysyx_25110270_DPIC
         .I_inst                 (I_ex_inst                  ),
 `endif
+`ifdef __ICARUS__
+        .I_inst                 (I_ex_inst                  ),
+`endif
 
         .I_inst_addr            (I_ex_inst_addr             ),
 
@@ -3305,6 +3370,10 @@ module ysyx_25110270_cpu_core
 `ifdef ysyx_25110270_DPIC
         .O_inst                 (O_ex_inst                  ),
         .O_device_skip          (ex_device_skip             ),
+`endif
+
+`ifdef __ICARUS__
+        .O_inst                 (O_ex_inst                  ),
 `endif
 
         .O_inst_addr            (O_ex_inst_addr             ),
@@ -3358,6 +3427,10 @@ module ysyx_25110270_cpu_core
         .rst                    (rst                        ),
 
 `ifdef ysyx_25110270_DPIC
+        .I_inst                 (I_wb_inst                  ),
+        .I_inst_addr            (I_wb_inst_addr             ),
+`endif
+`ifdef __ICARUS__
         .I_inst                 (I_wb_inst                  ),
         .I_inst_addr            (I_wb_inst_addr             ),
 `endif
@@ -3527,6 +3600,9 @@ module ysyx_25110270_cpu_core
 `ifdef ysyx_25110270_DPIC
         .I_inst                 (O_dec_inst                 ),
 `endif
+`ifdef __ICARUS__
+        .I_inst                 (O_dec_inst                 ),
+`endif
         .I_inst_addr            (O_dec_inst_addr            ),
         .I_rs1_rdata            (I_rs1_rdata                ),
         .I_rs2_rdata            (I_rs2_rdata                ),
@@ -3553,6 +3629,9 @@ module ysyx_25110270_cpu_core
 
 `ifdef ysyx_25110270_DPIC
         .O_inst                 (I_ex_inst                  ),
+`endif
+`ifdef __ICARUS__
+        .O_inst                 (O_ex_inst                  ),
 `endif
 
         .O_inst_addr            (I_ex_inst_addr             ),
@@ -3594,7 +3673,10 @@ module ysyx_25110270_cpu_core
 `ifdef ysyx_25110270_DPIC
         .I_inst                 (O_ex_inst                  ),
         .I_device_skip          (ex_device_skip             ),
-`endif        
+`endif
+`ifdef __ICARUS__
+        .I_inst                 (O_ex_inst                  ),
+`endif
 
         .I_inst_addr            (O_ex_inst_addr             ),
         .I_rd_we                (O_ex_rd_we                 ),
@@ -3606,6 +3688,9 @@ module ysyx_25110270_cpu_core
         .I_except               (O_ex_except                ),
 
 `ifdef ysyx_25110270_DPIC
+        .O_inst                 (I_wb_inst                  ),
+`endif
+`ifdef __ICARUS__
         .O_inst                 (I_wb_inst                  ),
 `endif
         .O_inst_addr            (I_wb_inst_addr             ),

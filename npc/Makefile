@@ -78,8 +78,7 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(NPC_HOME)/scripts/difftest.mk
 
-IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
-# ELF ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.elf
+# IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
@@ -104,11 +103,11 @@ endif
 
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
+	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
 
 test: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
+	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -180,14 +179,21 @@ ifeq ($(WAVE_ENABLE),1)
 IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
 endif
 
+ifneq ($(IMG),)
 FORCE:
-
 
 $(BUILD_DIR)/test.data: $(IMG) FORCE
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $@
 
 $(BIN): $(VSRCS) $(BUILD_DIR)/test.data
 	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+else 
+
+$(BIN): $(VSRCS) 
+	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+
+endif
+
 
 endif
 
