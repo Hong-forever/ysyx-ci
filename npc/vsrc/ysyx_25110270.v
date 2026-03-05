@@ -1,10 +1,16 @@
 //------------------------------------------------------------------------
 // VERILOG MACRO
 //------------------------------------------------------------------------
-// `define ysyx_25110270_DPIC
-// `define ysyx_25110270_PERF
-// `define ysyx_25110270_DEBUG
+
 // `define ysyx_25110270_SOC //no verilog macro define here, define it in Makefile
+
+`ifndef __ICARUS__
+
+`define ysyx_25110270_DPIC
+`define ysyx_25110270_PERF
+`define ysyx_25110270_DEBUG
+
+`endif
 
 //------------------------------------------------------------------------
 // rv32i load type inst
@@ -1252,7 +1258,7 @@ module ysyx_25110270_exec
         .O_rd_wdata                 (rd_wdata               ),
         .O_stallreq                 (stallreq_ls            ),
 
-`ifdef yxyx_25110270_DPIC
+`ifdef ysyx_25110270_DPIC
         .O_device_skip              (device_skip            ),
 `endif
 
@@ -2313,7 +2319,7 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_csr_mcyclel,      //mcycle寄存器
     output  wire    [31:0                       ]   O_csr_mcycleh,      //mcycle寄存器
     output  wire    [31:0                       ]   O_csr_mvendorid,    //mvendorid寄存器
-    output  wire    [31:0                       ]   O_csr_marchid       //marchid寄存器
+    output  wire    [31:0                       ]   O_csr_marchid,      //marchid寄存器
 `endif
 
     output  wire                                    O_flush,
