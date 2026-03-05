@@ -28,13 +28,10 @@ endif
 ifeq ($(CONFIG_SOC),y)
 
 TOPNAME = ysyxSoCFull
-iverilog = 0
 
 else
 
-iverilog = 0
-
-ifeq ($(iverilog),1)
+ifeq ($(CONFIG_ICARUS),1)
 TOPNAME = top_tb
 else
 TOPNAME = top
