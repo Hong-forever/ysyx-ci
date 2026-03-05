@@ -4422,9 +4422,9 @@ module mem
             end
         end
     end
-
-`else
-    
+`endif
+   
+`ifdef ysyx_25110270_DPIC
     import "DPI-C" function int paddr_read(input int raddr);
     import "DPI-C" function void paddr_write(input int waddr, input int wdata, input int wmask);
 
@@ -4575,13 +4575,22 @@ module uart
         end
     end
 
+`ifdef __ICARUS__
     always @(*) begin
         if(wvalid_i && wready_o) begin
             $write("%c", wdata_i[7:0]);
             $fflush();
         end
     end
-
+`endif
+`ifdef ysyx_25110270_DPIC
+    always @(*) begin
+        if(wvalid_i && wready_o) begin
+            $write("%c", wdata_i[7:0]);
+            $fflush();
+        end
+    end
+`endif
     assign awready_o = awready;
     assign wready_o  = wready;
     assign bvalid_o  = bvalid;
