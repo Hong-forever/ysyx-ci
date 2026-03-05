@@ -3691,7 +3691,7 @@ module ysyx_25110270_cpu_core
         .O_inst                 (I_wb_inst                  ),
 `endif
 `ifdef __ICARUS__
-        .O_inst                 (O_wb_inst                  ),
+        .O_inst                 (I_wb_inst                  ),
 `endif
         .O_inst_addr            (I_wb_inst_addr             ),
         .O_rd_we                (I_wb_rd_we                 ),
