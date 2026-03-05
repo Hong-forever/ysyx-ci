@@ -6,62 +6,78 @@
 
 module ysyx_25110270_regfile
 (
-    input   wire                        clk,
-    input   wire                        rst_n,
+    input   wire                                    clk,
+    input   wire                                    rst,
 
-    input   wire    [`RegAddrBus    ]   I_rs1_raddr,      //读寄存器1地址
-    input   wire    [`RegAddrBus    ]   I_rs2_raddr,      //读寄存器2地址
+    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs1_raddr,      //读寄存器1地址
+    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rs2_raddr,      //读寄存器2地址
 
-    output  wire    [`RegDataBus    ]   O_rs1_rdata,     //输出寄存器1数据
-    output  wire    [`RegDataBus    ]   O_rs2_rdata,     //输出寄存器2数据
+    output  wire    [31:0                       ]   O_rs1_rdata,     //输出寄存器1数据
+    output  wire    [31:0                       ]   O_rs2_rdata,     //输出寄存器2数据
 
-    input   wire                        I_rd_we,         //写寄存器标志
-    input   wire    [`RegAddrBus    ]   I_rd_waddr,      //写寄存器地址
-    input   wire    [`RegDataBus    ]   I_rd_wdata,      //写寄存器数据
+    input   wire                                    I_rd_we,         //写寄存器标志
+    input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,      //写寄存器地址
+    input   wire    [31:0                       ]   I_rd_wdata,      //写寄存器数据
 
-    output  wire    [`RegDataBus    ]   O_gpr0,           // for dpi
-    output  wire    [`RegDataBus    ]   O_gpr1,
-    output  wire    [`RegDataBus    ]   O_gpr2,
-    output  wire    [`RegDataBus    ]   O_gpr3,
-    output  wire    [`RegDataBus    ]   O_gpr4,
-    output  wire    [`RegDataBus    ]   O_gpr5,
-    output  wire    [`RegDataBus    ]   O_gpr6,
-    output  wire    [`RegDataBus    ]   O_gpr7,
-    output  wire    [`RegDataBus    ]   O_gpr8,
-    output  wire    [`RegDataBus    ]   O_gpr9,
-    output  wire    [`RegDataBus    ]   O_gpr10,
-    output  wire    [`RegDataBus    ]   O_gpr11,
-    output  wire    [`RegDataBus    ]   O_gpr12,
-    output  wire    [`RegDataBus    ]   O_gpr13,
-    output  wire    [`RegDataBus    ]   O_gpr14,
-    output  wire    [`RegDataBus    ]   O_gpr15
+    output  wire    [31:0                       ]   O_gpr0,           // for dpi
+    output  wire    [31:0                       ]   O_gpr1,
+    output  wire    [31:0                       ]   O_gpr2,
+    output  wire    [31:0                       ]   O_gpr3,
+    output  wire    [31:0                       ]   O_gpr4,
+    output  wire    [31:0                       ]   O_gpr5,
+    output  wire    [31:0                       ]   O_gpr6,
+    output  wire    [31:0                       ]   O_gpr7,
+    output  wire    [31:0                       ]   O_gpr8,
+    output  wire    [31:0                       ]   O_gpr9,
+    output  wire    [31:0                       ]   O_gpr10,
+    output  wire    [31:0                       ]   O_gpr11,
+    output  wire    [31:0                       ]   O_gpr12,
+    output  wire    [31:0                       ]   O_gpr13,
+    output  wire    [31:0                       ]   O_gpr14,
+    output  wire    [31:0                       ]   O_gpr15
 );
 
 
-    reg [`RegDataBus] regs[1:`RegNum-1];   //寄存器组
+    reg [31:0] regs[1:`ysyx_25110270_RegNum-1];   //寄存器组
 
     integer i;
     //写寄存器
     always @(posedge clk) begin
-        if(!rst_n) begin
-            for(i = 1; i < `RegNum; i = i + 1) begin
-                regs[i] <= 0;
-            end
+        // if(rst) begin
+        //     for(i = 1; i < `ysyx_25110270_RegNum; i = i + 1) begin
+        //         regs[i] <= 0;
+        //     end
+        // end else begin
+        if(I_rd_we && (I_rd_waddr != 0)) begin
+            regs[I_rd_waddr] <= I_rd_wdata;
+        end
+        // end
+    end
+
+    reg [31:0] rs1_rdata, rs2_rdata;
+    always @(*) begin
+        if(I_rs1_raddr == 0) begin
+            rs1_rdata = 0;
+        end else if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
+            rs1_rdata = I_rd_wdata;
         end else begin
-            if((I_rd_we == `Enable) && (I_rd_waddr != 0)) begin
-                regs[I_rd_waddr] <= I_rd_wdata;
-            end
+            rs1_rdata = regs[I_rs1_raddr];
+        end
+    end
+
+    always @(*) begin
+        if(I_rs2_raddr == 0) begin
+            rs2_rdata = 0;
+        end else if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
+            rs2_rdata = I_rd_wdata;
+        end else begin
+            rs2_rdata = regs[I_rs2_raddr];
         end
     end
 
     //读寄存器
-    assign O_rs1_rdata = 
-                I_rs1_raddr == 0 ? 0 :
-                (I_rd_we && I_rd_waddr == I_rs1_raddr) ? I_rd_wdata : regs[I_rs1_raddr];
-
-    assign O_rs2_rdata = 
-                I_rs2_raddr == 0 ? 0 :
-                (I_rd_we && I_rd_waddr == I_rs2_raddr) ? I_rd_wdata : regs[I_rs2_raddr];
+    assign O_rs1_rdata = rs1_rdata;
+    assign O_rs2_rdata = rs2_rdata;
 
     assign O_gpr0  = 0;
     assign O_gpr1  = regs[1];

@@ -12,6 +12,8 @@ typedef struct {
     uint32_t sets;         // 组数（自动计算）
     bool is_icache;        // 是否为指令cache
     char replace_policy[10]; // 替换策略: lru/fifo/random
+    bool write_back;       // 写策略: true=写回, false=写直达
+    bool write_allocate;   // 写分配策略
 } CacheConfig;
 
 // Cache行元数据
@@ -34,6 +36,9 @@ typedef struct {
     uint64_t miss_count;
     uint64_t read_hit;
     uint64_t read_miss;
+    uint64_t write_hit;
+    uint64_t write_miss;
+    uint64_t write_backs;  // 写回次数
     uint64_t counter;      // 全局计数器
 } CacheSim;
 
