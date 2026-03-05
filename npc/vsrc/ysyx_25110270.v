@@ -12,7 +12,7 @@
 
 `endif
 
-`define ysyx_25110270_NETSIM
+// `define ysyx_25110270_NETSIM
 
 //------------------------------------------------------------------------
 // rv32i load type inst
