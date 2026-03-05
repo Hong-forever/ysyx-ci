@@ -1,0 +1,92 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Mar  3 08:44:38 2026
+[*]
+[dumpfile] "/home/hhh/Public/ysyx/ysyx-workbench/npc/build/waveform.vcd"
+[dumpfile_mtime] "Tue Mar  3 08:17:52 2026"
+[dumpfile_size] 99080878
+[optimize_vcd]
+[savefile] "/home/hhh/Public/ysyx/ysyx-workbench/npc/constr/wave_signal.gtkw"
+[timestart] 95612490
+[size] 2560 1345
+[pos] -27 -24
+*-12.338794 95641000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top_tb.
+[treeopen] top_tb.top.
+[treeopen] top_tb.top.ysyx_25110270.
+[treeopen] top_tb.top.ysyx_25110270.cpu_core.
+[treeopen] top_tb.top.ysyx_25110270.cpu_core.u_exec.
+[treeopen] top_tb.top.ysyx_25110270.cpu_core.u_wbu.
+[sst_width] 297
+[signals_width] 214
+[sst_expanded] 1
+[sst_vpaned_height] 398
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_ifetch.clk
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_ifetch.O_inst[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_ifetch.O_inst_addr[31:0]
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_ifetch.ibus_arvalid
+top_tb.top.ysyx_25110270.cpu_core.u_ifetch.I_ready
+top_tb.top.ysyx_25110270.cpu_core.u_ifetch.O_valid
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_decoder.O_inst[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_decoder.O_inst_addr[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_exec.O_inst[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_exec.O_inst_addr[31:0]
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_exec.O_bru_taken
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_exec.O_bru_target[31:0]
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_arvalid
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_araddr[31:0]
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_rvalid
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_exec.lsu.dbus_rdata[31:0]
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_rlast
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_awvalid
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_awready
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_awaddr[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_wdata[31:0]
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_exec.dbus_bvalid
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.I_inst[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.I_inst_addr[31:0]
+@28
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.I_rd_we
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.I_rd_waddr[3:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.I_rd_wdata[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.gpr10[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.gpr15[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.inst_r1[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.inst_addr_r1[31:0]
+@28
+top_tb.top.mem_test.arvalid_i
+@22
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr0[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr1[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr2[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr3[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr4[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr5[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr6[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr7[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr8[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr9[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr10[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr11[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr12[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr13[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr14[31:0]
+top_tb.top.ysyx_25110270.cpu_core.u_wbu.u_regfile.O_gpr15[31:0]
+top_tb.top.mem_test.araddr_i[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

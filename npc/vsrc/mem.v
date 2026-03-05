@@ -143,7 +143,7 @@ module mem
                 rvalid <= 1'b0;
                 rlast <= 1'b0;
             end else if(arvalid_i || flag) begin
-                rdata <= paddr_read(araddr_i);
+                rdata <= paddr_read(araddr_i + 4*cnt);
                 rvalid <= 1'b1;
                 if(cnt == arlen_i) begin
                     rlast <= 1'b1;
