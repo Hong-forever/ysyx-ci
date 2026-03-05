@@ -31,7 +31,7 @@ TOPNAME = ysyxSoCFull
 
 else
 
-ifeq ($(CONFIG_ICARUS),1)
+ifeq ($(CONFIG_ICARUS),y)
 TOPNAME = top_tb
 else
 TOPNAME = top
@@ -84,7 +84,7 @@ IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
-ifneq ($(iverilog),1)
+ifneq ($(CONFIG_ICARUS),y)
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -164,7 +164,7 @@ CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
 
-ifneq ($(iverilog),1)
+ifneq ($(CONFIG_ICARUS),y)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
