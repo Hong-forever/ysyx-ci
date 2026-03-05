@@ -2319,7 +2319,6 @@ module ysyx_25110270_regfile
     wire [31:0] gpr_a4 = regs[14];
     wire [31:0] gpr_a5 = regs[15];
 
-
 `endif
 
 `ifdef __ICARUS__
@@ -2514,6 +2513,9 @@ module ysyx_25110270_pipeline_if_dec
     always @(posedge clk) begin
         if(rst | I_flush) begin
             O_inst          <= 0                        ;
+`ifdef ysyx_25110270_DPIC
+            O_inst_addr     <= 0                        ;
+`endif
         end else if(I_enable) begin
             O_inst          <= I_inst                   ;
             O_inst_addr     <= I_inst_addr              ;
