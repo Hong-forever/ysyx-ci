@@ -52,8 +52,7 @@ module mem
     reg [7:0] mem_array3 [0 : 32'h0200_0000-1];
 
     initial begin
-        // $readmemh("/home/hhh/Public/ysyx/ysyx-workbench/npc/build/test.data", mem_array0);
-        $readmemh("build/test.data", mem_array0);
+        $readmemh("/home/hhh/Public/ysyx/ysyx-workbench/npc/build/test.data", mem_array0);
     end
     wire [31:0] araddr_align = {araddr_i[31:2], 2'b00};
 
