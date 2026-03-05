@@ -74,6 +74,7 @@ config ICARUS
   default n
 
 config TRACE
+  depends on !ICARUS
   bool "Enable tracer"
   default y
 
@@ -98,12 +99,12 @@ config LOOP_DETECT
   default n
   
 config WATCHPOINT
-  depends on ITRACE
+  depends on ITRAC
   bool "Enable watchpoint"
   default y
 
 config MTRACE
-  depends on TRACE 
+  depends on TRACE
   bool "Enable memory trace"
   default n
 
@@ -118,16 +119,17 @@ config MTRACE_SIZE
   default 0x1000
 
 config FTRACE
-  depends on TRACE 
+  depends on TRACE
   bool "Enable function trace"
   default n 
 
 config DTRACE
-  depends on TRACE 
+  depends on TRAC
   bool "Enable device trace"
   default n 
 
 config PERF_CAL
+  depends on !ICARUS
   bool "Enable performance calculation"
   default y
 
