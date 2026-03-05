@@ -68,6 +68,11 @@ config SOC
   bool "enable SoC simulation"
   default n
 
+config BOOTLOADER
+  depends on SOC
+  bool "enable bootloader"
+  default n
+
 config ICARUS
   depends on !SOC
   bool "enable icarus verilog"

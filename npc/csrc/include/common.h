@@ -27,8 +27,15 @@ typedef uint32_t vaddr_t;
 typedef uint32_t word_t;
 
 #ifdef CONFIG_SOC
+
+#ifdef CONFIG_BOOTLOADER
 #define RESET_VECTOR (CONFIG_FLASH_BASE + CONFIG_PC_RESET_OFFSET)
 #else
+#define RESET_VECTOR (CONFIG_SDRAM_BASE + CONFIG_PC_RESET_OFFSET)
+#endif
+
+#else
+
 #define RESET_VECTOR (CONFIG_MBASE + CONFIG_PC_RESET_OFFSET)
 #endif
 

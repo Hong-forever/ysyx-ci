@@ -210,9 +210,17 @@
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
 `ifdef ysyx_25110270_SOC
-    `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+
+    `ifdef ysyx_25110270_BOOTLOADER
+        `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+    `else
+        `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+    `endif
+
 `else
+
     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+
 `endif
 
 //------------------------------------------------------------------------
