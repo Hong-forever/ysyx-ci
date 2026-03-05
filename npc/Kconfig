@@ -68,6 +68,11 @@ config SOC
   bool "enable SoC simulation"
   default n
 
+config ICARUS
+  depends on !SOC
+  bool "enable icarus verilog"
+  default n
+
 config TRACE
   bool "Enable tracer"
   default y
@@ -127,6 +132,7 @@ config PERF_CAL
   default y
 
 config DIFFTEST
+  depends on !ICARUS
   bool "Enable differential testing"
   default y
   help
