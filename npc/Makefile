@@ -4,7 +4,7 @@
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
 
-USE_NVBOARD = 0
+USE_NVBOARD = 1
 
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
@@ -52,6 +52,11 @@ VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing
 
 ifeq ($(CONFIG_SOC),y)
 VERILATOR_CFLAGS += -Dysyx_25110270_SOC=1
+
+ifeq ($(CONFIG_BOOTLOADER),y)
+VERILATOR_CFLAGS += -Dysyx_25110270_BOOTLOADER=1
+endif
+
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 endif
