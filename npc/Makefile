@@ -78,7 +78,7 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(NPC_HOME)/scripts/difftest.mk
 
-IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+# IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
@@ -179,14 +179,21 @@ ifeq ($(WAVE_ENABLE),1)
 IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
 endif
 
+ifneq ($(IMG),)
 FORCE:
-
 
 $(BUILD_DIR)/test.data: $(IMG) FORCE
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $@
 
 $(BIN): $(VSRCS) $(BUILD_DIR)/test.data
 	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+else 
+
+$(BIN): $(VSRCS) 
+	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+
+endif
+
 
 endif
 
