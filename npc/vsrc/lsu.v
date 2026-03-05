@@ -281,13 +281,15 @@ module ysyx_25110270_lsu
     assign dbus_rready = 1'b0;   // xbar中已经将rready固定为1'b1了
 
 `ifdef DEBUG
-    reg valid;
+    reg valid, valid_r;
 
     always @(posedge clk) begin
         if(rst) begin
             valid <= 1'b0;
+            valid_r <= 1'b0;
         end else begin
             valid <= I_valid;
+            valid_r <= valid;
         end
     end
 
@@ -310,7 +312,7 @@ module ysyx_25110270_lsu
                           not_in_ps2 & not_in_vga & not_in_chipl;
 
     always @(posedge clk) begin
-        if((dbus_arvalid || dbus_awvalid) && not_in_device && valid) begin
+        if((dbus_arvalid || dbus_awvalid) && not_in_device && valid_r) begin
             $error("LSU: Data read address out of range at pc 0x%08x, access addr 0x%08x!", I_inst_addr, I_memory_addr);
         end
         if(dbus_bvalid && dbus_bresp != 2'b00) begin
