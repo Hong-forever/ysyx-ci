@@ -281,6 +281,16 @@ module ysyx_25110270_lsu
     assign dbus_rready = 1'b0;   // xbar中已经将rready固定为1'b1了
 
 `ifdef DEBUG
+    reg valid;
+
+    always @(posedge clk) begin
+        if(rst) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
     wire not_in_mrom   = (I_memory_addr < `ysyx_25110270_MromAddrBase ) | (I_memory_addr >= (`ysyx_25110270_MromAddrBase  + `ysyx_25110270_MromSize   ));
     wire not_in_sram   = (I_memory_addr < `ysyx_25110270_SramAddrBase ) | (I_memory_addr >= (`ysyx_25110270_SramAddrBase  + `ysyx_25110270_SramSize   ));
     wire not_in_flash  = (I_memory_addr < `ysyx_25110270_FlashAddrBase) | (I_memory_addr >= (`ysyx_25110270_FlashAddrBase + `ysyx_25110270_FlashSize  ));
@@ -300,7 +310,7 @@ module ysyx_25110270_lsu
                           not_in_ps2 & not_in_vga & not_in_chipl;
 
     always @(posedge clk) begin
-        if((dbus_arvalid || dbus_awvalid) && not_in_device) begin
+        if((dbus_arvalid || dbus_awvalid) && not_in_device && valid) begin
             $error("LSU: Data read address out of range at pc 0x%08x, access addr 0x%08x!", I_inst_addr, I_memory_addr);
         end
         if(dbus_bvalid && dbus_bresp != 2'b00) begin
