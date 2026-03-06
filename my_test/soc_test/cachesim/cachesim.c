@@ -72,6 +72,9 @@ void cachesim_reset_stats(CacheSim *cache) {
     cache->miss_count = 0;
     cache->read_hit = 0;
     cache->read_miss = 0;
+    cache->write_hit = 0;
+    cache->write_miss = 0;
+    cache->write_backs = 0;
     cache->counter = 0;
 }
 
@@ -138,10 +141,21 @@ static CacheLine* find_victim(CacheSim *cache, uint32_t index) {
 // 处理cache缺失
 static void handle_miss(CacheSim *cache, uint32_t index, uint32_t tag, 
                        bool is_write, CacheLine *line) {
-    
+
+    // 检查是否需要写回
+    if (line->valid && line->dirty && cache->config.write_back) {
+        cache->write_backs++;
+    }
+
     // 加载新行
     line->tag = tag;
     line->valid = true;
+
+    if (is_write && cache->config.write_allocate && !cache->config.is_icache) {
+        line->dirty = true;
+    } else {
+        line->dirty = false;
+    }
     
     // 更新计数器
     line->lru_counter = cache->counter;
@@ -178,6 +192,17 @@ bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write) {
         // 命中
         cache->hit_count++;
         if (is_write) {
+            cache->write_hit++;
+            // 如果是写命中
+            if (!cache->config.is_icache) {
+                // 对于dcache，根据写策略处理
+                if (cache->config.write_back) {
+                    line->dirty = true;  // 写回策略：置脏位
+                } else {
+                    // 写直达策略：立即写主存，不清除脏位（通常写直达没有脏位）
+                    // 这里模拟写主存操作
+                }
+            }
         } else {
             cache->read_hit++;
         }
@@ -190,6 +215,7 @@ bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write) {
         // 缺失
         cache->miss_count++;
         if (is_write) {
+            cache->write_miss++;
         } else {
             cache->read_miss++;
         }
@@ -204,23 +230,20 @@ bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write) {
     }
 }
 
-uint64_t cachesim_calculate_miss_penalty(uint32_t block_size, bool is_dram) {
-    
-    return 20;
+double cachesim_calculate_miss_penalty() {
+    return 92.08;
 }
 
 // 估算总缺失时间（TMT）
 double cachesim_estimate_tmt(CacheSim *cache, double clock_freq) {
     if (cache->access_count == 0) return 0.0;
     
-    double miss_rate = (double)cache->miss_count / cache->access_count;
-    uint64_t miss_penalty = cachesim_calculate_miss_penalty(
-        cache->config.block_size, true);  // 假设DRAM
+    // double miss_rate = (double)cache->miss_count / cache->access_count;
+    double miss_penalty = cachesim_calculate_miss_penalty();
     
-    double total_cycles = cache->access_count * (1 - miss_rate) * 1  // 命中周期
-                        + cache->miss_count * miss_penalty;          // 缺失周期
+    double total_cycles = cache->miss_count * miss_penalty;         
     
-    return total_cycles / clock_freq;  // 秒
+    return total_cycles / clock_freq;
 }
 
 // 打印统计信息
@@ -235,6 +258,8 @@ void cachesim_print_stats(CacheSim *cache) {
     printf("  Sets:           %u\n", cache->config.sets);
     printf("  Type:           %s\n", cache->config.is_icache ? "I-Cache" : "D-Cache");
     printf("  Replace policy: %s\n", cache->config.replace_policy);
+    printf("  Write policy:   %s\n", cache->config.write_back ? "Write-Back" : "Write-Through");
+    printf("  Write allocate: %s\n", cache->config.write_allocate ? "Yes" : "No");
     
     printf("\nAccess Statistics:\n");
     printf("  Total accesses: %lu\n", cache->access_count);
@@ -257,7 +282,17 @@ void cachesim_print_stats(CacheSim *cache) {
         printf("  Read hit rate:  %.2f%%\n", 
                100.0 * cache->read_hit / cache->read_count);
     }
-   
+
+    if (cache->write_count > 0) {
+        printf("  Write hit rate: %.2f%%\n", 
+               100.0 * cache->write_hit / cache->write_count);
+    }
+    
+    if (!cache->config.is_icache) {
+        printf("  Write backs:    %lu\n", cache->write_backs);
+    }
+    
+    printf(" Total Miss Time (TMT): %.2f cycles\n", cachesim_estimate_tmt(cache, 1.0));
     
     printf("================================================\n");
 }

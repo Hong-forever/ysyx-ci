@@ -36,12 +36,29 @@ static void report_mmio_overlap(const char *name1, paddr_t l1, paddr_t r1,
 void add_mmio_map(const char *name, paddr_t addr, void *space, uint32_t len, io_callback_t callback) {
   assert(nr_map < NR_MAP);
   paddr_t left = addr, right = addr + len - 1;
+
+#ifdef CONFIG_SOC
   if (in_mrom(left) || in_mrom(right)) {
     report_mmio_overlap(name, left, right, "rom", PMEM_LEFT_MROM, PMEM_RIGHT_MROM);
   }
   if (in_sram(left) || in_sram(right)) {
     report_mmio_overlap(name, left, right, "ram", PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM);
   }
+  // if (in_flash(left) || in_flash(right)) {
+  //   report_mmio_overlap(name, left, right, "flash", PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH);
+  // }
+  // if (in_psram(left) || in_psram(right)) {
+  //   report_mmio_overlap(name, left, right, "psram", PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM);
+  // }
+  // if (in_sdram(left) || in_sdram(right)) {
+  //   report_mmio_overlap(name, left, right, "sdram", PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM);
+  // }
+#else
+  if (in_pmem(left) || in_pmem(right)) {
+    report_mmio_overlap(name, left, right, "pmem", PMEM_LEFT, PMEM_RIGHT);
+  }
+#endif
+
   for (int i = 0; i < nr_map; i++) {
     if (left <= maps[i].high && right >= maps[i].low) {
       report_mmio_overlap(name, left, right, maps[i].name, maps[i].low, maps[i].high);

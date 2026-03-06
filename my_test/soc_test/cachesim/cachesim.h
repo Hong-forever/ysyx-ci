@@ -12,6 +12,8 @@ typedef struct {
     uint32_t sets;         // 组数（自动计算）
     bool is_icache;        // 是否为指令cache
     char replace_policy[10]; // 替换策略: lru/fifo/random
+    bool write_back;       // 写策略: true=写回, false=写直达
+    bool write_allocate;   // 写分配策略
 } CacheConfig;
 
 // Cache行元数据
@@ -34,6 +36,9 @@ typedef struct {
     uint64_t miss_count;
     uint64_t read_hit;
     uint64_t read_miss;
+    uint64_t write_hit;
+    uint64_t write_miss;
+    uint64_t write_backs;  // 写回次数
     uint64_t counter;      // 全局计数器
 } CacheSim;
 
@@ -43,7 +48,7 @@ void cachesim_destroy(CacheSim *cache);
 bool cachesim_access(CacheSim *cache, uint32_t addr, bool is_write);
 void cachesim_print_stats(CacheSim *cache);
 void cachesim_reset_stats(CacheSim *cache);
-uint64_t cachesim_calculate_miss_penalty(uint32_t block_size, bool is_dram);
+double cachesim_calculate_miss_penalty();
 double cachesim_estimate_tmt(CacheSim *cache, double clock_freq);
 
 int process_binary_trace(const char *filename, CacheSim *cache);

@@ -4,7 +4,7 @@
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
 
-USE_NVBOARD = 0
+USE_NVBOARD = 1
 
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
@@ -24,11 +24,25 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 endif
 
+
+ifeq ($(CONFIG_SOC),y)
+
 TOPNAME = ysyxSoCFull
+
+else
+
+ifeq ($(CONFIG_ICARUS),y)
+TOPNAME = top_tb
+else
+TOPNAME = top
+endif
+
+endif
 
 remove_quote = $(patsubst "%",%,$(1))
 
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
+INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 VERILATOR = verilator
@@ -36,12 +50,17 @@ VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 8
 VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
 
-ifeq ($(SOC),1)
-VERILATOR_CFLAGS += -DSOC=1
+ifeq ($(CONFIG_SOC),y)
+VERILATOR_CFLAGS += -Dysyx_25110270_SOC=1
+
+ifeq ($(CONFIG_BOOTLOADER),y)
+VERILATOR_CFLAGS += -Dysyx_25110270_BOOTLOADER=1
 endif
-VERILATOR_CFLAGS += -I./vsrc
+
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
+endif
+VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
 
@@ -53,9 +72,9 @@ endif
 
 view_wave:
 ifeq ($(WAVE_FORMAT),1)
-	@gtkwave ${NPC_HOME}/build/waveform.vcd
+	@gtkwave -o $(NPC_HOME)/build/waveform.vcd
 else
-	@gtkwave ${NPC_HOME}/build/waveform.fst
+	@gtkwave -o $(NPC_HOME)/build/waveform.fst
 endif
 
 BUILD_DIR = ./build
@@ -64,10 +83,12 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 include $(NPC_HOME)/scripts/difftest.mk
 
-IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
+# IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
+
+ifneq ($(CONFIG_ICARUS),y)
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -77,13 +98,21 @@ else
 	$(BIN) $(ARGS) $(IMG)
 endif
 
+else
+
+sim: $(BIN)
+	$(call git_commit, "sim RTL with iverilog") # DO NOT REMOVE THIS LINE!!!
+	vvp $(BIN)
+
+endif
+
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
+	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
 
 test: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
+	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -101,10 +130,12 @@ include $(FILELIST_MK)
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS-y ?= $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
-VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "*.v")
+VSRCS-SYM += $(shell find $(abspath ./vsrc) -name "ysyx_25110270.v")
 
+ifeq ($(CONFIG_SOC),y)
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
+endif
 
 ifeq ($(USE_NVBOARD),1)
 CSRCS-y += $(SRC_AUTO_BIND)
@@ -132,13 +163,12 @@ CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
 CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
-ifeq ($(SOC),1)
-CXXFLAGS += -DSOC=1
-endif
 
 # CXXFLAGS += -fpermissive
 
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
+
+ifneq ($(CONFIG_ICARUS),y)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -147,6 +177,30 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
+else
+
+IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
+ifeq ($(WAVE_ENABLE),1)
+IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
+endif
+
+ifneq ($(IMG),)
+FORCE:
+
+$(BUILD_DIR)/test.data: $(IMG) FORCE
+	riscv64-linux-gnu-objcopy -I binary -O verilog $< $@
+
+$(BIN): $(VSRCS) $(BUILD_DIR)/test.data
+	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+else 
+
+$(BIN): $(VSRCS) 
+	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
+
+endif
+
+
+endif
 
 ifeq ($(WAVE_ENABLE),1)
 run: sim view_wave

@@ -64,7 +64,22 @@ endmenu
 
 menu "Testing and Debugging"
 
+config SOC
+  bool "enable SoC simulation"
+  default n
+
+config BOOTLOADER
+  depends on SOC
+  bool "enable bootloader"
+  default n
+
+config ICARUS
+  depends on !SOC
+  bool "enable icarus verilog"
+  default n
+
 config TRACE
+  depends on !ICARUS
   bool "Enable tracer"
   default y
 
@@ -89,12 +104,12 @@ config LOOP_DETECT
   default n
   
 config WATCHPOINT
-  depends on ITRACE
+  depends on ITRAC
   bool "Enable watchpoint"
   default y
 
 config MTRACE
-  depends on TRACE 
+  depends on TRACE
   bool "Enable memory trace"
   default n
 
@@ -109,20 +124,22 @@ config MTRACE_SIZE
   default 0x1000
 
 config FTRACE
-  depends on TRACE 
+  depends on TRACE
   bool "Enable function trace"
   default n 
 
 config DTRACE
-  depends on TRACE 
+  depends on TRAC
   bool "Enable device trace"
   default n 
 
 config PERF_CAL
+  depends on !ICARUS
   bool "Enable performance calculation"
   default y
 
 config DIFFTEST
+  depends on !ICARUS
   bool "Enable differential testing"
   default y
   help

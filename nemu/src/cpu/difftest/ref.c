@@ -84,5 +84,11 @@ __EXPORT void difftest_init(int port)
     init_mem();
     /* Perform ISA dependent initialization. */
     init_isa();
+
+#ifdef CONFIG_SOC
+    printf("Diff: Nemu is running on SoC mode, with reset vector 0x%08x\n", RESET_VECTOR);
+#else
+    printf("Diff: Nemu is running on normal mode, with reset vector 0x%08x\n", RESET_VECTOR);
+#endif
     // printf("cpu.pc = 0x%08x\n", cpu.pc);
 }
