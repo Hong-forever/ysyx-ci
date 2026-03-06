@@ -130,9 +130,6 @@ endmenu
 
 menu "Testing and Debugging"
 
-config SOC
-  bool "enable SoC simulation"
-  default n
 
 config TRACE
   bool "Enable tracer"
@@ -174,16 +171,12 @@ config ETRACE
   bool "Enable exception trace"
   default n 
 
-config BTRACE
-  bool "Enable branch trace"
-  default n
-
 config LOOP_DETECT
   bool "Enable loop detection"
   default n
 
 config DIFFTEST
-  depends on TARGET_NATIVE_ELF && !SOC
+  depends on TARGET_NATIVE_ELF
   bool "Enable differential testing"
   default n
   help

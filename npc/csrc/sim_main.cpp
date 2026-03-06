@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     printf("Waveform generation " COLOR_RED "%s" COLOR_END "\n", "OFF");
 #endif
 
-#ifdef CONFIG_SOC
+#ifdef SOC
     printf("SIMULATOR is running in SOC mode! Reset vector: 0x%08x\n", RESET_VECTOR);
 #else
     printf("SIMULATOR is running in NPC mode! Reset vector: 0x%08x\n", RESET_VECTOR);
