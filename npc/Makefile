@@ -6,6 +6,7 @@
 CONFIG_SOC ?= y
 CONFIG_BOOTLOADER ?= y
 CONFIG_ICARUS ?= n
+ci_test ?= 1
 
 USE_NVBOARD = 1
 
@@ -187,20 +188,10 @@ ifeq ($(WAVE_ENABLE),1)
 IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
 endif
 
-verilog:
-	cp ./vsrc/ysyx_25110270.v $(BUILD_DIR)/ysyx_25110270.v
 
-ifeq($(ci_test),1)
 
-IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
 
-sim_iverilog: $(IMG)
-	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
-	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(BUILD_DIR)/ysyx_25110270.v $(IVERILOG_FLAGS)
-	vvp $(BUILD_DIR)/top_tb
-	rm -rf $(BUILD_DIR)
 
-endif
 
 ifneq ($(IMG),)
 FORCE:
@@ -217,6 +208,21 @@ $(BIN): $(VSRCS)
 
 endif
 
+
+endif
+
+ifeq ($(ci_test),1)
+
+verilog:
+	cp ./vsrc/ysyx_25110270.v $(BUILD_DIR)/ysyx_25110270.v
+
+IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
+
+sim_iverilog: $(IMG)
+	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
+	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(BUILD_DIR)/ysyx_25110270.v $(IVERILOG_FLAGS)
+	vvp $(BUILD_DIR)/top_tb
+	rm -rf $(BUILD_DIR)
 
 endif
 
