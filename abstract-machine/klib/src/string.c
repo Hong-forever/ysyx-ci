@@ -59,7 +59,9 @@ int strncmp(const char *s1, const char *s2, size_t n) {
         }
     }
 
-    return 0;
+    if(i == n) return 0;
+
+    return s1[i] - s2[i];
 }
 
 void *memset(void *s, int c, size_t n) {
