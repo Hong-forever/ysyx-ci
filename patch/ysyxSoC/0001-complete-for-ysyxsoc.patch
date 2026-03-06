@@ -24,14 +24,6 @@ index c30262ea..3ea0c338 100644
  
  verilog: $(V_FILE_FINAL)
  
-diff --git a/patch/firtool/firtool-1.105.0/bin/firtool b/patch/firtool/firtool-1.105.0/bin/firtool
-new file mode 100755
-index 00000000..7acfdd16
-Binary files /dev/null and b/patch/firtool/firtool-1.105.0/bin/firtool differ
-diff --git a/patch/firtool/firtool-1.105.0/bin/om-linker b/patch/firtool/firtool-1.105.0/bin/om-linker
-new file mode 100755
-index 00000000..ddf2dce9
-Binary files /dev/null and b/patch/firtool/firtool-1.105.0/bin/om-linker differ
 diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
 index c0d20764..64c92690 100644
 --- a/perip/amba/apb_delayer.v
