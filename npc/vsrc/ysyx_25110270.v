@@ -209,13 +209,14 @@
 `define ysyx_25110270_SdramAddrBase 32'ha000_0000
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
-`ifdef ysyx_25110270_SOC
+// `ifdef ysyx_25110270_SOC
+`ifndef __ICARUS__
 
-    `ifdef ysyx_25110270_BOOTLOADER
+    // `ifdef ysyx_25110270_BOOTLOADER
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
-    `else
-        `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
-    `endif
+    // `else
+        // `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+    // `endif
 
 `else
 
