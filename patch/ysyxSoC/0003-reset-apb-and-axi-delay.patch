@@ -1,0 +1,53 @@
+From 6ced2143cf8564bf0289b3c2182421c1f231aa03 Mon Sep 17 00:00:00 2001
+From: hhh <3224318821@qq.com>
+Date: Fri, 6 Mar 2026 17:14:45 +0800
+Subject: [PATCH 3/3] reset apb and axi delay
+
+
+diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
+index 64c92690..f8311eba 100644
+--- a/perip/amba/apb_delayer.v
++++ b/perip/amba/apb_delayer.v
+@@ -30,7 +30,7 @@ module apb_delayer(
+     // parameter FREQ_CPU
+     // parameter FREQ_PER = 100;
+ 
+-    parameter FACTOR = 10;
++    parameter FACTOR = 0;
+      /* (freq - 1) * 1024  
+         1003  -> 9247
+         1018  -> 9400
+@@ -42,7 +42,7 @@ module apb_delayer(
+         1072  -> 9953
+         1140  -> 10650
+     */
+-    parameter RATE_FIX = 10650; 
++    parameter RATE_FIX = 1; 
+     
+     reg [1:0] state, nstate;
+ 
+diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
+index 5989bb6f..5a55c8ea 100644
+--- a/perip/amba/axi4_delayer.v
++++ b/perip/amba/axi4_delayer.v
+@@ -77,7 +77,7 @@ module axi4_delayer(
+     // parameter FREQ_CPU
+     // parameter FREQ_PER = 100;
+ 
+-    parameter FACTOR = 10;
++    parameter FACTOR = 1;
+      /* (freq - 1) * 1024  
+         1003  -> 9247
+         1018  -> 9400
+@@ -89,7 +89,7 @@ module axi4_delayer(
+         1072  -> 9953
+         1140  -> 10650
+     */
+-    parameter RATE_FIX = 10650; 
++    parameter RATE_FIX = 1; 
+     
+     reg [3:0] state, nstate;
+ 
+-- 
+2.34.1
+

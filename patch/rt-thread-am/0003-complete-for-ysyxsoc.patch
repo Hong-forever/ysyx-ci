@@ -1,0 +1,33 @@
+From 2ccddf15fd5ce853ab56a1e78236f087bd71a3f9 Mon Sep 17 00:00:00 2001
+From: hhh <3224318821@qq.com>
+Date: Fri, 6 Mar 2026 16:54:33 +0800
+Subject: [PATCH 3/3] complete for ysyxsoc
+
+---
+ bsp/abstract-machine/extra.ld | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/bsp/abstract-machine/extra.ld b/bsp/abstract-machine/extra.ld
+index 5cdc656..acd9574 100644
+--- a/bsp/abstract-machine/extra.ld
++++ b/bsp/abstract-machine/extra.ld
+@@ -27,7 +27,7 @@ SECTIONS {
+     *(__am_apps.sdata*)
+     __am_apps_data_end = .;
+     . = ALIGN(8);
+-  }
++  } > sdram AT> flash : data
+ }
+ INSERT BEFORE .data;
+ 
+@@ -40,6 +40,6 @@ SECTIONS {
+     *(__am_apps.scommon*)
+     __am_apps_bss_end = .;
+     . = ALIGN(8);
+-  }
++  } > sdram
+ }
+ INSERT BEFORE .bss;
+-- 
+2.34.1
+
