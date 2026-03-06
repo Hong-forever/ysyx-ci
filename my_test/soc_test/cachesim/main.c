@@ -14,10 +14,7 @@ typedef struct {
     uint32_t ways;
     uint32_t block_size;
     char replace_policy[10];
-    bool write_back;
-    bool write_allocate;
     bool icache_only;
-
 } CmdArgs;
 
 // 解析命令行参数
@@ -29,10 +26,6 @@ int parse_args(int argc, char *argv[], CmdArgs *args) {
         {"ways", required_argument, 0, 'w'},
         {"block", required_argument, 0, 'b'},
         {"policy", required_argument, 0, 'p'},
-        {"write-back", no_argument, 0, 'B'},
-        {"write-through", no_argument, 0, 'T'},
-        {"write-allocate", no_argument, 0, 'a'},
-        {"no-write-allocate", no_argument, 0, 'A'},
         {"icache", no_argument, 0, 'i'},
         {0, 0, 0, 0}
     };
@@ -47,7 +40,7 @@ int parse_args(int argc, char *argv[], CmdArgs *args) {
     args->icache_only = false;
     
     int opt;
-    while ((opt = getopt_long(argc, argv, "t:y:s:w:b:p:BTaAih",
+    while ((opt = getopt_long(argc, argv, "t:y:s:w:b:p:ivh", 
                               long_options, NULL)) != -1) {
         switch (opt) {
             case 't':
@@ -68,18 +61,6 @@ int parse_args(int argc, char *argv[], CmdArgs *args) {
             case 'p':
                 strncpy(args->replace_policy, optarg, sizeof(args->replace_policy)-1);
                 break;
-            case 'B':
-                args->write_back = true;
-                break;
-            case 'T':
-                args->write_back = false;
-                break;
-            case 'a':
-                args->write_allocate = true;
-                break;
-            case 'A':
-                args->write_allocate = false;
-                break;
             case 'i':
                 args->icache_only = true;
                 break;
@@ -93,10 +74,6 @@ int parse_args(int argc, char *argv[], CmdArgs *args) {
                 printf("  -w, --ways N            Associativity (default: 4)\n");
                 printf("  -b, --block BYTES       Block size in bytes (default: 64)\n");
                 printf("  -p, --policy POLICY     Replacement policy: lru/fifo/random (default: lru)\n");
-                printf("  -B, --write-back        Use write-back policy (default)\n");
-                printf("  -T, --write-through     Use write-through policy\n");
-                printf("  -a, --write-allocate    Use write-allocate (default)\n");
-                printf("  -A, --no-write-allocate Use no-write-allocate\n");
                 printf("  -i, --icache            I-cache only mode (simplified)\n");
                 printf("  -h, --help              Show this help\n");
                 return 1;
@@ -122,8 +99,6 @@ int main(int argc, char *argv[]) {
     config.ways = args.ways;
     config.block_size = args.block_size;
     config.is_icache = args.icache_only || strcmp(args.cache_type, "icache") == 0;
-    config.write_back = args.write_back && !config.is_icache;
-    config.write_allocate = args.write_allocate && !config.is_icache;
     strcpy(config.replace_policy, args.replace_policy);
     
     // 创建cache模拟器
@@ -140,8 +115,7 @@ int main(int argc, char *argv[]) {
     printf("  Ways: %u\n", config.ways);
     printf("  Block: %u bytes\n", config.block_size);
     printf("  Policy: %s\n", config.replace_policy);
-    printf("  Write: %s\n", config.write_back ? "Write-Back" : "Write-Through");
-    printf("  Write allocate: %s\n", config.write_allocate ? "Yes" : "No");
+    
     // 处理trace文件
     int access_count = 0;
     if (strstr(args.trace_file, ".bin") != NULL) {
@@ -157,7 +131,7 @@ int main(int argc, char *argv[]) {
     cachesim_print_stats(cache);
     
     // 估算TMT
-    double clock_freq = 1000e6;  // 1000 MHz
+    double clock_freq = 100e6;  // 100 MHz
     double tmt = cachesim_estimate_tmt(cache, clock_freq);
     printf("\nPerformance Estimation (assuming %.0f MHz clock):\n", clock_freq / 1e6);
     printf("  Total Miss Time (TMT): %.6f seconds\n", tmt);

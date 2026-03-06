@@ -191,7 +191,6 @@ void statistic() {
 static void exec_once()
 {
     single_cycle();
-    
     g_cycle++;
     
     if (!cpu_inst_valid) return;

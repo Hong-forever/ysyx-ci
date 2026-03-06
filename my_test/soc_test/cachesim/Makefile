@@ -1,31 +1,24 @@
-.DEFAULT_GOAL := all
 CC = gcc
-CFLAGS = -Wall -O2 -g -MMD -I.
+CFLAGS = -Wall -O2 -g
 LDFLAGS = -lm -lz
 
-TARGET = build/cachesim
+TARGET = cachesim
 SRCS = main.c cachesim.c trace.c
-OBJS = $(addprefix build/, $(SRCS:.c=.o))
-DEPS = $(OBJS:.o=.d)
+OBJS = $(SRCS:.c=.o)
 HEADERS = cachesim.h
-
-$(shell mkdir -p build)
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-build/%.o: %.c $(HEADERS)
+%.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
--include $(DEPS)
-
 clean:
-	rm -rf build
+	rm -f $(TARGET) $(OBJS)
 
 run: $(TARGET)
-# 	./$(TARGET) --trace /home/hhh/Templates/cachesim.bin --size 64 --ways 1 --block 4 --policy lru --icache
-	./$(TARGET) --trace /home/hhh/Templates/dcachesim.bin --size 64 --ways 1 --block 8 --policy lru -y dcache --write-back --write-allocate
+	./$(TARGET) --trace /tmp/nemu_itrace_pc.bin --size 64 --ways 1 --block 4 --policy lru --icache
 
 .PHONY: all clean run
