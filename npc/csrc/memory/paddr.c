@@ -77,7 +77,7 @@ static void pmem_write(paddr_t waddr, word_t wdata, uint32_t len)
 
 word_t paddr_read(paddr_t addr) {
     if (likely(in_pmem(addr))) {
-        // printf("paddr_data: 0x%08x\n", pmem_read(addr));
+        printf("paddr_data: 0x%08x\n", pmem_read(addr));
         return pmem_read(addr&~0x3);
     } else {
         out_of_bound(addr, false);
@@ -112,7 +112,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 extern "C" void psram_read(int32_t addr, int32_t *data) {
     //spi
     *data = paddr_read(addr + CONFIG_PSRAM_BASE);
-    // printf("psram_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
+    printf("psram_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
 }
 
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {
