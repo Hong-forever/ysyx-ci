@@ -1,7 +1,8 @@
-
-#include <dlfcn.h>
-#include "../../../nemu/tools/capstone/repo/include/capstone/capstone.h"
 #include "common.h"
+
+#ifdef CONFIG_ITRACE
+#include <dlfcn.h>
+#include "../../../nemu/toolcapstone/repo/include/capstone/capstone.h"
 
 static size_t (*cs_disasm_dl)(csh handle, const uint8_t *code,
     size_t code_size, uint64_t address, size_t count, cs_insn **insn);
@@ -57,3 +58,5 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
   }
   cs_free_dl(insn, count);
 }
+
+#endif

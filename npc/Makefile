@@ -1,11 +1,12 @@
 .DEFAULT_GOAL := all
 
+
 ci_test = 1
 
 USE_NVBOARD = 0
 
-include $(NPC_HOME)/include/config/auto.conf
-include $(NPC_HOME)/include/config/auto.conf.cmd
+-include $(NPC_HOME)/include/config/auto.conf
+-include $(NPC_HOME)/include/config/auto.conf.cmd
 
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
@@ -243,7 +244,7 @@ include $(NPC_HOME)/scripts/yosys_sta.mk
 ifeq ($(WAVE_ENABLE),1)
 run: sim view_wave
 else
-run: ensure-config sim
+run: sim
 endif
 
 all: run
