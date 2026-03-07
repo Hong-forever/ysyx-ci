@@ -64,20 +64,20 @@ void init_mem() {
 static word_t pmem_read(paddr_t raddr)
 {
     word_t ret = host_read(guest_to_host(raddr));
+    printf("pmem_read addr: 0x%08x, data: 0x%08x\n", raddr, ret);
     IFDEF(MTRACE, mtrace_read(raddr, ret));
     return ret;
 }
 
 static void pmem_write(paddr_t waddr, word_t wdata, uint32_t len)
 {
-    // printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
+    printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
     host_write(guest_to_host(waddr), wdata, len);
     IFDEF(MTRACE, mtrace_write(waddr, wdata, len));
 }
 
 word_t paddr_read(paddr_t addr) {
     if (likely(in_pmem(addr))) {
-        printf("paddr_data: 0x%08x\n", pmem_read(addr));
         return pmem_read(addr&~0x3);
     } else {
         out_of_bound(addr, false);
