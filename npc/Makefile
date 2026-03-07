@@ -96,7 +96,7 @@ sim: $(BIN) $(IMG)
 ifeq ($(WAVE_ENABLE),1)
 	-$(BIN) $(ARGS) $(IMG)
 else
-	+$(BIN) $(ARGS) $(IMG)
+	$(BIN) $(ARGS) $(IMG)
 endif
 
 else
