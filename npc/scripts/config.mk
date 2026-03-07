@@ -47,15 +47,6 @@ help:
 distclean: clean
 	-@rm -rf $(rm-distclean)
 
-ensure-config: $(CONF) $(FIXDEP)
-	@if [ ! -f .config ]; then \
-		mkdir -p include/config; \
-		touch include/config/defconfig; \
-		echo "$(COLOR_RED)No config found, generating default config...$(COLOR_END)"; \
-		$(CONF) --defconfig=configs/defconfig $(Kconfig); \
-		$(CONF) --syncconfig $(Kconfig); \
-	fi
-
 .PHONY: help distclean
 
 define call_fixdep
