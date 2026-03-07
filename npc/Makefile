@@ -3,7 +3,7 @@
 
 ci_test = 1
 
-USE_NVBOARD = 1
+USE_NVBOARD = 0
 
 include $(NPC_HOME)/include/config/auto.conf
 include $(NPC_HOME)/include/config/auto.conf.cmd
