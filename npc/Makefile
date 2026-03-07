@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := all
-
+export MAKEFLAGS
 
 ci_test = 1
 
