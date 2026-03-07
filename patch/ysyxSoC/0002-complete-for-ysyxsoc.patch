@@ -1,0 +1,108 @@
+From d49ca177f75add8193d67b339637f771423145de Mon Sep 17 00:00:00 2001
+From: hhh <3224318821@qq.com>
+Date: Fri, 6 Mar 2026 17:02:27 +0800
+Subject: [PATCH 2/3] complete for ysyxsoc
+
+
+diff --git a/patch/replace-sdram.pl b/patch/replace-sdram.pl
+new file mode 100644
+index 00000000..c5704213
+--- /dev/null
++++ b/patch/replace-sdram.pl
+@@ -0,0 +1,71 @@
++#!/usr/bin/env perl
++use strict;
++use warnings;
++
++my $file = shift @ARGV or die "Usage: $0 <verilog-file>\n";
++
++open my $in, '<', $file or die "Cannot open $file for reading: $!\n";
++local $/;
++my $content = <$in>;
++close $in;
++
++my $replacement = <<'EOF';
++  wire read = ~_asic_sdram_cs & _asic_sdram_ras & ~_asic_sdram_cas & _asic_sdram_we;
++  wire write = ~_asic_sdram_cs & _asic_sdram_ras & ~_asic_sdram_cas & ~_asic_sdram_we;
++
++  sdram #(.NUM(0)) l0sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[1:0]),
++    .dq  (_dq_wire[15:0])
++  );
++  sdram #(.NUM(1)) h0sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[3:2]),
++    .dq  (_dq_wire[31:16])
++  );
++  sdram #(.NUM(2)) l1sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (~_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[1:0]),
++    .dq  (_dq_wire[15:0])
++  );
++  sdram #(.NUM(3)) h1sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (~_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[3:2]),
++    .dq  (_dq_wire[31:16])
++  );
++EOF
++
++my $count = ($content =~ s{^[ \t]*(?://\s*)?sdram sdram\s*\(.*?^[ \t]*\);\s*(?://[^\n]*)?\n?}{$replacement\n}gms);
++die "Expected exactly one SDRAM instance block, replaced $count\n" unless $count == 1;
++
++open my $out, '>', $file or die "Cannot open $file for writing: $!\n";
++print {$out} $content;
++close $out;
+diff --git a/src/CPU.scala b/src/CPU.scala
+index 7559195f..1a4fa789 100644
+--- a/src/CPU.scala
++++ b/src/CPU.scala
+@@ -13,7 +13,7 @@ object CPUAXI4BundleParameters {
+   def apply() = AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = ChipLinkParam.idBits)
+ }
+ 
+-class ysyx_00000000 extends BlackBox {
++class ysyx_25110270 extends BlackBox {
+   val io = IO(new Bundle {
+     val clock = Input(Clock())
+     val reset = Input(Reset())
+@@ -35,7 +35,7 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
+     val interrupt = IO(Input(Bool()))
+     val slave = IO(Flipped(AXI4Bundle(CPUAXI4BundleParameters())))
+ 
+-    val cpu = Module(new ysyx_00000000)
++    val cpu = Module(new ysyx_25110270)
+     cpu.io.clock := clock
+     cpu.io.reset := reset
+     cpu.io.io_interrupt := interrupt
+-- 
+2.34.1
+

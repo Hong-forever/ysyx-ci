@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+#ifdef CONFIG_SOC
+
 #define PMEM_LEFT_MROM  ((paddr_t)CONFIG_MROM_BASE)
 #define PMEM_RIGHT_MROM ((paddr_t)CONFIG_MROM_BASE + CONFIG_MROM_SIZE - 1)
 
@@ -17,6 +19,8 @@
 
 #define PMEM_LEFT_SDRAM  ((paddr_t)CONFIG_SDRAM_BASE)
 #define PMEM_RIGHT_SDRAM ((paddr_t)CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1)
+
+// #define RESET_VECTOR (PMEM_LEFT_FLASH + CONFIG_PC_RESET_OFFSET)
 
 static inline bool in_mrom(paddr_t addr) {
     return addr >= PMEM_LEFT_MROM && addr <= PMEM_RIGHT_MROM;
@@ -41,6 +45,19 @@ static inline bool in_sdram(paddr_t addr) {
 static inline bool in_pmem(paddr_t addr) {
     return in_mrom(addr) || in_sram(addr) || in_flash(addr) || in_psram(addr) || in_sdram(addr);
 }
+
+#else
+
+#define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
+#define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
+
+// #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
+
+static inline bool in_pmem(paddr_t addr) {
+  return addr - CONFIG_MBASE < CONFIG_MSIZE;
+}
+
+#endif
 
 static inline word_t host_read(uint8_t *addr) {
     return *(word_t *)addr;

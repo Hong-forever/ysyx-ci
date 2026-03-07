@@ -21,8 +21,8 @@ extern VerilatedContext *contextp;
 
 void difftest_skip_ref();
 
-#include <nvboard.h>
 #ifdef CONFIG_USE_NVBOARD
+#include <nvboard.h>
 void nvboard_bind_all_pins(TOP_NAME *top);
 
 void nvboard()
@@ -191,6 +191,7 @@ void statistic() {
 static void exec_once()
 {
     single_cycle();
+    
     g_cycle++;
     
     if (!cpu_inst_valid) return;
