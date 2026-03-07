@@ -4,7 +4,8 @@
 
 // `define ysyx_25110270_SOC //no verilog macro define here, define it in Makefile
 
-`ifndef __ICARUS__
+`ifdef ysyx_25110270_SOC 
+// `ifdef __ICARUS__
 
 `define ysyx_25110270_DPIC
 `define ysyx_25110270_PERF

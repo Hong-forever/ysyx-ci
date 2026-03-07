@@ -216,9 +216,22 @@ verilog:
 
 IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
 
+IVSRC = $(BUILD_DIR)/ysyx_25110270.v
+SVSRC = $(NETLIST) $(CELLS) $(IVSRCS)
+
+ifneq ($(CELLS),)
+IVERILOG_FLAGS += -Dysyx_25110270_NETSIM
+endif
+
 sim_iverilog: $(IMG)
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
-	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(BUILD_DIR)/ysyx_25110270.v $(IVERILOG_FLAGS)
+	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(IVSRC) $(IVERILOG_FLAGS)
+	vvp $(BUILD_DIR)/top_tb
+	rm -rf $(BUILD_DIR)
+
+sim-iverilog-netlist: $(IMG)
+	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
+	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(SVSRC) $(IVERILOG_FLAGS)
 	vvp $(BUILD_DIR)/top_tb
 	rm -rf $(BUILD_DIR)
 
