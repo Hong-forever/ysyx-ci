@@ -5,8 +5,8 @@ ci_test = 1
 
 USE_NVBOARD = 0
 
-include $(NPC_HOME)/include/config/auto.conf
-include $(NPC_HOME)/include/config/auto.conf.cmd
+-include $(NPC_HOME)/include/config/auto.conf
+-include $(NPC_HOME)/include/config/auto.conf.cmd
 
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
