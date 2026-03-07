@@ -1,14 +1,12 @@
 .DEFAULT_GOAL := all
 
--include $(NPC_HOME)/include/config/auto.conf
--include $(NPC_HOME)/include/config/auto.conf.cmd
 
-CONFIG_SOC ?= y
-CONFIG_BOOTLOADER ?= y
-CONFIG_ICARUS ?= n
-ci_test ?= 1
+ci_test = 1
 
 USE_NVBOARD = 1
+
+include $(NPC_HOME)/include/config/auto.conf
+include $(NPC_HOME)/include/config/auto.conf.cmd
 
 # ifeq ($(USE_NVBOARD),1)
 # WAVE_ENABLE = 0
@@ -226,16 +224,17 @@ sim_iverilog: $(IMG)
 
 endif
 
-ifeq ($(WAVE_ENABLE),1)
-run: sim view_wave
-else
-run: sim
-endif
-
-all: run
 
 include $(NPC_HOME)/scripts/config.mk
 include $(NPC_HOME)/scripts/yosys_sta.mk
+
+ifeq ($(WAVE_ENABLE),1)
+run: sim view_wave
+else
+run: ensure-config sim
+endif
+
+all: run
 
 
 clean: 

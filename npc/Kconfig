@@ -66,12 +66,12 @@ menu "Testing and Debugging"
 
 config SOC
   bool "enable SoC simulation"
-  default n
+  default y
 
 config BOOTLOADER
   depends on SOC
   bool "enable bootloader"
-  default n
+  default y
 
 config ICARUS
   depends on !SOC
@@ -141,7 +141,7 @@ config PERF_CAL
 config DIFFTEST
   depends on !ICARUS
   bool "Enable differential testing"
-  default y
+  default n
   help
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of CPU.
