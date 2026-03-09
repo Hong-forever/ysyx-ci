@@ -2201,7 +2201,7 @@ module ysyx_25110270_wbu
             //     $display("~~~~~~~~~~#       #    #     #    ######~~~~~~~~~~");
             //     $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             //     $display("Finish at PC = 0x%08x", inst_addr_r1);
-            // end
+            end
             $finish;
         end
     end
