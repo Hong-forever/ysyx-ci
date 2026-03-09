@@ -227,7 +227,6 @@ sim-iverilog: $(IMG)
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
 	iverilog -s ysyx_25110270_top_tb -o $(BUILD_DIR)/top_tb $(IVSRC) $(IVERILOG_FLAGS)
 	vvp $(BUILD_DIR)/top_tb
-	rm -rf $(BUILD_DIR)
 
 sim-iverilog-netlist: $(IMG)
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
