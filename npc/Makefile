@@ -216,7 +216,7 @@ verilog:
 
 IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
 
-IVSRC = $(BUILD_DIR)/ysyx_25110270.v
+IVSRC = ./vsrc/ysyx_25110270.v
 SVSRC = $(NETLIST) $(CELLS) $(IVSRCS)
 
 ifneq ($(CELLS),)

@@ -4959,7 +4959,7 @@ endmodule
 `ifdef __ICARUS__
 
 `timescale 1ns / 1ps
-module top_tb;
+module ysyx_25110270_top_tb;
     
     reg clock;
     reg reset;
@@ -4982,7 +4982,7 @@ module top_tb;
 `ifdef ysyx_25110270_WAVE
     initial begin
         $dumpfile("build/waveform.vcd");
-        $dumpvars(0,top_tb);
+        $dumpvars(0,ysyx_25110270_top_tb);
     end
 `endif
 
