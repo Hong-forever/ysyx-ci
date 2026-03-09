@@ -4310,7 +4310,7 @@ endmodule //ysyx_25110270
 `endif
 
 
-module mem 
+module ysyx_25110270_mem 
 #(
     parameter MEM_DEPTH  = 32'h01000000                //MEM深度
 )(
@@ -4499,7 +4499,7 @@ module mem
 
 endmodule
 
-module uart
+module ysyx_25110270_uart
 (
     input   wire                        clk,        //时钟输入
     input   wire                        rst,      //复位输入
@@ -4619,7 +4619,7 @@ module uart
     assign rlast_o   = 1'b1;
 
 endmodule
-module top
+module ysyx_25110270_top
 (
     input         clock,
     input         reset
@@ -4782,7 +4782,7 @@ module top
     );
 
 
-    mem mem_test
+    ysyx_25110270_mem mem_test
     (
         .clk(clock),
         .rst(reset),
@@ -4817,7 +4817,9 @@ module top
         .rid_o(s0_rid)
     );
 
-    uart uart_test(
+
+    ysyx_25110270_uart uart_test
+    (
         .clk(clock),
         .rst(reset),
         .awvalid_i(s1_awvalid),
@@ -4972,7 +4974,7 @@ module top_tb;
         #20 reset = 0;
     end
 
-    top top(
+    ysyx_25110270_top top(
         .clock(clock),
         .reset(reset)
     );
