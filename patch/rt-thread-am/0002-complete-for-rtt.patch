@@ -1,11 +1,8 @@
 From bb04a87a0869167fc3d8598ff3db7e844222f839 Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Fri, 6 Mar 2026 15:42:03 +0800
-Subject: [PATCH 2/3] complete for rtt
+Subject: [PATCH 2/5] complete for rtt
 
----
- bsp/abstract-machine/integrate-am-apps.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/bsp/abstract-machine/integrate-am-apps.py b/bsp/abstract-machine/integrate-am-apps.py
 index 8968df3..54e1642 100644
