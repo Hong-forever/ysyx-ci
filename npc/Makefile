@@ -223,7 +223,7 @@ ifneq ($(CELLS),)
 IVERILOG_FLAGS += -Dysyx_25110270_NETSIM
 endif
 
-sim_iverilog: $(IMG)
+sim-iverilog: $(IMG)
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
 	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(IVSRC) $(IVERILOG_FLAGS)
 	vvp $(BUILD_DIR)/top_tb
