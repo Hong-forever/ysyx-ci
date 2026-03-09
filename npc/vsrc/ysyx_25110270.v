@@ -2178,7 +2178,7 @@ module ysyx_25110270_wbu
 
     always @(posedge clk) begin
         if(is_ebreak) begin
-            // if(gpr10 == 0) begin
+            if(gpr10 == 0) begin
             //     $display("~~~~~~~~~~~~~~~~~~~ TEST_PASS ~~~~~~~~~~~~~~~~~~~");
             //     $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             //     $display("~~~~~~~~~ #####     ##     ####    #### ~~~~~~~~~");
@@ -2188,9 +2188,9 @@ module ysyx_25110270_wbu
             //     $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~");
             //     $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~");
             //     $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            //     $display("Microbench PASS!");
+                $display("HIT GOOD TRAP");
             //     $display("Finish at PC = 0x%08x", inst_addr_r1);
-            // end else begin
+            end else begin
             //     $display("~~~~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~");
             //     $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             //     $display("~~~~~~~~~~######    ##       #    #     ~~~~~~~~~~");
