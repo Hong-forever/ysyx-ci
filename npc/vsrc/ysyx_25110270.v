@@ -2188,7 +2188,7 @@ module ysyx_25110270_wbu
             //     $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~");
             //     $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~");
             //     $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                $display("HIT GOOD TRAP");
+                // $display("HIT GOOD TRAP");
             //     $display("Finish at PC = 0x%08x", inst_addr_r1);
             end else begin
             //     $display("~~~~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~");
