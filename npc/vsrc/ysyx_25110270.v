@@ -2188,6 +2188,7 @@ module ysyx_25110270_wbu
                 $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~");
                 $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~");
                 $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                $display("Microbench PASS!");
                 $display("Finish at PC = 0x%08x", inst_addr_r1);
             end else begin
                 $display("~~~~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~");
