@@ -1230,7 +1230,7 @@ module ysyx_25110270_exec
     //------------------------------------------------------------------------
     reg [31:0] agu_result_r;
     reg bru_taken_r;
-    reg br_valid_r;
+    // reg br_valid_r;
 
     reg ld_valdi_r, st_valid_r;
     reg data_avalid;
@@ -1251,20 +1251,21 @@ module ysyx_25110270_exec
         end
     end
 
-    always @(posedge clk) begin
-        if(rst) begin
-            br_valid_r <= 1'b0;
-        end else if(I_valid) begin
-            br_valid_r <= 1'b0;
-        end else begin
-            br_valid_r <= I_br_valid;
-        end
-    end
+    // always @(posedge clk) begin
+    //     if(rst) begin
+    //         br_valid_r <= 1'b0;
+    //     end else if(I_valid) begin
+    //         br_valid_r <= 1'b0;
+    //     end else begin
+    //         br_valid_r <= I_br_valid;
+    //     end
+    // end
 
-    wire stallreq_br = I_br_valid & ~br_valid_r; //等待分支结果
+    // wire stallreq_br = I_br_valid & ~br_valid_r; //等待分支结果
     wire stallreq_ls;
 
-    wire stallreq = stallreq_br | stallreq_ls;
+    // wire stallreq = stallreq_br | stallreq_ls;
+    wire stallreq = stallreq_ls;
 
 `ifdef ysyx_25110270_DPIC
     wire device_skip;
@@ -1354,8 +1355,8 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_bru_taken = bru_taken_r;
-    assign O_bru_target = agu_result_r;
+    assign O_bru_taken = bru_taken & I_br_valid;
+    assign O_bru_target = agu_result;
 
     assign O_except = I_except;
 
