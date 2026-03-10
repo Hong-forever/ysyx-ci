@@ -158,7 +158,6 @@ ifeq ($(USE_NVBOARD),1)
 CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
 endif
 # CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
-CXXFLAGS += -fno-omit-frame-pointer
 CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"

@@ -26,4 +26,5 @@ externalPins_ps2_clk PS2_CLK
 externalPins_ps2_data PS2_DAT
 
 # externalPins_uart_tx UART_TX
+
 externalPins_uart_rx UART_RX
