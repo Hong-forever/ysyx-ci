@@ -2424,7 +2424,10 @@ module ysyx_25110270_csr
     reg [31:0] mstatus;
     reg [31:0] mcause;
 `endif
-
+`ifdef __ICARUS__
+    reg [31:0] mstatus;
+    reg [31:0] mcause;
+`endif
     wire is_ecall  = I_except[`ysyx_25110270_EXCPT_ECALL];
     wire is_mret   = I_except[`ysyx_25110270_EXCPT_MRET];
 
