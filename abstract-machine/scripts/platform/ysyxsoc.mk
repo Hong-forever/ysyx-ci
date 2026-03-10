@@ -15,7 +15,7 @@ CFLAGS    += -I$(AM_HOME)/am/src/riscv/ysyxsoc/include
 LDSCRIPTS += $(AM_HOME)/scripts/soc_linker.ld
 # LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
 # LDFLAGS   += --defsym=_pmem_start=0xa0000000 --defsym=_entry_offset=0x0
-LDFLAGS   += --gc-sections -e _start -z max-page-size=4
+LDFLAGS   += --gc-sections -e _start
 
 NPCFLAGS  += --log=$(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt
 NPCFLAGS  += --elf=$(IMAGE).elf
