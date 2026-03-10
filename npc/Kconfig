@@ -64,17 +64,22 @@ endmenu
 
 menu "Testing and Debugging"
 
+choice
+  prompt "Running Mode"
+  default SOC
 config SOC
-  bool "enable SoC simulation"
-  default y
+  bool "enable soc simulation"
+config NPC
+  bool "enable npc simulation"
+endchoice
 
-config BOOTLOADER
+config NOBOOTLOADER
   depends on SOC
-  bool "enable bootloader"
-  default y
+  bool "Disable bootloader"
+  default n
 
 config ICARUS
-  depends on !SOC
+  depends on NPC
   bool "enable icarus verilog"
   default n
 
@@ -104,7 +109,7 @@ config LOOP_DETECT
   default n
   
 config WATCHPOINT
-  depends on ITRAC
+  depends on ITRACE
   bool "Enable watchpoint"
   default y
 

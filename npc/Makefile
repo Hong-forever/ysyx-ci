@@ -3,7 +3,7 @@
 
 ci_test = 1
 
-USE_NVBOARD = 1
+USE_NVBOARD = 0
 
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
@@ -34,9 +34,9 @@ TOPNAME = ysyxSoCFull
 else
 
 ifeq ($(CONFIG_ICARUS),y)
-TOPNAME = top_tb
+TOPNAME = ysyx_25110270_top_tb
 else
-TOPNAME = top
+TOPNAME = ysyx_25110270_top
 endif
 
 endif
@@ -55,13 +55,18 @@ VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing
 ifeq ($(CONFIG_SOC),y)
 VERILATOR_CFLAGS += -Dysyx_25110270_SOC=1
 
-ifeq ($(CONFIG_BOOTLOADER),y)
-VERILATOR_CFLAGS += -Dysyx_25110270_BOOTLOADER=1
+ifeq ($(CONFIG_NOBOOTLOADER),y)
+VERILATOR_CFLAGS += -Dysyx_25110270_NOBOOTLOADER=1
 endif
 
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 endif
+
+ifeq ($(CONFIG_NPC),y)
+VERILATOR_CFLAGS += -Dysyx_25110270_NPC=1
+endif
+
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 
@@ -158,8 +163,7 @@ ifeq ($(USE_NVBOARD),1)
 CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
 endif
 # CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
-CXXFLAGS += -fno-omit-frame-pointer
-# CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
+CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 ifeq ($(USE_NVBOARD),1)
@@ -171,8 +175,8 @@ CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 # CXXFLAGS += -fpermissive
 
 # LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
-LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fno-omit-frame-pointer
-# LDFLAGS += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
+LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz
+LDFLAGS += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 
 ifneq ($(CONFIG_ICARUS),y)
 

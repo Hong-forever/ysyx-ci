@@ -1,7 +1,7 @@
 From 4aa4dbac423a947becffa563ce6ce5c89ff23633 Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Mon, 9 Mar 2026 20:19:21 +0800
-Subject: [PATCH 6/6] am_hello
+Subject: [PATCH 06/13] am_hello
 
 
 diff --git a/bsp/abstract-machine/integrate-am-apps.py b/bsp/abstract-machine/integrate-am-apps.py
