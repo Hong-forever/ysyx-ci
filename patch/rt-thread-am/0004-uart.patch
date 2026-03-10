@@ -1,7 +1,7 @@
 From 9046eac51cba3c6656740ad824938a3b42255d7e Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Mon, 9 Mar 2026 17:59:43 +0800
-Subject: [PATCH 04/13] uart
+Subject: [PATCH 04/14] uart
 
 
 diff --git a/0001-complete-for-rtt.patch b/0001-complete-for-rtt.patch
