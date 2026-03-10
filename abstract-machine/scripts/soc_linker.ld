@@ -35,7 +35,7 @@ SECTIONS {
     *(.text*)
     *(.rodata*)
     *(.srodata*)
-    . = ALIGN(4);
+    . = ALIGN(8);
     _etext = .;
   } > sdram AT>flash : text
 
