@@ -78,6 +78,11 @@ config NOBOOTLOADER
   bool "Disable bootloader"
   default n
 
+config NVBOARD
+  depends on SOC
+  bool "enable nvboard"
+  default n
+
 config ICARUS
   depends on NPC
   bool "enable icarus verilog"

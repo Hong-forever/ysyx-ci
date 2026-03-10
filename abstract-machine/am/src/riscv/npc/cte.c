@@ -6,16 +6,15 @@ Context *__am_irq_handle(Context *c)
 {
     if (user_handler) {
         Event ev = {0};
-        switch (c->mcause) {
-        case 11:
+        // switch (c->mcause) {
+        // case 11:
             ev.event = EVENT_YIELD;
-            // printf("ecall from M-mode\n");
             c->mepc += 4; // skip ecall instruction
-            break;
-        default:
-            ev.event = EVENT_ERROR;
-            break;
-        }
+            // break;
+        // default:
+            // ev.event = EVENT_ERROR;
+            // break;
+        // }
 
         // for (int i=0; i<32; i++) printf("context reg[%d] = 0x%08x\n", i, c->gpr[i]);
         // printf("context mcause = 0x%08x\n", c->mcause);
@@ -55,7 +54,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
 
     // c->gpr[2] = (uintptr_t)kstack.end; // sp
     c->gpr[10] = (uintptr_t)arg; // a0
-    c->mstatus = 0x00001800; // MPP = 11 (machine mode)
+    // c->mstatus = 0x00001800; // MPP = 11 (machine mode)
     c->mepc = (uintptr_t)entry;
 
     // printf("kstack.end = 0x%08x\n", (uintptr_t)kstack.end);

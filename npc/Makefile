@@ -1,24 +1,16 @@
 .DEFAULT_GOAL := all
 
-
-ci_test = 1
-
-USE_NVBOARD = 1
-
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
-# ifeq ($(USE_NVBOARD),1)
-# WAVE_ENABLE = 0
-# else
 WAVE_ENABLE = 0
-# endif
+
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
 
 GUEST_ISA = riscv32
 
-ifeq ($(USE_NVBOARD),1)
+ifeq ($(CONFIG_NVBOARD),y)
 NXDC_FILES = constr/top.nxdc
 
 # rules for NVBoard
@@ -123,7 +115,7 @@ test:
 
 $(shell mkdir -p $(BUILD_DIR))
 
-ifeq ($(USE_NVBOARD),1)
+ifeq ($(CONFIG_NVBOARD),y)
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -144,7 +136,7 @@ VSRCS-y += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS-y += $(shell find $(abspath ../ysyxSoC/build) -name "ysyxSoCFull.v")
 endif
 
-ifeq ($(USE_NVBOARD),1)
+ifeq ($(CONFIG_NVBOARD),y)
 CSRCS-y += $(SRC_AUTO_BIND)
 endif
 
@@ -159,14 +151,14 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 CXXFLAGS += $(INCFLAGS) 
 CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-unused-function
-ifeq ($(USE_NVBOARD),1)
+ifeq ($(CONFIG_NVBOARD),y)
 CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
 endif
 # CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
 CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
-ifeq ($(USE_NVBOARD),1)
+ifeq ($(CONFIG_NVBOARD),y)
 CXXFLAGS += -DCONFIG_USE_NVBOARD=1
 endif
 CXXFLAGS += -DWAVE_ENABLE=$(WAVE_ENABLE)
@@ -194,11 +186,6 @@ ifeq ($(WAVE_ENABLE),1)
 IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
 endif
 
-
-
-
-
-
 ifneq ($(IMG),)
 FORCE:
 
@@ -216,8 +203,6 @@ endif
 
 
 endif
-
-ifeq ($(ci_test),1)
 
 verilog:
 	cp ./vsrc/ysyx_25110270.v $(BUILD_DIR)/ysyx_25110270.v
@@ -241,8 +226,6 @@ sim-iverilog-netlist: $(IMG)
 	iverilog -s ysyx_25110270_top_tb -o $(BUILD_DIR)/top_tb $(SVSRC) $(IVERILOG_FLAGS)
 	vvp $(BUILD_DIR)/top_tb
 	rm -rf $(BUILD_DIR)
-
-endif
 
 
 include $(NPC_HOME)/scripts/config.mk
