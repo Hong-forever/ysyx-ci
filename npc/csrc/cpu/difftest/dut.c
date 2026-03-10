@@ -54,10 +54,8 @@ void init_difftest(char *ref_so_file, long img_size, int port)
 
     void *handle;
     handle = dlopen(ref_so_file, RTLD_LAZY);
-if (!handle) {
-    fprintf(stderr, "Failed to load %s: %s\n", ref_so_file, dlerror());
     assert(handle);
-}
+
     ref_difftest_memcpy = (void (*)(paddr_t addr, void *buf, size_t n, bool direction))dlsym(handle, "difftest_memcpy");
     assert(ref_difftest_memcpy);
 
