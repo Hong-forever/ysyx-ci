@@ -104,7 +104,7 @@ config LOOP_DETECT
   default n
   
 config WATCHPOINT
-  depends on ITRAC
+  depends on ITRACE
   bool "Enable watchpoint"
   default y
 
