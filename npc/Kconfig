@@ -79,7 +79,7 @@ config NOBOOTLOADER
   default n
 
 config NVBOARD
-  depends on SOC
+  depends on SOC && !NOBOOTLOADER
   bool "enable nvboard"
   default n
 
