@@ -499,19 +499,6 @@ module ysyx_25110270_icache
     reg [DATA_WIDTH-1:0] odata_r;
     reg ovalid_r;
 
-    // always @(*) begin
-    //     if(rst) begin
-    //         ovalid_r = 1'b0;
-    //         odata_r = 0;
-    //     end else if(I_valid && hit) begin
-    //         ovalid_r = 1'b1;
-    //         odata_r = data_mem[index][offset];
-    //     end else begin
-    //         ovalid_r = 1'b0;
-    //         odata_r = 0;
-    //     end
-    // end
-
     always @(posedge clk) begin
         if(rst) begin
             ovalid_r <= 1'b0;
@@ -2835,8 +2822,8 @@ module ysyx_25110270_arbiter
         end else begin
             case(state)
                 IDLE: begin
-                    if(m0_req) state <= M0;
-                    else if(m1_req) state <= M1;
+                    if(m1_req) state <= M1;
+                    else if(m0_req) state <= M0;
                 end
                 M0: begin
                     if(m0_resp) state <= (m1_req) ? M1 : IDLE;
