@@ -121,12 +121,11 @@
 //------------------------------------------------------------------------
 // CSR REGISTER DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_CsrNum 16
+`define ysyx_25110270_CsrNum 8
 `define ysyx_25110270_CsrMapWidth $clog2(`ysyx_25110270_CsrNum)
 `define ysyx_25110270_CsrMapBus `ysyx_25110270_CsrMapWidth-1:0
 
 `define ysyx_25110270_CSR_MSTATUS           12'h300     // Machine Status Register
-`define ysyx_25110270_CSR_MIE               12'h304     // Machine Interrupt Enable Registers
 `define ysyx_25110270_CSR_MTVEC             12'h305     // Machine Trap-Vector Base-Address Register
 `define ysyx_25110270_CSR_MEPC              12'h341     // Machine Exception Program Counter
 `define ysyx_25110270_CSR_MCAUSE            12'h342     // Machine Cause Register
@@ -135,15 +134,14 @@
 `define ysyx_25110270_CSR_MVENDORID         12'hf11     // Vendor ID
 `define ysyx_25110270_CSR_MARCHID           12'hf12     // Architecture ID
 
-`define ysyx_25110270_CSR_MAP_MSTATUS       0
-`define ysyx_25110270_CSR_MAP_MIE           1
-`define ysyx_25110270_CSR_MAP_MTVEC         2
-`define ysyx_25110270_CSR_MAP_MEPC          3
-`define ysyx_25110270_CSR_MAP_MCAUSE        4
-`define ysyx_25110270_CSR_MAP_CYCLE         5
-`define ysyx_25110270_CSR_MAP_CYCLEH        6
-`define ysyx_25110270_CSR_MAP_MVENDORID     7
-`define ysyx_25110270_CSR_MAP_MARCHID       8
+`define ysyx_25110270_CSR_MAP_MTVEC         0
+`define ysyx_25110270_CSR_MAP_MEPC          1
+`define ysyx_25110270_CSR_MAP_MSTATUS       2
+`define ysyx_25110270_CSR_MAP_MCAUSE        3
+`define ysyx_25110270_CSR_MAP_CYCLE         4
+`define ysyx_25110270_CSR_MAP_CYCLEH        5
+`define ysyx_25110270_CSR_MAP_MVENDORID     6
+`define ysyx_25110270_CSR_MAP_MARCHID       7
 
 //------------------------------------------------------------------------
 // ALU SOURCE SELECTION DEFINITIONS
@@ -181,12 +179,11 @@
 //------------------------------------------------------------------------
 // EXCEPTION TYPE DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_ExceptWidth     3
+`define ysyx_25110270_ExceptWidth     2
 `define ysyx_25110270_ExceptBus       `ysyx_25110270_ExceptWidth-1:0
 
 `define ysyx_25110270_EXCPT_ECALL     0
-`define ysyx_25110270_EXCPT_EBREAK    1
-`define ysyx_25110270_EXCPT_MRET      2
+`define ysyx_25110270_EXCPT_MRET      1
 
 //------------------------------------------------------------------------
 // MEMORY DEFINITIONS
@@ -953,7 +950,6 @@ module ysyx_25110270_csr_mapout
     always @(*) begin
         case(I_csr_addr)
             `ysyx_25110270_CSR_MSTATUS      : csr_map =  `ysyx_25110270_CSR_MAP_MSTATUS;
-            `ysyx_25110270_CSR_MIE          : csr_map =  `ysyx_25110270_CSR_MAP_MIE;
             `ysyx_25110270_CSR_MTVEC        : csr_map =  `ysyx_25110270_CSR_MAP_MTVEC;
             `ysyx_25110270_CSR_MEPC         : csr_map =  `ysyx_25110270_CSR_MAP_MEPC;
             `ysyx_25110270_CSR_MCAUSE       : csr_map =  `ysyx_25110270_CSR_MAP_MCAUSE;
@@ -980,7 +976,6 @@ module ysyx_25110270_dec_except
 
     // 异常指令
     assign O_except[`ysyx_25110270_EXCPT_ECALL  ] = (I_inst == `ysyx_25110270_RV_ECALL  );
-    assign O_except[`ysyx_25110270_EXCPT_EBREAK ] = (I_inst == `ysyx_25110270_RV_EBREAK );
     assign O_except[`ysyx_25110270_EXCPT_MRET   ] = (I_inst == `ysyx_25110270_RV_MRET   );
 
 endmodule
@@ -2420,18 +2415,19 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_flush_addr
 );
 
-    reg [31:0] mstatus;
-    reg [31:0] mie;
     reg [31:0] mtvec;
     reg [31:0] mepc;
-    reg [31:0] mcause;
+
     reg [39:0] cycle;
 
+`ifdef ysyx_25110270_DPIC
+    reg [31:0] mstatus;
+    reg [31:0] mcause;
+`endif
+
     wire is_ecall  = I_except[`ysyx_25110270_EXCPT_ECALL];
-    wire is_ebreak = I_except[`ysyx_25110270_EXCPT_EBREAK];
     wire is_mret   = I_except[`ysyx_25110270_EXCPT_MRET];
 
-    // wire except_sync = is_ecall | is_ebreak;
     wire except_sync = is_ecall; // for ysyx
     wire except_call = except_sync;
     wire except_mret = is_mret;
@@ -2459,23 +2455,30 @@ module ysyx_25110270_csr
     //写寄存器操作
     always @(posedge clk) begin
         if(rst) begin
+`ifdef ysyx_25110270_DPIC
             mstatus <= 0;
             mcause <= 0;
+`endif
         end else if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-                mcause <= is_ecall ? 32'd11 : 32'd3; //ecall=11, ebreak=3
+`ifdef ysyx_25110270_DPIC
+                mcause <= 32'd11; //ecall=11, ebreak=3
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
             end else if(except_mret) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
+`endif
             end else begin    
                 if(I_we) begin
+`ifdef ysyx_25110270_DPIC
                     case(I_waddr[2:0]) //只使用低3位地址线
                         `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
-                        `ysyx_25110270_CSR_MAP_MIE:      mie         <= I_wdata;
+                        `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
+`else
+                    case(I_waddr[0])
+`endif
                         `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
                         `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
-                        `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
                         default: begin end
                     endcase
                 end
@@ -2492,11 +2495,12 @@ module ysyx_25110270_csr
             rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
-                `ysyx_25110270_CSR_MAP_MIE:       rdata = mie;
                 `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
+`ifdef ysyx_25110270_DPIC
+                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
                 `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
+`endif
                 `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
                 `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = {24'd0, cycle[39:32]};
                 `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;

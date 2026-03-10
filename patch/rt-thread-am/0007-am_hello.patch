@@ -1,7 +1,7 @@
 From 1d50cb94c7a2d1737c65b48e6797eaeb42a4e70f Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Mon, 9 Mar 2026 20:28:54 +0800
-Subject: [PATCH 07/13] am_hello
+Subject: [PATCH 07/14] am_hello
 
 
 diff --git a/bsp/abstract-machine/src/uart.c b/bsp/abstract-machine/src/uart.c
