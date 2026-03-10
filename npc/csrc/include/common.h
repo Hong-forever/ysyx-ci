@@ -5,8 +5,8 @@
 
 #ifdef CONFIG_SOC
 #include <VysyxSoCFull.h>
-#else
-#include <Vtop.h>
+#elif defined(CONFIG_NPC)
+#include <Vysyx_25110270_top.h>
 #endif
 
 #include "macro.h"

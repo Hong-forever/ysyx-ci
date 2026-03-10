@@ -34,9 +34,9 @@ TOPNAME = ysyxSoCFull
 else
 
 ifeq ($(CONFIG_ICARUS),y)
-TOPNAME = top_tb
+TOPNAME = ysyx_25110270_top_tb
 else
-TOPNAME = top
+TOPNAME = ysyx_25110270_top
 endif
 
 endif
