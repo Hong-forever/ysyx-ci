@@ -54,12 +54,12 @@ SECTIONS {
   _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
 
   .bss (NOLOAD) : {
-    . = ALIGN(4);
+    . = ALIGN(8);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-    . = ALIGN(4);
+    . = ALIGN(8);
 	  _ezero = .;
   } > sdram
 
