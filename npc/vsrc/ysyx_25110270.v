@@ -2188,7 +2188,6 @@ module ysyx_25110270_wbu
             //     $display("~~~~~~~~~ #       #    #  #    #  #    #~~~~~~~~~");
             //     $display("~~~~~~~~~ #       #    #   ####    #### ~~~~~~~~~");
             //     $display("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                $display("MicroBench PASS");
             //     $display("Finish at PC = 0x%08x", inst_addr_r1);
             end else begin
             //     $display("~~~~~~~~~~~~~~~~~~~ TEST_FAIL ~~~~~~~~~~~~~~~~~~~~");
@@ -4536,49 +4535,6 @@ module ysyx_25110270_uart
     output  wire    [3:0 ]              rid_o
 );
 
-    reg                    arready;
-    reg                    awready;
-    reg                    wready;
-
-    reg rvalid;
-    reg [31:0] rdata;
-
-    always @(posedge clk) begin
-        if(rst) begin
-            arready <= 1'b1;
-            awready <= 1'b1;
-            wready  <= 1'b1;
-        end else begin
-            if(arvalid_i && arready) begin
-                arready <= 1'b0;
-            end else if(rvalid_o && rready_i) begin
-                arready <= 1'b1;
-            end
-            if(awvalid_i && awready) begin
-                awready <= 1'b0;
-            end else if(bvalid_o && bready_i) begin
-                awready <= 1'b1;
-            end
-            if(wvalid_i && wready) begin
-                wready <= 1'b0;
-            end else if(bvalid_o && bready_i) begin
-                wready <= 1'b1;
-            end
-        end
-    end
-
-    always @(posedge clk) begin
-        if(rst) begin
-            rvalid <= 1'b0;
-        end else begin
-            if(arvalid_i && arready_o) begin
-                rvalid <= 1'b1;
-                // rdata <= 32'h2000;
-            end else if(rvalid_o && rready_i && rlast_o) begin
-                rvalid <= 1'b0;
-            end
-        end
-    end
 
     reg bvalid;
     always @(posedge clk) begin
@@ -4594,12 +4550,21 @@ module ysyx_25110270_uart
     end
 
 `ifdef __ICARUS__
-    always @(*) begin
-        if(wvalid_i && wready_o) begin
-            $write("%c", wdata_i[7:0]);
-            $fflush();
+    reg last_write;
+
+    always @(posedge clk) begin
+        if(rst) begin
+            last_write <= 1'b0;
+        end else begin
+            last_write <= wvalid_i;
+
+            if((wvalid_i) & !last_write) begin
+                $write("%c", wdata_i[7:0]);
+                $fflush();
+            end
         end
     end
+
 `endif
 `ifdef ysyx_25110270_DPIC
     always @(*) begin
@@ -4609,13 +4574,13 @@ module ysyx_25110270_uart
         end
     end
 `endif
-    assign awready_o = awready;
-    assign wready_o  = wready;
+    assign awready_o = 1'b1;
+    assign wready_o  = 1'b1;
     assign bvalid_o  = bvalid;
     assign bresp_o   = 2'b00;
-    assign arready_o = arready;
-    assign rvalid_o  = rvalid;
-    assign rdata_o   = rdata;
+    assign arready_o = 1'b1;
+    assign rvalid_o  = 1'b0;
+    assign rdata_o   = 0;
     assign rresp_o   = 2'b00;
     assign rlast_o   = 1'b1;
 
