@@ -33,7 +33,7 @@ f(30) f(31)
 
 #define CONTEXT_SIZE  ((NR_REGS + 1) * XLEN)
 #define OFFSET_SP     ( 2 * XLEN)
-#define OFFSET_EPC    ((NR_REGS + 1) * XLEN)
+#define OFFSET_EPC    ((NR_REGS + 0) * XLEN)
 
 .align 3
 .globl __am_asm_trap

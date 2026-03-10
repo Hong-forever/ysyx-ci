@@ -8,15 +8,15 @@ Context *__am_irq_handle(Context *c)
 {
     if (user_handler) {
         Event ev = {0};
-        switch (c->mcause) {
-        case 11:
+        // switch (c->mcause) {
+        // case 11:
             ev.event = EVENT_YIELD;
             c->mepc += 4; // skip ecall instruction
-            break;
-        default:
-            ev.event = EVENT_ERROR;
-            break;
-        }
+            // break;
+        // default:
+            // ev.event = EVENT_ERROR;
+            // break;
+        // }
 
         // for (int i=0; i<32; i++) printf("context reg[%d] = 0x%08x\n", i, c->gpr[i]);
         // printf("context mcause = 0x%08x\n", c->mcause);
@@ -41,6 +41,7 @@ bool cte_init(Context *(*handler)(Event, Context *))
 {
     // initialize exception entry
     asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
+    // printf("mtvec set to %p\n", __am_asm_trap);
 
     // register event handler
     user_handler = handler;
@@ -51,11 +52,11 @@ bool cte_init(Context *(*handler)(Event, Context *))
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
 {
     Context *c = (Context *)kstack.end - 1;
-    c = (Context *)((uintptr_t)c & ~0xF);
+    c = (Context *)((uintptr_t)c & ~0xF); // align to 16 bytes
 
     // c->gpr[2] = (uintptr_t)kstack.end; // sp
     c->gpr[10] = (uintptr_t)arg; // a0
-    c->mstatus = 0x00001800; // MPP = 11 (machine mode)
+    // c->mstatus = 0x00001800; // MPP = 11 (machine mode)
     c->mepc = (uintptr_t)entry;
 
     // printf("kstack.end = 0x%08x\n", (uintptr_t)kstack.end);
@@ -63,6 +64,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
     // printf("c = 0x%08x\n", (uintptr_t)c);
 
     return c;
+
 }
 
 void yield()

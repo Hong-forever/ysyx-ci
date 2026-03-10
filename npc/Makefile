@@ -170,6 +170,7 @@ CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz
 LDFLAGS += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 
+
 ifneq ($(CONFIG_ICARUS),y)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
@@ -201,8 +202,10 @@ $(BIN): $(VSRCS)
 
 endif
 
-
 endif
+
+
+ifeq ($(ci_test),1)
 
 verilog:
 	cp ./vsrc/ysyx_25110270.v $(BUILD_DIR)/ysyx_25110270.v
@@ -210,10 +213,13 @@ verilog:
 IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
 
 IVSRC = ./vsrc/ysyx_25110270.v
-SVSRC = $(NETLIST) $(CELLS) $(IVSRCS)
+SVSRC = $(NETLIST) $(CELLS) $(IVSRC)
 
 ifneq ($(CELLS),)
 IVERILOG_FLAGS += -Dysyx_25110270_NETSIM
+endif
+ifeq ($(WAVE_ENABLE),1)
+IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
 endif
 
 sim-iverilog: $(IMG)
@@ -225,7 +231,8 @@ sim-iverilog-netlist: $(IMG)
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
 	iverilog -s ysyx_25110270_top_tb -o $(BUILD_DIR)/top_tb $(SVSRC) $(IVERILOG_FLAGS)
 	vvp $(BUILD_DIR)/top_tb
-	rm -rf $(BUILD_DIR)
+
+endif
 
 
 include $(NPC_HOME)/scripts/config.mk

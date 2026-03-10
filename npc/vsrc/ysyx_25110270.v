@@ -212,22 +212,31 @@
 `define ysyx_25110270_SdramAddrBase 32'ha000_0000
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
-`ifndef __ICARUS__
+// `ifndef __ICARUS__
 
-`ifdef ysyx_25110270_NPC
-    `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-`else
+// `ifdef ysyx_25110270_NPC
+//     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+// `else
+//     `ifdef ysyx_25110270_NOBOOTLOADER
+//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+//     `else
+//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+//     `endif
+// `endif
+
+// `else
+//     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+// `endif
+
+
+`ifdef ysyx_25110270_SOC
     `ifdef ysyx_25110270_NOBOOTLOADER
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
     `else
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
     `endif
-`endif
-
 `else
-
     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-
 `endif
 
 //------------------------------------------------------------------------
@@ -438,9 +447,9 @@ module ysyx_25110270_icache
     parameter SET_WIDTH         = $clog2(SET_NUM);              // 组索引宽度
     parameter TAG_WIDTH         = ADDR_WIDTH - SET_WIDTH - BLOCK_WIDTH - 2; // 标签宽度
 
-    parameter IDLE   = 3'b00;
-    parameter REQ    = 3'b01;
-    parameter REFILL = 3'b10;
+    parameter IDLE   = 2'b00;
+    parameter REQ    = 2'b01;
+    parameter REFILL = 2'b10;
 
     // 存储器定义
     reg [TAG_WIDTH-1:0] tag_mem [0:SET_NUM*N_WAYS-1];
@@ -456,7 +465,7 @@ module ysyx_25110270_icache
     assign offset  = I_addr[BLOCK_WIDTH + 1 : 2];
 
 
-    reg [2:0] state;
+    reg [1:0] state;
 
     wire hit;
     generate
@@ -498,19 +507,6 @@ module ysyx_25110270_icache
 
     reg [DATA_WIDTH-1:0] odata_r;
     reg ovalid_r;
-
-    // always @(*) begin
-    //     if(rst) begin
-    //         ovalid_r = 1'b0;
-    //         odata_r = 0;
-    //     end else if(I_valid && hit) begin
-    //         ovalid_r = 1'b1;
-    //         odata_r = data_mem[index][offset];
-    //     end else begin
-    //         ovalid_r = 1'b0;
-    //         odata_r = 0;
-    //     end
-    // end
 
     always @(posedge clk) begin
         if(rst) begin
@@ -1229,11 +1225,7 @@ module ysyx_25110270_exec
     // ex2 pipeline
     //------------------------------------------------------------------------
     reg [31:0] agu_result_r;
-    reg bru_taken_r;
-    reg br_valid_r;
 
-    reg ld_valdi_r, st_valid_r;
-    reg data_avalid;
     reg [31:0] store_data;
     reg [2:0] ls_ctrl;
 
@@ -1241,30 +1233,17 @@ module ysyx_25110270_exec
 
     always @(posedge clk) begin
         if(rst) begin
-            bru_taken_r <= 1'b0;
             ls_ctrl <= 0;
         end else begin
-            bru_taken_r <= bru_taken & I_br_valid;
             agu_result_r <= agu_result;
             store_data <= final_rs2_rdata;
             ls_ctrl <= (I_ld_valid | I_st_valid) ? I_op : 3'b111;
         end
     end
 
-    always @(posedge clk) begin
-        if(rst) begin
-            br_valid_r <= 1'b0;
-        end else if(I_valid) begin
-            br_valid_r <= 1'b0;
-        end else begin
-            br_valid_r <= I_br_valid;
-        end
-    end
-
-    wire stallreq_br = I_br_valid & ~br_valid_r; //等待分支结果
     wire stallreq_ls;
 
-    wire stallreq = stallreq_br | stallreq_ls;
+    wire stallreq = stallreq_ls;
 
 `ifdef ysyx_25110270_DPIC
     wire device_skip;
@@ -1354,8 +1333,8 @@ module ysyx_25110270_exec
     assign O_csr_addr = I_csr_addr;
     assign O_csr_wdata = csr_wdata;
 
-    assign O_bru_taken = bru_taken_r;
-    assign O_bru_target = agu_result_r;
+    assign O_bru_taken = bru_taken & I_br_valid;
+    assign O_bru_target = agu_result;
 
     assign O_except = I_except;
 
@@ -1412,9 +1391,6 @@ module ysyx_25110270_alu
     wire [31:0] rv32i_xor_res     = I_alu_srca ^ I_alu_srcb;
     wire [31:0] rv32i_or_res      = I_alu_srca | I_alu_srcb;
     wire [31:0] rv32i_and_res     = I_alu_srca & I_alu_srcb;
-    wire [31:0] rv32i_lui_res     = I_alu_srcb;
-    wire [31:0] rv32i_auipc_res   = I_alu_srcb + I_alu_srca;
-
 
     reg [31:0] res; 
     always @(*) begin
@@ -2440,6 +2416,8 @@ module ysyx_25110270_csr
         if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
+            end else if(except_mret) begin
+                // do nothing
             end else if(I_we) begin
                 case(I_waddr[0])
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
@@ -2853,8 +2831,8 @@ module ysyx_25110270_arbiter
         end else begin
             case(state)
                 IDLE: begin
-                    if(m0_req) state <= M0;
-                    else if(m1_req) state <= M1;
+                    if(m1_req) state <= M1;
+                    else if(m0_req) state <= M0;
                 end
                 M0: begin
                     if(m0_resp) state <= (m1_req) ? M1 : IDLE;
