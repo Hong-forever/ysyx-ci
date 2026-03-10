@@ -2441,7 +2441,7 @@ module ysyx_25110270_csr
             if(except_sync) begin
                 mepc <= I_except_addr;
             end else if(except_mret) begin
-                // mepc <= mepc; // mret指令不修改mepc寄存器的值
+                // do nothing
             end else if(I_we) begin
                 case(I_waddr[0])
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
