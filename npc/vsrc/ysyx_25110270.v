@@ -2440,13 +2440,12 @@ module ysyx_25110270_csr
         if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-                if(I_we) begin
-                    case(I_waddr[0])
-                        `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
-                        `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
-                        default: begin end
-                    endcase
-                end
+            end else if(I_we) begin
+                case(I_waddr[0])
+                    `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
+                    `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
+                    default: begin end
+                endcase
             end
         end
     end
