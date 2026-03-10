@@ -27,20 +27,33 @@ _start:
 .type _start_ssbl, @function
 
 _start_ssbl:
-  la a0, _start_loadaddr
-  la a1, _sload
-  la a2, _eload
+  la a0, _text_loadaddr
+  la a1, _stext
+  la a2, _etext
 
-.copy_loop:
-  beq a1, a2, .copy_done
+.text_copy:
+  beq a1, a2, .text_copy_done
   lw t0, 0(a0)
   sw t0, 0(a1)
   addi a0, a0, 4
   addi a1, a1, 4
-  j .copy_loop
+  j .text_copy
 
-.copy_done:
-  la a0, _eload
+.text_copy_done:
+  la a0, _data_loadaddr
+  la a1, _sdata
+  la a2, _edata
+
+.data_copy:
+  beq a1, a2, .data_copy_done
+  lw t0, 0(a0)
+  sw t0, 0(a1)
+  addi a0, a0, 4
+  addi a1, a1, 4
+  j .data_copy
+
+.data_copy_done:
+  la a0, _szero
   la a1, _ezero
 
 .zero_loop:

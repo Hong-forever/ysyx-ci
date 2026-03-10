@@ -15,13 +15,13 @@ MEMORY {
 }
 
 SECTIONS {
-  .fsbl : ALIGN(4) {
+  .fsbl : {
     _sfsbl = ALIGN(4);
     *(fsbl_entry)
     _efsbl = ALIGN(4);
   } > flash AT>flash : fsbl
 
-  .ssbl : ALIGN(4) {
+  .ssbl : {
     _sssbl = ALIGN(4);
     *(ssbl_entry)
     _essbl = ALIGN(4);
@@ -29,32 +29,38 @@ SECTIONS {
 
   _ssbl_loadaddr = LOADADDR(.ssbl);
   
-  .text : ALIGN(4) {
-    _sload = ALIGN(4);
+  .text : {
+    _stext = ALIGN(4);
     *(text_entry)
     *(.text*)
     *(.rodata*)
     *(.srodata*)
     . = ALIGN(8);
+    _etext = .;
   } > sdram AT>flash : text
 
-  _start_loadaddr = LOADADDR(.text);
+  _text_loadaddr = LOADADDR(.text);
 
-  .data : ALIGN(4) {
+  .data : {
     . = ALIGN(4);
+    _sdata = .;
     *(.data*)
     *(.sdata*)
     . = ALIGN(4);
-    _eload = .;
+    _edata = .;
+    _szero = .;
   } > sdram AT>flash : data
 
+  _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
 
   .bss (NOLOAD) : {
+    . = ALIGN(4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
-	  _ezero = ALIGN(4);
+    . = ALIGN(4);
+	  _ezero = .;
   } > sdram
 
   .heap (NOLOAD) : {
