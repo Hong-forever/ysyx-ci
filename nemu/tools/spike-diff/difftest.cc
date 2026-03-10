@@ -37,8 +37,6 @@ static debug_module_config_t difftest_dm_config = {
 };
 
 typedef struct {
-  word_t mstatus;
-  word_t mcause;
   word_t mepc;
   word_t mtvec;
 } riscv32_diff_CSR_state;
