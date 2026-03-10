@@ -37,33 +37,33 @@ SECTIONS {
     *(.srodata*)
     . = ALIGN(8);
     _etext = .;
-    _sdata = .;
   } > sdram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
     . = ALIGN(4);
+    _sdata = .;
     *(.data*)
     *(.sdata*)
     . = ALIGN(4);
-    _edata = .;
-    _szero = .;
   } > sdram AT>flash : data
 
-  _data_loadaddr = LOADADDR(.text) + SIZEOF(.text);
+  _data_loadaddr = LOADADDR(.data);
 
   .bss (NOLOAD) : {
     . = ALIGN(4);
+    _edata = .;
+    _szero = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     *(COMMON)
     . = ALIGN(4);
-	  _ezero = .;
   } > sdram
 
   .heap (NOLOAD) : {
+	  _ezero = .;
     _heap_start = ALIGN(4);
     . = ORIGIN(sdram) + LENGTH(sdram);
     _heap_end = ALIGN(4);
