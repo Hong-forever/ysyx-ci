@@ -212,22 +212,31 @@
 `define ysyx_25110270_SdramAddrBase 32'ha000_0000
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
-`ifndef __ICARUS__
+// `ifndef __ICARUS__
 
-`ifdef ysyx_25110270_NPC
-    `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-`else
+// `ifdef ysyx_25110270_NPC
+//     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+// `else
+//     `ifdef ysyx_25110270_NOBOOTLOADER
+//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+//     `else
+//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+//     `endif
+// `endif
+
+// `else
+//     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+// `endif
+
+
+`ifdef ysyx_25110270_SOC
     `ifdef ysyx_25110270_NOBOOTLOADER
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
     `else
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
     `endif
-`endif
-
 `else
-
     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-
 `endif
 
 //------------------------------------------------------------------------
