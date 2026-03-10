@@ -158,7 +158,8 @@ ifeq ($(USE_NVBOARD),1)
 CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
 endif
 # CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
-# CXXFLAGS += -fno-omit-frame-pointer
+CXXFLAGS += -fno-omit-frame-pointer
+CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 ifeq ($(USE_NVBOARD),1)
@@ -171,6 +172,7 @@ CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 
 # LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz
+LDFLAGS += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 
 ifneq ($(CONFIG_ICARUS),y)
 
