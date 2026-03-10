@@ -85,6 +85,9 @@ void init_mem() {
 
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
+  if(in_flash(addr)) {
+      printf("flash_read addr: 0x%08x data: 0x%08x\n", addr, ret);
+  }
   return ret;
 }
 
