@@ -214,9 +214,9 @@
 `ifndef __ICARUS__
 
     // `ifdef ysyx_25110270_BOOTLOADER
-        // `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+        `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
     // `else
-        `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+        // `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
     // `endif
 
 `else
