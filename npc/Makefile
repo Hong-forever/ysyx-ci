@@ -3,7 +3,7 @@
 
 ci_test = 1
 
-USE_NVBOARD = 0
+USE_NVBOARD = 1
 
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
@@ -157,7 +157,8 @@ CXXFLAGS += -g -O2 -Wall -Werror -Wno-unused-result -Wno-unused-variable -Wno-un
 ifeq ($(USE_NVBOARD),1)
 CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
 endif
-CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
+# CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
+CXXFLAGS += -fno-omit-frame-pointer
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 ifeq ($(USE_NVBOARD),1)
@@ -169,6 +170,7 @@ CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 # CXXFLAGS += -fpermissive
 
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fsanitize=address -fno-omit-frame-pointer
+# LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz -fno-omit-frame-pointer
 
 ifneq ($(CONFIG_ICARUS),y)
 
@@ -216,22 +218,21 @@ verilog:
 
 IVERILOG_FLAGS += -pARRAY_SIZE_LIMIT=33554432
 
-IVSRC = $(BUILD_DIR)/ysyx_25110270.v
+IVSRC = ./vsrc/ysyx_25110270.v
 SVSRC = $(NETLIST) $(CELLS) $(IVSRCS)
 
 ifneq ($(CELLS),)
 IVERILOG_FLAGS += -Dysyx_25110270_NETSIM
 endif
 
-sim_iverilog: $(IMG)
+sim-iverilog: $(IMG)
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
-	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(IVSRC) $(IVERILOG_FLAGS)
+	iverilog -s ysyx_25110270_top_tb -o $(BUILD_DIR)/top_tb $(IVSRC) $(IVERILOG_FLAGS)
 	vvp $(BUILD_DIR)/top_tb
-	rm -rf $(BUILD_DIR)
 
 sim-iverilog-netlist: $(IMG)
 	riscv64-linux-gnu-objcopy -I binary -O verilog $< $(BUILD_DIR)/test.data
-	iverilog -s top_tb -o $(BUILD_DIR)/top_tb $(SVSRC) $(IVERILOG_FLAGS)
+	iverilog -s ysyx_25110270_top_tb -o $(BUILD_DIR)/top_tb $(SVSRC) $(IVERILOG_FLAGS)
 	vvp $(BUILD_DIR)/top_tb
 	rm -rf $(BUILD_DIR)
 

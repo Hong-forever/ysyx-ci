@@ -64,14 +64,14 @@ void init_mem() {
 static word_t pmem_read(paddr_t raddr)
 {
     word_t ret = host_read(guest_to_host(raddr));
-    printf("pmem_read addr: 0x%08x, data: 0x%08x\n", raddr, ret);
+    // printf("pmem_read addr: 0x%08x, data: 0x%08x\n", raddr, ret);
     IFDEF(MTRACE, mtrace_read(raddr, ret));
     return ret;
 }
 
 static void pmem_write(paddr_t waddr, word_t wdata, uint32_t len)
 {
-    printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
+    // printf("waddr: 0x%08x\nwdata: 0x%08x\nmask:0x%x\n", waddr, wdata, len);
     host_write(guest_to_host(waddr), wdata, len);
     IFDEF(MTRACE, mtrace_write(waddr, wdata, len));
 }
@@ -112,7 +112,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 extern "C" void psram_read(int32_t addr, int32_t *data) {
     //spi
     *data = paddr_read(addr + CONFIG_PSRAM_BASE);
-    printf("psram_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
+    // printf("psram_read addr: 0x%08x, data: 0x%08x\n", addr, *data);
 }
 
 extern "C" void psram_write(int32_t addr, int32_t data, int32_t len) {

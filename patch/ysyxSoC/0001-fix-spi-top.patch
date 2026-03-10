@@ -1,7 +1,7 @@
-From 434382c4880d227be893de665ab000b531c54599 Mon Sep 17 00:00:00 2001
+From 2fb1117d9aca4b9899c7c3c30345e6f6f8b4db68 Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
-Date: Fri, 6 Mar 2026 16:33:31 +0800
-Subject: [PATCH 1/3] complete for ysyxsoc
+Date: Mon, 9 Mar 2026 16:22:49 +0800
+Subject: [PATCH] fix-spi-top
 
 
 diff --git a/Makefile b/Makefile
@@ -24,454 +24,84 @@ index c30262ea..3ea0c338 100644
  
  verilog: $(V_FILE_FINAL)
  
-diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
-index c0d20764..64c92690 100644
---- a/perip/amba/apb_delayer.v
-+++ b/perip/amba/apb_delayer.v
-@@ -1,38 +1,154 @@
- module apb_delayer(
--  input         clock,
--  input         reset,
--  input  [31:0] in_paddr,
--  input         in_psel,
--  input         in_penable,
--  input  [2:0]  in_pprot,
--  input         in_pwrite,
--  input  [31:0] in_pwdata,
--  input  [3:0]  in_pstrb,
--  output        in_pready,
--  output [31:0] in_prdata,
--  output        in_pslverr,
--
--  output [31:0] out_paddr,
--  output        out_psel,
--  output        out_penable,
--  output [2:0]  out_pprot,
--  output        out_pwrite,
--  output [31:0] out_pwdata,
--  output [3:0]  out_pstrb,
--  input         out_pready,
--  input  [31:0] out_prdata,
--  input         out_pslverr
-+    input         clock,
-+    input         reset,
-+    input  [31:0] in_paddr,
-+    input         in_psel,
-+    input         in_penable,
-+    input  [2:0]  in_pprot,
-+    input         in_pwrite,
-+    input  [31:0] in_pwdata,
-+    input  [3:0]  in_pstrb,
-+    output        in_pready,
-+    output [31:0] in_prdata,
-+    output        in_pslverr,
+diff --git a/patch/replace-sdram.pl b/patch/replace-sdram.pl
+new file mode 100644
+index 00000000..c5704213
+--- /dev/null
++++ b/patch/replace-sdram.pl
+@@ -0,0 +1,71 @@
++#!/usr/bin/env perl
++use strict;
++use warnings;
 +
-+    output [31:0] out_paddr,
-+    output        out_psel,
-+    output        out_penable,
-+    output [2:0]  out_pprot,
-+    output        out_pwrite,
-+    output [31:0] out_pwdata,
-+    output [3:0]  out_pstrb,
-+    input         out_pready,
-+    input  [31:0] out_prdata,
-+    input         out_pslverr
- );
-+    parameter IDLE   = 2'b00;
-+    parameter ACCESS = 2'b01;
-+    parameter WAIT   = 2'b10;
++my $file = shift @ARGV or die "Usage: $0 <verilog-file>\n";
 +
-+    // parameter FREQ_CPU
-+    // parameter FREQ_PER = 100;
++open my $in, '<', $file or die "Cannot open $file for reading: $!\n";
++local $/;
++my $content = <$in>;
++close $in;
 +
-+    parameter FACTOR = 10;
-+     /* (freq - 1) * 1024  
-+        1003  -> 9247
-+        1018  -> 9400
-+        974   -> 8950
-+        854   -> 7721
-+        869   -> 7875
-+        796   -> 7127
-+        736   -> 6512
-+        1072  -> 9953
-+        1140  -> 10650
-+    */
-+    parameter RATE_FIX = 10650; 
-+    
-+    reg [1:0] state, nstate;
++my $replacement = <<'EOF';
++  wire read = ~_asic_sdram_cs & _asic_sdram_ras & ~_asic_sdram_cas & _asic_sdram_we;
++  wire write = ~_asic_sdram_cs & _asic_sdram_ras & ~_asic_sdram_cas & ~_asic_sdram_we;
 +
-+    reg [31:0] rdata;
++  sdram #(.NUM(0)) l0sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[1:0]),
++    .dq  (_dq_wire[15:0])
++  );
++  sdram #(.NUM(1)) h0sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[3:2]),
++    .dq  (_dq_wire[31:16])
++  );
++  sdram #(.NUM(2)) l1sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (~_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[1:0]),
++    .dq  (_dq_wire[15:0])
++  );
++  sdram #(.NUM(3)) h1sdram (
++    .clk (_asic_sdram_clk),
++    .cke (_asic_sdram_cke),
++    .cs  (~_asic_sdram_a[13] & (read | write) ? 1'b0 : _asic_sdram_cs),
++    .ras (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_ras),
++    .cas (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_cas),
++    .we  (~_asic_sdram_a[13] & (read | write) ? 1'b1 : _asic_sdram_we),
++    .a   (_asic_sdram_a[12:0]),
++    .ba  (_asic_sdram_ba),
++    .dqm (_asic_sdram_dqm[3:2]),
++    .dq  (_dq_wire[31:16])
++  );
++EOF
 +
-+    reg [127:0] delay_counter;
++my $count = ($content =~ s{^[ \t]*(?://\s*)?sdram sdram\s*\(.*?^[ \t]*\);\s*(?://[^\n]*)?\n?}{$replacement\n}gms);
++die "Expected exactly one SDRAM instance block, replaced $count\n" unless $count == 1;
 +
-+    always @(posedge clock) begin
-+        if (reset) begin
-+            state <= IDLE;
-+        end else begin
-+            state <= nstate;
-+        end
-+    end
-+
-+    always @(*) begin
-+        if(reset) begin
-+            nstate = IDLE;
-+        end else begin
-+            case(state)
-+                IDLE: begin
-+                    if(in_psel) begin
-+                        nstate = ACCESS;
-+                    end else begin
-+                        nstate = IDLE;
-+                    end
-+                end
-+                ACCESS: begin
-+                    if(out_pready) begin
-+                        nstate = WAIT;
-+                    end else begin
-+                        nstate = ACCESS;
-+                    end
-+                end
-+                WAIT: begin
-+                    if(delay_counter == 1) begin
-+                        nstate = IDLE;
-+                    end else begin
-+                        nstate = WAIT;
-+                    end
-+                end
-+                default: begin
-+                    nstate = IDLE;
-+                end
-+            endcase
-+        end
-+    end
-+    
-+    always @(posedge clock) begin
-+        if(reset) begin
-+            delay_counter <= 0;
-+        end else begin
-+            case(state)
-+                IDLE: begin
-+                    delay_counter <= 0;
-+                end
-+                ACCESS: begin
-+                    if(!out_pready) begin
-+                        delay_counter <= delay_counter + RATE_FIX;
-+                    end else begin
-+                        delay_counter <= delay_counter >> FACTOR;
-+                    end
-+                end
-+                WAIT: begin
-+                    delay_counter <= delay_counter - 1;
-+                end
-+                default: begin
-+                    delay_counter <= 0;
-+                end
-+            endcase
-+        end
-+    end
-+
-+    always @(posedge clock) begin
-+        if(reset) begin
-+            rdata <= 0;
-+        end else if(state == ACCESS && out_pready) begin
-+            rdata <= out_prdata;
-+        end
-+    end
-+
-+    reg psel, penable;
-+    always @(posedge clock) begin
-+        if(reset) begin
-+            psel <= 0;
-+            penable <= 0;
-+        end else if(out_pready) begin
-+            psel <= 0;
-+            penable <= 0;
-+        end else begin
-+            psel <= (state == ACCESS || (state == IDLE && in_psel));
-+            penable <= (state == ACCESS);
-+        end
-+    end
-+
-+    
- 
--  assign out_paddr   = in_paddr;
--  assign out_psel    = in_psel;
--  assign out_penable = in_penable;
--  assign out_pprot   = in_pprot;
--  assign out_pwrite  = in_pwrite;
--  assign out_pwdata  = in_pwdata;
--  assign out_pstrb   = in_pstrb;
--  assign in_pready   = out_pready;
--  assign in_prdata   = out_prdata;
--  assign in_pslverr  = out_pslverr;
-+    assign out_paddr   = in_paddr;
-+    assign out_psel    = RATE_FIX == 0 ? in_psel : psel;
-+    assign out_penable = RATE_FIX == 0 ? in_penable : penable;
-+    assign out_pprot   = in_pprot;
-+    assign out_pwrite  = in_pwrite;
-+    assign out_pwdata  = in_pwdata;
-+    assign out_pstrb   = in_pstrb;
-+    assign in_pready   = RATE_FIX == 0 ? out_pready : (state == WAIT) && (delay_counter == 1);
-+    assign in_prdata   = RATE_FIX == 0 ? out_prdata : rdata;
-+    assign in_pslverr  = out_pslverr;
- 
- endmodule
-diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
-index f692803b..5989bb6f 100644
---- a/perip/amba/axi4_delayer.v
-+++ b/perip/amba/axi4_delayer.v
-@@ -62,35 +62,222 @@ module axi4_delayer(
-   input  [3:0]  out_bid,
-   input  [1:0]  out_bresp
- );
-+    parameter IDLE     = 4'b0000;
-+    parameter ARACCESS = 4'b0001;
-+    parameter ARWAIT   = 4'b0010;
-+    parameter RACCESS  = 4'b0011;
-+    parameter RWAIT    = 4'b0100;
-+    parameter AWACCESS = 4'b0101;
-+    parameter AWWAIT   = 4'b0110;
-+    parameter WACCESS  = 4'b0111;
-+    parameter WWAIT    = 4'b1000;
-+    parameter BACCESS  = 4'b1001;
-+    parameter BWAIT    = 4'b1010;
- 
--  assign in_arready = out_arready;
--  assign out_arvalid = in_arvalid;
--  assign out_arid = in_arid;
--  assign out_araddr = in_araddr;
--  assign out_arlen = in_arlen;
--  assign out_arsize = in_arsize;
--  assign out_arburst = in_arburst;
--  assign out_rready = in_rready;
--  assign in_rvalid = out_rvalid;
--  assign in_rid = out_rid;
--  assign in_rdata = out_rdata;
--  assign in_rresp = out_rresp;
--  assign in_rlast = out_rlast;
--  assign in_awready = out_awready;
--  assign out_awvalid = in_awvalid;
--  assign out_awid = in_awid;
--  assign out_awaddr = in_awaddr;
--  assign out_awlen = in_awlen;
--  assign out_awsize = in_awsize;
--  assign out_awburst = in_awburst;
--  assign in_wready = out_wready;
--  assign out_wvalid = in_wvalid;
--  assign out_wdata = in_wdata;
--  assign out_wstrb = in_wstrb;
--  assign out_wlast = in_wlast;
--  assign out_bready = in_bready;
--  assign in_bvalid = out_bvalid;
--  assign in_bid = out_bid;
--  assign in_bresp = out_bresp;
-+    // parameter FREQ_CPU
-+    // parameter FREQ_PER = 100;
-+
-+    parameter FACTOR = 10;
-+     /* (freq - 1) * 1024  
-+        1003  -> 9247
-+        1018  -> 9400
-+        974   -> 8950
-+        854   -> 7721
-+        869   -> 7875
-+        796   -> 7127
-+        736   -> 6512
-+        1072  -> 9953
-+        1140  -> 10650
-+    */
-+    parameter RATE_FIX = 10650; 
-+    
-+    reg [3:0] state, nstate;
-+
-+    reg [31:0] rdata;
-+
-+    reg [127:0] delay_counter;
-+    reg [16:0] resp_delay;
-+
-+    always @(posedge clock) begin
-+        if (reset) begin
-+            state <= IDLE;
-+        end else begin
-+            state <= nstate;
-+        end
-+    end
-+
-+    always @(*) begin
-+        if(reset) begin
-+            nstate = IDLE;
-+        end else begin
-+            case(state)
-+                IDLE: begin
-+                    nstate = in_arvalid ? ARACCESS : (in_awvalid ? AWACCESS : IDLE);
-+                end
-+                ARACCESS: begin
-+                    nstate = out_arready ? ARWAIT : ARACCESS;
-+                end
-+                ARWAIT: begin
-+                    nstate = (delay_counter == 0) ? RACCESS : ARWAIT;
-+                end
-+                RACCESS: begin
-+                    nstate = out_rvalid && in_rready ? RWAIT : RACCESS;
-+                end
-+                RWAIT: begin
-+                    nstate = (resp_delay == 0) ? (out_rlast ? IDLE : RACCESS) : RWAIT;
-+                end
-+                AWACCESS: begin
-+                    nstate = out_awready ? (in_wvalid & out_wready ? WWAIT : AWWAIT) : AWACCESS;
-+                end
-+                AWWAIT: begin
-+                    nstate = (delay_counter == 0) ? WACCESS : AWWAIT;
-+                end
-+                WACCESS: begin
-+                    nstate = out_wready && in_wvalid ? WWAIT : WACCESS;
-+                end
-+                WWAIT: begin
-+                    nstate = (delay_counter == 0) ? (in_wlast ? BACCESS : WACCESS) : WWAIT;
-+                end
-+                BACCESS: begin
-+                    nstate = out_bvalid && in_bready ? BWAIT : BACCESS;
-+                end
-+                BWAIT: begin
-+                    nstate = (resp_delay == 0) ? IDLE : BWAIT;
-+                end
-+                default: begin
-+                    nstate = IDLE;
-+                end
-+            endcase
-+        end
-+    end
-+    
-+    always @(posedge clock) begin
-+        if(reset) begin
-+            delay_counter <= 0;
-+            resp_delay <= 0;
-+        end else begin
-+            case(state)
-+                IDLE: begin
-+                    delay_counter <= 0;
-+                    resp_delay <= 0;
-+                end
-+                ARACCESS: begin
-+                    if(!out_arready) begin
-+                        delay_counter <= delay_counter + RATE_FIX;
-+                    end else begin
-+                        delay_counter <= delay_counter >> FACTOR;
-+                        resp_delay <= resp_delay + RATE_FIX;
-+                    end
-+                end
-+                ARWAIT: begin
-+                    delay_counter <= delay_counter == 0 ? 0 : delay_counter - 1;
-+                    if(!(out_rvalid && in_rready)) begin
-+                        resp_delay <= resp_delay + RATE_FIX;
-+                    end
-+                end
-+                RACCESS: begin
-+                    if(!(out_rvalid && in_rready)) begin
-+                        resp_delay <= resp_delay + RATE_FIX;
-+                    end else begin
-+                        resp_delay <= resp_delay >> FACTOR;
-+                    end
-+                end
-+                RWAIT: begin
-+                    resp_delay <= resp_delay == 0 ? 0 : resp_delay - 1;
-+                end
-+                AWACCESS: begin
-+                    if(!out_awready) begin
-+                        delay_counter <= delay_counter + RATE_FIX;
-+                    end else begin
-+                        delay_counter <= delay_counter >> FACTOR;
-+                    end
-+                end
-+                AWWAIT: begin
-+                    delay_counter <= delay_counter == 0 ? 0 : delay_counter - 1;
-+                end
-+                WACCESS: begin
-+                    if(!(in_wvalid && out_wready)) begin
-+                        delay_counter <= delay_counter + RATE_FIX;
-+                    end else begin
-+                        delay_counter <= delay_counter >> FACTOR;
-+                    end
-+                end
-+                WWAIT: begin
-+                    delay_counter <= delay_counter == 0 ? 0 : delay_counter - 1;
-+                    if(!(out_bvalid && in_bready)) begin
-+                        resp_delay <= resp_delay + RATE_FIX;
-+                    end
-+                end
-+                BACCESS: begin
-+                    if(!(out_bvalid && in_bready)) begin
-+                        resp_delay <= resp_delay + RATE_FIX;
-+                    end else begin
-+                        resp_delay <= resp_delay >> FACTOR;
-+                    end
-+                end
-+                BWAIT: begin
-+                    resp_delay <= resp_delay == 0 ? 0 : resp_delay - 1;
-+                end
-+                default: begin
-+                    delay_counter <= 0;
-+                    resp_delay <= 0;
-+                end
-+            endcase
-+        end
-+    end
-+
-+    always @(posedge clock) begin
-+        if(reset) begin
-+            rdata <= 0;
-+        end else if(state == RACCESS && out_rvalid) begin
-+            rdata <= out_rdata;
-+        end
-+    end
-+
-+    reg arvalid;
-+    reg awvalid;
-+    reg wvalid;
-+    always @(posedge clock) begin
-+        if(reset) begin
-+            arvalid <= 0;
-+            awvalid <= 0;
-+            wvalid <= 0;
-+        end else begin
-+            arvalid <= out_arready ? 0 : (state == ARACCESS || (state == IDLE && in_arvalid));
-+            awvalid <= out_awready ? 0 : (state == AWACCESS || (state == IDLE && in_awvalid));
-+            wvalid  <= out_wready  ? 0 : (state == WACCESS && in_wvalid);
-+        end
-+    end
-+
-+    assign in_arready = (state == ARWAIT) && (delay_counter == 0);
-+    assign out_arvalid = arvalid;
-+    assign out_arid = in_arid;
-+    assign out_araddr = in_araddr;
-+    assign out_arlen = in_arlen;
-+    assign out_arsize = in_arsize;
-+    assign out_arburst = in_arburst;
-+    assign out_rready = (state == RWAIT) && (resp_delay == 0);
-+    assign in_rvalid = (state == RWAIT) && (resp_delay == 0);
-+    assign in_rid = out_rid;
-+    assign in_rdata = rdata;
-+    assign in_rresp = out_rresp;
-+    assign in_rlast = out_rlast;
-+
-+    assign in_awready = (state == AWWAIT) && (delay_counter == 0) || (state == WWAIT) && (delay_counter == 0) && in_awvalid;
-+    assign out_awvalid = awvalid;
-+    assign out_awid = in_awid;
-+    assign out_awaddr = in_awaddr;
-+    assign out_awlen = in_awlen;
-+    assign out_awsize = in_awsize;
-+    assign out_awburst = in_awburst;
-+    assign in_wready = (state == WWAIT) && (delay_counter == 0);
-+    assign out_wvalid = wvalid || awvalid;
-+    assign out_wdata = in_wdata;
-+    assign out_wstrb = in_wstrb;
-+    assign out_wlast = in_wlast;
-+    assign out_bready = (state == BWAIT) && (resp_delay == 0);
-+    assign in_bvalid = (state == BWAIT) && (resp_delay == 0);
-+    assign in_bid = out_bid;
-+    assign in_bresp = out_bresp;
- 
- endmodule
++open my $out, '>', $file or die "Cannot open $file for writing: $!\n";
++print {$out} $content;
++close $out;
+
 diff --git a/perip/bitrev/bitrev.v b/perip/bitrev/bitrev.v
 index f1c3b363..a3048d39 100644
 --- a/perip/bitrev/bitrev.v
@@ -1390,6 +1020,324 @@ index f0fd6fdb..507233d7 100644
      .SDRAM_COL_W(9),
      .SDRAM_READ_LATENCY(2)
    ) u_sdram_axi(
+diff --git a/perip/spi/rtl/spi_top_apb.v b/perip/spi/rtl/spi_top_apb.v
+index 92d37516..27414182 100644
+--- a/perip/spi/rtl/spi_top_apb.v
++++ b/perip/spi/rtl/spi_top_apb.v
+@@ -1,72 +1,255 @@
+ // define this macro to enable fast behavior simulation
+ // for flash by skipping SPI transfers
+-//`define FAST_FLASH
++// `define FAST_FLASH
+ 
+ module spi_top_apb #(
+-  parameter flash_addr_start = 32'h30000000,
+-  parameter flash_addr_end   = 32'h3fffffff,
+-  parameter spi_ss_num       = 8
+-) (
+-  input         clock,
+-  input         reset,
+-  input  [31:0] in_paddr,
+-  input         in_psel,
+-  input         in_penable,
+-  input  [2:0]  in_pprot,
+-  input         in_pwrite,
+-  input  [31:0] in_pwdata,
+-  input  [3:0]  in_pstrb,
+-  output        in_pready,
+-  output [31:0] in_prdata,
+-  output        in_pslverr,
+-
+-  output                  spi_sck,
+-  output [spi_ss_num-1:0] spi_ss,
+-  output                  spi_mosi,
+-  input                   spi_miso,
+-  output                  spi_irq_out
++    parameter flash_addr_start = 32'h30000000,
++    parameter flash_addr_end   = 32'h3fffffff,
++    parameter spi_ss_num       = 8
++)(
++    input         clock,
++    input         reset,
++    input  [31:0] in_paddr,
++    input         in_psel,
++    input         in_penable,
++    input  [2:0]  in_pprot,
++    input         in_pwrite,
++    input  [31:0] in_pwdata,
++    input  [3:0]  in_pstrb,
++    output        in_pready,
++    output [31:0] in_prdata,
++    output        in_pslverr,
++
++    output                  spi_sck,
++    output [spi_ss_num-1:0] spi_ss,
++    output                  spi_mosi,
++    input                   spi_miso,
++    output                  spi_irq_out
+ );
+ 
+ `ifdef FAST_FLASH
+ 
+-wire [31:0] data;
+-parameter invalid_cmd = 8'h0;
+-flash_cmd flash_cmd_i(
+-  .clock(clock),
+-  .valid(in_psel && !in_penable),
+-  .cmd(in_pwrite ? invalid_cmd : 8'h03),
+-  .addr({8'b0, in_paddr[23:2], 2'b0}),
+-  .data(data)
+-);
+-assign spi_sck    = 1'b0;
+-assign spi_ss     = 8'b0;
+-assign spi_mosi   = 1'b1;
+-assign spi_irq_out= 1'b0;
+-assign in_pslverr = 1'b0;
+-assign in_pready  = in_penable && in_psel && !in_pwrite;
+-assign in_prdata  = data[31:0];
++    wire [31:0] data;
++    parameter invalid_cmd = 8'h0;
++    flash_cmd flash_cmd_i(
++        .clock(clock),
++        .valid(in_psel && !in_penable),
++        .cmd(in_pwrite ? invalid_cmd : 8'h03),
++        .addr({8'b0, in_paddr[23:2], 2'b0}),
++        .data(data)
++    );
++    assign spi_sck    = 1'b0;
++    assign spi_ss     = 8'b0;
++    assign spi_mosi   = 1'b1;
++    assign spi_irq_out= 1'b0;
++    assign in_pslverr = 1'b0;
++    assign in_pready  = in_penable && in_psel && !in_pwrite;
++    assign in_prdata  = data[31:0];
+ 
+ `else
+ 
+-spi_top u0_spi_top (
+-  .wb_clk_i(clock),
+-  .wb_rst_i(reset),
+-  .wb_adr_i(in_paddr[4:0]),
+-  .wb_dat_i(in_pwdata),
+-  .wb_dat_o(in_prdata),
+-  .wb_sel_i(in_pstrb),
+-  .wb_we_i (in_pwrite),
+-  .wb_stb_i(in_psel),
+-  .wb_cyc_i(in_penable),
+-  .wb_ack_o(in_pready),
+-  .wb_err_o(in_pslverr),
+-  .wb_int_o(spi_irq_out),
+-
+-  .ss_pad_o(spi_ss),
+-  .sclk_pad_o(spi_sck),
+-  .mosi_pad_o(spi_mosi),
+-  .miso_pad_i(spi_miso)
+-);
++    parameter IDLE = 0;
++    parameter SPI = 1;
++    parameter XIP_DIVIDER = 2;
++    parameter XIP_SLAVE_SELECT = 3;
++    parameter XIP_CTRL_SET = 4;
++    parameter XIP_CMD_ADDR = 5;
++    parameter XIP_TRAN_START = 6;
++    parameter XIP_TRAN_WAIT = 7;
++    parameter XIP_READ_DATA = 8;
++
++    reg [4:0] addr;
++    reg sel;
++    reg we;
++    reg enable;
++    reg [3:0] strb;
++    reg [31:0] wdata;
++    wire [31:0] rdata;
++    wire ready;
++
++    assign in_prdata = ((state == SPI) & ready)         ? rdata : 
++                       (state == XIP_READ_DATA & ready) ? 
++                       {rdata[7:0], rdata[15:8], rdata[23:16], rdata[31:24]} : 32'h0;
++    assign in_pready = ((state == SPI) & ready) |
++                        (state == XIP_READ_DATA & ready);
++
++
++    reg [3:0] state, nstate;
++    always @(posedge clock) begin
++        if(reset) begin
++            state <= IDLE;
++        end else begin
++            state <= nstate;
++        end
++    end
++
++    always @(*) begin
++        if(reset) begin
++            addr = 0;
++            sel = 0;
++            we = 0;
++            enable = 0;
++            strb = 0;
++            wdata = 0;
++            nstate = IDLE;
++        end else begin
++            case(state)
++                IDLE: begin
++                    addr = 0;
++                    sel = 0;
++                    we = 0;
++                    enable = 0;
++                    strb = 0;
++                    wdata = 0;
++                    if(in_psel && in_penable) begin
++                        nstate = (in_paddr[31:28] == 4'h3) ? XIP_DIVIDER : SPI;
++                        if(nstate == XIP_DIVIDER) begin
++                            if(in_pwrite) begin
++                                $error("XIP access should be read-only");
++                                nstate = IDLE;
++                            end
++                        end
++                    end else begin
++                        nstate = IDLE;
++                    end
++                end
++                SPI: begin
++                    addr = in_paddr[4:0];
++                    sel = in_psel;
++                    we = in_pwrite;
++                    enable = in_penable;
++                    strb = in_pstrb;
++                    wdata = in_pwdata;
++                    if(ready) begin
++                        nstate = IDLE;
++                    end else begin
++                        nstate = SPI;
++                    end
++                end
++                XIP_DIVIDER: begin
++                    addr = 5'h14;
++                    sel = 1;
++                    we = 1;
++                    enable = 1;
++                    strb = 4'b1111;
++                    wdata = 32'h4; //divisor set to 4
++                    if(ready) begin
++                        nstate = XIP_SLAVE_SELECT;
++                    end else begin
++                        nstate = XIP_DIVIDER;
++                    end
++                end
++                XIP_SLAVE_SELECT: begin
++                    addr = 5'h18;
++                    sel = 1;
++                    we = 1;
++                    enable = 1;
++                    strb = 4'b1111;
++                    wdata = 32'h1; //select slave 0
++                    if(ready) begin
++                        nstate = XIP_CTRL_SET;
++                    end else begin
++                        nstate = XIP_SLAVE_SELECT;
++                    end
++                end
++                XIP_CTRL_SET: begin
++                    addr = 5'h10;
++                    sel = 1;
++                    we = 1;
++                    enable = 1;
++                    strb = 4'b1111;
++                    wdata = 32'h3440; // ass, len64, tx_neg, busy=0, ie
++                    if(ready) begin
++                        nstate = XIP_CMD_ADDR;
++                    end else begin
++                        nstate = XIP_CTRL_SET;
++                    end
++                end
++                XIP_CMD_ADDR: begin
++                    addr = 5'h04;
++                    sel = 1;
++                    we = 1;
++                    enable = 1;
++                    strb = 4'b1111;
++                    wdata = {8'h03, in_paddr[23:0]};
++                    if(ready) begin
++                        nstate = XIP_TRAN_START;
++                    end else begin
++                        nstate = XIP_CMD_ADDR;
++                    end
++                end
++                XIP_TRAN_START: begin
++                    addr = 5'h10;
++                    sel = 1;
++                    we = 1;
++                    enable = 1;
++                    strb = 4'b1111;
++                    wdata = 32'h3540; // go busy
++                    if(ready) begin
++                        nstate = XIP_TRAN_WAIT;
++                    end else begin
++                        nstate = XIP_TRAN_START;
++                    end
++                end
++                XIP_TRAN_WAIT: begin
++                    addr = 5'h00;
++                    sel = 0;
++                    we = 0;
++                    enable = 0;
++                    strb = 4'b0000;
++                    wdata = 32'h0; 
++                    if(spi_irq_out) begin
++                        nstate = XIP_READ_DATA;
++                    end else begin
++                        nstate = XIP_TRAN_WAIT;
++                    end
++                end
++                XIP_READ_DATA: begin
++                    addr = 5'h00;
++                    sel = 1;
++                    we = 0;
++                    enable = 1;
++                    strb = 4'b1111;
++                    wdata = 32'h0;
++                    if(ready) begin
++                        nstate = IDLE;
++                    end else begin
++                        nstate = XIP_READ_DATA;
++                    end
++                end
++                default: begin
++                    addr = 0;
++                    sel = 0;
++                    we = 0;
++                    enable = 0;
++                    strb = 0;
++                    wdata = 0;
++                    nstate = IDLE;
++                end
++            endcase
++        end
++    end
++
++
++    spi_top u0_spi_top (
++        .wb_clk_i(clock),
++        .wb_rst_i(reset),
++        .wb_adr_i(addr),
++        .wb_dat_i(wdata),
++        .wb_dat_o(rdata),
++        .wb_sel_i(strb),
++        .wb_we_i (we),
++        .wb_stb_i(sel),
++        .wb_cyc_i(enable),
++        .wb_ack_o(ready),
++        .wb_err_o(in_pslverr),
++        .wb_int_o(spi_irq_out),
++
++        .ss_pad_o(spi_ss),
++        .sclk_pad_o(spi_sck),
++        .mosi_pad_o(spi_mosi),
++        .miso_pad_i(spi_miso)
++    );
+ 
+ `endif // FAST_FLASH
+ 
 diff --git a/perip/vga/vga_top_apb.v b/perip/vga/vga_top_apb.v
 index 5c74cfbe..fb946765 100644
 --- a/perip/vga/vga_top_apb.v
@@ -1515,6 +1463,28 @@ index 5c74cfbe..fb946765 100644
 +    assign {vga_r, vga_g, vga_b} = vga_mem[vga_addr];
 +
  endmodule
+diff --git a/src/CPU.scala b/src/CPU.scala
+index 7559195f..1a4fa789 100644
+--- a/src/CPU.scala
++++ b/src/CPU.scala
+@@ -13,7 +13,7 @@ object CPUAXI4BundleParameters {
+   def apply() = AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = ChipLinkParam.idBits)
+ }
+ 
+-class ysyx_00000000 extends BlackBox {
++class ysyx_25110270 extends BlackBox {
+   val io = IO(new Bundle {
+     val clock = Input(Clock())
+     val reset = Input(Reset())
+@@ -35,7 +35,7 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
+     val interrupt = IO(Input(Bool()))
+     val slave = IO(Flipped(AXI4Bundle(CPUAXI4BundleParameters())))
+ 
+-    val cpu = Module(new ysyx_00000000)
++    val cpu = Module(new ysyx_25110270)
+     cpu.io.clock := clock
+     cpu.io.reset := reset
+     cpu.io.io_interrupt := interrupt
 diff --git a/src/Top.scala b/src/Top.scala
 index c00378a6..2913155b 100644
 --- a/src/Top.scala
