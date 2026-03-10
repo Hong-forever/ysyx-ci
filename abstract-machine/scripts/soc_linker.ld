@@ -1,4 +1,5 @@
 ENTRY(_start)
+
 PHDRS { 
   fsbl PT_LOAD;
   ssbl PT_LOAD;
@@ -37,13 +38,13 @@ SECTIONS {
     *(.srodata*)
     . = ALIGN(8);
     _etext = .;
+    _sdata = .;
   } > sdram AT>flash : text
 
   _text_loadaddr = LOADADDR(.text);
 
-  .data : {
+  .data : ALIGN(4) {
     . = ALIGN(4);
-    _sdata = .;
     *(.data*)
     *(.sdata*)
     . = ALIGN(4);
