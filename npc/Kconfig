@@ -68,10 +68,10 @@ config SOC
   bool "enable SoC simulation"
   default y
 
-config BOOTLOADER
+config NOBOOTLOADER
   depends on SOC
-  bool "enable bootloader"
-  default y
+  bool "Disable bootloader"
+  default n
 
 config ICARUS
   depends on !SOC

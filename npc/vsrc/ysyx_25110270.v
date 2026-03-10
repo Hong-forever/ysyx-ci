@@ -213,11 +213,11 @@
 // `ifdef ysyx_25110270_SOC
 `ifndef __ICARUS__
 
-    // `ifdef ysyx_25110270_BOOTLOADER
-        // `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
-    // `else
+    `ifdef ysyx_25110270_NOBOOTLOADER
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
-    // `endif
+    `else
+        `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+    `endif
 
 `else
 
