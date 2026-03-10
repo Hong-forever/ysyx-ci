@@ -42,11 +42,11 @@ SECTIONS {
   _text_loadaddr = LOADADDR(.text);
 
   .data : {
-    . = ALIGN(4);
+    . = ALIGN(8);
     _sdata = .;
     *(.data*)
     *(.sdata*)
-    . = ALIGN(4);
+    . = ALIGN(8);
     _edata = .;
     _szero = .;
   } > sdram AT>flash : data
