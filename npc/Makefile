@@ -62,6 +62,11 @@ endif
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/uart16550/rtl) -name "*.v")))
 VERILATOR_CFLAGS += -I$(sort $(dir $(shell find $(abspath ../ysyxSoC/perip/spi/rtl) -name "*.v")))
 endif
+
+ifeq ($(CONFIG_NPC),y)
+VERILATOR_CFLAGS += -Dysyx_25110270_NPC=1
+endif
+
 VERILATOR_CFLAGS += -I./vsrc
 VERILATOR_CFLAGS += -Wno-WIDTHEXPAND
 

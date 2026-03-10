@@ -5,7 +5,14 @@
 // `define ysyx_25110270_SOC //no verilog macro define here, define it in Makefile
 
 `ifdef ysyx_25110270_SOC 
-// `ifndef __ICARUS__
+
+`define ysyx_25110270_DPIC
+`define ysyx_25110270_PERF
+// `define ysyx_25110270_DEBUG
+
+`endif
+
+`ifdef ysyx_25110270_NPC 
 
 `define ysyx_25110270_DPIC
 `define ysyx_25110270_PERF
@@ -210,14 +217,17 @@
 `define ysyx_25110270_SdramAddrBase 32'ha000_0000
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
-// `ifdef ysyx_25110270_SOC
 `ifndef __ICARUS__
 
+`ifdef ysyx_25110270_NPC
+    `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+`else
     `ifdef ysyx_25110270_NOBOOTLOADER
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
     `else
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
     `endif
+`endif
 
 `else
 
@@ -3830,14 +3840,10 @@ module ysyx_25110270_xbar
     input   wire    [3:0]               M1_rid
 );
 
-`ifndef ysyx_25110270_SOC
+`ifdef __ICARUS__
     wire sel_slave0   = (S0_BASE <= S_araddr && S_araddr < S0_BASE + S0_SIZE) ||
                         (S0_BASE <= S_awaddr && S_awaddr < S0_BASE + S0_SIZE);
-`else
-    wire sel_slave0   = (S0_BASE <= S_araddr && S_araddr < S0_BASE + S0_SIZE);
-`endif
 
-`ifndef ysyx_25110270_SOC
     assign M0_awvalid = sel_slave0 ? S_awvalid  : 0 ;
     assign M0_awaddr  = sel_slave0 ? S_awaddr   : 0 ;
     assign M0_awid    = sel_slave0 ? S_awid     : 0 ;
@@ -3850,6 +3856,25 @@ module ysyx_25110270_xbar
     assign M0_wlast   = sel_slave0 ? S_wlast    : 0 ;
     assign M0_bready  = sel_slave0 ? S_bready   : 0 ;
 `else
+    
+`ifdef ysyx_25110270_NPC
+    wire sel_slave0   = (S0_BASE <= S_araddr && S_araddr < S0_BASE + S0_SIZE) ||
+                        (S0_BASE <= S_awaddr && S_awaddr < S0_BASE + S0_SIZE);
+
+    assign M0_awvalid = sel_slave0 ? S_awvalid  : 0 ;
+    assign M0_awaddr  = sel_slave0 ? S_awaddr   : 0 ;
+    assign M0_awid    = sel_slave0 ? S_awid     : 0 ;
+    assign M0_awlen   = sel_slave0 ? S_awlen    : 0 ;
+    assign M0_awsize  = sel_slave0 ? S_awsize   : 0 ;
+    assign M0_awburst = sel_slave0 ? S_awburst  : 0 ;
+    assign M0_wvalid  = sel_slave0 ? S_wvalid   : 0 ;
+    assign M0_wdata   = sel_slave0 ? S_wdata    : 0 ;
+    assign M0_wstrb   = sel_slave0 ? S_wstrb    : 0 ;
+    assign M0_wlast   = sel_slave0 ? S_wlast    : 0 ;
+    assign M0_bready  = sel_slave0 ? S_bready   : 0 ;
+`else
+    wire sel_slave0   = (S0_BASE <= S_araddr && S_araddr < S0_BASE + S0_SIZE);
+
     assign M0_awvalid = 0;  //只读
     assign M0_awaddr  = 0;
     assign M0_awid    = 0;
@@ -3861,7 +3886,10 @@ module ysyx_25110270_xbar
     assign M0_wstrb   = 0;
     assign M0_wlast   = 0;
     assign M0_bready  = 0;
-`endif 
+`endif
+
+`endif
+
     assign M0_arvalid = sel_slave0 ? S_arvalid  : 0 ;
     assign M0_araddr  = sel_slave0 ? S_araddr   : 0 ;
     assign M0_arid    = sel_slave0 ? S_arid     : 0 ;

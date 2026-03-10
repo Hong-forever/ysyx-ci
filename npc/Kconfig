@@ -64,9 +64,14 @@ endmenu
 
 menu "Testing and Debugging"
 
+choice
+  prompt "Running Mode"
+  default SOC
 config SOC
-  bool "enable SoC simulation"
-  default y
+  bool "enable soc simulation"
+config NPC
+  bool "enable npc simulation"
+endchoice
 
 config NOBOOTLOADER
   depends on SOC
@@ -74,7 +79,7 @@ config NOBOOTLOADER
   default n
 
 config ICARUS
-  depends on !SOC
+  depends on NPC
   bool "enable icarus verilog"
   default n
 
