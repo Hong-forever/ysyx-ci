@@ -15,13 +15,13 @@ MEMORY {
 }
 
 SECTIONS {
-  .fsbl : {
+  .fsbl : ALIGN(4) {
     _sfsbl = ALIGN(4);
     *(fsbl_entry)
     _efsbl = ALIGN(4);
   } > flash AT>flash : fsbl
 
-  .ssbl : {
+  .ssbl : ALIGN(4) {
     _sssbl = ALIGN(4);
     *(ssbl_entry)
     _essbl = ALIGN(4);
@@ -29,7 +29,7 @@ SECTIONS {
 
   _ssbl_loadaddr = LOADADDR(.ssbl);
   
-  .text : {
+  .text : ALIGN(4) {
     _sload = ALIGN(4);
     *(text_entry)
     *(.text*)
@@ -40,7 +40,7 @@ SECTIONS {
 
   _start_loadaddr = LOADADDR(.text);
 
-  .data : {
+  .data : ALIGN(4) {
     . = ALIGN(4);
     *(.data*)
     *(.sdata*)
