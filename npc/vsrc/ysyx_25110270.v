@@ -2074,8 +2074,6 @@ module ysyx_25110270_wbu
 `ifdef ysyx_25110270_DPIC
         .O_csr_mtvec            (csr_mtvec                  ), //mtvec寄存器
         .O_csr_mepc             (csr_mepc                   ), //mepc寄存器
-        .O_csr_mstatus          (csr_mstatus                ), //mstatus寄存器
-        .O_csr_mcause           (csr_mcause                 ), //mcause寄存器
         .O_csr_mcyclel          (csr_mcyclel                ), //mcycle寄存器
         .O_csr_mcycleh          (csr_mcycleh                ), //mcycle寄存器
         .O_csr_mvendorid        (csr_mvendorid              ), //mvendorid寄存器
