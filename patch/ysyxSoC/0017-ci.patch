@@ -15,7 +15,7 @@ index 64c92690..31a53e86 100644
 +        971   -> 8919
      */
 -    parameter RATE_FIX = 10650; 
-+    parameter RATE_FIX = 8919;
++    parameter RATE_FIX = 1;
      
      reg [1:0] state, nstate;
  
@@ -31,7 +31,7 @@ index 5989bb6f..00be471e 100644
 +        971   -> 8919
      */
 -    parameter RATE_FIX = 10650; 
-+    parameter RATE_FIX = 8919;
++    parameter RATE_FIX = 1;
      
      reg [3:0] state, nstate;
  
