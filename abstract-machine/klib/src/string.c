@@ -85,8 +85,8 @@ void *memmove(void *dst, const void *src, size_t n) {
 }
 
 void *memcpy(void *out, const void *in, size_t n) {
-    const uint32_t *i = (const uint32_t *)in;
-    uint32_t *o = (uint32_t *)out;
+    const uint8_t *i = (const uint8_t *)in;
+    uint8_t *o = (uint8_t *)out;
 
     for(size_t index=0; index<n; index++) o[index] = i[index];
 
