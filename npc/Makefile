@@ -42,11 +42,9 @@ INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD -cc --autoflush\
+VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 8
 VERILATOR_CFLAGS += --timescale "1ns/1ns" --no-timing 
-
-VERILATOR_CFLAGS += --lint-only
 
 ifeq ($(CONFIG_SOC),y)
 VERILATOR_CFLAGS += -Dysyx_25110270_SOC=1
