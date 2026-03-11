@@ -1,7 +1,7 @@
 From a625279fbcfab4d326b4d39eed389547fac18cac Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Thu, 26 Feb 2026 18:33:05 +0800
-Subject: [PATCH 12/18] evaluate 7, branch prediction
+Subject: [PATCH 12/19] evaluate 7, branch prediction
 
 
 diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
