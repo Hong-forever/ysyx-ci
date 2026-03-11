@@ -3,7 +3,7 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
-WAVE_ENABLE = 0
+WAVE_ENABLE = 1
 
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
