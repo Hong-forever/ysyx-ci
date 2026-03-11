@@ -1,7 +1,7 @@
 From 8321165aba77b7fc249cb2e28d6aa2b09249a0cb Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Wed, 11 Feb 2026 23:31:26 +0800
-Subject: [PATCH 07/19] reconstruct ing
+Subject: [PATCH 07/21] reconstruct ing
 
 
 diff --git a/perip/sdram/core_sdram_axi4/sdram_axi_core.v b/perip/sdram/core_sdram_axi4/sdram_axi_core.v
