@@ -3,6 +3,8 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
+ci_test = 1
+
 WAVE_ENABLE = 0
 
 # 1: vcd, 2: fst
