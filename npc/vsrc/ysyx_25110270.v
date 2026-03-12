@@ -2433,7 +2433,7 @@ module ysyx_25110270_csr
         end else if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-                mcause <= 32'd11;
+                mcause <= 32'd10;
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
             end else if(except_mret) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
