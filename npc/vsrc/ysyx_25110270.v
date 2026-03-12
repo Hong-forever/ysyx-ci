@@ -752,6 +752,8 @@ module ysyx_25110270_decoder
 
     reg [18:0] basic_ctrl;
 
+    wire f3_n0 = funct3 != 0;
+
     always @(*) begin
         basic_ctrl = 0;
         case(opcode)
@@ -833,9 +835,9 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                basic_ctrl[bit_rd_we        ] = funct3 != 0;
+                basic_ctrl[bit_rd_we        ] = f3_n0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
-                basic_ctrl[bit_csr_valid    ] = funct3 != 0;
+                basic_ctrl[bit_csr_valid    ] = f3_n0;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
@@ -2861,13 +2863,13 @@ module ysyx_25110270_arbiter
                         state_m1 ? M1_arvalid : 0;
 
     assign M_awaddr   = state_m0 ? M0_awaddr  : M1_awaddr;
-    assign M_awid     = M1_awid;
-    assign M_awlen    = M1_awlen;
-    assign M_awsize   = M1_awsize;
-    assign M_awburst  = M1_awburst;
-    assign M_wdata    = M1_wdata;
-    assign M_wstrb    = M1_wstrb;
-    assign M_wlast    = M1_wlast;
+    assign M_awid     = state_m0 ? M0_awid    : M1_awid;
+    assign M_awlen    = state_m0 ? M0_awlen   : M1_awlen;
+    assign M_awsize   = state_m0 ? M0_awsize  : M1_awsize;
+    assign M_awburst  = state_m0 ? M0_awburst : M1_awburst;
+    assign M_wdata    = state_m0 ? M0_wdata   : M1_wdata;
+    assign M_wstrb    = state_m0 ? M0_wstrb   : M1_wstrb;
+    assign M_wlast    = state_m0 ? M0_wlast   : M1_wlast;
     assign M_bready   = 1'b0; // xbar中已经将bready固定为1'b1了
     assign M_araddr   = state_m0 ? M0_araddr  : M1_araddr;
     assign M_arid     = state_m0 ? M0_arid    : M1_arid;
