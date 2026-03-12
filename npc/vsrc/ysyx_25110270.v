@@ -212,32 +212,32 @@
 `define ysyx_25110270_SdramAddrBase 32'ha000_0000
 `define ysyx_25110270_SdramSize     32'h2000_0000
 
-// `ifndef __ICARUS__
+`ifndef __ICARUS__
 
-// `ifdef ysyx_25110270_NPC
-//     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-// `else
-//     `ifdef ysyx_25110270_NOBOOTLOADER
-//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
-//     `else
-//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
-//     `endif
-// `endif
-
-// `else
-//     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
-// `endif
-
-
-`ifdef ysyx_25110270_SOC
+`ifdef ysyx_25110270_NPC
+    `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+`else
     `ifdef ysyx_25110270_NOBOOTLOADER
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
     `else
         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
     `endif
+`endif
+
 `else
     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
 `endif
+
+
+// `ifdef ysyx_25110270_SOC
+//     `ifdef ysyx_25110270_NOBOOTLOADER
+//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_SdramAddrBase
+//     `else
+//         `define ysyx_25110270_RESET_VECTOR  `ysyx_25110270_FlashAddrBase
+//     `endif
+// `else
+//     `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+// `endif
 
 //------------------------------------------------------------------------
 // 取指单元
@@ -4720,42 +4720,6 @@ module ysyx_25110270_top
     (
         .clk(clock),
         .rst(reset),
-        .awvalid_i(s0_awvalid),
-        .awready_o(s0_awready),
-        .awaddr_i(s0_awaddr),
-        .awid_i(s0_awid),
-        .awlen_i(s0_awlen),
-        .awsize_i(s0_awsize),
-        .awburst_i(s0_awburst),
-        .wvalid_i(s0_wvalid),
-        .wready_o(s0_wready),
-        .wdata_i(s0_wdata),
-        .wstrb_i(s0_wstrb),
-        .wlast_i(s0_wlast),
-        .bvalid_o(s0_bvalid),
-        .bready_i(s0_bready),
-        .bresp_o(s0_bresp),
-        .bid_o(s0_bid),
-        .arvalid_i(s0_arvalid),
-        .arready_o(s0_arready),
-        .araddr_i(s0_araddr),
-        .arid_i(s0_arid),
-        .arlen_i(s0_arlen),
-        .arsize_i(s0_arsize),
-        .arburst_i(s0_arburst),
-        .rvalid_o(s0_rvalid),
-        .rready_i(s0_rready),
-        .rdata_o(s0_rdata),
-        .rresp_o(s0_rresp),
-        .rlast_o(s0_rlast),
-        .rid_o(s0_rid)
-    );
-
-
-    ysyx_25110270_uart uart_test
-    (
-        .clk(clock),
-        .rst(reset),
         .awvalid_i(s1_awvalid),
         .awready_o(s1_awready),
         .awaddr_i(s1_awaddr),
@@ -4788,10 +4752,46 @@ module ysyx_25110270_top
     );
 
 
+    ysyx_25110270_uart uart_test
+    (
+        .clk(clock),
+        .rst(reset),
+        .awvalid_i(s0_awvalid),
+        .awready_o(s0_awready),
+        .awaddr_i(s0_awaddr),
+        .awid_i(s0_awid),
+        .awlen_i(s0_awlen),
+        .awsize_i(s0_awsize),
+        .awburst_i(s0_awburst),
+        .wvalid_i(s0_wvalid),
+        .wready_o(s0_wready),
+        .wdata_i(s0_wdata),
+        .wstrb_i(s0_wstrb),
+        .wlast_i(s0_wlast),
+        .bvalid_o(s0_bvalid),
+        .bready_i(s0_bready),
+        .bresp_o(s0_bresp),
+        .bid_o(s0_bid),
+        .arvalid_i(s0_arvalid),
+        .arready_o(s0_arready),
+        .araddr_i(s0_araddr),
+        .arid_i(s0_arid),
+        .arlen_i(s0_arlen),
+        .arsize_i(s0_arsize),
+        .arburst_i(s0_arburst),
+        .rvalid_o(s0_rvalid),
+        .rready_i(s0_rready),
+        .rdata_o(s0_rdata),
+        .rresp_o(s0_rresp),
+        .rlast_o(s0_rlast),
+        .rid_o(s0_rid)
+    );
+
+
     ysyx_25110270_xbar
     #(
-        .S0_BASE(32'h8000_0000),
-        .S0_SIZE(32'h0800_0000)
+        .S0_BASE(32'h1000_0000),
+        .S0_SIZE(32'h0000_1000)
     ) xbar_test
     (
         .clk(clock),

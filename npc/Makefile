@@ -35,8 +35,6 @@ endif
 
 endif
 
-remove_quote = $(patsubst "%",%,$(1))
-
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
