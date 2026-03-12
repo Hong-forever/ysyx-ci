@@ -2261,30 +2261,26 @@ module ysyx_25110270_regfile
         // end
     end
 
-    // reg [31:0] rs1_rdata, rs2_rdata;
-    // always @(*) begin
-    //     if(I_rs1_raddr == 0) begin
-    //         rs1_rdata = 0;
-    //     end else if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
-    //         rs1_rdata = I_rd_wdata;
-    //     end else begin
-    //         rs1_rdata = regs[I_rs1_raddr];
-    //     end
-    // end
+    reg [31:0] rs1_rdata, rs2_rdata;
+    always @(*) begin
+        if(I_rs1_raddr == 0) begin
+            rs1_rdata = 0;
+        end else if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
+            rs1_rdata = I_rd_wdata;
+        end else begin
+            rs1_rdata = regs[I_rs1_raddr];
+        end
+    end
 
-
-    // always @(*) begin
-    //     if(I_rs2_raddr == 0) begin
-    //         rs2_rdata = 0;
-    //     end else if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
-    //         rs2_rdata = I_rd_wdata;
-    //     end else begin
-    //         rs2_rdata = regs[I_rs2_raddr];
-    //     end
-    // end
-
-    wire [31:0] rs1_rdata = (I_rs1_raddr == 0) ? 0 : (I_rd_we & (I_rd_waddr == I_rs1_raddr)) ? I_rd_wdata : regs[I_rs1_raddr];
-    wire [31:0] rs2_rdata = (I_rs2_raddr == 0) ? 0 : (I_rd_we & (I_rd_waddr == I_rs2_raddr)) ? I_rd_wdata : regs[I_rs2_raddr];
+    always @(*) begin
+        if(I_rs2_raddr == 0) begin
+            rs2_rdata = 0;
+        end else if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
+            rs2_rdata = I_rd_wdata;
+        end else begin
+            rs2_rdata = regs[I_rs2_raddr];
+        end
+    end
 
     //读寄存器
     assign O_rs1_rdata = rs1_rdata;
@@ -2386,7 +2382,7 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_flush_addr
 );
 
-    reg [31:0] mstatus;
+    reg [17:0] mstatus;
     reg [3:0] mcause;
     reg [31:0] mtvec;
     reg [31:0] mepc;
@@ -2429,12 +2425,12 @@ module ysyx_25110270_csr
             if(except_sync) begin
                 mepc <= I_except_addr;
                 mcause <= 4'd11;
-                mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
+                mstatus <= {mstatus[17:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 18'h1800; //MPIE->MIE, MIE清0
             end else if(except_mret) begin
-                mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
+                mstatus <= {mstatus[17:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~18'h1800; //MIE<-MPIE
             end else if(I_we) begin
                 case(I_waddr[1:0])
-                    `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
+                    `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata[17:0];
                     `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata[3:0];
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
                     `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
@@ -2453,7 +2449,7 @@ module ysyx_25110270_csr
             rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
+                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = {14'b0, mstatus};
                 `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
                 `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = {28'b0, mcause};
