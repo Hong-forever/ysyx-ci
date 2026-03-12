@@ -1819,7 +1819,7 @@ module ysyx_25110270_lsu
 
 
     assign dbus_awvalid = addr_resp_valid & I_st_valid;
-    assign dbus_wvalid = 0; // arbiter 中已赋值
+    assign dbus_wvalid = 0; // arbiter 中已
     assign dbus_arvalid = addr_resp_valid & I_ld_valid;
 
     assign dbus_awaddr = I_memory_addr;
@@ -2880,14 +2880,14 @@ module ysyx_25110270_arbiter
     assign M_arvalid  = state_m0 ? M0_arvalid :
                         state_m1 ? M1_arvalid : 0;
 
-    assign M_awaddr   = M1_awaddr;
-    assign M_awid     = M1_awid;
-    assign M_awlen    = M1_awlen;
-    assign M_awsize   = M1_awsize;
-    assign M_awburst  = M1_awburst;
-    assign M_wdata    = M1_wdata;
-    assign M_wstrb    = M1_wstrb;
-    assign M_wlast    = M1_wlast;
+    assign M_awaddr   = state_m0 ? M0_awaddr  : M1_awaddr;
+    assign M_awid     = state_m0 ? M0_awid    : M1_awid;
+    assign M_awlen    = state_m0 ? M0_awlen   : M1_awlen;
+    assign M_awsize   = state_m0 ? M0_awsize  : M1_awsize;
+    assign M_awburst  = state_m0 ? M0_awburst : M1_awburst;
+    assign M_wdata    = state_m0 ? M0_wdata   : M1_wdata;
+    assign M_wstrb    = state_m0 ? M0_wstrb   : M1_wstrb;
+    assign M_wlast    = state_m0 ? M0_wlast   : M1_wlast;
     assign M_bready   = 1'b0; // xbar中已经将bready固定为1'b1了
     assign M_araddr   = state_m0 ? M0_araddr  : M1_araddr;
     assign M_arid     = state_m0 ? M0_arid    : M1_arid;
