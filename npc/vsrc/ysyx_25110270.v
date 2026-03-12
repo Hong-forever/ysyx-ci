@@ -754,8 +754,6 @@ module ysyx_25110270_decoder
 
     reg [18:0] basic_ctrl;
 
-    wire f3_n0 = funct3 != 0;
-
     always @(*) begin
         basic_ctrl = 0;
         case(opcode)
@@ -837,9 +835,9 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                basic_ctrl[bit_rd_we        ] = f3_n0;
+                basic_ctrl[bit_rd_we        ] = funct3 != 0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
-                basic_ctrl[bit_csr_valid    ] = f3_n0;
+                basic_ctrl[bit_csr_valid    ] = funct3 != 0;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
@@ -2384,7 +2382,7 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_flush_addr
 );
 
-    reg [31:0] mstatus;
+    reg [17:0] mstatus;
     reg [3:0] mcause;
     reg [31:0] mtvec;
     reg [31:0] mepc;
@@ -2427,12 +2425,12 @@ module ysyx_25110270_csr
             if(except_sync) begin
                 mepc <= I_except_addr;
                 mcause <= 4'd11;
-                mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
+                mstatus <= {mstatus[17:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 18'h1800; //MPIE->MIE, MIE清0
             end else if(except_mret) begin
-                mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
+                mstatus <= {mstatus[17:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~18'h1800; //MIE<-MPIE
             end else if(I_we) begin
                 case(I_waddr[1:0])
-                    `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
+                    `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata[17:0];
                     `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata[3:0];
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
                     `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
@@ -2451,7 +2449,7 @@ module ysyx_25110270_csr
             rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
+                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = {14'b0, mstatus};
                 `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
                 `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = {28'b0, mcause};
