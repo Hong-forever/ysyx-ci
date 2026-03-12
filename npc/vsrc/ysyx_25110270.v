@@ -754,8 +754,6 @@ module ysyx_25110270_decoder
 
     reg [18:0] basic_ctrl;
 
-    wire f3_n0 = funct3 != 0;
-
     always @(*) begin
         basic_ctrl = 0;
         case(opcode)
@@ -837,9 +835,9 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                basic_ctrl[bit_rd_we        ] = f3_n0;
+                basic_ctrl[bit_rd_we        ] = funct3 != 0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
-                basic_ctrl[bit_csr_valid    ] = f3_n0;
+                basic_ctrl[bit_csr_valid    ] = funct3 != 0;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
@@ -2263,26 +2261,30 @@ module ysyx_25110270_regfile
         // end
     end
 
-    reg [31:0] rs1_rdata, rs2_rdata;
-    always @(*) begin
-        if(I_rs1_raddr == 0) begin
-            rs1_rdata = 0;
-        end else if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
-            rs1_rdata = I_rd_wdata;
-        end else begin
-            rs1_rdata = regs[I_rs1_raddr];
-        end
-    end
+    // reg [31:0] rs1_rdata, rs2_rdata;
+    // always @(*) begin
+    //     if(I_rs1_raddr == 0) begin
+    //         rs1_rdata = 0;
+    //     end else if(I_rd_we && I_rd_waddr == I_rs1_raddr) begin
+    //         rs1_rdata = I_rd_wdata;
+    //     end else begin
+    //         rs1_rdata = regs[I_rs1_raddr];
+    //     end
+    // end
 
-    always @(*) begin
-        if(I_rs2_raddr == 0) begin
-            rs2_rdata = 0;
-        end else if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
-            rs2_rdata = I_rd_wdata;
-        end else begin
-            rs2_rdata = regs[I_rs2_raddr];
-        end
-    end
+
+    // always @(*) begin
+    //     if(I_rs2_raddr == 0) begin
+    //         rs2_rdata = 0;
+    //     end else if(I_rd_we && I_rd_waddr == I_rs2_raddr) begin
+    //         rs2_rdata = I_rd_wdata;
+    //     end else begin
+    //         rs2_rdata = regs[I_rs2_raddr];
+    //     end
+    // end
+
+    wire [31:0] rs1_rdata = (I_rs1_raddr == 0) ? 0 : (I_rd_we & (I_rd_waddr == I_rs1_raddr)) ? I_rd_wdata : regs[I_rs1_raddr];
+    wire [31:0] rs2_rdata = (I_rs2_raddr == 0) ? 0 : (I_rd_we & (I_rd_waddr == I_rs2_raddr)) ? I_rd_wdata : regs[I_rs2_raddr];
 
     //读寄存器
     assign O_rs1_rdata = rs1_rdata;
