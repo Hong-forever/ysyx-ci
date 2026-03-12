@@ -5,7 +5,7 @@
 
 ci_test = 1
 
-WAVE_ENABLE = 1
+WAVE_ENABLE = 0
 
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
@@ -34,8 +34,6 @@ TOPNAME = ysyx_25110270_top
 endif
 
 endif
-
-remove_quote = $(patsubst "%",%,$(1))
 
 INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
 INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
