@@ -37,8 +37,6 @@ static debug_module_config_t difftest_dm_config = {
 };
 
 typedef struct {
-  word_t mstatus;
-  word_t mcause;
   word_t mepc;
   word_t mtvec;
 } riscv32_diff_CSR_state;
@@ -68,8 +66,6 @@ void sim_t::diff_get_regs(void* diff_context) {
     ctx->gpr[i] = state->XPR[i];
   }
   ctx->pc = state->pc;
-  ctx->csr.mstatus = state->mstatus->read();
-  ctx->csr.mcause  = state->mcause->read();
   ctx->csr.mepc    = state->mepc->read();
   ctx->csr.mtvec   = state->mtvec->read();
 }
@@ -80,8 +76,6 @@ void sim_t::diff_set_regs(void* diff_context) {
     state->XPR.write(i, (sword_t)ctx->gpr[i]);
   }
   state->pc = ctx->pc;
-  state->mstatus->write(ctx->csr.mstatus);
-  state->mcause->write(ctx->csr.mcause);
   state->mepc->write(ctx->csr.mepc);
   state->mtvec->write(ctx->csr.mtvec);
 }
