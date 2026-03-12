@@ -835,7 +835,7 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rd_we        ] = funct3 != 0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
                 basic_ctrl[bit_csr_valid    ] = 1'b1;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
@@ -2394,7 +2394,7 @@ module ysyx_25110270_csr
 );
 
     reg [31:0] mstatus;
-    reg [3:0] mcause;
+    reg [31:0] mcause;
     reg [31:0] mtvec;
     reg [31:0] mepc;
 
@@ -2435,14 +2435,14 @@ module ysyx_25110270_csr
         end else if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-                mcause <= 11;
+                mcause <= 32'd11;
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
             end else if(except_mret) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else if(I_we) begin
                 case(I_waddr[1:0])
                     `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
-                    `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata[3:0];
+                    `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
                     `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
                     default: begin end
@@ -2463,7 +2463,7 @@ module ysyx_25110270_csr
                 `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
                 `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
-                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = {28'b0, mcause};
+                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
                 `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
                 `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = {24'd0, cycle[39:32]};
                 `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
