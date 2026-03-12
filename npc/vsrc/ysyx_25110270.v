@@ -1742,15 +1742,17 @@ module ysyx_25110270_lsu
         endcase
     end
     
-    reg [2:0] data_axsize;
-    always @(*) begin
-        case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
-            2'b00:   data_axsize = 3'b000;
-            2'b01:   data_axsize = 3'b001;
-            2'b10:   data_axsize = 3'b010;
-            default: data_axsize = 3'b000;
-        endcase
-    end
+    // reg [2:0] data_axsize;
+    // always @(*) begin
+    //     case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
+    //         2'b00:   data_axsize = 3'b000;
+    //         2'b01:   data_axsize = 3'b001;
+    //         2'b10:   data_axsize = 3'b010;
+    //         default: data_axsize = 3'b000;
+    //     endcase
+    // end
+
+    wire [2:0] data_axsize = {1'b0, I_ls_ctrl[1:0]};
 
     wire is_ld_st = I_ld_valid | I_st_valid;
     wire ls_addr_resp = dbus_awready | dbus_arready;
