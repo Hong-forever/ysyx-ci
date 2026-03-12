@@ -3,6 +3,9 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
+MK = $(shell find $(NPC_HOME)/scripts -name "*.mk")
+include $(MK)
+
 ci_test = 1
 
 WAVE_ENABLE = 0
@@ -14,13 +17,11 @@ GUEST_ISA = riscv32
 
 ifeq ($(CONFIG_NVBOARD),y)
 NXDC_FILES = constr/top.nxdc
-
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
-
 endif
 
-
+################## TOPNAME #######################
 ifeq ($(CONFIG_SOC),y)
 
 TOPNAME = ysyxSoCFull
@@ -34,11 +35,10 @@ TOPNAME = ysyx_25110270_top
 endif
 
 endif
+#############################################
 
-INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
-INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
-INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 
+################## VERILATOR FLAGS #####################
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --autoflush\
 				-O3 --x-assign fast --x-initial fast -j 8
@@ -68,50 +68,11 @@ VERILATOR_CFLAGS += --trace-vcd
 else
 VERILATOR_CFLAGS += --trace-fst
 endif
-
-view_wave:
-ifeq ($(WAVE_FORMAT),1)
-	@gtkwave -o $(NPC_HOME)/build/waveform.vcd
-else
-	@gtkwave -o $(NPC_HOME)/build/waveform.fst
-endif
+#############################################
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
-
-include $(NPC_HOME)/scripts/difftest.mk
-
-# IMG ?= $(NPC_HOME)/../my_test/soc_test/char_test_soc/char-test.bin
-
-override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
-override ARGS += $(ARGS_DIFF)
-
-ifneq ($(CONFIG_ICARUS),y)
-
-sim: $(BIN) $(IMG)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-ifeq ($(WAVE_ENABLE),1)
-	-$(BIN) $(ARGS) $(IMG)
-else
-	$(BIN) $(ARGS) $(IMG)
-endif
-
-else
-
-sim: $(BIN)
-	$(call git_commit, "sim RTL with iverilog") # DO NOT REMOVE THIS LINE!!!
-	vvp $(BIN)
-
-endif
-
-perf: 
-	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
-
-test: 
-	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
-	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -122,8 +83,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 endif
 
-FILELIST_MK = $(shell find -L . -name "filelist.mk")
-include $(FILELIST_MK)
+########################## SRCS #######################################
 
 # project source
 VSRCS-y ?= $(shell find $(abspath ./vsrc) -name "*.v")
@@ -145,7 +105,11 @@ CSRCS-BLACKLIST-y += $(CSRCS-BLACKLIST)
 VSRCS := $(filter-out $(VSRCS-BLACKLIST-y),$(VSRCS-y))
 CSRCS := $(filter-out $(CSRCS-BLACKLIST-y),$(CSRCS-y))
 
+###########################################################################
 
+####################### C-FLAGS ##################################
+INC_PATH += $(sort $(dir $(shell find $(abspath ./csrc) -name "*.h")))
+INC_PATH += $(sort $(dir $(shell find $(abspath ./include) -name "*.h")))
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 
@@ -155,7 +119,7 @@ ifeq ($(CONFIG_NVBOARD),y)
 CXXFLAGS += -Wno-sign-compare -Wno-delete-non-virtual-dtor
 endif
 # CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer
-CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
+CXXFLAGS += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 CXXFLAGS += -mcmodel=medium
 CXXFLAGS += -DTOP_NAME="V$(TOPNAME)"
 ifeq ($(CONFIG_NVBOARD),y)
@@ -170,7 +134,10 @@ CXXFLAGS += -DWAVE_FORMAT=$(WAVE_FORMAT)
 LDFLAGS += -lreadline -ldl -lm -lstdc++ -lpthread -lz
 LDFLAGS += $(if $(CONFIG_CC_ASAN),-fsanitize=address -fno-omit-frame-pointer,)
 
+##################################################################################
 
+
+###################################### BIN ########################################
 ifneq ($(CONFIG_ICARUS),y)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
@@ -187,7 +154,6 @@ ifeq ($(WAVE_ENABLE),1)
 IVERILOG_FLAGS += -Dysyx_25110270_WAVE=1
 endif
 
-ifneq ($(IMG),)
 FORCE:
 
 $(BUILD_DIR)/test.data: $(IMG) FORCE
@@ -195,16 +161,11 @@ $(BUILD_DIR)/test.data: $(IMG) FORCE
 
 $(BIN): $(VSRCS) $(BUILD_DIR)/test.data
 	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
-else 
-
-$(BIN): $(VSRCS) 
-	iverilog -s $(TOPNAME) -o $@ $(VSRCS) $(IVERILOG_FLAGS)
 
 endif
+########################################################################
 
-endif
-
-
+############################### CI ##################################
 ifeq ($(ci_test),1)
 
 verilog:
@@ -233,10 +194,47 @@ sim-iverilog-netlist: $(IMG)
 	vvp $(BUILD_DIR)/top_tb
 
 endif
+##################################################################
 
 
-include $(NPC_HOME)/scripts/config.mk
-include $(NPC_HOME)/scripts/yosys_sta.mk
+########################## SIM ###############################
+override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
+override ARGS += $(ARGS_DIFF)
+
+ifneq ($(CONFIG_ICARUS),y)
+
+sim: $(BIN) $(IMG)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+ifeq ($(WAVE_ENABLE),1)
+	-$(BIN) $(ARGS) $(IMG)
+else
+	$(BIN) $(ARGS) $(IMG)
+endif
+
+else
+
+sim: $(BIN)
+	$(call git_commit, "sim RTL with iverilog") # DO NOT REMOVE THIS LINE!!!
+	vvp $(BIN)
+
+endif
+###############################################################
+
+perf: 
+	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
+	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=train
+
+test: 
+	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
+	make -C $(NPC_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc run mainargs=test
+
+
+view_wave:
+ifeq ($(WAVE_FORMAT),1)
+	@gtkwave -o $(NPC_HOME)/build/waveform.vcd
+else
+	@gtkwave -o $(NPC_HOME)/build/waveform.fst
+endif
 
 ifeq ($(WAVE_ENABLE),1)
 run: sim view_wave
@@ -245,7 +243,6 @@ run: sim
 endif
 
 all: run
-
 
 clean: 
 	rm -rf $(BUILD_DIR) core.*
