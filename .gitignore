@@ -11,9 +11,8 @@
 !README.md
 !.gitignore
 !init.sh
-!patch/*/*
 /fceux-am
 /am-kernels
 /nvboard
 /rt-thread-am/
-/ysyxSoC/
+# /ysyxSoC/

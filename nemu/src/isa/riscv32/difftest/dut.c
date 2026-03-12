@@ -33,6 +33,8 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
         CHECKDIFF(gpr[i], "gpr[%02d]", i);
     }
 
+    CHECKDIFF(csr.mstatus, "mstatus");
+    CHECKDIFF(csr.mcause,  "mcause ");
     CHECKDIFF(csr.mepc,    "mepc   ");
     CHECKDIFF(csr.mtvec,   "mtvec  ");
 

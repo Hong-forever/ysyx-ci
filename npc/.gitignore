@@ -12,9 +12,6 @@
 !README.md
 !Kconfig
 !*.nxdc
-configs
-# include/config
-# include/generated
-!*.conf
-!*.cmd
+include/config
+include/generated
 build/

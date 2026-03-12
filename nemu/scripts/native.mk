@@ -37,10 +37,10 @@ run: run-env
 	$(call git_commit, "run NEMU")
 	$(NEMU_EXEC)
 
-# cache: run-env
-# 	$(call git_commit, "run NEMU for cache")
-# # 	$(BINARY) $(ARGS) -b /home/hhh/Public/ysyx/ysyx-workbench/am-kernels/tests/cpu-tests/build/crc32-riscv32e-ysyxsoc.bin
-# 	$(BINARY) $(ARGS) -b $(NEMU_HOME)/../am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin
+cache: run-env
+	$(call git_commit, "run NEMU for cache")
+# 	$(BINARY) $(ARGS) -b /home/hhh/Public/ysyx/ysyx-workbench/am-kernels/tests/cpu-tests/build/crc32-riscv32e-ysyxsoc.bin
+	$(BINARY) $(ARGS) -b /home/hhh/Public/ysyx/ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin
 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")

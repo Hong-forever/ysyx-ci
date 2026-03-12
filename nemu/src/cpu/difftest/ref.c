@@ -19,6 +19,8 @@
 #include <memory/paddr.h>
 
 typedef struct {
+    word_t mstatus;
+    word_t mcause;
     word_t mepc;
     word_t mtvec;
 } CPU_DIFF_REF_CSR_STATE;
@@ -46,6 +48,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction)
         for (int i = 0; i < 16; i++) {
             cpu.gpr[i] = ((CPU_DIFF_REF_STATE *)dut)->gpr[i];
         }
+        cpu.csr.mstatus = ((CPU_DIFF_REF_STATE *)dut)->csr.mstatus;
+        cpu.csr.mcause = ((CPU_DIFF_REF_STATE *)dut)->csr.mcause;
         cpu.csr.mepc = ((CPU_DIFF_REF_STATE *)dut)->csr.mepc;
         cpu.csr.mtvec = ((CPU_DIFF_REF_STATE *)dut)->csr.mtvec;
     } else if (direction == DIFFTEST_TO_DUT) {
@@ -54,6 +58,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction)
         for (int i = 0; i < 16; i++) {
             ((CPU_DIFF_REF_STATE *)dut)->gpr[i] = cpu.gpr[i];
         }
+        ((CPU_DIFF_REF_STATE *)dut)->csr.mstatus = cpu.csr.mstatus;
+        ((CPU_DIFF_REF_STATE *)dut)->csr.mcause = cpu.csr.mcause;
         ((CPU_DIFF_REF_STATE *)dut)->csr.mepc = cpu.csr.mepc;
         ((CPU_DIFF_REF_STATE *)dut)->csr.mtvec = cpu.csr.mtvec;
         // printf("difftest_regcpy to dut done: pc=0x%08x, ref_cpu=0x%08x\n", ((CPU_DIFF_REF_STATE *)dut)->pc, cpu.pc);
