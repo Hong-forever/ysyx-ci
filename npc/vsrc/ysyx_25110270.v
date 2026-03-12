@@ -2904,7 +2904,7 @@ module ysyx_25110270_arbiter
     assign M1_bvalid  = state_m1 ? M_bvalid   : 0;
     assign M1_bresp   = M_bresp;
     assign M1_bid     = M_bid;
-    assign M1_arready = M_arready;
+    assign M1_arready = state_m1 ? M_arready  : 0;
     assign M1_rvalid  = state_m1 ? M_rvalid   : 0;
     assign M1_rdata   = M_rdata;
     assign M1_rresp   = M_rresp;
