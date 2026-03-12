@@ -134,6 +134,11 @@ config SOC
   bool "enable SoC simulation"
   default n
 
+config NOBOOTLOADER
+  depends on SOC
+  bool "disabled bootloader"
+  default n
+
 config TRACE
   bool "Enable tracer"
   default y

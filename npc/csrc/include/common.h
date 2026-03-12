@@ -5,8 +5,8 @@
 
 #ifdef CONFIG_SOC
 #include <VysyxSoCFull.h>
-#else
-#include <Vtop.h>
+#elif defined(CONFIG_NPC)
+#include <Vysyx_25110270_top.h>
 #endif
 
 #include "macro.h"
@@ -27,8 +27,15 @@ typedef uint32_t vaddr_t;
 typedef uint32_t word_t;
 
 #ifdef CONFIG_SOC
-#define RESET_VECTOR (CONFIG_FLASH_BASE + CONFIG_PC_RESET_OFFSET)
+
+#ifdef CONFIG_NOBOOTLOADER
+#define RESET_VECTOR (CONFIG_SDRAM_BASE + CONFIG_PC_RESET_OFFSET)
 #else
+#define RESET_VECTOR (CONFIG_FLASH_BASE + CONFIG_PC_RESET_OFFSET)
+#endif
+
+#else
+
 #define RESET_VECTOR (CONFIG_MBASE + CONFIG_PC_RESET_OFFSET)
 #endif
 

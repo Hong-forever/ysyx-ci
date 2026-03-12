@@ -4,8 +4,6 @@
 #include "common.h"
 
 typedef struct {
-    word_t mstatus;
-    word_t mcause;
     word_t mepc;
     word_t mtvec;
 } CSR_state;
