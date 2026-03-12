@@ -6,7 +6,6 @@
 MK = $(shell find $(NPC_HOME)/scripts -name "*.mk")
 include $(MK)
 
-
 ci_test = 1
 
 WAVE_ENABLE = 0
@@ -78,28 +77,6 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 
 
-override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
-override ARGS += $(ARGS_DIFF)
-
-########################## SIM ###############################
-ifneq ($(CONFIG_ICARUS),y)
-
-sim: $(BIN) $(IMG)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-ifeq ($(WAVE_ENABLE),1)
-	-$(BIN) $(ARGS) $(IMG)
-else
-	$(BIN) $(ARGS) $(IMG)
-endif
-
-else
-
-sim: $(BIN)
-	$(call git_commit, "sim RTL with iverilog") # DO NOT REMOVE THIS LINE!!!
-	vvp $(BIN)
-
-endif
-###############################################################
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -223,6 +200,29 @@ sim-iverilog-netlist: $(IMG)
 endif
 ##################################################################
 
+
+########################## SIM ###############################
+override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
+override ARGS += $(ARGS_DIFF)
+
+ifneq ($(CONFIG_ICARUS),y)
+
+sim: $(BIN) $(IMG)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+ifeq ($(WAVE_ENABLE),1)
+	-$(BIN) $(ARGS) $(IMG)
+else
+	$(BIN) $(ARGS) $(IMG)
+endif
+
+else
+
+sim: $(BIN)
+	$(call git_commit, "sim RTL with iverilog") # DO NOT REMOVE THIS LINE!!!
+	vvp $(BIN)
+
+endif
+###############################################################
 
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
