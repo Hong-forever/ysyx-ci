@@ -20,7 +20,8 @@ extern "C" void cpu_value(int diff_skip, int valid, int inst, int inst_addr, int
                           int gpr8, int gpr9, int gpr10, int gpr11,
                           int gpr12, int gpr13, int gpr14, int gpr15,
 
-                          int mepc, int mtvec, int mcyclel, int mcycleh,
+                          int mepc, int mtvec, int mstatus,
+                          int mcause, int mcyclel, int mcycleh,
                           int mvendorid, int marchid)
 {
     // printf("dut npc: pc=0x%08x\n", pc);
@@ -53,6 +54,8 @@ extern "C" void cpu_value(int diff_skip, int valid, int inst, int inst_addr, int
 
     cpu.csr.mepc = mepc;
     cpu.csr.mtvec = mtvec;
+    cpu.csr.mstatus = mstatus;
+    cpu.csr.mcause = mcause;
 
     extra_cpu.mcyclel = mcyclel;
     extra_cpu.mcycleh = mcycleh;
@@ -76,6 +79,8 @@ void reg_display()
         printf("gpr[%02d]-%-4s: 0x%08x\n", i, regs[i], cpu.gpr[i]);
     }
 
+    printf("csr-mstatus : 0x%08x\n", cpu.csr.mstatus);
+    printf("csr-mcause  : 0x%08x\n", cpu.csr.mcause);
     printf("csr-mepc    : 0x%08x\n", cpu.csr.mepc);
     printf("csr-mtvec   : 0x%08x\n", cpu.csr.mtvec);
 }
@@ -95,6 +100,14 @@ word_t reg_str2val(const char *s, bool *success)
 
     if (strcmp(s, "pc") == 0) {
         return cpu.pc;
+    }
+
+    if (strcmp(s, "mstatus") == 0) {
+        return cpu.csr.mstatus;
+    }
+
+    if (strcmp(s, "mcause") == 0) {
+        return cpu.csr.mcause;
     }
 
     if (strcmp(s, "mepc") == 0) {
@@ -126,6 +139,8 @@ bool difftest_checkregs(CPU_state *ref_r, paddr_t pc)
         CHECKDIFF(gpr[i], "gpr[%02d]-%s", i, regs[i]);
     }
 
+    CHECKDIFF(csr.mstatus, "mstatus");
+    CHECKDIFF(csr.mcause, "mcause");
     CHECKDIFF(csr.mepc, "mepc");
     CHECKDIFF(csr.mtvec, "mtvec");
 
