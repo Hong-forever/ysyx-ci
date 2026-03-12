@@ -1449,15 +1449,20 @@ module ysyx_25110270_bru
 );
     reg bru_taken;
 
+    wire eq = I_src_eq;
+    wire neq = ~I_src_eq;
+    wire lt = I_src_lt;
+    wire ge = ~I_src_lt;
+
     always @(*) begin
         case(I_bru_ctrl)
-            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = I_src_eq;
-            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = ~I_src_eq;
+            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = eq;
+            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = neq;
             3'b011                     :  bru_taken = 1'b1;         // jal, jalr指令无条件跳转
-            `ysyx_25110270_RV32I_F3_BLT:  bru_taken = I_src_lt;
-            `ysyx_25110270_RV32I_F3_BLTU: bru_taken = I_src_lt;
-            `ysyx_25110270_RV32I_F3_BGE:  bru_taken = ~I_src_lt;
-            `ysyx_25110270_RV32I_F3_BGEU: bru_taken = ~I_src_lt;
+            `ysyx_25110270_RV32I_F3_BLT:  bru_taken = lt;
+            `ysyx_25110270_RV32I_F3_BLTU: bru_taken = lt;
+            `ysyx_25110270_RV32I_F3_BGE:  bru_taken = ge;
+            `ysyx_25110270_RV32I_F3_BGEU: bru_taken = ge;
             default:                      bru_taken = 1'b0;
         endcase
     end
