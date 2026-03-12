@@ -752,8 +752,6 @@ module ysyx_25110270_decoder
     localparam bit_csr_src   = 15;
     localparam bit_op        = 16;
 
-    wire f3_n0 = funct3 != 0;
-
     reg [18:0] basic_ctrl;
 
     always @(*) begin
@@ -837,9 +835,9 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                basic_ctrl[bit_rd_we        ] = f3_n0;
+                basic_ctrl[bit_rd_we        ] = funct3 != 0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
-                basic_ctrl[bit_csr_valid    ] = f3_n0;
+                basic_ctrl[bit_csr_valid    ] = funct3 != 0;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
@@ -1787,22 +1785,6 @@ module ysyx_25110270_lsu
         end
     end
 
-    // parameter IDLE = 1'b0;
-    // parameter WB   = 1'b1;
-
-    // reg state;
-    // always @(posedge clk) begin
-    //     if(rst) begin
-    //         state <= IDLE;
-    //     end else begin
-    //         case(state)
-    //             IDLE:    state <= ls_data_resp ? WB : IDLE;
-    //             WB:      state <= IDLE;
-    //             default: state <= IDLE;
-    //         endcase
-    //     end
-    // end
-
     wire stallreq = (is_ld_st & req_valid) & ~ls_data_resp;
 
     //------------------------------------------------------------------------
@@ -2401,7 +2383,7 @@ module ysyx_25110270_csr
 );
 
     reg [31:0] mstatus;
-    reg [31:0] mcause;
+    reg [3:0] mcause;
     reg [31:0] mtvec;
     reg [31:0] mepc;
 
@@ -2442,14 +2424,14 @@ module ysyx_25110270_csr
         end else if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-                mcause <= 32'd11;
+                mcause <= 4'd11;
                 mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
             end else if(except_mret) begin
                 mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else if(I_we) begin
                 case(I_waddr[1:0])
                     `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
-                    `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
+                    `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata[3:0];
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
                     `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
                     default: begin end
@@ -2470,7 +2452,7 @@ module ysyx_25110270_csr
                 `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
                 `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
-                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
+                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = {28'b0, mcause};
                 `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
                 `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = {24'd0, cycle[39:32]};
                 `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
@@ -2912,22 +2894,22 @@ module ysyx_25110270_arbiter
     assign M0_bid     = 0; // 只读
     assign M0_arready = state_m0 ? M_arready  : 0;
     assign M0_rvalid  = state_m0 ? M_rvalid   : 0;
-    assign M0_rdata   = state_m0 ? M_rdata    : 0;
-    assign M0_rresp   = state_m0 ? M_rresp    : 0;
-    assign M0_rlast   = state_m0 ? M_rlast    : 0;
-    assign M0_rid     = state_m0 ? M_rid      : 0;
+    assign M0_rdata   = M_rdata;
+    assign M0_rresp   = M_rresp;
+    assign M0_rlast   = M_rlast;
+    assign M0_rid     = M_rid;
 
     assign M1_awready = state_m1 ? M_awready  : 0;
     assign M1_wready  = state_m1 ? M_wready   : 0;
     assign M1_bvalid  = state_m1 ? M_bvalid   : 0;
-    assign M1_bresp   = state_m1 ? M_bresp    : 0;
-    assign M1_bid     = state_m1 ? M_bid      : 0;
+    assign M1_bresp   = M_bresp;
+    assign M1_bid     = M_bid;
     assign M1_arready = state_m1 ? M_arready  : 0;
     assign M1_rvalid  = state_m1 ? M_rvalid   : 0;
-    assign M1_rdata   = state_m1 ? M_rdata    : 0;
-    assign M1_rresp   = state_m1 ? M_rresp    : 0;
-    assign M1_rlast   = state_m1 ? M_rlast    : 0;
-    assign M1_rid     = state_m1 ? M_rid      : 0;
+    assign M1_rdata   = M_rdata;
+    assign M1_rresp   = M_rresp;
+    assign M1_rlast   = M_rlast;
+    assign M1_rid     = M_rid;
 
 
 endmodule
@@ -3959,8 +3941,6 @@ module ysyx_25110270_clint
         end
     end
 
-
-
     assign awready_o = 1'b0;
     assign wready_o  = 1'b0;
     assign bvalid_o  = 1'b0;
@@ -3972,7 +3952,6 @@ module ysyx_25110270_clint
     assign rresp_o   = 2'b00;
     assign rlast_o   = 1'b1;
     assign rid_o     = 4'b0000;
-
 
 endmodule
 
