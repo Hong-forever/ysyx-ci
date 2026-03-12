@@ -754,6 +754,8 @@ module ysyx_25110270_decoder
 
     reg [18:0] basic_ctrl;
 
+    wire f3_n0 = funct3 != 0;
+
     always @(*) begin
         basic_ctrl = 0;
         case(opcode)
@@ -835,9 +837,9 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                basic_ctrl[bit_rd_we        ] = funct3 != 0;
+                basic_ctrl[bit_rd_we        ] = f3_n0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
-                basic_ctrl[bit_csr_valid    ] = funct3 != 0;
+                basic_ctrl[bit_csr_valid    ] = f3_n0;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
