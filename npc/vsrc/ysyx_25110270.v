@@ -225,7 +225,7 @@
 `endif
 
 `else
-    `define ysyx_25110270_RESET_VECTOR  32'h8000_0000
+    `define ysyx_25110270_RESET_VECTOR  32'h3000_0000
 `endif
 
 
