@@ -837,7 +837,7 @@ module ysyx_25110270_decoder
             `ysyx_25110270_RV_OP_CSR: begin
                 basic_ctrl[bit_rd_we        ] = funct3 != 0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
-                basic_ctrl[bit_csr_valid    ] = 1'b1;
+                basic_ctrl[bit_csr_valid    ] = funct3 != 0;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
