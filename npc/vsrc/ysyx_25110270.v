@@ -833,9 +833,9 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
-                basic_ctrl[bit_rd_we        ] = 1'b1;
+                basic_ctrl[bit_rd_we        ] = funct3 != 0;
                 basic_ctrl[bit_rs1_re       ] = ~funct3[2];  // no csrrwi, csrrsi, csrrci
-                basic_ctrl[bit_csr_valid    ] = 1'b1;
+                basic_ctrl[bit_csr_valid    ] = funct3 != 0;
                 basic_ctrl[bit_csr_src      ] = funct3[2];   // 1 for imm, 0 for rs1
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
@@ -2416,8 +2416,6 @@ module ysyx_25110270_csr
         if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-            end else if(except_mret) begin
-                // do nothing
             end else if(I_we) begin
                 case(I_waddr[0])
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
