@@ -1,5 +1,7 @@
 ifdef CONFIG_DIFFTEST
 
+remove_quote = $(patsubst "%",%,$(1))
+
 DIFF_REF_PATH = $(NEMU_HOME)
 
 remove_quote = $(patsubst "%",%,$(1))
