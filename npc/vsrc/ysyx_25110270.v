@@ -2848,10 +2848,8 @@ module ysyx_25110270_arbiter
 
 
     // AXI信号连接
-    assign M_awvalid  = state_m0 ? M0_awvalid :
-                        state_m1 ? M1_awvalid : 0;
-    assign M_wvalid   = state_m0 ? M0_wvalid  :
-                        state_m1 ? M1_wvalid  : 0;
+    assign M_awvalid  = state_m1 ? M1_awvalid : 0;
+    assign M_wvalid   = M_awvalid;
     assign M_arvalid  = state_m0 ? M0_arvalid :
                         state_m1 ? M1_arvalid : 0;
 
