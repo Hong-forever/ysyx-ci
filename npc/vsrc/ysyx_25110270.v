@@ -3846,29 +3846,29 @@ module ysyx_25110270_xbar
 
     assign M0_arvalid = sel_slave0 ? S_arvalid  : 0 ;
     assign M0_araddr  = sel_slave0 ? S_araddr   : 0 ;
-    assign M0_arid    = sel_slave0 ? S_arid     : 0 ;
-    assign M0_arlen   = sel_slave0 ? S_arlen    : 0 ;
-    assign M0_arsize  = sel_slave0 ? S_arsize   : 0 ;
-    assign M0_arburst = sel_slave0 ? S_arburst  : 0 ;
+    assign M0_arid    = S_arid;
+    assign M0_arlen   = S_arlen;
+    assign M0_arsize  = S_arsize;
+    assign M0_arburst = S_arburst;
     assign M0_rready  = 1'b1;
 
     assign M1_awvalid = sel_slave0 ? 0 : S_awvalid  ;
     assign M1_awaddr  = sel_slave0 ? 0 : S_awaddr   ;
-    assign M1_awid    = sel_slave0 ? 0 : S_awid     ;
-    assign M1_awlen   = sel_slave0 ? 0 : S_awlen    ;
-    assign M1_awsize  = sel_slave0 ? 0 : S_awsize   ;
-    assign M1_awburst = sel_slave0 ? 0 : S_awburst  ;
+    assign M1_awid    = S_awid;
+    assign M1_awlen   = S_awlen;
+    assign M1_awsize  = S_awsize;
+    assign M1_awburst = S_awburst;
     assign M1_wvalid  = sel_slave0 ? 0 : S_wvalid   ;
-    assign M1_wdata   = sel_slave0 ? 0 : S_wdata    ;
-    assign M1_wstrb   = sel_slave0 ? 0 : S_wstrb    ;
-    assign M1_wlast   = sel_slave0 ? 0 : S_wlast    ;
+    assign M1_wdata   = S_wdata;
+    assign M1_wstrb   = S_wstrb;
+    assign M1_wlast   = S_wlast;
     assign M1_bready  = 1'b1;
     assign M1_arvalid = sel_slave0 ? 0 : S_arvalid  ;
     assign M1_araddr  = sel_slave0 ? 0 : S_araddr   ;
-    assign M1_arid    = sel_slave0 ? 0 : S_arid     ;
-    assign M1_arlen   = sel_slave0 ? 0 : S_arlen    ;
-    assign M1_arsize  = sel_slave0 ? 0 : S_arsize   ;
-    assign M1_arburst = sel_slave0 ? 0 : S_arburst  ;
+    assign M1_arid    = S_arid;
+    assign M1_arlen   = S_arlen;
+    assign M1_arsize  = S_arsize;
+    assign M1_arburst = S_arburst;
     assign M1_rready  = 1'b1;
 
     assign S_awready  = sel_slave0 ? M0_awready : M1_awready ;
