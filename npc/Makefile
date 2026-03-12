@@ -3,6 +3,10 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 
+MK = $(shell find $(NPC_HOME)/scripts -name "*.mk")
+include $(MK)
+
+
 ci_test = 1
 
 WAVE_ENABLE = 0
@@ -73,7 +77,6 @@ OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
 
-include $(NPC_HOME)/scripts/difftest.mk
 
 override ARGS ?= --log=$(abspath $(BUILD_DIR))/npc-log.txt
 override ARGS += $(ARGS_DIFF)
@@ -97,9 +100,6 @@ sim: $(BIN)
 
 endif
 ###############################################################
-
-FILELIST_MK = $(shell find -L . -name "filelist.mk")
-include $(FILELIST_MK)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -223,8 +223,6 @@ sim-iverilog-netlist: $(IMG)
 endif
 ##################################################################
 
-include $(NPC_HOME)/scripts/config.mk
-include $(NPC_HOME)/scripts/yosys_sta.mk
 
 perf: 
 	$(call git_commit, "sim RTL for perf") # DO NOT REMOVE THIS LINE!!!
