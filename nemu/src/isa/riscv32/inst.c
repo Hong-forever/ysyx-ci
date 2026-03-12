@@ -75,7 +75,7 @@ static void btrace(uint32_t inst, uint32_t addr, uint32_t target, bool taken) {
     dnpc = isa_raise_intr(11, s->pc); \
   } while(0)
 
-#define MRET(dnpc) do { dnpc = Mepc(); Mstatus() = (((Mstatus() >> 4) & 0x8) | (Mstatus() | 0x80)) & 0x88; } while(0)
+#define MRET(dnpc) do { dnpc = Mepc(); } while(0)
 
 int rs1 = 0;
 int rs2 = 0;

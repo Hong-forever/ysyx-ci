@@ -134,14 +134,12 @@
 `define ysyx_25110270_CSR_MVENDORID         12'hf11     // Vendor ID
 `define ysyx_25110270_CSR_MARCHID           12'hf12     // Architecture ID
 
-`define ysyx_25110270_CSR_MAP_MSTATUS       0
-`define ysyx_25110270_CSR_MAP_MCAUSE        1
-`define ysyx_25110270_CSR_MAP_MTVEC         2
-`define ysyx_25110270_CSR_MAP_MEPC          3
-`define ysyx_25110270_CSR_MAP_CYCLE         4
-`define ysyx_25110270_CSR_MAP_CYCLEH        5
-`define ysyx_25110270_CSR_MAP_MVENDORID     6
-`define ysyx_25110270_CSR_MAP_MARCHID       7
+`define ysyx_25110270_CSR_MAP_MTVEC         0
+`define ysyx_25110270_CSR_MAP_MEPC          1
+`define ysyx_25110270_CSR_MAP_CYCLE         2
+`define ysyx_25110270_CSR_MAP_CYCLEH        3
+`define ysyx_25110270_CSR_MAP_MVENDORID     4
+`define ysyx_25110270_CSR_MAP_MARCHID       5
 
 //------------------------------------------------------------------------
 // ALU SOURCE SELECTION DEFINITIONS
@@ -945,8 +943,6 @@ module ysyx_25110270_csr_mapout
     reg [`ysyx_25110270_CsrMapBus] csr_map;
     always @(*) begin
         case(I_csr_addr)
-            `ysyx_25110270_CSR_MSTATUS      : csr_map =  `ysyx_25110270_CSR_MAP_MSTATUS;
-            `ysyx_25110270_CSR_MCAUSE       : csr_map =  `ysyx_25110270_CSR_MAP_MCAUSE;
             `ysyx_25110270_CSR_MTVEC        : csr_map =  `ysyx_25110270_CSR_MAP_MTVEC;
             `ysyx_25110270_CSR_MEPC         : csr_map =  `ysyx_25110270_CSR_MAP_MEPC;
             `ysyx_25110270_CSR_CYCLE        : csr_map =  `ysyx_25110270_CSR_MAP_CYCLE;
@@ -1747,17 +1743,15 @@ module ysyx_25110270_lsu
         endcase
     end
     
-    // reg [2:0] data_axsize;
-    // always @(*) begin
-    //     case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
-    //         2'b00:   data_axsize = 3'b000;
-    //         2'b01:   data_axsize = 3'b001;
-    //         2'b10:   data_axsize = 3'b010;
-    //         default: data_axsize = 3'b000;
-    //     endcase
-    // end
-
-    wire [2:0] data_axsize = {1'b0, I_ls_ctrl[1:0]};
+    reg [2:0] data_axsize;
+    always @(*) begin
+        case(I_ls_ctrl[1:0])  // 00 sb/lb/lbu, 01 sh/lh/lhu, 10 sw/lw
+            2'b00:   data_axsize = 3'b000;
+            2'b01:   data_axsize = 3'b001;
+            2'b10:   data_axsize = 3'b010;
+            default: data_axsize = 3'b000;
+        endcase
+    end
 
     wire is_ld_st = I_ld_valid | I_st_valid;
     wire ls_addr_resp = dbus_awready | dbus_arready;
@@ -1826,7 +1820,7 @@ module ysyx_25110270_lsu
 
 
     assign dbus_awvalid = addr_resp_valid & I_st_valid;
-    assign dbus_wvalid = 0; // arbiter 中已赋值
+    assign dbus_wvalid = dbus_awvalid;   // write address和write data同时有效
     assign dbus_arvalid = addr_resp_valid & I_ld_valid;
 
     assign dbus_awaddr = I_memory_addr;
@@ -1979,8 +1973,6 @@ module ysyx_25110270_wbu
     // csr reg output for dpi
     wire [31:0] csr_mtvec;
     wire [31:0] csr_mepc;
-    wire [31:0] csr_mstatus;
-    wire [31:0] csr_mcause;
     wire [31:0] csr_mcyclel;
     wire [31:0] csr_mcycleh;
     wire [31:0] csr_mvendorid;
@@ -2063,8 +2055,6 @@ module ysyx_25110270_wbu
 `ifdef ysyx_25110270_DPIC
         .O_csr_mtvec            (csr_mtvec                  ), //mtvec寄存器
         .O_csr_mepc             (csr_mepc                   ), //mepc寄存器
-        .O_csr_mstatus          (csr_mstatus                ), //mstatus寄存器
-        .O_csr_mcause           (csr_mcause                 ), //mcause寄存器
         .O_csr_mcyclel          (csr_mcyclel                ), //mcycle寄存器
         .O_csr_mcycleh          (csr_mcycleh                ), //mcycle寄存器
         .O_csr_mvendorid        (csr_mvendorid              ), //mvendorid寄存器
@@ -2102,8 +2092,7 @@ module ysyx_25110270_wbu
         input int gpr8, input int gpr9, input int gpr10, input int gpr11, 
         input int gpr12, input int gpr13, input int gpr14, input int gpr15,
 
-        input int mepc, input int mtvec, input int mstatus,
-        input int mcause, input int mcyclel, input int mcycleh, 
+        input int mepc, input int mtvec, input int mcyclel, input int mcycleh, 
         input int mvendorid, input int marchid
     );
 
@@ -2136,8 +2125,7 @@ module ysyx_25110270_wbu
                 gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7,
                 gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15,
 
-                csr_mepc, csr_mtvec, csr_mstatus,
-                csr_mcause, csr_mcyclel, csr_mcycleh,
+                csr_mepc, csr_mtvec, csr_mcyclel, csr_mcycleh,
                 csr_mvendorid, csr_marchid
             );
         end
@@ -2386,8 +2374,6 @@ module ysyx_25110270_csr
 `ifdef ysyx_25110270_DPIC
     output  wire    [31:0                       ]   O_csr_mtvec,        //mtvec寄存器
     output  wire    [31:0                       ]   O_csr_mepc,         //mepc寄存器
-    output  wire    [31:0                       ]   O_csr_mstatus,      //mstatus寄存器
-    output  wire    [31:0                       ]   O_csr_mcause,       //mcause寄存器
     output  wire    [31:0                       ]   O_csr_mcyclel,      //mcycle寄存器
     output  wire    [31:0                       ]   O_csr_mcycleh,      //mcycle寄存器
     output  wire    [31:0                       ]   O_csr_mvendorid,    //mvendorid寄存器
@@ -2398,8 +2384,6 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_flush_addr
 );
 
-    reg [31:0] mstatus;
-    reg [31:0] mcause;
     reg [31:0] mtvec;
     reg [31:0] mepc;
 
@@ -2434,20 +2418,11 @@ module ysyx_25110270_csr
     //write reg
     //写寄存器操作
     always @(posedge clk) begin
-        if(rst) begin
-            mstatus <= 0;
-            mcause <= 0;
-        end else if(I_valid) begin
+        if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-                mcause <= 32'd11;
-                mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 32'h1800; //MPIE->MIE, MIE清0
-            end else if(except_mret) begin
-                mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~32'h1800; //MIE<-MPIE
             end else if(I_we) begin
-                case(I_waddr[1:0])
-                    `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata;
-                    `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata;
+                case(I_waddr[0])
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
                     `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
                     default: begin end
@@ -2465,10 +2440,8 @@ module ysyx_25110270_csr
             rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
                 `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
-                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
                 `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
                 `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = {24'd0, cycle[39:32]};
                 `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
@@ -2490,8 +2463,6 @@ module ysyx_25110270_csr
     assign O_mtime = {24'd0, cycle};
 
 `ifdef ysyx_25110270_DPIC
-    assign O_csr_mstatus = mstatus;
-    assign O_csr_mcause = mcause;
     assign O_csr_mtvec = mtvec;
     assign O_csr_mepc = mepc;
     assign O_csr_mcyclel = cycle[31:0];
@@ -2888,13 +2859,13 @@ module ysyx_25110270_arbiter
                         state_m1 ? M1_arvalid : 0;
 
     assign M_awaddr   = state_m0 ? M0_awaddr  : M1_awaddr;
-    assign M_awid     = M1_awid;
-    assign M_awlen    = M1_awlen;
-    assign M_awsize   = M1_awsize;
-    assign M_awburst  = M1_awburst;
-    assign M_wdata    = M1_wdata;
-    assign M_wstrb    = M1_wstrb;
-    assign M_wlast    = M1_wlast;
+    assign M_awid     = state_m0 ? M0_awid    : M1_awid;
+    assign M_awlen    = state_m0 ? M0_awlen   : M1_awlen;
+    assign M_awsize   = state_m0 ? M0_awsize  : M1_awsize;
+    assign M_awburst  = state_m0 ? M0_awburst : M1_awburst;
+    assign M_wdata    = state_m0 ? M0_wdata   : M1_wdata;
+    assign M_wstrb    = state_m0 ? M0_wstrb   : M1_wstrb;
+    assign M_wlast    = state_m0 ? M0_wlast   : M1_wlast;
     assign M_bready   = 1'b0; // xbar中已经将bready固定为1'b1了
     assign M_araddr   = state_m0 ? M0_araddr  : M1_araddr;
     assign M_arid     = state_m0 ? M0_arid    : M1_arid;
