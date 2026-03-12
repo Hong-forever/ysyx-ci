@@ -1445,20 +1445,15 @@ module ysyx_25110270_bru
 );
     reg bru_taken;
 
-    wire eq = I_src_eq;
-    wire neq = ~I_src_eq;
-    wire lt = I_src_lt;
-    wire ge = ~I_src_lt;
-
     always @(*) begin
         case(I_bru_ctrl)
-            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = eq;
-            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = neq;
+            `ysyx_25110270_RV32I_F3_BEQ:  bru_taken = I_src_eq;
+            `ysyx_25110270_RV32I_F3_BNE:  bru_taken = ~I_src_eq;
             3'b011                     :  bru_taken = 1'b1;         // jal, jalr指令无条件跳转
-            `ysyx_25110270_RV32I_F3_BLT:  bru_taken = lt;
-            `ysyx_25110270_RV32I_F3_BLTU: bru_taken = lt;
-            `ysyx_25110270_RV32I_F3_BGE:  bru_taken = ge;
-            `ysyx_25110270_RV32I_F3_BGEU: bru_taken = ge;
+            `ysyx_25110270_RV32I_F3_BLT:  bru_taken = I_src_lt;
+            `ysyx_25110270_RV32I_F3_BLTU: bru_taken = I_src_lt;
+            `ysyx_25110270_RV32I_F3_BGE:  bru_taken = ~I_src_lt;
+            `ysyx_25110270_RV32I_F3_BGEU: bru_taken = ~I_src_lt;
             default:                      bru_taken = 1'b0;
         endcase
     end
@@ -2853,8 +2848,10 @@ module ysyx_25110270_arbiter
 
 
     // AXI信号连接
-    assign M_awvalid  = state_m1 ? M1_awvalid : 0;
-    assign M_wvalid   = M_awvalid;
+    assign M_awvalid  = state_m0 ? M0_awvalid :
+                        state_m1 ? M1_awvalid : 0;
+    assign M_wvalid   = state_m0 ? M0_wvalid  :
+                        state_m1 ? M1_wvalid  : 0;
     assign M_arvalid  = state_m0 ? M0_arvalid :
                         state_m1 ? M1_arvalid : 0;
 
