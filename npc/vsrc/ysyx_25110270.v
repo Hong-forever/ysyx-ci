@@ -2841,6 +2841,8 @@ module ysyx_25110270_arbiter
 
     reg [1:0] rstate;
 
+    reg wstate;
+
     always @(posedge clk) begin
         if(rst) begin
             rstate <= IDLE;
@@ -2861,12 +2863,21 @@ module ysyx_25110270_arbiter
         end
     end
 
+    always @(posedge clk) begin
+        if(rst) begin
+            wstate <= 0;
+        end else begin
+            if(M1_awvalid) wstate <= 1;
+            else if(M_bvalid) wstate <= 0;
+        end
+    end
+
     wire rstate_m0 = rstate[0];
     wire rstate_m1 = rstate[1];
 
 
     // AXI信号连接
-    assign M_awvalid  = M1_awvalid;
+    assign M_awvalid  = wstate ? M1_awvalid : 0;
     assign M_wvalid   = M_awvalid;
     assign M_arvalid  = rstate_m0 ? M0_arvalid :
                         rstate_m1 ? M1_arvalid : 0;
@@ -2899,9 +2910,9 @@ module ysyx_25110270_arbiter
     assign M0_rlast   = M_rlast;
     assign M0_rid     = M_rid;
 
-    assign M1_awready = M_awready;
-    assign M1_wready  = M_wready;
-    assign M1_bvalid  = M_bvalid;
+    assign M1_awready = wstate ? M_awready : 0;
+    assign M1_wready  = wstate ? M_wready : 0;
+    assign M1_bvalid  = wstate ? M_bvalid : 0;
     assign M1_bresp   = M_bresp;
     assign M1_bid     = M_bid;
     assign M1_arready = rstate_m1 ? M_arready  : 0;
