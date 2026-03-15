@@ -2839,24 +2839,24 @@ module ysyx_25110270_arbiter
     wire m0_resp = M0_bvalid | (M0_rvalid & M0_rlast);
     wire m1_resp = M1_bvalid | (M1_rvalid & M1_rlast);
 
-    reg [1:0] rstate, wstate;
+    reg [1:0] state;
 
     always @(posedge clk) begin
         if(rst) begin
-            rstate <= IDLE;
+            state <= IDLE;
         end else begin
-            case(rstate)
+            case(state)
                 IDLE: begin
-                    if(m1_req) rstate <= M1;
-                    else if(m0_req) rstate <= M0;
+                    if(m1_req) state <= M1;
+                    else if(m0_req) state <= M0;
                 end
                 M0: begin
-                    if(m0_resp) rstate <= (m1_req) ? M1 : IDLE;
+                    if(m0_resp) state <= (m1_req) ? M1 : IDLE;
                 end
                 M1: begin
-                    if(m1_resp) rstate <= (m0_req) ? M0 : IDLE;
+                    if(m1_resp) state <= (m0_req) ? M0 : IDLE;
                 end
-                default: rstate <= IDLE;
+                default: state <= IDLE;
             endcase
         end
     end
