@@ -2833,45 +2833,45 @@ module ysyx_25110270_arbiter
     parameter M0   = 2'b01;
     parameter M1   = 2'b10;
 
-    wire m0_req = M0_awvalid | M0_arvalid;
-    wire m1_req = M1_awvalid | M1_arvalid;
+    wire m0_rreq = M0_arvalid;
+    wire m1_rreq = M1_arvalid;
 
-    wire m0_resp = M0_bvalid | (M0_rvalid & M0_rlast);
-    wire m1_resp = M1_bvalid | (M1_rvalid & M1_rlast);
+    wire m0_rresp = M0_rvalid & M0_rlast;
+    wire m1_rresp = M1_rvalid;
 
-    reg [1:0] state;
+    reg [1:0] rstate;
 
     always @(posedge clk) begin
         if(rst) begin
-            state <= IDLE;
+            rstate <= IDLE;
         end else begin
-            case(state)
+            case(rstate)
                 IDLE: begin
-                    if(m1_req) state <= M1;
-                    else if(m0_req) state <= M0;
+                    if(m1_rreq) rstate <= M1;
+                    else if(m0_rreq) rstate <= M0;
                 end
                 M0: begin
-                    if(m0_resp) state <= (m1_req) ? M1 : IDLE;
+                    if(m0_rresp) rstate <= (m1_rreq) ? M1 : IDLE;
                 end
                 M1: begin
-                    if(m1_resp) state <= (m0_req) ? M0 : IDLE;
+                    if(m1_rresp) rstate <= (m0_rreq) ? M0 : IDLE;
                 end
-                default: state <= IDLE;
+                default: rstate <= IDLE;
             endcase
         end
     end
 
-    wire state_m0 = state[0];
-    wire state_m1 = state[1];
+    wire rstate_m0 = rstate[0];
+    wire rstate_m1 = rstate[1];
 
 
     // AXI信号连接
-    assign M_awvalid  = state_m1 ? M1_awvalid : 0;
+    assign M_awvalid  = M1_awvalid;
     assign M_wvalid   = M_awvalid;
-    assign M_arvalid  = state_m0 ? M0_arvalid :
-                        state_m1 ? M1_arvalid : 0;
+    assign M_arvalid  = rstate_m0 ? M0_arvalid :
+                        rstate_m1 ? M1_arvalid : 0;
 
-    assign M_awaddr   = state_m0 ? M0_awaddr  : M1_awaddr;
+    assign M_awaddr   = M1_awaddr;
     assign M_awid     = M1_awid;
     assign M_awlen    = M1_awlen;
     assign M_awsize   = M1_awsize;
@@ -2880,11 +2880,11 @@ module ysyx_25110270_arbiter
     assign M_wstrb    = M1_wstrb;
     assign M_wlast    = M1_wlast;
     assign M_bready   = 1'b0; // xbar中已经将bready固定为1'b1了
-    assign M_araddr   = state_m0 ? M0_araddr  : M1_araddr;
-    assign M_arid     = state_m0 ? M0_arid    : M1_arid;
-    assign M_arlen    = state_m0 ? M0_arlen   : M1_arlen;
-    assign M_arsize   = state_m0 ? M0_arsize  : M1_arsize;
-    assign M_arburst  = state_m0 ? M0_arburst : M1_arburst;
+    assign M_araddr   = rstate_m0 ? M0_araddr  : M1_araddr;
+    assign M_arid     = rstate_m0 ? M0_arid    : M1_arid;
+    assign M_arlen    = rstate_m0 ? M0_arlen   : M1_arlen;
+    assign M_arsize   = rstate_m0 ? M0_arsize  : M1_arsize;
+    assign M_arburst  = rstate_m0 ? M0_arburst : M1_arburst;
     assign M_rready   = 1'b0; // xbar中已经将rready固定为1'b1了
 
     assign M0_awready = 0; // 只读
@@ -2892,20 +2892,20 @@ module ysyx_25110270_arbiter
     assign M0_bvalid  = 0; // 只读
     assign M0_bresp   = 0; // 只读
     assign M0_bid     = 0; // 只读
-    assign M0_arready = state_m0 ? M_arready  : 0;
-    assign M0_rvalid  = state_m0 ? M_rvalid   : 0;
+    assign M0_arready = rstate_m0 ? M_arready  : 0;
+    assign M0_rvalid  = rstate_m0 ? M_rvalid   : 0;
     assign M0_rdata   = M_rdata;
     assign M0_rresp   = M_rresp;
     assign M0_rlast   = M_rlast;
     assign M0_rid     = M_rid;
 
-    assign M1_awready = state_m1 ? M_awready  : 0;
-    assign M1_wready  = state_m1 ? M_wready   : 0;
-    assign M1_bvalid  = state_m1 ? M_bvalid   : 0;
+    assign M1_awready = M_awready;
+    assign M1_wready  = M_wready;
+    assign M1_bvalid  = M_bvalid;
     assign M1_bresp   = M_bresp;
     assign M1_bid     = M_bid;
-    assign M1_arready = state_m1 ? M_arready  : 0;
-    assign M1_rvalid  = state_m1 ? M_rvalid   : 0;
+    assign M1_arready = rstate_m1 ? M_arready  : 0;
+    assign M1_rvalid  = rstate_m1 ? M_rvalid   : 0;
     assign M1_rdata   = M_rdata;
     assign M1_rresp   = M_rresp;
     assign M1_rlast   = M_rlast;
