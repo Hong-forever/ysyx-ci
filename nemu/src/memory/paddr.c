@@ -21,12 +21,7 @@
 
 extern bool dcache;
 
-#if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
-#else // CONFIG_PMEM_GARRAY
-static uint8_t pmem[CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + 
-                    CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE] PG_ALIGN = {};
-#endif
 
 #ifdef CONFIG_SOC
 
@@ -48,10 +43,8 @@ paddr_t host_to_guest(uint8_t *haddr) {
 }
 
 void init_mem() {
-#if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE);
   assert(pmem);
-#endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_FLASH_SIZE + CONFIG_PSRAM_SIZE + CONFIG_SDRAM_SIZE));
   Log("physical memory area mrom [" FMT_PADDR ", " FMT_PADDR "], sram [" FMT_PADDR ", " FMT_PADDR "], flash [" FMT_PADDR ", " FMT_PADDR "], psram [" FMT_PADDR ", " FMT_PADDR "], sdram [" FMT_PADDR ", " FMT_PADDR "]",
       PMEM_LEFT_MROM, PMEM_RIGHT_MROM, PMEM_LEFT_SRAM, PMEM_RIGHT_SRAM, PMEM_LEFT_FLASH, PMEM_RIGHT_FLASH, PMEM_LEFT_PSRAM, PMEM_RIGHT_PSRAM, PMEM_LEFT_SDRAM, PMEM_RIGHT_SDRAM);
@@ -73,10 +66,8 @@ static void out_of_bound(paddr_t addr) {
 }
 
 void init_mem() {
-#if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
-#endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
