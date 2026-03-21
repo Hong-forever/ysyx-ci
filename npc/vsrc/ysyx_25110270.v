@@ -2382,8 +2382,8 @@ module ysyx_25110270_csr
     output  wire    [31:0                       ]   O_flush_addr
 );
 
-    reg [17:0] mstatus;
-    reg [3:0] mcause;
+    wire [31:0] mstatus = 32'h1800; 
+    wire [31:0] mcause = 32'd11;
     reg [31:0] mtvec;
     reg [31:0] mepc;
 
@@ -2418,20 +2418,11 @@ module ysyx_25110270_csr
     //write reg
     //写寄存器操作
     always @(posedge clk) begin
-        if(rst) begin
-            mstatus <= 0;
-            mcause <= 0;
-        end else if(I_valid) begin
+        if(I_valid) begin
             if(except_sync) begin
                 mepc <= I_except_addr;
-                mcause <= 4'd11;
-                mstatus <= {mstatus[17:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]} | 18'h1800; //MPIE->MIE, MIE清0
-            end else if(except_mret) begin
-                mstatus <= {mstatus[17:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]} & ~18'h1800; //MIE<-MPIE
             end else if(I_we) begin
                 case(I_waddr[1:0])
-                    `ysyx_25110270_CSR_MAP_MSTATUS:  mstatus     <= I_wdata[17:0];
-                    `ysyx_25110270_CSR_MAP_MCAUSE:   mcause      <= I_wdata[3:0];
                     `ysyx_25110270_CSR_MAP_MTVEC:    mtvec       <= I_wdata;
                     `ysyx_25110270_CSR_MAP_MEPC:     mepc        <= I_wdata;
                     default: begin end
@@ -2449,10 +2440,10 @@ module ysyx_25110270_csr
             rdata = I_wdata;
         end else begin
             case(I_raddr)
-                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = {14'b0, mstatus};
+                `ysyx_25110270_CSR_MAP_MSTATUS:   rdata = mstatus;
                 `ysyx_25110270_CSR_MAP_MTVEC:     rdata = mtvec;
                 `ysyx_25110270_CSR_MAP_MEPC:      rdata = mepc;
-                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = {28'b0, mcause};
+                `ysyx_25110270_CSR_MAP_MCAUSE:    rdata = mcause;
                 `ysyx_25110270_CSR_MAP_CYCLE:     rdata = cycle[31:0];
                 `ysyx_25110270_CSR_MAP_CYCLEH:    rdata = {24'd0, cycle[39:32]};
                 `ysyx_25110270_CSR_MAP_MVENDORID: rdata = mvendorid;
