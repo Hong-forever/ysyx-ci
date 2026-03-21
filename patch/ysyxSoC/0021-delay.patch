@@ -1,7 +1,7 @@
 From cba2f2a829048fe75f2f8377092f462a7c2c7143 Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Wed, 11 Mar 2026 15:25:51 +0800
-Subject: [PATCH 21/21] delay
+Subject: [PATCH 21/22] delay
 
 
 diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
