@@ -1,7 +1,7 @@
 From 2609d09dfdd39148b27ac93c8b156972e12e1b7a Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Fri, 6 Mar 2026 11:50:00 +0800
-Subject: [PATCH 16/21] auto replace sdram instance
+Subject: [PATCH 16/22] auto replace sdram instance
 
 
 diff --git a/Makefile b/Makefile

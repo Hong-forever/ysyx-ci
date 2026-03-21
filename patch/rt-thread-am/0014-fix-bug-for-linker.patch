@@ -1,7 +1,7 @@
 From 083f65bdcc5e093c34e79288b17699f854a38f42 Mon Sep 17 00:00:00 2001
 From: hhh <3224318821@qq.com>
 Date: Tue, 10 Mar 2026 18:08:26 +0800
-Subject: [PATCH 14/14] fix bug for linker
+Subject: [PATCH 14/15] fix bug for linker
 
 
 diff --git a/bsp/abstract-machine/extra.ld b/bsp/abstract-machine/extra.ld

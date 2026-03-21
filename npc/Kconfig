@@ -58,7 +58,7 @@ config CC_DEBUG
 config CC_ASAN
   depends on MODE_SYSTEM
   bool "Enable address sanitizer"
-  default y
+  default n
 
 endmenu
 
