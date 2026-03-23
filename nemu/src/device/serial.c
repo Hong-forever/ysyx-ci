@@ -37,7 +37,7 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
       else {
         char a = MUXDEF(CONFIG_TARGET_AM, getchar(), fgetc(stderr));
         printf("ini: %c\n", serial_base[0]);
-        serial_base[0] = a;
+        // serial_base[0] = a;
         printf("serial: read %c from host\n", a);
         // serial_base[0] = MUXDEF(CONFIG_TARGET_AM, getchar(), fgetc(stderr));
       }
