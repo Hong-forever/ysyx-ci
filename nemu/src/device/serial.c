@@ -15,6 +15,10 @@
 
 #include <utils.h>
 #include <device/map.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <assert.h>
+#include <errno.h>
 
 /* http://en.wikibooks.org/wiki/Serial_Programming/8250_UART_Programming */
 // NOTE: this is compatible to 16550
@@ -35,11 +39,9 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
     case CH_OFFSET:
       if (is_write) serial_putc(serial_base[0]);
       else {
-        char a = MUXDEF(CONFIG_TARGET_AM, getchar(), fgetc(stderr));
-        printf("ini: %c, %d\n", serial_base[0], serial_base[0]);
-        // serial_base[0] = a;
-        printf("serial: read %c from host\n", a);
-        // serial_base[0] = MUXDEF(CONFIG_TARGET_AM, getchar(), fgetc(stderr));
+        int ret = fgetc(stdin);
+        if (ret == EOF) ret = -1;
+        serial_base[0] = ret;
       }
       break;
     // default: panic("do not support offset = %d", offset);
@@ -48,6 +50,13 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
 
 void init_serial() {
   serial_base = new_space(8);
+
+  int ret = fcntl(STDIN_FILENO, F_GETFL);
+  assert(ret != -1);
+  int flag = ret | O_NONBLOCK;
+  ret = fcntl(STDIN_FILENO, F_SETFL, flag);
+  assert(ret != -1);
+
 #ifdef CONFIG_HAS_PORT_IO
   add_pio_map ("serial", CONFIG_SERIAL_PORT, serial_base, 8, serial_io_handler);
 #else
