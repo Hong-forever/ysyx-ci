@@ -13,8 +13,8 @@
 !Kconfig
 !*.nxdc
 configs
-# include/config
-# include/generated
+include/config
+include/generated
 !*.conf
 !*.cmd
 build/
