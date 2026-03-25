@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
+#include <termios.h>
 
 /* http://en.wikibooks.org/wiki/Serial_Programming/8250_UART_Programming */
 // NOTE: this is compatible to 16550
@@ -27,6 +28,7 @@
 
 static uint8_t *serial_base = NULL;
 
+static struct termios orig_termios;
 
 static void serial_putc(char ch) {
   MUXDEF(CONFIG_TARGET_AM, putch(ch), putc(ch, stderr));
@@ -48,6 +50,10 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
   }
 }
 
+void __am_uart_cleanup() {
+  tcsetattr(STDIN_FILENO, TCSANOW, &orig_termios);
+}
+
 void init_serial() {
   serial_base = new_space(8);
 
@@ -56,6 +62,17 @@ void init_serial() {
   int flag = ret | O_NONBLOCK;
   ret = fcntl(STDIN_FILENO, F_SETFL, flag);
   assert(ret != -1);
+
+  struct termios new_termios;
+  tcgetattr(STDIN_FILENO, &orig_termios);
+  atexit(__am_uart_cleanup); 
+
+  new_termios = orig_termios;
+  
+  // 关闭规范模式，关闭回显等
+  new_termios.c_lflag &= ~(ICANON | ECHO);
+  
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
 
 #ifdef CONFIG_HAS_PORT_IO
   add_pio_map ("serial", CONFIG_SERIAL_PORT, serial_base, 8, serial_io_handler);
