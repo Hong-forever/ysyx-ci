@@ -6,7 +6,6 @@
 !/nanos-lite/*
 !/navy-apps/*
 !/npc/*
-!/my_test/*
 !Makefile
 !README.md
 !.gitignore
@@ -17,5 +16,6 @@
 /nvboard
 /rt-thread-am/
 /ysyxSoC/
+/my_test/
 /riscv-arch-test-am/
 /riscv-tests-am/
