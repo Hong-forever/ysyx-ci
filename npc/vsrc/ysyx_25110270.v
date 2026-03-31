@@ -314,9 +314,9 @@ module ysyx_25110270_ifetch
     #(
         .ADDR_WIDTH             (32                         ),
         .DATA_WIDTH             (32                         ),
-        .SET_NUM                (4                          ),
+        .SET_NUM                (8                          ),
         .N_WAYS                 (1                          ),
-        .BLOCK_SIZE             (16                         )
+        .BLOCK_SIZE             (8                          )
     ) icache
     (
         .clk                    (clk                        ),
@@ -462,8 +462,6 @@ module ysyx_25110270_icache
     wire [SET_WIDTH-1:0]               index;    // 组索引
     wire [BLOCK_WIDTH-1:0]             offset;   // 块内字偏移
 
-    reg [BLOCK_WIDTH-1:0]              refill_offset; // refill时的块内字偏移
-
     assign tag     = I_addr[ADDR_WIDTH-1 : SET_WIDTH + BLOCK_WIDTH + 2];
     assign index   = I_addr[SET_WIDTH + BLOCK_WIDTH + 1 : BLOCK_WIDTH + 2];
     assign offset  = I_addr[BLOCK_WIDTH + 1 : 2];
@@ -500,13 +498,11 @@ module ysyx_25110270_icache
             for(i = 0; i < SET_NUM*N_WAYS; i = i + 1) begin
                 valid_mem[i] <= 0;
             end
-            refill_offset <= 0;
         end else begin
             if(state[1] && I_rvalid) begin
-                data_mem[index][refill_offset] <= I_rdata;
+                data_mem[index][I_rlast] <= I_rdata;
                 tag_mem[index] <= tag;
                 valid_mem[index] <= I_rlast;
-                refill_offset <= I_rlast ? 0 : refill_offset + 1;
             end
         end
     end
@@ -529,7 +525,7 @@ module ysyx_25110270_icache
     assign O_valid = ovalid_r;
 
     assign O_arvalid = state[0]; // REQ state
-    assign O_araddr  = {I_addr[ADDR_WIDTH-1:2+BLOCK_WIDTH], {BLOCK_WIDTH{1'b0}}, 2'b00};
+    assign O_araddr  = {I_addr[ADDR_WIDTH-1:3], 3'b000};
     assign O_arlen   = WORDS_PER_BLOCK[7:0] - 8'b1;
     assign O_arsize  = 3'b010; // 4 bytes
     assign O_arburst = 2'b01; // INCR
