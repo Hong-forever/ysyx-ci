@@ -529,7 +529,7 @@ module ysyx_25110270_icache
     assign O_valid = ovalid_r;
 
     assign O_arvalid = state[0]; // REQ state
-    assign O_araddr  = {I_addr[ADDR_WIDTH-1:2+BLOCK_WIDTH], {(BLOCK_WIDTH-1){1'b0}}, 2'b00};
+    assign O_araddr  = {I_addr[ADDR_WIDTH-1:2+BLOCK_WIDTH], {BLOCK_WIDTH{1'b0}}, 2'b00};
     assign O_arlen   = WORDS_PER_BLOCK[7:0] - 8'b1;
     assign O_arsize  = 3'b010; // 4 bytes
     assign O_arburst = 2'b01; // INCR
