@@ -8,10 +8,10 @@ include $(MK)
 
 ci_test = 1
 
-WAVE_ENABLE = 0
+WAVE_ENABLE = 1
 
 # 1: vcd, 2: fst
-WAVE_FORMAT = 1
+WAVE_FORMAT = 2
 
 GUEST_ISA = riscv32
 
