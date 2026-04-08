@@ -70,7 +70,7 @@ void init_serial() {
   new_termios = orig_termios;
   
   // 关闭规范模式，关闭回显等
-  // new_termios.c_lflag &= ~(ICANON | ECHO);
+  new_termios.c_lflag &= ~(ICANON | ECHO);
   
   tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
 
