@@ -139,7 +139,7 @@ module ysyx_25110270_decoder
     localparam bit_csr_src   = 15;
     localparam bit_op        = 16;
 
-    reg [18:0] basic_ctrl;
+    reg [19:0] basic_ctrl;
 
     always @(*) begin
         basic_ctrl = 0;
@@ -181,7 +181,7 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_RS1;
                 basic_ctrl[bit_op +: 3      ] = funct3;
             end
-            `ysyx_25110270_RV32IM_OP_TYPE_R: begin
+            `ysyx_25110270_RV32IM_OP_TYPE_R_M: begin
                 basic_ctrl[bit_rd_we        ] = 1'b1;
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
                 basic_ctrl[bit_rs2_re       ] = 1'b1;

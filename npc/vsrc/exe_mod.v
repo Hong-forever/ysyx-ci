@@ -119,10 +119,10 @@ module ysyx_25110270_alu
         .O_shift_result         (rv32i_shift_res                            )
     );
 
-    ysyx_25110270_Booth_Mul booth_mul
+    ysyx_25110270_Booth_Mul
     #(
         .LENGTH                 (32                                         )
-    )
+    ) booth_mul
     (
         .clk                    (clk                                        ),
         .rst                    (rst                                        ),

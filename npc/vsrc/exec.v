@@ -201,6 +201,12 @@ module ysyx_25110270_exec
         .I_f7b5_en                  (I_f7b5_en              ),
         .I_alu_ctrl                 (alu_op                 ),
         .O_alu_result               (alu_result             ),
+
+        .I_mul_start                (start_mul              ),
+        .O_mul_ready                (mul_ready              ),
+        .I_div_start                (start_div              ),
+        .O_div_ready                (div_ready              ),
+
         .O_eq                       (src_eq                 ),
         .O_lt                       (src_lt                 )
     );
