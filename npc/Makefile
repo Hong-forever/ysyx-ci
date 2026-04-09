@@ -8,7 +8,7 @@ include $(MK)
 
 ci_test = 1
 
-WAVE_ENABLE = 1
+WAVE_ENABLE = 0
 
 # 1: vcd, 2: fst
 WAVE_FORMAT = 1
