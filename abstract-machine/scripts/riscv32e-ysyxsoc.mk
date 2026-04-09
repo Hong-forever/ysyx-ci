@@ -4,7 +4,7 @@ include $(AM_HOME)/scripts/platform/ysyxsoc.mk
 
 CFLAGS  += -DISA_H=\"riscv/riscv.h\"
 
-COMMON_CFLAGS += -march=rv32e_zicsr -mabi=ilp32e  # overwrite
+COMMON_CFLAGS += -march=rv32im_zicsr -mabi=ilp32   # overwrite
 LDFLAGS       += -melf32lriscv                    # overwrite
 
 AM_SRCS += riscv/ysyxsoc/libgcc/div.S \
