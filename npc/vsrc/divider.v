@@ -31,7 +31,7 @@ module ysyx_25110270_div
     reg [63:0] result;
     reg ready;
 
-    wire div_sign = I_op_div[1];
+    wire div_sign = ~I_op_div[0];
 
     wire [32:0] div_temp = {1'b0, dividend[63:32]} - {1'b0, divisor};
 
