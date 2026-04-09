@@ -52,7 +52,7 @@ module ysyx_25110270_alu
     wire mul_unsigned = I_alu_ctrl[1:0] != 2'b01;       // !mulh
 
     wire is_mulhsu_neg = I_alu_ctrl[1:0] == 2'b10 && I_alu_srca[31];
-    wire [31:0] mul_op1 = I_alu_srca ^ {32{is_mulhsu_neg}} + is_mulhsu_neg;
+    wire [31:0] mul_op1 = (I_alu_srca ^ {32{is_mulhsu_neg}}) + is_mulhsu_neg;
     wire [31:0] mul_op2 = I_alu_srcb;
 
     wire [31:0] rv32m_mul_res = mul_res[31:0];
