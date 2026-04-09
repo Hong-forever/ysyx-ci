@@ -80,7 +80,7 @@ module ysyx_25110270_cpu_core
     wire [31:0                      ]   O_dec_imm;
     wire                                O_dec_rd_we;
     wire [`ysyx_25110270_RegAddrBus ]   O_dec_rd_waddr;
-    wire [2:0                       ]   O_dec_op;
+    wire [3:0                       ]   O_dec_op;
     wire [1:0                       ]   O_dec_alu_srca_sel;
     wire [1:0                       ]   O_dec_alu_srcb_sel;
     wire [1:0                       ]   O_dec_agu_src_sel;
@@ -122,7 +122,7 @@ module ysyx_25110270_cpu_core
     wire                                I_ex_csr_valid;
     wire                                I_ex_f7b5_en;
     wire                                I_ex_sign;
-    wire [2:0                       ]   I_ex_op;
+    wire [3:0                       ]   I_ex_op;
 
     wire [`ysyx_25110270_CsrMapBus  ]   I_ex_csr_addr;
 
