@@ -60,19 +60,28 @@
 `define ysyx_25110270_RV32I_F3_SW     3'b010
 
 // rv32i/rv32m R/M type inst
-`define ysyx_25110270_RV32IM_OP_TYPE_R 7'b0110011
+`define ysyx_25110270_RV32IM_OP_TYPE_R_M    7'b0110011
 
-`define ysyx_25110270_RV32I_F3_ADD_SUB 3'b000
-`define ysyx_25110270_RV32I_F3_SLL     3'b001
-`define ysyx_25110270_RV32I_F3_SLT     3'b010
-`define ysyx_25110270_RV32I_F3_SLTU    3'b011
-`define ysyx_25110270_RV32I_F3_XOR     3'b100
-`define ysyx_25110270_RV32I_F3_SR      3'b101
-`define ysyx_25110270_RV32I_F3_OR      3'b110
-`define ysyx_25110270_RV32I_F3_AND     3'b111
+`define ysyx_25110270_RV32I_F3_ADD_SUB      3'b000
+`define ysyx_25110270_RV32I_F3_SLL          3'b001
+`define ysyx_25110270_RV32I_F3_SLT          3'b010
+`define ysyx_25110270_RV32I_F3_SLTU         3'b011
+`define ysyx_25110270_RV32I_F3_XOR          3'b100
+`define ysyx_25110270_RV32I_F3_SR           3'b101
+`define ysyx_25110270_RV32I_F3_OR           3'b110
+`define ysyx_25110270_RV32I_F3_AND          3'b111
 
-`define ysyx_25110270_RV32I_F7_R1    7'b0000000
-`define ysyx_25110270_RV32I_F7_R2    7'b0100000
+`define ysyx_25110270_RV32M_F3_MUL          3'b000
+`define ysyx_25110270_RV32M_F3_MULH         3'b001
+`define ysyx_25110270_RV32M_F3_MULHSU       3'b010
+`define ysyx_25110270_RV32M_F3_MULHU        3'b011
+`define ysyx_25110270_RV32M_F3_DIV          3'b100
+`define ysyx_25110270_RV32M_F3_DIVU         3'b101
+`define ysyx_25110270_RV32M_F3_REM          3'b110
+`define ysyx_25110270_RV32M_F3_REMU         3'b111
+
+`define ysyx_25110270_RV32M_F7_MUL          7'b0000001
+
 
 //------------------------------------------------------------------------
 // rv32i B type inst
@@ -114,7 +123,7 @@
 //------------------------------------------------------------------------
 // GENERAL PURPOSE REGISTER DEFINITIONS
 //------------------------------------------------------------------------
-`define ysyx_25110270_RegNum 16        // reg num
+`define ysyx_25110270_RegNum 32        // reg num
 `define ysyx_25110270_RegAddrWidth $clog2(`ysyx_25110270_RegNum)
 `define ysyx_25110270_RegAddrBus `ysyx_25110270_RegAddrWidth-1:0
 

@@ -64,7 +64,7 @@ module ysyx_25110270_pipeline_dec_ex
     input   wire    [31:0                       ]   I_imm,              // 立即数
     input   wire                                    I_rd_we,            // 写通用寄存器标志
     input   wire    [`ysyx_25110270_RegAddrBus  ]   I_rd_waddr,         // 写通用寄存器地址
-    input   wire    [2:0                        ]   I_op,               // 指令类型
+    input   wire    [3:0                        ]   I_op,               // 指令类型
     input   wire    [1:0                        ]   I_alu_srca_sel,
     input   wire    [1:0                        ]   I_alu_srcb_sel,
     input   wire    [1:0                        ]   I_agu_src_sel,
@@ -95,7 +95,7 @@ module ysyx_25110270_pipeline_dec_ex
     output  reg     [31:0                       ]   O_imm,              // 立即数
     output  reg                                     O_rd_we,            // 写通用寄存器标志
     output  reg     [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,         // 写通用寄存器地址
-    output  reg     [2:0                        ]   O_op,               // 指令类型
+    output  reg     [3:0                        ]   O_op,               // 指令类型
     output  reg     [1:0                        ]   O_alu_srca_sel,
     output  reg     [1:0                        ]   O_alu_srcb_sel,
     output  reg     [1:0                        ]   O_agu_src_sel,

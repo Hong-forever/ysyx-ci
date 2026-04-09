@@ -33,7 +33,7 @@ module ysyx_25110270_decoder
     output  wire    [31:0                       ]   O_imm,              //立即数
     output  wire                                    O_rd_we,            //写通用寄存器标志
     output  wire    [`ysyx_25110270_RegAddrBus  ]   O_rd_waddr,         //写通用寄存器地址
-    output  wire    [2:0                        ]   O_op,
+    output  wire    [3:0                        ]   O_op,
 
     output  wire    [1:0                        ]   O_alu_srca_sel,
     output  wire    [1:0                        ]   O_alu_srcb_sel,
@@ -108,7 +108,7 @@ module ysyx_25110270_decoder
     //------------------------------------------------------------------------
 
     /*=======================================================================
-        [18:16]:    op
+        [19:16]:    op        ---> op[3] is for mul, jal
         [15   ]:    csr_src_sel
         [14:13]:    agu_src_sel  
         [12:11]:    alu_srcb_sel
@@ -165,14 +165,14 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_sign         ] = 1'b1;
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_IMM;
-                basic_ctrl[bit_op +: 3      ] = `ysyx_25110270_RV32I_F3_ADD_SUB;
+                basic_ctrl[bit_op +: 3      ] = 3'b000;  // add
             end
             `ysyx_25110270_RV32I_OP_LUI: begin
                 basic_ctrl[bit_rd_we        ] = 1'b1;
                 basic_ctrl[bit_sign         ] = 1'b1;
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_0;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_IMM;
-                basic_ctrl[bit_op +: 3      ] = `ysyx_25110270_RV32I_F3_ADD_SUB;
+                basic_ctrl[bit_op +: 3      ] = 3'b000;  // add
             end
             `ysyx_25110270_RV32I_OP_TYPE_S: begin
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
@@ -189,7 +189,7 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_f7b5_en      ] = I_inst[30];
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_RS1;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_RS2;
-                basic_ctrl[bit_op +: 3      ] = funct3;
+                basic_ctrl[bit_op +: 4      ] = {I_inst[25], funct3};
             end
             `ysyx_25110270_RV32I_OP_TYPE_B: begin
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
@@ -208,18 +208,18 @@ module ysyx_25110270_decoder
                 basic_ctrl[bit_br_valid     ] = 1'b1;
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_4;
-                basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_RS1;
-                basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
+                basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_RS1;    // op[3] & br --> jalr, jal
+                basic_ctrl[bit_op +: 4      ] = 4'b1011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV32I_OP_JAL: begin
                 basic_ctrl[bit_rd_we        ] = 1'b1;
                 basic_ctrl[bit_rs1_re       ] = 1'b1;
                 basic_ctrl[bit_sign         ] = 1'b1;
-                basic_ctrl[bit_br_valid     ] = 1'b1;                        // br_valid + funct3 == 011 ---->  alu_add
+                basic_ctrl[bit_br_valid     ] = 1'b1;                         // br_valid + funct3 == 011 ---->  alu_add
                 basic_ctrl[bit_alu_srca +: 2] = `ysyx_25110270_ALUSRCA_PC;
                 basic_ctrl[bit_alu_srcb +: 2] = `ysyx_25110270_ALUSRCB_4;
                 basic_ctrl[bit_agu_src +: 2 ] = `ysyx_25110270_AGUSRC_PC;
-                basic_ctrl[bit_op +: 3      ] = 3'b011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
+                basic_ctrl[bit_op +: 4      ] = 4'b1011;                      // for jalr, jal, remap funct3 to 3'b011 to simplify control logic
             end
             `ysyx_25110270_RV_OP_CSR: begin
                 basic_ctrl[bit_rd_we        ] = funct3 != 0;
@@ -277,7 +277,7 @@ module ysyx_25110270_decoder
     assign O_imm = imm;
     assign O_rd_we = basic_ctrl[bit_rd_we];
 
-    assign O_op = basic_ctrl[bit_op +: 3];
+    assign O_op = basic_ctrl[bit_op +: 4];
 
     assign O_ld_valid = basic_ctrl[bit_ld_valid];
     assign O_st_valid = basic_ctrl[bit_st_valid];
@@ -306,16 +306,16 @@ module ysyx_25110270_RV32_Inst_Unpack
     output  wire    [6:0 ]  opcode,
     output  wire    [2:0 ]  funct3,
     output  wire    [6:0 ]  funct7,
-    output  wire    [3:0 ]  rd,
-    output  wire    [3:0 ]  rs1,
-    output  wire    [3:0 ]  rs2
+    output  wire    [4:0 ]  rd,
+    output  wire    [4:0 ]  rs1,
+    output  wire    [4:0 ]  rs2
 );
 
     assign opcode = I_inst[6:0];
-    assign rd     = I_inst[10:7];
+    assign rd     = I_inst[11:7];
     assign funct3 = I_inst[14:12];
-    assign rs1    = I_inst[18:15];
-    assign rs2    = I_inst[23:20];
+    assign rs1    = I_inst[19:15];
+    assign rs2    = I_inst[24:20];
     assign funct7 = I_inst[31:25];
 
 endmodule

@@ -6,19 +6,28 @@
 
 module ysyx_25110270_alu
 (
+    input   wire                                    clk,
+    input   wire                                    rst,
+
     input   wire    [31:0                       ]   I_alu_srca,
     input   wire    [31:0                       ]   I_alu_srcb,
     input   wire                                    I_sign,             // 有符号位
     input   wire                                    I_f7b5_en,          // 指令funct7[5] = 1
-    input   wire    [2:0                        ]   I_alu_ctrl,
+    input   wire    [3:0                        ]   I_alu_ctrl,
     output  wire    [31:0                       ]   O_alu_result,
+
+    input   wire                                    I_mul_start,
+    output  wire                                    O_mul_ready,
+
+    input   wire                                    I_div_start,
+    output  wire                                    O_div_ready,
 
     output  wire                                    O_eq,
     output  wire                                    O_lt
 );
 
     wire adder_sign = I_sign;
-    wire adder_sub = I_f7b5_en | (I_alu_ctrl != `ysyx_25110270_RV32I_F3_ADD_SUB); // no add
+    wire adder_sub = I_f7b5_en | (I_alu_ctrl[2:0] != 3'b000); // no add
 
     wire [32:0] adder_s1 = {adder_sign & I_alu_srca[31], I_alu_srca};
     wire [32:0] adder_s2 = {adder_sign & I_alu_srcb[31], I_alu_srcb} ^ {{33{adder_sub}}};
@@ -33,21 +42,65 @@ module ysyx_25110270_alu
     wire [31:0] rv32i_or_res      = I_alu_srca | I_alu_srcb;
     wire [31:0] rv32i_and_res     = I_alu_srca & I_alu_srcb;
 
+    wire mul_ready;
+    wire div_ready;
+
+    wire [63:0] mul_res;
+    wire [63:0] div_res;
+
+    wire [63:0] mulhsu_res_inv = ~mul_res + 1;    // mulhsu结果取反加一得到正确结果
+    wire mul_unsigned = I_alu_ctrl[1:0] != 2'b01;       // !mulh
+
+    wire is_mulhsu_neg = I_alu_ctrl[1:0] == 2'b10 && I_alu_srca[31];
+    wire [31:0] mul_op1 = I_alu_srca ^ {32{is_mulhsu_neg}} + is_mulhsu_neg;
+    wire [31:0] mul_op2 = I_alu_srcb;
+
+    wire [31:0] rv32m_mul_res = mul_res[31:0];
+    wire [31:0] rv32m_mulh_res = mul_res[63:32];
+    wire [31:0] rv32m_mulhsu_res = (I_alu_srca[31]) ? mulhsu_res_inv[63:32] : mul_res[63:32];
+
+    wire [31:0] rv32m_div_res = div_res[31:0];
+    wire [31:0] rv32m_rem_res = div_res[63:32];
+
+    reg [31:0] mul_op1_r, mul_op2_r;
+    reg mul_unsigned_r, mul_start_r;
+
+    always @(posedge clk) begin
+        if(rst) begin
+            mul_start_r    <= 0;
+        end else begin
+            mul_op1_r      <= mul_op1;
+            mul_op2_r      <= mul_op2;
+            mul_unsigned_r <= mul_unsigned;
+            mul_start_r    <= I_mul_start;
+        end
+    end
+
     reg [31:0] res; 
     always @(*) begin
         case(I_alu_ctrl)
-            `ysyx_25110270_RV32I_F3_ADD_SUB:
+            4'b0000:                                // add, sub, addi, jal, jalr, lui, auipc
                 res = rv32i_add_res;
-            `ysyx_25110270_RV32I_F3_SLL, `ysyx_25110270_RV32I_F3_SR:
+            4'b0001, 4'b0101:                       // sll, srl, sra, slli, srli, srai
                 res = rv32i_shift_res;
-            `ysyx_25110270_RV32I_F3_SLT, `ysyx_25110270_RV32I_F3_SLTU:
+            4'b0010, 4'b0011:                       // slt, sltu, slti, sltiu
                 res = {31'b0, adder_cout};
-            `ysyx_25110270_RV32I_F3_XOR:
+            4'b0100:                                // xor, xori
                 res = rv32i_xor_res;
-            `ysyx_25110270_RV32I_F3_OR: 
+            4'b0110:                                // or, ori
                 res = rv32i_or_res;
-            `ysyx_25110270_RV32I_F3_AND:
+            4'b0111:                                // and, andi
                 res = rv32i_and_res;
+            4'b1000:                                // mul
+                res = rv32m_mul_res;
+            4'b1001, 4'b1011:                       // mulh, mulhu
+                res = rv32m_mulh_res;
+            4'b1010:                                // mulhsu
+                res = rv32m_mulhsu_res;
+            4'b1100, 4'b1101:                       // div, divu
+                res = rv32m_div_res;
+            4'b1110, 4'b1111:                       // rem, remu
+                res = rv32m_rem_res;
             default:
                 res = 0;
         endcase
@@ -66,9 +119,40 @@ module ysyx_25110270_alu
         .O_shift_result         (rv32i_shift_res                            )
     );
 
+    ysyx_25110270_Booth_Mul booth_mul
+    #(
+        .LENGTH                 (32                                         )
+    )
+    (
+        .clk                    (clk                                        ),
+        .rst                    (rst                                        ),
+
+        .start                  (mul_start_r                                ),  // mul指令开始乘法运算
+        .A                      (mul_op1_r                                  ),
+        .B                      (mul_op2_r                                  ),
+        .U                      (mul_unsigned_r                             ),
+
+        .P                      (mul_res                                    ),
+        .done                   (mul_ready                                  )
+    );
+
+    ysyx_25110270_div div    // 除法类型，00:除法，01:无符号除法，10:取余，11:无符号取余
+    (
+        .clk                    (clk                                        ),
+        .rst                    (rst                                        ),
+        .I_op_div               (I_alu_ctrl[1:0]                            ),
+        .I_opdata1              (I_alu_srca                                 ),
+        .I_opdata2              (I_alu_srcb                                 ),
+        .I_start                (I_div_start                                ),
+        .O_result               (div_res                                    ),
+        .O_ready                (div_ready                                  )
+    );
+
     assign O_alu_result = res;
     assign O_eq = (I_alu_srca == I_alu_srcb);
     assign O_lt = adder_cout;
+    assign O_mul_ready = mul_ready;
+    assign O_div_ready = div_ready;
     
 endmodule
     

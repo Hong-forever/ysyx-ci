@@ -35,7 +35,7 @@ module ysyx_25110270_exec
     input   wire                                    I_csr_valid,        //CSR指令标志
     input   wire                                    I_f7b5_en,          //指令funct7=0x7b或0x5时有效
     input   wire                                    I_sign,             //有符号位
-    input   wire    [2:0                        ]   I_op,
+    input   wire    [3:0                        ]   I_op,
     input   wire    [`ysyx_25110270_CsrMapBus   ]   I_csr_addr,
     input   wire    [`ysyx_25110270_ExceptBus   ]   I_except,             //异常
 
@@ -148,16 +148,53 @@ module ysyx_25110270_exec
 
     wire [31:0] csr_src = I_csr_src_sel ? I_imm : final_rs1_rdata;
 
+    reg valid;
+    always @(posedge clk) begin
+        if(rst) begin
+            valid <= 1'b0;
+        end else begin
+            valid <= I_valid;
+        end
+    end
+
     //------------------------------------------------------------------------
     // alu运算
     //------------------------------------------------------------------------
     wire src_eq, src_lt;
     wire [31:0] alu_result;
 
-    wire [2:0] alu_op = (I_op == 3'b011 & I_br_valid) ? `ysyx_25110270_RV32I_F3_ADD_SUB : I_op;  // jal, jalr指令需要加法运算
+    wire [3:0] alu_op = (I_op[3] & I_br_valid) ? 4'b0 : I_op;  // jal, jalr指令需要加法运算
+
+    wire is_mul_ext = I_op[3] & !I_br_valid & valid;
+
+    wire start_mul = is_mul_ext & !I_op[2];
+    wire start_div = is_mul_ext & I_op[2];
+
+    reg start_mul_reg, start_div_reg;
+    wire mul_ready, div_ready;
+
+    always @(posedge clk) begin
+        if(rst) begin
+            start_mul_reg <= 0;
+            start_div_reg <= 0;
+        end else if(valid) begin
+            start_mul_reg <= start_mul;
+            start_div_reg <= start_div;
+        end else begin
+            start_mul_reg <= mul_ready ? 0 : start_mul_reg;
+            start_div_reg <= div_ready ? 0 : start_div_reg;
+        end
+    end
+
+
+    wire stallreq_mul = start_mul | (start_mul_reg & ~mul_ready);
+    wire stallreq_div = start_div | (start_div_reg & ~div_ready);
 
     ysyx_25110270_alu alu
     (
+        .clk                        (clk                    ),
+        .rst                        (rst                    ),
+        
         .I_alu_srca                 (alu_srca               ),
         .I_alu_srcb                 (alu_srcb               ),
         .I_sign                     (I_sign                 ),
@@ -182,7 +219,7 @@ module ysyx_25110270_exec
     (
         .I_src_eq                   (src_eq                 ),
         .I_src_lt                   (src_lt                 ),
-        .I_bru_ctrl                 (I_op                   ),
+        .I_bru_ctrl                 (I_op[2:0]              ),
         .O_bru_taken                (bru_taken              )
     );
 
@@ -215,13 +252,11 @@ module ysyx_25110270_exec
         end else begin
             agu_result_r <= agu_result;
             store_data <= final_rs2_rdata;
-            ls_ctrl <= (I_ld_valid | I_st_valid) ? I_op : 3'b111;
+            ls_ctrl <= (I_ld_valid | I_st_valid) ? I_op[2:0] : 3'b111;
         end
     end
 
     wire stallreq_ls;
-
-    wire stallreq = stallreq_ls;
 
 `ifdef ysyx_25110270_DPIC
     wire device_skip;
@@ -287,6 +322,8 @@ module ysyx_25110270_exec
     );
 
 
+    wire stallreq = stallreq_div | stallreq_mul | stallreq_ls;
+
     //------------------------------------------------------------------------
     // 输出
     //------------------------------------------------------------------------
@@ -325,9 +362,9 @@ module ysyx_25110270_exec
     wire [3:0] rs1 = I_inst[18:15];
 
     always @(*) begin
-        if(I_br_valid & (I_op == 3'b011) & I_agu_src_sel == `ysyx_25110270_AGUSRC_PC) begin
+        if(I_br_valid & (I_op[2:0] == 3'b011) & I_agu_src_sel == `ysyx_25110270_AGUSRC_PC) begin
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 1);
-        end else if(I_br_valid & (I_op == 3'b011) & I_agu_src_sel == `ysyx_25110270_AGUSRC_RS1) begin
+        end else if(I_br_valid & (I_op[2:0] == 3'b011) & I_agu_src_sel == `ysyx_25110270_AGUSRC_RS1) begin
             ftrace_exec(I_inst_addr, O_bru_target, rs1, O_rd_waddr, I_imm, 2);
         end
     end
