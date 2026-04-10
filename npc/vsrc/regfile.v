@@ -121,11 +121,11 @@ module ysyx_25110270_regfile
     assign O_gpr15 = regs[15];
     assign O_gpr16 = regs[16];
     assign O_gpr17 = regs[17];
-    assign O_gpr18 = regs[18];
+    assign O_gpr18 = regs[18] +1;
     assign O_gpr19 = regs[19];
     assign O_gpr20 = regs[20];
     assign O_gpr21 = regs[21];
-    assign O_gpr22 = regs[22];
+    assign O_gpr22 = regs[22] +1;
     assign O_gpr23 = regs[23];
     assign O_gpr24 = regs[24];
     assign O_gpr25 = regs[25];
@@ -154,7 +154,7 @@ module ysyx_25110270_regfile
     wire [31:0] gpr_x15_a5  = regs[15];
     wire [31:0] gpr_x16_a6  = regs[16];
     wire [31:0] gpr_x17_a7  = regs[17];
-    wire [31:0] gpr_x18_s2  = regs[18] + 1;
+    wire [31:0] gpr_x18_s2  = regs[18];
     wire [31:0] gpr_x19_s3  = regs[19];
     wire [31:0] gpr_x20_s4  = regs[20];
     wire [31:0] gpr_x21_s5  = regs[21];
