@@ -121,11 +121,11 @@ module ysyx_25110270_regfile
     assign O_gpr15 = regs[15];
     assign O_gpr16 = regs[16];
     assign O_gpr17 = regs[17];
-    assign O_gpr18 = regs[18] +1;
+    assign O_gpr18 = regs[18];
     assign O_gpr19 = regs[19];
     assign O_gpr20 = regs[20];
     assign O_gpr21 = regs[21];
-    assign O_gpr22 = regs[22] +1;
+    assign O_gpr22 = regs[22];
     assign O_gpr23 = regs[23];
     assign O_gpr24 = regs[24];
     assign O_gpr25 = regs[25];
