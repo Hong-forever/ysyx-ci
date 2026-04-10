@@ -1220,7 +1220,7 @@ module ysyx_25110270_exec
     ysyx_25110270_csr_exe csr_exe
     (
         .I_csr_src                  (csr_src                ),
-        .I_csr_rdata                (final_csr_rdata        ),
+        .I_csr_rdata                (I_csr_rdata            ),
         .I_csr_ctrl                 (I_op[1:0]              ),
         .O_csr_wdata                (csr_wdata              )
     );
@@ -2651,7 +2651,7 @@ endmodule
 
 
 //------------------------------------------------------------------------
-// 执行写回流水线单元
+// 访存写回流水线单元
 //------------------------------------------------------------------------
 
 module ysyx_25110270_pipeline_ex_wb
