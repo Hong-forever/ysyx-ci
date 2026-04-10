@@ -52,6 +52,7 @@ __am_asm_trap:
 
   csrw mepc, t0
   csrw mepc, sp
+  csrr a0, mepc
 
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
