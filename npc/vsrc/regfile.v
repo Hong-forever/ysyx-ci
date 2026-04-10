@@ -154,8 +154,8 @@ module ysyx_25110270_regfile
     wire [31:0] gpr_x15_a5  = regs[15];
     wire [31:0] gpr_x16_a6  = regs[16];
     wire [31:0] gpr_x17_a7  = regs[17];
-    wire [31:0] gpr_x18_s2  = regs[18];
-    wire [31:0] gpr_x19_s3  = regs[19] + 1;
+    wire [31:0] gpr_x18_s2  = regs[18] + 1;
+    wire [31:0] gpr_x19_s3  = regs[19];
     wire [31:0] gpr_x20_s4  = regs[20];
     wire [31:0] gpr_x21_s5  = regs[21];
     wire [31:0] gpr_x22_s6  = regs[22];
