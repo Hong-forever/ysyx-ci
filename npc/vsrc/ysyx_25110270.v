@@ -2304,7 +2304,7 @@ module ysyx_25110270_regfile
     assign O_gpr14 = regs[14];
     assign O_gpr15 = regs[15];
 
-    wire [31:0] gpr1_ra = regs[1];
+    wire [31:0] gpr_ra = regs[1];
     wire [31:0] gpr_sp = regs[2];
     wire [31:0] gpr_gp = regs[3];
     wire [31:0] gpr_tp = regs[4];
@@ -2324,7 +2324,7 @@ module ysyx_25110270_regfile
 
 `ifdef __ICARUS__
 
-    wire [31:0] gpr1_ra = regs[1];
+    wire [31:0] gpr_ra = regs[1];
     wire [31:0] gpr_sp = regs[2];
     wire [31:0] gpr_gp = regs[3];
     wire [31:0] gpr_tp = regs[4];
@@ -2651,7 +2651,7 @@ endmodule
 
 
 //------------------------------------------------------------------------
-// 访存写回流水线单元
+// 执行写回流水线单元
 //------------------------------------------------------------------------
 
 module ysyx_25110270_pipeline_ex_wb
