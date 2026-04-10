@@ -59,9 +59,9 @@ module ysyx_25110270_decoder
     wire [6:0]  opcode;
     wire [2:0]  funct3;
     wire [6:0]  funct7;
-    wire [3:0]  rd;
-    wire [3:0]  rs1;
-    wire [3:0]  rs2;
+    wire [4:0]  rd;
+    wire [4:0]  rs1;
+    wire [4:0]  rs2;
 
     ysyx_25110270_RV32_Inst_Unpack inst_unpack
     (
