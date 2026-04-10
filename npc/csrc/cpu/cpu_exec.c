@@ -77,6 +77,7 @@ static void trace_and_difftest(Decode _this, paddr_t dnpc)
     if(g_print_step) {
         IFDEF(CONFIG_ITRACE, printf("%s\n", _this.logbuf));
     }
+    printf("%d\n", g_print_step);
     IFDEF(CONFIG_TRACE, log_write("%s\n", _this.logbuf));
     IFDEF(CONFIG_ITRACE, iringbuf_trace(_this.logbuf));
     IFDEF(CONFIG_DIFFTEST, difftest_step(_this.pc, dnpc));
