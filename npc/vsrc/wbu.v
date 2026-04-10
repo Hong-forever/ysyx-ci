@@ -109,6 +109,22 @@ module ysyx_25110270_wbu
         .O_gpr13                (gpr13                      ),
         .O_gpr14                (gpr14                      ),
         .O_gpr15                (gpr15                      ),
+        .O_gpr16                (gpr16                      ),
+        .O_gpr17                (gpr17                      ),
+        .O_gpr18                (gpr18                      ),
+        .O_gpr19                (gpr19                      ),
+        .O_gpr20                (gpr20                      ),
+        .O_gpr21                (gpr21                      ),
+        .O_gpr22                (gpr22                      ),
+        .O_gpr23                (gpr23                      ),
+        .O_gpr24                (gpr24                      ),
+        .O_gpr25                (gpr25                      ),
+        .O_gpr26                (gpr26                      ),
+        .O_gpr27                (gpr27                      ),
+        .O_gpr28                (gpr28                      ),
+        .O_gpr29                (gpr29                      ),
+        .O_gpr30                (gpr30                      ),
+        .O_gpr31                (gpr31                      ),
 `endif
 
 `ifdef __ICARUS__
@@ -181,6 +197,10 @@ module ysyx_25110270_wbu
         input int gpr4, input int gpr5, input int gpr6, input int gpr7, 
         input int gpr8, input int gpr9, input int gpr10, input int gpr11, 
         input int gpr12, input int gpr13, input int gpr14, input int gpr15,
+        input int gpr16, input int gpr17, input int gpr18, input int gpr19,
+        input int gpr20, input int gpr21, input int gpr22, input int gpr23,
+        input int gpr24, input int gpr25, input int gpr26, input int gpr27,
+        input int gpr28, input int gpr29, input int gpr30, input int gpr31,
 
         input int mepc, input int mtvec, input int mstatus,
         input int mcause, input int mcyclel, input int mcycleh, 
@@ -215,6 +235,8 @@ module ysyx_25110270_wbu
                 skip_r, 1, inst_r1, inst_addr_r1, pc, 
                 gpr0, gpr1, gpr2, gpr3, gpr4, gpr5, gpr6, gpr7,
                 gpr8, gpr9, gpr10, gpr11, gpr12, gpr13, gpr14, gpr15,
+                gpr16, gpr17, gpr18, gpr19, gpr20, gpr21, gpr22, gpr23,
+                gpr24, gpr25, gpr26, gpr27, gpr28, gpr29, gpr30, gpr31,
 
                 csr_mepc, csr_mtvec, csr_mstatus,
                 csr_mcause, csr_mcyclel, csr_mcycleh,
