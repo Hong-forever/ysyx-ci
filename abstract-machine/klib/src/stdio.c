@@ -93,7 +93,7 @@ int vprintf(const char *fmt, va_list ap) {
     
     while (*fmt) {
 
-        char buffer[32];
+        char buffer[32] = {0};
 
         char *out = buffer;
 
@@ -178,6 +178,8 @@ int vprintf(const char *fmt, va_list ap) {
                     break;
                 }
             }
+            fmt++;
+        } else {
             fmt++;
         }
     }
