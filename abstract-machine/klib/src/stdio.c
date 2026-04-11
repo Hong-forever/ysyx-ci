@@ -114,7 +114,7 @@ int vprintf(const char *fmt, va_list ap) {
                     unsigned int num = va_arg(ap, unsigned int);
                     out = print_uint_to_buf(out, num);
                     *out = '\0';
-                    putstr(out);
+                    putstr(buffer);
                     pn++;
                     break;
                 }
@@ -123,7 +123,7 @@ int vprintf(const char *fmt, va_list ap) {
                     int num = va_arg(ap, int);
                     out = print_int_to_buf(out, num);
                     *out = '\0';
-                    putstr(out);
+                    putstr(buffer);
                     pn++;
                     break;
                 }
@@ -143,7 +143,7 @@ int vprintf(const char *fmt, va_list ap) {
                     unsigned int num = va_arg(ap, unsigned int);
                     out = print_hex_to_buf(out, num, 0);
                     *out = '\0';
-                    putstr(out);
+                    putstr(buffer);
                     pn++;
                     break;
                 }
@@ -151,7 +151,7 @@ int vprintf(const char *fmt, va_list ap) {
                     unsigned int num = va_arg(ap, unsigned int);
                     out = print_hex_to_buf(out, num, 1);
                     *out = '\0';
-                    putstr(out);
+                    putstr(buffer);
                     pn++;
                     break;
                 }
@@ -162,7 +162,7 @@ int vprintf(const char *fmt, va_list ap) {
                     *out++ = 'x';
                     out = print_hex_to_buf(out, num, 1);
                     *out = '\0';
-                    putstr(out);
+                    putstr(buffer);
                     pn++;
                     break;
                 }
