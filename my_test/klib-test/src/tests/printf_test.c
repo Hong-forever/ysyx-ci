@@ -26,6 +26,9 @@ char char_test_cases[] = {
 };
 
 void printf_test() {
+    for(int i=0; i<sizeof(int_test_cases)/sizeof(int_test_cases[0]); i++) {
+        printf("%d ", int_test_cases[i]);
+    }
     printf("\n");
 
     for(int i=0; i<sizeof(uint_test_cases)/sizeof(uint_test_cases[0]); i++) {

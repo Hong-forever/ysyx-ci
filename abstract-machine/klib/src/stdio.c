@@ -113,7 +113,7 @@ int vprintf(const char *fmt, va_list ap) {
                 case 'u': {
                     unsigned int num = va_arg(ap, unsigned int);
                     out = print_uint_to_buf(out, num);
-                    out = '\0';
+                    *out = '\0';
                     putstr(out);
                     putstr("a0 ");
                     pn++;
@@ -123,7 +123,7 @@ int vprintf(const char *fmt, va_list ap) {
                 case 'i': {
                     int num = va_arg(ap, int);
                     out = print_int_to_buf(out, num);
-                    out = '\0';
+                    *out = '\0';
                     putstr(out);
                     putstr("a1 ");
                     pn++;
@@ -146,7 +146,7 @@ int vprintf(const char *fmt, va_list ap) {
                 case 'x': {
                     unsigned int num = va_arg(ap, unsigned int);
                     out = print_hex_to_buf(out, num, 0);
-                    out = '\0';
+                    *out = '\0';
                     putstr(out);
                     putstr("a4 ");
                     pn++;
@@ -155,7 +155,7 @@ int vprintf(const char *fmt, va_list ap) {
                 case 'X': {
                     unsigned int num = va_arg(ap, unsigned int);
                     out = print_hex_to_buf(out, num, 1);
-                    out = '\0';
+                    *out = '\0';
                     putstr(out);
                     putstr("a5 ");
                     pn++;
@@ -167,7 +167,7 @@ int vprintf(const char *fmt, va_list ap) {
                     *out++ = '0';
                     *out++ = 'x';
                     out = print_hex_to_buf(out, num, 1);
-                    out = '\0';
+                    *out = '\0';
                     putstr(out);
                     putstr("a6 ");
                     pn++;
