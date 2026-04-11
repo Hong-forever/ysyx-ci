@@ -180,6 +180,7 @@ int vprintf(const char *fmt, va_list ap) {
             }
             fmt++;
         } else {
+            putch(*fmt);
             fmt++;
         }
     }
