@@ -115,6 +115,7 @@ int vprintf(const char *fmt, va_list ap) {
                     out = print_uint_to_buf(out, num);
                     out = '\0';
                     putstr(out);
+                    putstr("a0 ");
                     pn++;
                     break;
                 }
@@ -124,18 +125,21 @@ int vprintf(const char *fmt, va_list ap) {
                     out = print_int_to_buf(out, num);
                     out = '\0';
                     putstr(out);
+                    putstr("a1 ");
                     pn++;
                     break;
                 }
                 case 's': {
                     char *str = va_arg(ap, char *);
                     putstr(str);
+                    putstr("a2 ");
                     pn++;
                     break;
                 }
                 case 'c': {
                     int ch = va_arg(ap, int);
                     putch(ch);
+                    putstr("a3 ");
                     pn++;
                     break;
                 }
@@ -144,6 +148,7 @@ int vprintf(const char *fmt, va_list ap) {
                     out = print_hex_to_buf(out, num, 0);
                     out = '\0';
                     putstr(out);
+                    putstr("a4 ");
                     pn++;
                     break;
                 }
@@ -152,6 +157,7 @@ int vprintf(const char *fmt, va_list ap) {
                     out = print_hex_to_buf(out, num, 1);
                     out = '\0';
                     putstr(out);
+                    putstr("a5 ");
                     pn++;
                     break;
                 }
@@ -163,17 +169,20 @@ int vprintf(const char *fmt, va_list ap) {
                     out = print_hex_to_buf(out, num, 1);
                     out = '\0';
                     putstr(out);
+                    putstr("a6 ");
                     pn++;
                     break;
                 }
                 case '%': {
                     putch('%');
                     pn++;
+                    putstr("a7 ");
                     break;
                 }
                 default: {
                     putch('%');
                     putch(*fmt);
+                    putstr("a8 ");
                     pn++;
                     break;
                 }
@@ -181,6 +190,7 @@ int vprintf(const char *fmt, va_list ap) {
             fmt++;
         } else {
             putch(*fmt);
+                    putstr("a9 ");
             fmt++;
         }
     }
