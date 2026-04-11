@@ -10,7 +10,7 @@ typedef struct {
     word_t mtvec;
 } CSR_state;
 typedef struct {
-    word_t gpr[16];
+    word_t gpr[32];
     word_t pc;
     CSR_state csr;
 } CPU_state;
