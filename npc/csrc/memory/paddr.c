@@ -172,7 +172,7 @@ paddr_t host_to_guest(uint8_t *haddr) {
 
 static void out_of_bound(paddr_t addr, bool is_write) {
     PRINTF_RED("%s address = 0x%08x is out of bound of pmem [0x%08x, 0x%08x] with the size of 0x%08x\n", is_write?"Write":"Read", addr, PMEM_LEFT, PMEM_RIGHT, CONFIG_MSIZE);
-    // assert(0);
+    assert(0);
 }
 
 void init_mem() {
