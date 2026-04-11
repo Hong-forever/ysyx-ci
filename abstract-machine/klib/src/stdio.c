@@ -190,7 +190,7 @@ int vprintf(const char *fmt, va_list ap) {
             fmt++;
         } else {
             putch(*fmt);
-                    putstr("a9 ");
+            putstr("a9 ");
             fmt++;
         }
     }
