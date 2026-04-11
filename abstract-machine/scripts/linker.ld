@@ -27,7 +27,6 @@ SECTIONS {
     *(.scommon)
   }
   _heap_start = ALIGN(0x1000);
-  _stack_top = ALIGN(0x1000);
   . = _pmem_start + 0x08000000;
   _stack_pointer = .;
   end = .;
