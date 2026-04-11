@@ -5,7 +5,6 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-#define STRLEN 0x1000
 
 static char *print_int_to_buf(char *out, int num);
 static char *print_uint_to_buf(char *out, unsigned int num);
@@ -88,15 +87,110 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
     return out - origin_out;
 }
 
+int vprintf(const char *fmt, va_list ap) {
+
+    int pn = 0;
+    
+    while (*fmt) {
+
+        char buffer[32];
+
+        char *out = buffer;
+
+        if (*fmt == '%') {
+            fmt++;
+            
+            int field_width = 0;
+            
+            while (*fmt >= '0' && *fmt <= '9') {
+                field_width = field_width * 10 + (*fmt - '0');
+                fmt++;
+            }
+
+            if (*fmt == 'l') fmt++;
+            
+            switch (*fmt) {
+                case 'u': {
+                    unsigned int num = va_arg(ap, unsigned int);
+                    out = print_uint_to_buf(out, num);
+                    out = '\0';
+                    putstr(out);
+                    pn++;
+                    break;
+                }
+                case 'd': 
+                case 'i': {
+                    int num = va_arg(ap, int);
+                    out = print_int_to_buf(out, num);
+                    out = '\0';
+                    putstr(out);
+                    pn++;
+                    break;
+                }
+                case 's': {
+                    char *str = va_arg(ap, char *);
+                    putstr(str);
+                    pn++;
+                    break;
+                }
+                case 'c': {
+                    int ch = va_arg(ap, int);
+                    putch(ch);
+                    pn++;
+                    break;
+                }
+                case 'x': {
+                    unsigned int num = va_arg(ap, unsigned int);
+                    out = print_hex_to_buf(out, num, 0);
+                    out = '\0';
+                    putstr(out);
+                    pn++;
+                    break;
+                }
+                case 'X': {
+                    unsigned int num = va_arg(ap, unsigned int);
+                    out = print_hex_to_buf(out, num, 1);
+                    out = '\0';
+                    putstr(out);
+                    pn++;
+                    break;
+                }
+                case 'p': {
+                    void *ptr = va_arg(ap, void*);
+                    uintptr_t num = (uintptr_t)ptr;
+                    *out++ = '0';
+                    *out++ = 'x';
+                    out = print_hex_to_buf(out, num, 1);
+                    out = '\0';
+                    putstr(out);
+                    pn++;
+                    break;
+                }
+                case '%': {
+                    putch('%');
+                    pn++;
+                    break;
+                }
+                default: {
+                    putch('%');
+                    putch(*fmt);
+                    pn++;
+                    break;
+                }
+            }
+            fmt++;
+        }
+    }
+    
+    return pn;
+}
+
 int printf(const char *fmt, ...) {
     va_list ap;
-    char out[STRLEN] = {0};
 
     va_start(ap, fmt);
-    int ret = vsprintf(out, fmt, ap);
+    int ret = vprintf(fmt, ap);
     va_end(ap);
-
-    putstr(out);
 
     return ret;
 }
