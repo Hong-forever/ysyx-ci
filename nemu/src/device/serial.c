@@ -57,11 +57,11 @@ void __am_uart_cleanup() {
 void init_serial() {
   serial_base = new_space(8);
 
-  int serial_fd = open("/dev/ttyS0", O_RDWR | O_NONBLOCK);
-  if (serial_fd < 0) {
-    // 如果无法打开真实串口，可以使用伪终端
-    serial_fd = open("/dev/ptmx", O_RDWR | O_NONBLOCK);
-  }
+  int ret = fcntl(STDIN_FILENO, F_GETFL);
+  assert(ret != -1);
+  int flag = ret | O_NONBLOCK;
+  ret = fcntl(STDIN_FILENO, F_SETFL, flag);
+  assert(ret != -1);
 
   struct termios new_termios;
   tcgetattr(STDIN_FILENO, &orig_termios);
@@ -70,7 +70,7 @@ void init_serial() {
   new_termios = orig_termios;
   
   // 关闭规范模式，关闭回显等
-  new_termios.c_lflag &= ~(ICANON | ECHO);
+  // new_termios.c_lflag &= ~(ICANON | ECHO); //和sdb的read line冲突，暂且关闭
   
   tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
 
