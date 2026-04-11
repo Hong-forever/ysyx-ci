@@ -26,6 +26,7 @@ char char_test_cases[] = {
 };
 
 void printf_test() {
+    putstr("This function doesn't need newline.");
     for(int i=0; i<sizeof(int_test_cases)/sizeof(int_test_cases[0]); i++) {
         printf("%d ", int_test_cases[i]);
     }
