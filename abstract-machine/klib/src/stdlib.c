@@ -36,10 +36,9 @@ void *malloc(size_t size) {
     // Therefore do not call panic() here, else it will yield a dead recursion:
     //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 
-    static unsigned char *addr = NULL; 
     extern char _heap_start;
+    static unsigned char *addr = (unsigned char *)&_heap_start; 
     /* printf("_heap: %x\n", &_heap_start); */
-    if(addr == NULL) addr = (unsigned char *)&_heap_start;
 
     if(size == 0) return NULL;
 
